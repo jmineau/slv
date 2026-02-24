@@ -79,4 +79,4 @@ def get_pcap_events(time_range, threshold=4.04, min_periods=3, sounding_kwargs=N
 def filter_pcap_events(data: pd.Series | pd.DataFrame, level=None):
     time_range = (data.index.min(), data.index.max())
     events = get_pcap_events(time_range)
-    return lair.pcaps.filter_events(data, events, level=level)
+    return lair.pcaps.filter_pcap_events(data, events=events, level=level)

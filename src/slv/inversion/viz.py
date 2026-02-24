@@ -80,9 +80,18 @@ def plot_inventory(inventory, extent, tiler, zoom, subplot_kwargs={"figsize": (6
     ax.set_extent(extent, crs=PC)
     ax.add_image(tiler, zoom)
 
-    inventory.mean(dim="time").plot(ax=ax, transform=PC, add_colorbar=True, cmap="Reds")
+    inventory.mean(dim="time").plot(
+        ax=ax,
+        transform=PC,
+        add_colorbar=True,
+        cmap="Reds",
+        alpha=0.55,
+        cbar_kwargs={"label": "CH$_4$ Flux [umol/m$^2$/s]"},
+    )
 
     add_latlon_ticks(ax, extent, x_rotation=45)
+
+    ax.set(title="Prior Flux Inventory (mean over time)")
 
     return fig, ax
 
@@ -115,6 +124,7 @@ def plot_fluxes(
 
 def plot_fluxes_by_timestep(
     problem,
+    extent,
     tiler,
     zoom,
     add_sites=True,
@@ -125,7 +135,7 @@ def plot_fluxes_by_timestep(
 ):
     facet = (
         problem.posterior_fluxes.to_xarray()
-        .astyle(float)
+        .astype(float)
         .plot(
             col="time",
             col_wrap=8,
@@ -136,6 +146,7 @@ def plot_fluxes_by_timestep(
         )
     )
     for ax in facet.axes.flatten():
+        ax.set_extent(extent, crs=PC)
         ax.add_image(tiler, zoom)
         if add_point_sources:
             for ps_type, color in add_point_sources.items():
@@ -158,5 +169,7 @@ def plot_total_fluxes_over_time(*total_fluxes: pd.Series):
         ylabel="Total CH$_4$ Flux [g/s]",
     )
     fig.autofmt_xdate()
+
+    ax.legend()
 
     return fig, ax

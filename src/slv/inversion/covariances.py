@@ -13,18 +13,18 @@ from fips.kernels import (
 )
 
 
-def build_prior_error(prior_block, **kwargs) -> pd.DataFrame:
+def build_prior_error(prior, **kwargs) -> pd.DataFrame:
     """
     Builds the S_0 Kronecker covariance matrix for the SLV flux prior.
     """
     # Get configuration parameters for the prior covariance from kwargs, with defaults
-    base_std = kwargs.get("prior_base_std", 0.0)
-    std_frac = kwargs.get("prior_std_frac", 0.0)
-    time_scale = kwargs.get("prior_time_scale")
-    spatial_scale = kwargs.get("prior_spatial_scale")
+    base_std = kwargs.get("base_std", 0.0)
+    std_frac = kwargs.get("std_frac", 0.0)
+    time_scale = kwargs.get("time_scale")
+    spatial_scale = kwargs.get("spatial_scale")
 
     # Calculate dynamic variances proportional to the prior flux
-    variances = (base_std + std_frac * prior_block.data) ** 2
+    variances = (base_std + std_frac * prior.data) ** 2
 
     # 2. Define the Kronecker marginals using the strict grid kernels
     S_0 = KroneckerError(
@@ -40,7 +40,7 @@ def build_prior_error(prior_block, **kwargs) -> pd.DataFrame:
     )
 
     # Build and return aligned to the prior's MultiIndex
-    return S_0.build(prior_block.index)
+    return S_0.build(prior.index)
 
 
 def build_mdm_component(

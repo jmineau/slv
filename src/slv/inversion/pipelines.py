@@ -1,4 +1,5 @@
 import functools
+import time
 from pathlib import Path
 
 import matplotlib.pyplot as plt
@@ -73,7 +74,9 @@ class SLVMethaneInversion(FluxInversionPipeline):
                 name="concentration",
                 data=get_slv_observations(
                     sites=self.config.sites,
+                    site_config=self.config.site_config,
                     time_range=self.config.time_range,
+                    subset_hours=self.config.subset_hours_utc,
                     filter_pcaps=self.config.filter_pcaps,
                     num_processes=self.config.num_processes,
                 ),
@@ -85,16 +88,15 @@ class SLVMethaneInversion(FluxInversionPipeline):
         prior = get_slv_prior(
             prior=self.config.prior,
             out_grid=self.config.grid,
+            flux_times=self.config.flux_times,
             bbox=self.config.bbox,
-            extent=self.config.extent,
-            units=self.config.prior_units,
             **self.config.prior_kwargs,
         )
         return Vector(name="prior", data=Block(name="flux", data=prior))
 
     @fips_cache(ForwardOperator, "forward_operator")
     def get_forward_operator(self, obs: Vector, prior: Vector) -> ForwardOperator:
-        simulations = sorted(list(self.config.stilt_path.glob("out/by-id/*")))
+        simulations = sorted(list(Path(self.config.stilt_path).glob("out/by-id/*")))
         print(f"Found {len(simulations)} simulations")
 
         jacobian_builder = JacobianBuilder(simulations)
@@ -113,7 +115,7 @@ class SLVMethaneInversion(FluxInversionPipeline):
     @fips_cache(CovarianceMatrix, "prior_error")
     def get_prior_error(self, prior: Vector) -> CovarianceMatrix:
         S_0 = build_prior_error(
-            prior.data,
+            prior,
             base_std=self.config.prior_base_std,
             std_frac=self.config.prior_std_frac,
             time_scale=self.config.prior_time_scale,
@@ -142,20 +144,24 @@ class SLVMethaneInversion(FluxInversionPipeline):
         )
 
     @fips_cache(Vector, "constant")
-    def get_constant(self) -> Vector:
-        return Vector(
-            name="background",
-            data=Block(
-                name="concentration",
-                data=get_slv_background(
-                    sites=self.config.sites,
-                    time_range=self.config.time_range,
-                    baseline_window=self.config.bg_baseline_window,
-                    filter_pcaps=self.config.filter_pcaps,
-                    num_processes=self.config.num_processes,
-                ),
-            ),
+    def get_constant(self, obs: Vector) -> Vector:
+        data = get_slv_background(
+            sites=self.config.sites,
+            site_config=self.config.site_config,
+            time_range=self.config.time_range,
+            baseline_window=self.config.bg_baseline_window,
+            filter_pcaps=self.config.filter_pcaps,
+            num_processes=self.config.num_processes,
         )
+
+        # Duplicate obs for each location
+        data = (
+            obs.data.reset_index()
+            .join(data, on="obs_time", lsuffix="_obs")
+            .set_index(["obs_location", "obs_time"])["concentration"]
+        )
+
+        return Vector(name="background", data=Block(name="concentration", data=data))
 
     def aggregate_obs_space(
         self,
@@ -177,7 +183,6 @@ class SLVMethaneInversion(FluxInversionPipeline):
     def fluxes_as_inventory(self, fluxes: pd.Series) -> inventories.Inventory:
         """Converts a flux vector to an inventory format for easier analysis."""
         ds = fluxes.to_xarray().to_dataset()
-        ds = ds.rio.set_spatial_dims(x_dim="lon", y_dim="lat")
 
         time_step = {
             "a": "annual",
@@ -193,7 +198,11 @@ class SLVMethaneInversion(FluxInversionPipeline):
         inventory = self.fluxes_as_inventory(fluxes)
         if units:
             inventory = inventory.convert_units(units)
-        return inventory.absolute_emissions["flux"].sum(dim=("lat", "lon")).to_series()
+        return (
+            inventory.absolute_emissions[fluxes.name]
+            .sum(dim=("lat", "lon"))
+            .to_series()
+        )
 
     def plot_inputs(self, problem: FluxProblem):
         config = self.config
@@ -209,7 +218,7 @@ class SLVMethaneInversion(FluxInversionPipeline):
         )
 
         # --- Plot Concentrations ---
-        viz.plot_concentrations(problem.obs)
+        viz.plot_concentrations(problem.concentrations)
 
         # --- Plot Fluxes ---
         viz.plot_inventory(
@@ -246,26 +255,61 @@ class SLVMethaneInversion(FluxInversionPipeline):
 
         plt.show()
 
+    def plot_diagnostics(self, problem: FluxProblem):
+        config = self.config
+        # --- Plot Fluxes by Timestep ---
+        viz.plot_fluxes_by_timestep(
+            problem,
+            extent=config.map_extent,
+            tiler=config.tiler,
+            zoom=config.tiler_zoom,
+            add_sites=True,
+            sites=config.sites,
+            site_config=config.site_config,
+        )
+
+        plt.show()
+
     def run(self, **kwargs) -> FluxProblem:
+        total_start = time.perf_counter()
         print("Getting problem inputs...")
         inputs = self.get_inputs()
+        print(f"Inputs prepared in {time.perf_counter() - total_start:.2f}s")
 
         print("Initializing solver...")
+        step_start = time.perf_counter()
         self.problem = self._InverseProblem(
             **inputs,
             **kwargs,
         )
+        print(f"Solver initialized in {time.perf_counter() - step_start:.2f}s")
 
         if self.config.plot_inputs:
+            step_start = time.perf_counter()
             self.plot_inputs(self.problem)
+            print(f"Inputs plotted in {time.perf_counter() - step_start:.2f}s")
 
         print("Solving...")
+        step_start = time.perf_counter()
         self.problem.solve(estimator=self.estimator)
+        print(f"Solve completed in {time.perf_counter() - step_start:.2f}s")
 
         # Print summary report
+        print("Calculating summary...")
+        step_start = time.perf_counter()
         self.summarize()
+        print(f"Summary calculated in {time.perf_counter() - step_start:.2f}s")
 
         if self.config.plot_results:
+            step_start = time.perf_counter()
             self.plot_results(self.problem)
+            print(f"Results plotted in {time.perf_counter() - step_start:.2f}s")
+
+        if self.config.plot_diagnostics:
+            step_start = time.perf_counter()
+            self.plot_diagnostics(self.problem)
+            print(f"Diagnostics plotted in {time.perf_counter() - step_start:.2f}s")
+
+        print(f"Total pipeline time: {time.perf_counter() - total_start:.2f}s")
 
         return self.problem

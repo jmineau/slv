@@ -22,8 +22,8 @@ class MDMComponent:
 @dataclass
 class InversionConfig:
     # --- Space & Time ---
-    tstart = pd.Timestamp("2015-06-01")
-    tend = pd.Timestamp("2025-02-01")
+    tstart: pd.Timestamp | str = "2015-06-01"
+    tend: pd.Timestamp | str = "2025-02-01"
     flux_freq: str = "MS"
     utc_offset: int = UTC_OFFSET
 
@@ -51,7 +51,9 @@ class InversionConfig:
         False  # Whether to aggregate obs space ('1d' for daily, '12h' for 12-hourly, etc.)
     )
 
-    location_site_map = {"-111.847672_40.766189_35.0": "wbb"}
+    location_site_map: dict[str, str] = field(
+        default_factory=lambda: {"-111.847672_40.766189_35.0": "wbb"}
+    )
 
     # --- Prior ---
     prior: str = "epa"
@@ -96,11 +98,14 @@ class InversionConfig:
     # --- Plotting ---
     plot_inputs: bool = True
     plot_results: bool = True
+    plot_diagnostics: bool = False
 
-    output_units = "Gg/m2/s"
+    output_units: str = "Gg/m2/s"
 
-    tiler = GoogleTiles(style="satellite", cache=True)
-    tiler_zoom = 10
+    tiler: GoogleTiles = field(
+        default_factory=lambda: GoogleTiles(style="satellite", cache=True)
+    )
+    tiler_zoom: int = 10
 
     @property
     def bbox(self):
@@ -150,12 +155,13 @@ class InversionConfig:
 
     @property
     def time_range(self) -> tuple[pd.Timestamp, pd.Timestamp]:
-        return (self.tstart, self.tend)
+        return (pd.Timestamp(self.tstart), pd.Timestamp(self.tend))
 
     @property
     def flux_time_bins(self):
         """Generates time bins for flux estimation based on the time range and flux frequency."""
-        return pd.interval_range(start=self.tstart, end=self.tend, freq=self.flux_freq)
+        t0, t1 = self.time_range
+        return pd.interval_range(start=t0, end=t1, freq=self.flux_freq, closed="left")
 
     @property
     def flux_times(self) -> pd.DatetimeIndex:

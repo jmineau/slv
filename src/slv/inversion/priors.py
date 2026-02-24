@@ -3,22 +3,30 @@ import xesmf as xe
 from lair import inventories
 
 
-def get_slv_prior(prior: str, out_grid, bbox=None, extent=None, units=None, **kwargs):
+def get_slv_prior(prior: str, out_grid, flux_times, bbox=None, extent=None, **kwargs):
+    units = "umol/m2/s"  # Must match jacobian (STILT)
     if prior.lower() == "epa":
-        return load_epa_inventory(
+        return load_epa_prior(
             out_grid=out_grid,
+            flux_times=flux_times,
             bbox=bbox,
             extent=extent,
             units=units,
             return_regridder=False,
             **kwargs,
-        ).to_series()
+        )
     else:
         raise ValueError(f"Unsupported prior: {prior}")
 
 
-def load_epa_inventory(
-    out_grid, bbox=None, extent=None, units=None, express=False, return_regridder=False
+def load_epa_prior(
+    out_grid,
+    flux_times,
+    bbox=None,
+    extent=None,
+    units=None,
+    express=False,
+    return_regridder=False,
 ):
     if not express:
         # Load inventories
@@ -71,6 +79,16 @@ def load_epa_inventory(
     inventory.name = "flux"  # Rename emissions
     inventory.attrs["units"] = total.attrs["units"]
 
+    if express:
+        # Forward fill months with annual value
+        prior = (
+            inventory.sel(time="2020")
+            .reindex(time=flux_times, method="nearest")
+            .to_series()
+        )
+    else:
+        prior = inventory.reindex(time=flux_times, method="nearest").to_series()
+
     if return_regridder:
-        return inventory, regridder
-    return inventory
+        return prior, regridder
+    return prior

@@ -1,11 +1,12 @@
 import pandas as pd
 from lair.background import rolling_baseline
 
-from slv.inversion.data import load_site_data
+from slv.inversion.data import load_concentrations
 
 
 def get_slv_background(
     sites: list[str],
+    site_config: pd.DataFrame,
     time_range: tuple,
     num_processes: int = 1,
     filter_pcaps: bool = True,
@@ -13,12 +14,15 @@ def get_slv_background(
     min_periods: int = 1,
 ) -> pd.Series:
     """Fetches background by applying a rolling baseline to the raw data."""
-    df = load_site_data(
+    data = load_concentrations(
         sites=sites,
+        site_config=site_config,
         time_range=time_range,
         num_processes=num_processes,
         filter_pcaps=filter_pcaps,
+        subset_hours=None,
     )
+    df = data.unstack(level="obs_location")
 
     bg_dict = {}
     for site in df.columns:

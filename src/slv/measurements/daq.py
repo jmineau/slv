@@ -4,8 +4,6 @@ import pandas as pd
 
 from slv import get_data_dir
 
-sites = ["bv", "ed", "hw", "rb", "ut", "zz"]
-
 
 def load_picarro_g2307(
     site: str, lvl: str, time_range=None, data_dir: Path | None = None
