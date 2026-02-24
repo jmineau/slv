@@ -1,5 +1,6 @@
 from dataclasses import dataclass, field
 from functools import cached_property
+from pathlib import Path
 
 import pandas as pd
 from cartopy.io.img_tiles import GoogleTiles
@@ -83,6 +84,10 @@ class InversionConfig:
     # --- Inversion Solver Settings ---
     min_obs_per_interval: int = 60
     min_sims_per_interval: int = 70
+
+    # --- Cache ---
+    # False/None = no caching, True = cache in cwd, str/Path = cache in that directory
+    cache: bool | str | Path = False
 
     # --- Compute ---
     num_processes: int = 8

@@ -24,16 +24,16 @@ classifiers = [
 dependencies = [
     "cartopy",
     "geopandas",
-    # "lair",
+    # "lair @ git+ssh://git@github.com/jmineau/lair",
     "matplotlib",
     "pandas",
-    # "uataq",
+    # "uataq @ git+ssh://git@github.com/jmineau/uataq",
     "xarray",
 ]
 
 [project.optional-dependencies]
 inversion = [
-    # "fips",
+    # "fips[flux] @ git+ssh://git@github.com/jmineau/fips",
     "xesmf",
 ]
 dev = [

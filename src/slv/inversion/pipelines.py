@@ -1,3 +1,6 @@
+import functools
+from pathlib import Path
+
 import matplotlib.pyplot as plt
 import pandas as pd
 from fips import Block, CovarianceMatrix, ForwardOperator, Vector
@@ -14,9 +17,54 @@ from slv.inversion.data import get_slv_observations
 from slv.inversion.priors import get_slv_prior
 
 
+def fips_cache(cls, filename):
+    """Cache decorator for pipeline methods that return fips objects.
+
+    Parameters
+    ----------
+    cls :
+        The fips class to use for ``cls.from_file`` / ``result.to_file``.
+    filename :
+        Stem of the cache file (e.g. ``"obs"`` → ``obs.pkl``).
+
+    Reads ``self.config.cache`` to determine caching behaviour:
+
+    * ``False`` / ``None`` — no caching (default)
+    * ``True``             — cache in the current working directory
+    * ``str`` / ``Path``  — cache in the given directory
+    """
+
+    def decorator(method):
+        @functools.wraps(method)
+        def wrapper(self, *args, **kwargs):
+            cache = getattr(self.config, "cache", False)
+            if not cache:
+                return method(self, *args, **kwargs)
+
+            cache_dir = Path.cwd() if cache is True else Path(cache)
+            path = cache_dir / f"{filename}.pkl"
+
+            if path.exists():
+                print(f"Loading cached {filename} from {path}")
+                return cls.from_file(path)
+
+            result = method(self, *args, **kwargs)
+
+            cache_dir.mkdir(parents=True, exist_ok=True)
+            print(f"Saving {filename} to {path}")
+            result.to_file(path)
+
+            return result
+
+        return wrapper
+
+    return decorator
+
+
 class SLVMethaneInversion(FluxInversionPipeline):
     """SLV-specific implementation of the flux inversion pipeline."""
 
+    @fips_cache(Vector, "obs")
     def get_obs(self) -> Vector:
         """Passes just the obs attributes to the pure obs function."""
         return Vector(
@@ -32,7 +80,8 @@ class SLVMethaneInversion(FluxInversionPipeline):
             ),
         )
 
-    def get_prior(self):
+    @fips_cache(Vector, "prior")
+    def get_prior(self) -> Vector:
         prior = get_slv_prior(
             prior=self.config.prior,
             out_grid=self.config.grid,
@@ -43,6 +92,7 @@ class SLVMethaneInversion(FluxInversionPipeline):
         )
         return Vector(name="prior", data=Block(name="flux", data=prior))
 
+    @fips_cache(ForwardOperator, "forward_operator")
     def get_forward_operator(self, obs: Vector, prior: Vector) -> ForwardOperator:
         simulations = sorted(list(self.config.stilt_path.glob("out/by-id/*")))
         print(f"Found {len(simulations)} simulations")
@@ -60,7 +110,8 @@ class SLVMethaneInversion(FluxInversionPipeline):
         )
         return ForwardOperator(jacobian)
 
-    def get_prior_error(self, prior: Vector):
+    @fips_cache(CovarianceMatrix, "prior_error")
+    def get_prior_error(self, prior: Vector) -> CovarianceMatrix:
         S_0 = build_prior_error(
             prior.data,
             base_std=self.config.prior_base_std,
@@ -70,6 +121,7 @@ class SLVMethaneInversion(FluxInversionPipeline):
         )
         return CovarianceMatrix(name="prior_error", data=S_0)
 
+    @fips_cache(CovarianceMatrix, "modeldata_mismatch")
     def get_modeldata_mismatch(self, obs: Vector) -> CovarianceMatrix:
         components = []
         for comp in self.config.mdm_components:
@@ -89,7 +141,8 @@ class SLVMethaneInversion(FluxInversionPipeline):
             data=CovarianceBuilder(components).build(obs.index),
         )
 
-    def get_constant(self):
+    @fips_cache(Vector, "constant")
+    def get_constant(self) -> Vector:
         return Vector(
             name="background",
             data=Block(
