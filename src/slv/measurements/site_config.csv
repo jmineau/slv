@@ -1,0 +1,14 @@
+stid,name,organization,type,active,latitude,longitude,height_agl,instruments
+arc,NOAA ARC Van,NOAA ARC,mobile,FALSE,NA,NA,NA,NA
+bv,Bountiful #2,DAQ,stationary,TRUE,40.902945,-111.884505,4,picarro_g2307
+ed,Erda,DAQ,stationary,TRUE,40.600565,-112.355782,4,picarro_g2307
+hdp,Hidden Peak,UATAQ,stationary,FALSE,40.560644,-111.645278,15,lgr_ugga
+hw,Hawthorne,DAQ,stationary,TRUE,40.734367,-111.872221,4,picarro_g2307
+ldf,SLV Landfill,UATAQ,stationary,FALSE,40.748783,-112.033941,2,lgr_ugga
+rb,Red Butte,DAQ,stationary,TRUE,40.766528,-111.82835,4,picarro_g2307
+trx01,TRAX 1136,UATAQ,mobile,TRUE,NA,NA,5,lgr_ugga lgr_ugga_manual_cal
+ut,Utah Division of Air Quality,DAQ,stationary,TRUE,40.777028,-111.945852,4,picarro_g2307
+uta,Wendover,NOAA GML,flask,TRUE,39.9018,-113.7181,NA,NA
+wbb,William Browning Building,UATAQ,stationary,TRUE,40.766189,-111.847672,35,lgr_ugga
+wyo,Wyoming Mobile Lab,UWY,mobile,FALSE,NA,NA,3,aeris
+zz,Utah State Correctional Facility,DAQ,stationary,TRUE,40.80793,-112.087772,4,picarro_g2307
