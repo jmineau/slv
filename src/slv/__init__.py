@@ -20,7 +20,7 @@ def get_data_dir(env_var: str) -> Path:
     """
     value = os.environ.get(env_var)
     if value is None:
-        raise EnvironmentError(
+        raise OSError(
             f"Environment variable '{env_var}' is not set. "
             f"Please set it to the appropriate data directory before using this feature."
         )

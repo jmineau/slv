@@ -8,15 +8,14 @@ TRAX, sites, etc.) onto it.
 
 import cartopy.crs as ccrs
 import geopandas as gpd
-from matplotlib import pyplot as plt
+import matplotlib.collections as mcol
 import matplotlib.patches as patches
 import matplotlib.patheffects as pe
-import matplotlib.collections as mcol
-from matplotlib.lines import Line2D
 import numpy as np
 import pandas as pd
-
-from lair.geo import bbox2extent, add_latlon_ticks, add_extent_map
+from lair.geo import add_extent_map, add_latlon_ticks, bbox2extent
+from matplotlib import pyplot as plt
+from matplotlib.lines import Line2D
 
 from slv import get_data_dir
 from slv.domain import MAP_BBOX
@@ -51,42 +50,71 @@ class SaltLake:
     add_extent_map()
         Add an extent map to the map.
     """
-    def __init__(self, bounds=MAP_BBOX,
-                 ax=None, crs=None, figsize=(6, 6),
-                 tiler=None, tiler_zoom=9,
-                 Inventory=False,  Inventory_cmap=None,
-                 census=False,  # options for pop density, income, etc
-                 background_alpha=0.3,
-                 state_borders=False, county_borders=False,
-                 interstates=False,
-                 TRAX=False, UUCON=False,
-                 MesoWest=False, Meso_status='active', Meso_networks=['UUNET'],
-                 radiosonde=False, helicopter=False, DAQ=False,
-                 scale_bar=False, north_arrow=False,
-                 legend=True, legend_kws=None, legend_mapper=None,  # TODO
-                 extent_map=False,  # TODO
-                 latlon_ticks=True, more_lon_ticks=1, more_lat_ticks=0):
 
+    def __init__(
+        self,
+        bounds=MAP_BBOX,
+        ax=None,
+        crs=None,
+        figsize=(6, 6),
+        tiler=None,
+        tiler_zoom=9,
+        Inventory=False,
+        Inventory_cmap=None,
+        census=False,  # options for pop density, income, etc
+        background_alpha=0.3,
+        state_borders=False,
+        county_borders=False,
+        interstates=False,
+        TRAX=False,
+        UUCON=False,
+        MesoWest=False,
+        Meso_status="active",
+        Meso_networks=["UUNET"],
+        radiosonde=False,
+        helicopter=False,
+        DAQ=False,
+        scale_bar=False,
+        north_arrow=False,
+        legend=True,
+        legend_kws=None,
+        legend_mapper=None,  # TODO
+        extent_map=False,  # TODO
+        latlon_ticks=True,
+        more_lon_ticks=1,
+        more_lat_ticks=0,
+    ):
         self.features = []
 
-        self._map_background(bounds, ax, crs, figsize,
-                             tiler, tiler_zoom,
-                             Inventory, census, background_alpha,
-                             state_borders, county_borders,
-                             latlon_ticks, more_lon_ticks, more_lat_ticks)
+        self._map_background(
+            bounds,
+            ax,
+            crs,
+            figsize,
+            tiler,
+            tiler_zoom,
+            Inventory,
+            census,
+            background_alpha,
+            state_borders,
+            county_borders,
+            latlon_ticks,
+            more_lon_ticks,
+            more_lat_ticks,
+        )
 
         if interstates:
             self.add_interstates()
 
         if TRAX:
             if TRAX is True:
-                TRAX = ['r', 'g']
+                TRAX = ["r", "g"]
             self.TRAX_lines = TRAX  # save attr for legend
             self.add_TRAX(TRAX)
 
         if UUCON:
             if UUCON is True:
-                UUCON = 'active'
+                UUCON = "active"
             self.add_UUCON(UUCON)
 
         if MesoWest:
@@ -114,8 +142,8 @@ class SaltLake:
             self.add_extent_map()
 
     def __repr__(self):  # TODO
-        background = {'crs': self.crs}
-        return f'SaltLakeValley(features={self.features})'
+        background = {"crs": self.crs}
+        return f"SaltLakeValley(features={self.features})"
 
     def collect_feature(add_func):
         def wrapper(self, *args, **kwargs):
@@ -124,15 +152,25 @@ class SaltLake:
 
         return wrapper
 
-    def _map_background(self, bounds, ax, crs, figsize,
-                        tiler, tiler_zoom,
-                        Inventory, census, background_alpha,
-                        state_borders, county_borders,
-                        latlon_ticks, more_lon_ticks, more_lat_ticks):
-
+    def _map_background(
+        self,
+        bounds,
+        ax,
+        crs,
+        figsize,
+        tiler,
+        tiler_zoom,
+        Inventory,
+        census,
+        background_alpha,
+        state_borders,
+        county_borders,
+        latlon_ticks,
+        more_lon_ticks,
+        more_lat_ticks,
+    ):
         # Matplotlib axes
         if not ax:  # if an ax is not given
-
             if bool(crs) & bool(tiler):
                 # Need to use the tiler's crs
                 raise ValueError("crs & tiler cannot both be supplied!")
@@ -144,12 +182,11 @@ class SaltLake:
                 else:  # otherwise use PlateCaree (lat/lon)
                     crs = ccrs.PlateCarree()
 
-            fig, ax = plt.subplots(subplot_kw={'projection': crs},
-                                   figsize=figsize)
+            fig, ax = plt.subplots(subplot_kw={"projection": crs}, figsize=figsize)
 
         elif bool(ax) & bool(crs):
             # ax has already been createdd, too late for a crs
-            raise ValueError('ax & crs cannot both be supplied!')
+            raise ValueError("ax & crs cannot both be supplied!")
 
         # Set attributes here so adding methods can use them
         self.ax = ax
@@ -176,23 +213,27 @@ class SaltLake:
 
         # Geopandas vector boundaries
         if state_borders:
-            self.add_border('state')
+            self.add_border("state")
 
         if county_borders:
-            self.add_border('county')
+            self.add_border("county")
 
         # Format lat and lon ticks
         if latlon_ticks:
-            add_latlon_ticks(ax, self.extent, x_rotation=30,
-                             more_lon_ticks=more_lon_ticks,
-                             more_lat_ticks=more_lat_ticks)
-            ax.tick_params(axis='both', which='major', labelsize=15)
+            add_latlon_ticks(
+                ax,
+                self.extent,
+                x_rotation=30,
+                more_lon_ticks=more_lon_ticks,
+                more_lat_ticks=more_lat_ticks,
+            )
+            ax.tick_params(axis="both", which="major", labelsize=15)
 
         return None
 
     @collect_feature
     def add_tiler(self, tiler, tiler_zoom):
-        style_template = '{source}:{style}'
+        style_template = "{source}:{style}"
 
         def get_tiler(style):
             # TODO
@@ -203,8 +244,7 @@ class SaltLake:
             tiler = get_tiler(style)
         else:
             source = tiler.__class__.__name__
-            style = style_template.format(source=source,
-                                          style=tiler.style)
+            style = style_template.format(source=source, style=tiler.style)
 
         self.ax.add_image(tiler, tiler_zoom, zorder=0)
 
@@ -225,65 +265,90 @@ class SaltLake:
         def thous_formatter(x, pos):
             if x == 0:
                 return str(x)
-            return f'{x}k'
+            return f"{x}k"
 
-        if census == 'population':
+        if census == "population":
             # http://doi.org/10.18128/D050.V17.0
 
-            file = DATA_DIR / 'census' / 'block_groups' / 'utah_2020_pop.geojson'
+            file = DATA_DIR / "census" / "block_groups" / "utah_2020_pop.geojson"
             gdf = gpd.read_file(file)
 
             crs = ccrs.AlbersEqualArea()
             gdf.to_crs(crs, inplace=True)
 
-            gdf['pop_km2_thous'] = gdf.pop_km2 / 1000
+            gdf["pop_km2_thous"] = gdf.pop_km2 / 1000
             gdf[gdf.pop_km2_thous < 0.1] = np.nan
 
             ax_pos = self.ax.get_position()
 
-            cax = self.ax.get_figure().add_axes([ax_pos.x0 + 0.015,
-                                                 ax_pos.y0 + 0.016,
-                                                 0.03, 0.3], zorder=1.1)
+            cax = self.ax.get_figure().add_axes(
+                [ax_pos.x0 + 0.015, ax_pos.y0 + 0.016, 0.03, 0.3], zorder=1.1
+            )
 
-            cax_frame = patches.Rectangle((ax_pos.x0 + 0.005,
-                                           ax_pos.y0 + 0.003), 0.13, 0.33,
-                                          edgecolor='black', facecolor='white',
-                                          zorder=1.05, alpha=1,
-                                          transform=self.ax.figure.transFigure)
+            cax_frame = patches.Rectangle(
+                (ax_pos.x0 + 0.005, ax_pos.y0 + 0.003),
+                0.13,
+                0.33,
+                edgecolor="black",
+                facecolor="white",
+                zorder=1.05,
+                alpha=1,
+                transform=self.ax.figure.transFigure,
+            )
             self.ax.add_patch(cax_frame)
 
-            gdf.plot(ax=self.ax, column='pop_km2_thous', transform=crs,
-                     cmap='pink_r', alpha=alpha, vmin=0, vmax=4, zorder=1,
-                     lw=0.5, edgecolor='None', legend=True, cax=cax,
-                     legend_kwds={'label': 'Population km$^{-2}$',
-                                  'ticks': [0, 1, 2, 3, 4],
-                                  'format': thous_formatter})
+            gdf.plot(
+                ax=self.ax,
+                column="pop_km2_thous",
+                transform=crs,
+                cmap="pink_r",
+                alpha=alpha,
+                vmin=0,
+                vmax=4,
+                zorder=1,
+                lw=0.5,
+                edgecolor="None",
+                legend=True,
+                cax=cax,
+                legend_kwds={
+                    "label": "Population km$^{-2}$",
+                    "ticks": [0, 1, 2, 3, 4],
+                    "format": thous_formatter,
+                },
+            )
 
         else:
-            raise NotImplementedError(f'Census data {census} not implemented!')
+            raise NotImplementedError(f"Census data {census} not implemented!")
 
         return census
 
     @collect_feature
     def add_border(self, lvl):
         DATA_DIR = get_data_dir("SLV_DATA_DIR")
-        borders_dir = DATA_DIR / 'Utah_boundaries'
-        lvl_file = {'state': borders_dir / 'Utah.shp',
-                    'county': borders_dir / 'Counties.shp'}
+        borders_dir = DATA_DIR / "Utah_boundaries"
+        lvl_file = {
+            "state": borders_dir / "Utah.shp",
+            "county": borders_dir / "Counties.shp",
+        }
 
         border = gpd.read_file(lvl_file[lvl], bbox=self.bounds)
         # border.set_crs(epsg=4326, inplace=True)
 
-        border.plot(ax=self.ax, transform=ccrs.PlateCarree(),
-                    facecolor='none', edgecolor='black', zorder=2)
+        border.plot(
+            ax=self.ax,
+            transform=ccrs.PlateCarree(),
+            facecolor="none",
+            edgecolor="black",
+            zorder=2,
+        )
 
-        return f'{lvl} borders'
+        return f"{lvl} borders"
 
     @collect_feature
     def add_interstates(self):
         # FIXME interstates not plotting
         DATA_DIR = get_data_dir("SLV_DATA_DIR")
-        file = DATA_DIR / 'Utah_boundaries' / 'Roads.shp'
+        file = DATA_DIR / "Utah_boundaries" / "Roads.shp"
 
         roads = gpd.read_file(file, bbox=self.bounds)
 
@@ -292,13 +357,13 @@ class SaltLake:
         roads = roads[roads.CARTOCODE.isin(major_roads)]
 
         roads.plot(ax=self.ax)
-        return 'interstates'
+        return "interstates"
 
     @collect_feature
     def add_TRAX(self, lines):
         # TODO: requires a read_kml utility — previously from utils.records, needs a new home
-        raise NotImplementedError('add_TRAX is not yet implemented in slv.basemap')
-        return 'TRAX'
+        raise NotImplementedError("add_TRAX is not yet implemented in slv.basemap")
+        return "TRAX"
 
     @collect_feature
     def add_UUCON(self, sites):
@@ -306,19 +371,19 @@ class SaltLake:
 
         uucon.plot_sites(self.ax, sites, zorder=5, markersize=200, lw=3)
 
-        return 'UUCON'
+        return "UUCON"
 
     @collect_feature
-    def add_MesoWest(self, status='active', networks=['UUNET']):
+    def add_MesoWest(self, status="active", networks=["UUNET"]):
         # TODO create MesoWest module
         DATA_DIR = get_data_dir("SLV_DATA_DIR")
-        file = DATA_DIR / 'MesoWest' / 'MesoWest_Utah_stations_20221017.csv'
+        file = DATA_DIR / "MesoWest" / "MesoWest_Utah_stations_20221017.csv"
 
         # Read MesoWest data
         df = pd.read_csv(file)
-        stations = gpd.GeoDataFrame(df,
-                                    geometry=gpd.points_from_xy(df.Longitude,
-                                                                df.Latitude))
+        stations = gpd.GeoDataFrame(
+            df, geometry=gpd.points_from_xy(df.Longitude, df.Latitude)
+        )
         # stations.set_crs(epsg=4326, inplace=True)  # changes figsize
 
         # Filter MesoWest data
@@ -329,28 +394,29 @@ class SaltLake:
             stations = stations[stations.Mesonet.isin(networks)]
 
         # Add to axis
-        stations.plot(ax=self.ax, transform=ccrs.PlateCarree(), c='black',
-                      zorder=6, marker='x')
+        stations.plot(
+            ax=self.ax, transform=ccrs.PlateCarree(), c="black", zorder=6, marker="x"
+        )
 
-        return 'MesoWest'
+        return "MesoWest"
 
     @collect_feature
     def add_radiosonde(self):
         # TODO
-        raise ValueError('radiosonde not implemented!')
-        return 'radiosonde'
+        raise ValueError("radiosonde not implemented!")
+        return "radiosonde"
 
     @collect_feature
     def add_helicopter(self):
         # TODO
-        raise ValueError('helicopter not implemented!')
-        return 'helicopter'
+        raise ValueError("helicopter not implemented!")
+        return "helicopter"
 
     @collect_feature
     def add_DAQ(self):
         # TODO
-        raise ValueError('DAQ not implemented!')
-        return 'DAQ'
+        raise ValueError("DAQ not implemented!")
+        return "DAQ"
 
     @collect_feature
     def add_scale_bar(self):
@@ -359,20 +425,27 @@ class SaltLake:
         # Check: https://github.com/SciTools/cartopy/issues/490
 
         # Otherwise: https://stackoverflow.com/questions/32333870/how-can-i-show-a-km-ruler-on-a-cartopy-matplotlib-plot
-        raise ValueError('scale bar not implemented!')
-        return 'scale bar'
+        raise ValueError("scale bar not implemented!")
+        return "scale bar"
 
     @collect_feature
     def add_north_arrow(self):
         # TODO
         #   add path_effects=buffer
-        north_arrow = u'\u25B2\nN'
+        north_arrow = "\u25b2\nN"
 
-        self.ax.text(0.965, 0.06, north_arrow, transform=self.ax.transAxes,
-                     fontsize=16, ha='center', va='center', zorder=8,
-                     path_effects=[pe.withStroke(linewidth=3,
-                                                 foreground='white')])
-        return 'north arrow'
+        self.ax.text(
+            0.965,
+            0.06,
+            north_arrow,
+            transform=self.ax.transAxes,
+            fontsize=16,
+            ha="center",
+            va="center",
+            zorder=8,
+            path_effects=[pe.withStroke(linewidth=3, foreground="white")],
+        )
+        return "north arrow"
 
     @collect_feature
     def add_legend(self, legend_kws, legend_mapper):
@@ -381,25 +454,42 @@ class SaltLake:
         def TRAX_legend():
             line = [[(0, 0)]]
 
-            lc = mcol.LineCollection(len(self.TRAX_lines) * line,
-                                     colors=self.TRAX_lines, linewidth=4)
+            lc = mcol.LineCollection(
+                len(self.TRAX_lines) * line, colors=self.TRAX_lines, linewidth=4
+            )
 
             return lc
 
         def UUCON_legend():
-            handle = Line2D([0], [0], marker='o', color='black', markersize=13,
-                            markerfacecolor='None', linestyle='None',
-                            markeredgewidth=2.8)
+            handle = Line2D(
+                [0],
+                [0],
+                marker="o",
+                color="black",
+                markersize=13,
+                markerfacecolor="None",
+                linestyle="None",
+                markeredgewidth=2.8,
+            )
             return handle
 
         def MesoWest_legend():
-            handle = Line2D([0], [0], marker='x', color='black', markersize=8,
-                            linestyle='None', markeredgewidth=1.5)
+            handle = Line2D(
+                [0],
+                [0],
+                marker="x",
+                color="black",
+                markersize=8,
+                linestyle="None",
+                markeredgewidth=1.5,
+            )
             return handle
 
-        legend_features = {'TRAX': TRAX_legend,
-                           'UUCON': UUCON_legend,
-                           'MesoWest': MesoWest_legend}
+        legend_features = {
+            "TRAX": TRAX_legend,
+            "UUCON": UUCON_legend,
+            "MesoWest": MesoWest_legend,
+        }
 
         handles, labels = [], []
         for label, handle in legend_features.items():
@@ -414,10 +504,16 @@ class SaltLake:
                 label = legend_mapper.get(label, label)
             labels.append(label)
 
-        self.ax.legend(handles, labels, loc='upper left',
-                       handlelength=2.5, handleheight=3, labelspacing=0.1)
+        self.ax.legend(
+            handles,
+            labels,
+            loc="upper left",
+            handlelength=2.5,
+            handleheight=3,
+            labelspacing=0.1,
+        )
 
-        return 'legend'
+        return "legend"
 
     @collect_feature
     def add_extent_map(self):
@@ -427,6 +523,14 @@ class SaltLake:
         extent_map_proj = ccrs.AlbersEqualArea(central_longitude=-111)
         extent_map_rect = [0.65, 0.67, 0.2, 0.2]
 
-        extent_map_ax = add_extent_map(fig, self.extent, ccrs.PlateCarree(),
-                                       extent_map_rect, extent_map_extent,
-                                       extent_map_proj, 'red', 3, zorder=8)
+        extent_map_ax = add_extent_map(
+            fig,
+            self.extent,
+            ccrs.PlateCarree(),
+            extent_map_rect,
+            extent_map_extent,
+            extent_map_proj,
+            "red",
+            3,
+            zorder=8,
+        )

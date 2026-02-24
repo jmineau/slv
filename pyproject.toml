@@ -24,16 +24,16 @@ classifiers = [
 dependencies = [
     "cartopy",
     "geopandas",
-    "lair",
+    # "lair",
     "matplotlib",
     "pandas",
-    "uataq",
+    # "uataq",
     "xarray",
 ]
 
 [project.optional-dependencies]
 inversion = [
-    "fips",
+    # "fips",
     "xesmf",
 ]
 dev = [

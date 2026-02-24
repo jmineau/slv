@@ -1,6 +1,16 @@
 import pandas as pd
-from fips.covariance import BlockDecayError, DiagonalError, ErrorComponent, KroneckerError
-from fips.kernels import GridTimeDecay, GridSpatialDecay, RaggedTimeDecay, ConstantCorrelation
+from fips.covariance import (
+    BlockDecayError,
+    DiagonalError,
+    ErrorComponent,
+    KroneckerError,
+)
+from fips.kernels import (
+    ConstantCorrelation,
+    GridSpatialDecay,
+    GridTimeDecay,
+    RaggedTimeDecay,
+)
 
 
 def build_prior_error(prior_block, **kwargs) -> pd.DataFrame:
@@ -10,35 +20,43 @@ def build_prior_error(prior_block, **kwargs) -> pd.DataFrame:
     # Get configuration parameters for the prior covariance from kwargs, with defaults
     base_std = kwargs.get("prior_base_std", 0.0)
     std_frac = kwargs.get("prior_std_frac", 0.0)
-    time_scale = kwargs.get("prior_time_scale", None)
-    spatial_scale = kwargs.get("prior_spatial_scale", None)
-    
+    time_scale = kwargs.get("prior_time_scale")
+    spatial_scale = kwargs.get("prior_spatial_scale")
+
     # Calculate dynamic variances proportional to the prior flux
     variances = (base_std + std_frac * prior_block.data) ** 2
-    
+
     # 2. Define the Kronecker marginals using the strict grid kernels
     S_0 = KroneckerError(
         name="prior_error",
         variances=variances,
         marginal_kernels=[
             ("time", GridTimeDecay(scale=time_scale)),
-            (["lat", "lon"], GridSpatialDecay(
-                lat_dim="lat", lon_dim="lon", scale=spatial_scale
-            ))
-        ]
+            (
+                ["lat", "lon"],
+                GridSpatialDecay(lat_dim="lat", lon_dim="lon", scale=spatial_scale),
+            ),
+        ],
     )
-    
+
     # Build and return aligned to the prior's MultiIndex
     return S_0.build(prior_block.index)
 
 
-def build_mdm_component(name, obs_index, std, correlated=True, scale=None, 
-                    interday=False, time_dim='obs_time') -> ErrorComponent:
+def build_mdm_component(
+    name,
+    obs_index,
+    std,
+    correlated=True,
+    scale=None,
+    interday=False,
+    time_dim="obs_time",
+) -> ErrorComponent:
     """
     Unified builder for Model-Data Mismatch covariance components.
     """
     # Covariance components expect variance, so square the standard deviation
-    variances = std ** 2
+    variances = std**2
 
     # Uncorrelated errors (diagonal)
     if not correlated:
@@ -61,8 +79,5 @@ def build_mdm_component(name, obs_index, std, correlated=True, scale=None,
         groupers.append(obs_index.get_level_values(time_dim).date)
 
     return BlockDecayError(
-        name=name, 
-        variances=variances, 
-        groupers=groupers, 
-        corr_func=corr_func
+        name=name, variances=variances, groupers=groupers, corr_func=corr_func
     )
