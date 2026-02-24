@@ -83,6 +83,17 @@ class InversionConfig:
         ]
     )
 
+    # --- Bias ---
+    bias: pd.Series | None = (
+        None  # Prior bias values (e.g. one per site or time period)
+    )
+    bias_error: pd.Series | pd.DataFrame | float | None = (
+        None  # Bias prior error covariance
+    )
+    bias_jacobian: pd.DataFrame | float = (
+        1.0  # Jacobian mapping bias states → concentrations
+    )
+
     # --- Inversion Solver Settings ---
     min_obs_per_interval: int = 60
     min_sims_per_interval: int = 70
