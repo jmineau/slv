@@ -84,15 +84,11 @@ class InversionConfig:
     )
 
     # --- Bias ---
-    bias: pd.Series | None = (
-        None  # Prior bias values (e.g. one per site or time period)
-    )
-    bias_error: pd.Series | pd.DataFrame | float | None = (
-        None  # Bias prior error covariance
-    )
-    bias_jacobian: pd.DataFrame | float = (
-        1.0  # Jacobian mapping bias states → concentrations
-    )
+    # Set bias_std to enable the bias block.  The default get_bias() builds one
+    # bias state per flux_time interval (all initialised to 0.0).
+    # Override SLVMethaneInversionWithBias.get_bias() for a custom index.
+    bias_std: float | None = None  # Prior std-dev for each bias state (None = disabled)
+    bias_jacobian: pd.DataFrame | float = 1.0  # Jacobian mapping bias states → concentrations
 
     # --- Inversion Solver Settings ---
     min_obs_per_interval: int = 60

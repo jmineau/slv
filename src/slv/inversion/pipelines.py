@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from fips import Block, CovarianceMatrix, ForwardOperator, MatrixBlock, Vector
 from fips.aggregators import ObsAggregator
-from fips.covariance import CovarianceBuilder
+from fips.covariance import CovarianceBuilder, DiagonalError
 from fips.problems.flux import FluxInversionPipeline, JacobianBuilder
 from fips.problems.flux.problem import FluxProblem
 from lair import inventories
@@ -322,18 +322,35 @@ class SLVMethaneInversionWithBias(SLVMethaneInversion):
     correction term, allowing systematic offsets (e.g., per-site or per-period
     background biases) to be jointly estimated alongside fluxes.
 
-    Requires ``config.bias`` and ``config.bias_error`` to be set.
+    Requires ``config.bias_std`` to be set.
+    Override ``get_bias()`` for a custom bias index or initial values.
     ``config.bias_jacobian`` defaults to ``1.0`` (scalar identity mapping).
     """
+
+    def get_bias(self) -> pd.Series:
+        """Build the bias prior as a zero-valued Series indexed by ``config.flux_times``.
+
+        Override this method in a subclass to use a custom index (e.g.,
+        per-site x per-interval) or non-zero initial values.  The returned
+        Series must have a named index so it can form a well-labelled
+        ``Block``.
+        """
+        return pd.Series(
+            0.0,
+            index=pd.Index(self.config.flux_times, name="time"),
+            name="bias",
+        )
 
     def get_prior(self) -> Vector:
         """Returns a multi-block prior Vector: [flux, bias]."""
         flux_prior = super().get_prior()
-        bias_blk = Block(self.config.bias, name="bias")
+        bias_blk = Block(self.get_bias(), name="bias")
         return Vector(name="prior", data=[flux_prior.blocks["flux"], bias_blk])
 
     def get_forward_operator(self, obs: Vector, prior: Vector) -> ForwardOperator:
-        """Returns a multi-block ForwardOperator: [flux_jac, bias_jac]."""
+        """Returns a multi-block ForwardOperator: [flux_jac | bias_jac].
+        """
+        
         # Build flux jacobian; parent doesn't actually use prior values, only grid coords
         flux_only_prior = Vector(prior.blocks["flux"])
         fo = super().get_forward_operator(obs, flux_only_prior)
@@ -347,7 +364,7 @@ class SLVMethaneInversionWithBias(SLVMethaneInversion):
                 "concentration",
                 "bias",
                 name="bias_jacobian",
-                index=fo.data.index,
+                index=obs["concentration"].index,
                 columns=bias_prior_index,
             )
         else:
@@ -359,8 +376,10 @@ class SLVMethaneInversionWithBias(SLVMethaneInversion):
     def get_prior_error(self, prior: Vector) -> CovarianceMatrix:
         """Returns a multi-block prior error CovarianceMatrix: [flux_err, bias_err]."""
         flux_err = super().get_prior_error(Vector(prior.blocks["flux"]))
-
         flux_err_blk = flux_err.blocks["flux", "flux"]
-        bias_err_blk = MatrixBlock(self.config.bias_error, "bias", "bias")
+
+        bias_index = prior["bias"].index
+        bias_err = DiagonalError(name="bias_error", variances=self.config.bias_std ** 2).build(bias_index)
+        bias_err_blk = MatrixBlock(bias_err, "bias", "bias")
 
         return CovarianceMatrix(name="prior_error", data=[flux_err_blk, bias_err_blk])
