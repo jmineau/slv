@@ -167,7 +167,7 @@ class SLVMethaneInversion(FluxInversionPipeline):
         self,
         obs: Vector,
         forward_operator: ForwardOperator,
-        modeldata_mistmatch: CovarianceMatrix,
+        modeldata_mismatch: CovarianceMatrix,
         constant: Vector | None,
     ) -> tuple[Vector, ForwardOperator, CovarianceMatrix, Vector | None]:
         """Aggregates the observation space if specified in the config."""
@@ -175,10 +175,10 @@ class SLVMethaneInversion(FluxInversionPipeline):
             aggregator = ObsAggregator(
                 level="obs_time", freq=self.config.aggregate_obs, blocks="concentration"
             )
-            obs, forward_operator, modeldata_mistmatch, constant = aggregator.apply(
-                obs, forward_operator, modeldata_mistmatch, constant
+            obs, forward_operator, modeldata_mismatch, constant = aggregator.apply(
+                obs, forward_operator, modeldata_mismatch, constant
             )
-        return obs, forward_operator, modeldata_mistmatch, constant
+        return obs, forward_operator, modeldata_mismatch, constant
 
     def fluxes_as_inventory(self, fluxes: pd.Series) -> inventories.Inventory:
         """Converts a flux vector to an inventory format for easier analysis."""
