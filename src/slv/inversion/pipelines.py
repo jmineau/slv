@@ -163,9 +163,7 @@ class SLVMethaneInversion(FluxInversionPipeline):
 
         return Vector(name="background", data=Block(name="concentration", data=data))
 
-    def filter_state_space(
-        self, obs: Vector, prior: Vector
-    ) -> tuple[Vector, Vector]:
+    def filter_state_space(self, obs: Vector, prior: Vector) -> tuple[Vector, Vector]:
         """Trim obs and prior to ``config.time_range``, then run interval filter.
 
         This ensures that objects loaded from a wide-range cache are sliced
@@ -374,9 +372,8 @@ class SLVMethaneInversionWithBias(SLVMethaneInversion):
         return Vector(name="prior", data=[flux_prior.blocks["flux"], bias_blk])
 
     def get_forward_operator(self, obs: Vector, prior: Vector) -> ForwardOperator:
-        """Returns a multi-block ForwardOperator: [flux_jac | bias_jac].
-        """
-        
+        """Returns a multi-block ForwardOperator: [flux_jac | bias_jac]."""
+
         # Build flux jacobian; parent doesn't actually use prior values, only grid coords
         flux_only_prior = Vector(prior.blocks["flux"])
         fo = super().get_forward_operator(obs, flux_only_prior)
@@ -405,7 +402,9 @@ class SLVMethaneInversionWithBias(SLVMethaneInversion):
         flux_err_blk = flux_err.blocks["flux", "flux"]
 
         bias_index = prior["bias"].index
-        bias_err = DiagonalError(name="bias_error", variances=self.config.bias_std ** 2).build(bias_index)
+        bias_err = DiagonalError(
+            name="bias_error", variances=self.config.bias_std**2
+        ).build(bias_index)
         bias_err_blk = MatrixBlock(bias_err, "bias", "bias")
 
         return CovarianceMatrix(name="prior_error", data=[flux_err_blk, bias_err_blk])

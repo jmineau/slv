@@ -88,7 +88,9 @@ class InversionConfig:
     # bias state per flux_time interval (all initialised to 0.0).
     # Override SLVMethaneInversionWithBias.get_bias() for a custom index.
     bias_std: float | None = None  # Prior std-dev for each bias state (None = disabled)
-    bias_jacobian: pd.DataFrame | float = 1.0  # Jacobian mapping bias states → concentrations
+    bias_jacobian: pd.DataFrame | float = (
+        1.0  # Jacobian mapping bias states → concentrations
+    )
 
     # --- Inversion Solver Settings ---
     min_obs_per_interval: int = 60
