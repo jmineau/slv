@@ -163,6 +163,32 @@ class SLVMethaneInversion(FluxInversionPipeline):
 
         return Vector(name="background", data=Block(name="concentration", data=data))
 
+    def filter_state_space(
+        self, obs: Vector, prior: Vector
+    ) -> tuple[Vector, Vector]:
+        """Trim obs and prior to ``config.time_range``, then run interval filter.
+
+        This ensures that objects loaded from a wide-range cache are sliced
+        down to the current run's time window before any downstream builders
+        (forward operator, covariances) see them.
+        """
+        tstart, tend = self.config.time_range
+
+        # --- Filter obs by obs_time ---
+        obs_series = obs.to_series()
+        obs_times = obs_series.index.get_level_values("obs_time")
+        obs_series = obs_series[(obs_times >= tstart) & (obs_times < tend)]
+        obs = Vector(obs_series, name=obs.name)
+
+        # --- Filter prior by time ---
+        prior_series = prior.to_series()
+        prior_times = prior_series.index.get_level_values("time")
+        prior_series = prior_series[(prior_times >= tstart) & (prior_times < tend)]
+        prior = Vector(prior_series, name=prior.name)
+
+        # Delegate min-obs / min-sims interval filtering to FluxInversionPipeline
+        return super().filter_state_space(obs, prior)
+
     def aggregate_obs_space(
         self,
         obs: Vector,
