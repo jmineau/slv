@@ -84,6 +84,8 @@ exclude_also = [
 [tool.pyright]
 include = ["src"]
 exclude = ["**/__pycache__", "**/.venv"]
+venvPath = "."
+venv = ".venv"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

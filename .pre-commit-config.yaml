@@ -24,4 +24,3 @@ repos:
     rev: v1.1.406
     hooks:
       - id: pyright
-        language: system  # Use the active conda/venv so pyright can resolve numpy, pandas, etc.
