@@ -1,4 +1,6 @@
 import functools
+import hashlib
+import json
 import time
 from pathlib import Path
 
@@ -17,22 +19,115 @@ from slv.inversion.covariances import build_mdm_error, build_prior_error
 from slv.inversion.data import get_slv_observations
 from slv.inversion.priors import get_slv_prior
 
+# ---------------------------------------------------------------------------
+# Component dependency sets: maps each cache component to the InversionConfig fields
+# that actually affect that component's output.  Used to compute content-addressed
+# cache paths so that only truly-stale components are recomputed when parameters
+# change.
+# ---------------------------------------------------------------------------
+_OBS_DEPS: frozenset[str] = frozenset(
+    {
+        "tstart",
+        "tend",
+        "sites",
+        "filter_pcaps",
+        "afternoon_hours_local",
+        "utc_offset",
+    }
+)
+_PRIOR_DEPS: frozenset[str] = frozenset(
+    {
+        "prior",
+        "prior_kwargs",
+        "dx",
+        "dy",
+        "xmin",
+        "xmax",
+        "ymin",
+        "ymax",
+        "flux_freq",
+        "tstart",
+        "tend",
+    }
+)
+
+#: Default mapping of pipeline component → config fields that affect it.
+#: Subclasses may override ``COMPONENT_DEPS`` to add extra dependencies
+#: (e.g. ``SLVMethaneInversionWithBias`` adds ``"bias_std"`` to ``"prior_error"``).
+DEFAULT_COMPONENT_DEPS: dict[str, frozenset[str]] = {
+    "obs": _OBS_DEPS,
+    "prior": _PRIOR_DEPS,
+    "forward_operator": _OBS_DEPS
+    | _PRIOR_DEPS
+    | {
+        "stilt_path",
+        "sparse_jacobian",
+        "num_processes",
+        "timeout",
+    },
+    "prior_error": _PRIOR_DEPS
+    | {
+        "prior_base_std",
+        "prior_std_frac",
+        "prior_time_scale",
+        "prior_spatial_scale",
+    },
+    "modeldata_mismatch": _OBS_DEPS | {"mdm_config"},
+    "constant": _OBS_DEPS | {"bg_baseline_window", "bg_min_periods"},
+}
+
+
+def _json_default(v):
+    """Fallback JSON serializer: converts non-primitive types to strings."""
+    if isinstance(v, (list, tuple)):
+        return [_json_default(i) for i in v]
+    if isinstance(v, dict):
+        return {k: _json_default(vv) for k, vv in sorted(v.items())}
+    if isinstance(v, (str, int, float, bool, type(None))):
+        return v
+    return str(v)
+
+
+def _component_hash(config, fields: frozenset[str]) -> str:
+    """Return the first 12 hex chars of sha256 over the given config fields."""
+    data = {f: _json_default(getattr(config, f)) for f in sorted(fields)}
+    serialized = json.dumps(data, sort_keys=True)
+    return hashlib.sha256(serialized.encode()).hexdigest()[:12]
+
 
 def fips_cache(cls, filename):
-    """Cache decorator for pipeline methods that return fips objects.
+    """Content-addressed cache decorator for pipeline methods.
 
     Parameters
     ----------
     cls :
         The fips class to use for ``cls.from_file`` / ``result.to_file``.
     filename :
-        Stem of the cache file (e.g. ``"obs"`` → ``obs.pkl``).
+        Stage name / cache stem (e.g. ``"obs"``, ``"prior_error"``).
 
-    Reads ``self.config.cache`` to determine caching behaviour:
+    Cache layout
+    ------------
+    Files are stored under ``{cache_dir}/{component}/{hash}.pkl`` where ``hash``
+    is derived only from the config fields that actually affect that component
+    (see ``COMPONENT_DEPS``).  This means:
+
+    * Changing ``prior_base_std`` reuses ``obs.pkl`` and ``forward_operator.pkl``
+      untouched, and only regenerates ``prior_error.pkl``.
+    * Configs that share the same upstream parameters share the same files —
+      no manual cache wiping is needed.
+
+    ``config.cache`` controls caching:
 
     * ``False`` / ``None`` — no caching (default)
     * ``True``             — cache in the current working directory
-    * ``str`` / ``Path``  — cache in the given directory
+    * ``str`` / ``Path``  — cache in that directory
+
+    ``config.cache_overwrite`` controls forced recomputation:
+
+    * ``[]``        — never overwrite (default)
+    * ``"all"``     — overwrite every component
+    * ``[component, …]`` — overwrite specific components (all hashes for that component
+      are deleted and the component is recomputed fresh)
     """
 
     def decorator(method):
@@ -51,19 +146,39 @@ def fips_cache(cls, filename):
                 should_overwrite = filename in set(overwrite)
 
             cache_dir = Path.cwd() if cache is True else Path(cache)
-            path = cache_dir / f"{filename}.pkl"
+
+            # --- Content-addressed path ---
+            component_deps = getattr(self, "COMPONENT_DEPS", DEFAULT_COMPONENT_DEPS)
+            fields = component_deps.get(filename)
+            if fields:
+                h = _component_hash(self.config, fields)
+                component_dir = cache_dir / filename
+                path = component_dir / f"{h}.pkl"
+            else:
+                # Fallback: flat file for components not listed in COMPONENT_DEPS
+                component_dir = cache_dir
+                path = cache_dir / f"{filename}.pkl"
 
             if path.exists() and not should_overwrite:
-                print(f"Loading cached {filename} from {path}")
+                print(
+                    f"Loading cached {filename} [{h if fields else 'flat'}] from {path}"
+                )
                 return cls.from_file(path)
 
-            if path.exists() and should_overwrite:
-                print(f"Overwriting cached {filename} at {path}")
+            if should_overwrite and fields and component_dir.exists():
+                # Remove all stale hashes for this component before recomputing
+                stale = list(component_dir.glob("*.pkl"))
+                for s in stale:
+                    s.unlink()
+                if stale:
+                    print(
+                        f"Cleared {len(stale)} stale cache file(s) for component '{filename}'"
+                    )
 
             result = method(self, *args, **kwargs)
 
-            cache_dir.mkdir(parents=True, exist_ok=True)
-            print(f"Saving {filename} to {path}")
+            component_dir.mkdir(parents=True, exist_ok=True)
+            print(f"Saving {filename} [{h if fields else 'flat'}] to {path}")
             result.to_file(path)
 
             return result
@@ -75,6 +190,10 @@ def fips_cache(cls, filename):
 
 class SLVMethaneInversion(FluxInversionPipeline):
     """SLV-specific implementation of the flux inversion pipeline."""
+
+    #: Maps each cache component to the InversionConfig fields it depends on.
+    #: Inherit and extend in subclasses to declare additional dependencies.
+    COMPONENT_DEPS: dict[str, frozenset[str]] = DEFAULT_COMPONENT_DEPS
 
     @fips_cache(Vector, "obs")
     def get_obs(self) -> Vector:
@@ -341,6 +460,10 @@ class SLVMethaneInversion(FluxInversionPipeline):
 
         return self.problem
 
+    def get_site_group(self, site: str) -> str:
+        """Map site to organization group."""
+        return self.config.site_config.organization.to_dict().get(site, "unknown")
+
 
 class SLVMethaneInversionWithBias(SLVMethaneInversion):
     """SLV methane inversion pipeline with an additional background bias block.
@@ -352,19 +475,17 @@ class SLVMethaneInversionWithBias(SLVMethaneInversion):
     Requires ``config.bias_std`` to be set.
     Override ``get_bias()`` for a custom bias index or initial values.
     Override ``get_bias_jacobian()`` for a custom forward mapping.
+
+    Notes
+    -----
+    ``COMPONENT_DEPS`` is extended to include ``bias_std`` in the ``prior_error``
+    component so the cache invalidates correctly when the bias prior changes.
     """
 
-    def _get_site_group(self, site: str) -> str:
-        """Map site to organization group (UATAQ or DAQ)."""
-        if site not in self.config.site_config.index:
-            return "unknown"
-        org = self.config.site_config.loc[site, "organization"]
-        if org == "UATAQ":
-            return "UATAQ"
-        elif org == "DAQ":
-            return "DAQ"
-        else:
-            return "other"
+    COMPONENT_DEPS: dict[str, frozenset[str]] = {
+        **DEFAULT_COMPONENT_DEPS,
+        "prior_error": DEFAULT_COMPONENT_DEPS["prior_error"] | {"bias_std"},
+    }
 
     def get_bias(self) -> pd.Series:
         """Build the bias prior as a zero-valued Series indexed by ``config.flux_times``.
@@ -473,7 +594,7 @@ class SLVMethaneInversionWithSiteGroupBias(SLVMethaneInversionWithBias):
         obs_sites = obs_locs.map(
             lambda loc: self.config.location_site_map.get(loc, "unknown")
         )
-        obs_site_groups = obs_sites.map(self._get_site_group)
+        obs_site_groups = obs_sites.map(self.get_site_group)
 
         # Bin obs times into flux intervals
         obs_times = obs_index.get_level_values("obs_time")
