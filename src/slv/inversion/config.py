@@ -102,6 +102,9 @@ class InversionConfig:
     # --- Cache ---
     # False/None = no caching, True = cache in cwd, str/Path = cache in that directory
     cache: bool | str | Path = False
+    # Recompute cached outputs by stem (e.g. ["obs", "prior_error"]).
+    # Set to "all" to recompute every cached output.
+    cache_overwrite: str | list[str] = field(default_factory=list)
 
     # --- Compute ---
     num_processes: int = 8

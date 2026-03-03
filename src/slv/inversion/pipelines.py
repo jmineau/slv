@@ -42,12 +42,23 @@ def fips_cache(cls, filename):
             if not cache:
                 return method(self, *args, **kwargs)
 
+            overwrite = getattr(self.config, "cache_overwrite", [])
+            if overwrite == "all":
+                should_overwrite = True
+            elif isinstance(overwrite, str):
+                should_overwrite = filename == overwrite
+            else:
+                should_overwrite = filename in set(overwrite)
+
             cache_dir = Path.cwd() if cache is True else Path(cache)
             path = cache_dir / f"{filename}.pkl"
 
-            if path.exists():
+            if path.exists() and not should_overwrite:
                 print(f"Loading cached {filename} from {path}")
                 return cls.from_file(path)
+
+            if path.exists() and should_overwrite:
+                print(f"Overwriting cached {filename} at {path}")
 
             result = method(self, *args, **kwargs)
 
