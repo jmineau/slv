@@ -9,14 +9,24 @@ from lair.geo import generate_regular_grid, write_rio_crs
 from slv.domain import UTC_OFFSET, XMAX, XMIN, YMAX, YMIN
 from slv.measurements.sites import load_site_config
 
+# Default MDM component parameters
+DEFAULT_MDM_CONFIG = {
+    "part": {"std": 0.00047, "correlated": False},
+    "instr_wbb": {"std": 0.0033, "correlated": False},
+    "aggr": {"std": 0.06, "scale": None, "interday": False},
+    "bg": {"std": 0.011, "scale": "7d", "interday": True},
+    "transport_wind": {"std": 0.01, "scale": "2.8h", "interday": False},
+    "transport_pbl": {"std": 0.15, "scale": "2.8h", "interday": False},
+}
 
-@dataclass
-class MDMComponent:
-    name: str
-    std: float
-    correlated: bool = True
-    scale: str | float | None = None
-    interday: bool = False
+
+def get_mdm_comp_configs(config: dict) -> list[dict]:
+    """Build MDM components list from config dict, merging with defaults."""
+    merged_components = []
+    for name, default_params in DEFAULT_MDM_CONFIG.items():
+        params = {**default_params, **(config.get(name, {}))}
+        merged_components.append({"name": name, **params})
+    return merged_components
 
 
 @dataclass
@@ -72,16 +82,12 @@ class InversionConfig:
     prior_spatial_scale: float = 5.0
 
     # --- Model-Data Mismatch (S_z) ---
-    mdm_components: list[MDMComponent] = field(
-        default_factory=lambda: [
-            MDMComponent(name="part", std=0.00047, correlated=False),
-            MDMComponent(name="instr_wbb", std=0.0033, correlated=False),
-            MDMComponent(name="aggr", std=0.06, scale=None, interday=False),
-            MDMComponent(name="bg", std=0.011, scale="7d", interday=True),
-            MDMComponent(name="transport_wind", std=0.01, scale="2.8h", interday=False),
-            MDMComponent(name="transport_pbl", std=0.15, scale="2.8h", interday=False),
-        ]
-    )
+    mdm_config: dict = field(default_factory=dict)
+
+    @cached_property
+    def mdm_components(self) -> list[dict]:
+        """Build MDM components from config (merges with defaults)."""
+        return get_mdm_comp_configs(self.mdm_config)
 
     # --- Bias ---
     # Set bias_std to enable the bias block.  The default get_bias() builds one

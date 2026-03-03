@@ -13,7 +13,7 @@ from lair import inventories
 
 from slv.inversion import viz
 from slv.inversion.background import get_slv_background
-from slv.inversion.covariances import build_mdm_component, build_prior_error
+from slv.inversion.covariances import build_mdm_error, build_prior_error
 from slv.inversion.data import get_slv_observations
 from slv.inversion.priors import get_slv_prior
 
@@ -125,18 +125,10 @@ class SLVMethaneInversion(FluxInversionPipeline):
 
     @fips_cache(CovarianceMatrix, "modeldata_mismatch")
     def get_modeldata_mismatch(self, obs: Vector) -> CovarianceMatrix:
-        components = []
-        for comp in self.config.mdm_components:
-            components.append(
-                build_mdm_component(
-                    name=comp.name,
-                    obs_index=obs.index,
-                    std=comp.std,
-                    correlated=comp.correlated,
-                    scale=comp.scale,
-                    interday=comp.interday,
-                )
-            )
+        components = [
+            build_mdm_error(obs_index=obs.index, **comp)
+            for comp in self.config.mdm_components
+        ]
 
         return CovarianceMatrix(
             name="modeldata_mismatch",

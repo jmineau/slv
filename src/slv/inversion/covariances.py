@@ -43,7 +43,7 @@ def build_prior_error(prior, **kwargs) -> pd.DataFrame:
     return S_0.build(prior.index)
 
 
-def build_mdm_component(
+def build_mdm_error(
     name,
     obs_index,
     std,
