@@ -17,19 +17,21 @@ jobs:
     steps:
     - uses: actions/checkout@v5
 
+    - name: Install uv
+      uses: astral-sh/setup-uv@v4
+      with:
+        enable-cache: true
+
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v6
       with:
         python-version: ${{ matrix.python-version }}
 
     - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -e ".[dev]"
+      run: uv sync --group dev --python ${{ matrix.python-version }}
 
     - name: Run tests with pytest
-      run: |
-        pytest -v --cov=slv --junitxml=junit.xml -o junit_family=legacy
+      run: uv run --python ${{ matrix.python-version }} pytest -v --cov=slv --junitxml=junit.xml -o junit_family=legacy
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v5

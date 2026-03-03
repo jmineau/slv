@@ -13,26 +13,26 @@ jobs:
     steps:
     - uses: actions/checkout@v5
 
+    - name: Install uv
+      uses: astral-sh/setup-uv@v4
+      with:
+        enable-cache: true
+
     - name: Set up Python
       uses: actions/setup-python@v6
       with:
         python-version: '3.10'
 
     - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -e ".[dev]"
+      run: uv sync --group dev
 
     - name: Lint with ruff
-      run: |
-        ruff check --output-format=github src/slv
+      run: uv run ruff check --output-format=github src/slv
 
     - name: Type checking with pyright
       if: ${{ !cancelled() }}
-      run: |
-        pyright src/slv
+      run: uv run pyright src/slv
 
     - name: Check docstring coverage
       if: ${{ !cancelled() }}
-      run: |
-        docstr-coverage src/slv --skip-magic --skip-init
+      run: uv run docstr-coverage src/slv --skip-magic --skip-init
