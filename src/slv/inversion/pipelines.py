@@ -348,7 +348,7 @@ class SLVMethaneInversionWithBias(SLVMethaneInversion):
 
     Requires ``config.bias_std`` to be set.
     Override ``get_bias()`` for a custom bias index or initial values.
-    ``config.bias_jacobian`` defaults to ``1.0`` (scalar identity mapping).
+    Override ``get_bias_jacobian()`` for a custom forward mapping.
     """
 
     def get_bias(self) -> pd.Series:
@@ -371,29 +371,38 @@ class SLVMethaneInversionWithBias(SLVMethaneInversion):
         bias_blk = Block(self.get_bias(), name="bias")
         return Vector(name="prior", data=[flux_prior.blocks["flux"], bias_blk])
 
+    def get_bias_jacobian(self, obs: Vector, prior: Vector) -> pd.DataFrame:
+        """Build the obs × bias Jacobian via interval assignment.
+
+        Each row (obs) gets a 1.0 in the column whose flux interval contains
+        that observation's ``obs_time``, and 0.0 everywhere else.  This is the
+        correct default for a temporally-indexed bias block.
+
+        Override for a custom mapping (e.g. per-site weighting).
+        """
+        obs_index = obs["concentration"].index
+        bias_index = prior["bias"].index
+        obs_times = obs_index.get_level_values("obs_time")
+
+        # Bin each obs_time into its flux interval, then one-hot encode
+        cut = pd.cut(obs_times, bins=self.config.flux_time_bins)
+        jac = pd.get_dummies(cut, dtype=float)
+        jac.columns = jac.columns.map(lambda iv: iv.left)
+        jac.index = obs_index
+
+        # Align to bias index (handles any time-range trimming)
+        return jac.reindex(columns=bias_index, fill_value=0.0)
+
     def get_forward_operator(self, obs: Vector, prior: Vector) -> ForwardOperator:
         """Returns a multi-block ForwardOperator: [flux_jac | bias_jac]."""
-
-        # Build flux jacobian; parent doesn't actually use prior values, only grid coords
         flux_only_prior = Vector(prior.blocks["flux"])
         fo = super().get_forward_operator(obs, flux_only_prior)
 
-        bias_prior_index = prior["bias"].index
-        bias_jacobian = self.config.bias_jacobian
-
-        if isinstance(bias_jacobian, (float, int)):
-            bias_jac_blk = MatrixBlock(
-                bias_jacobian,
-                "concentration",
-                "bias",
-                name="bias_jacobian",
-                index=obs["concentration"].index,
-                columns=bias_prior_index,
-            )
-        else:
-            bias_jac_blk = MatrixBlock(bias_jacobian, "concentration", "bias")
-
         flux_jac_blk = fo.blocks["concentration", "flux"]
+        bias_jac_blk = MatrixBlock(
+            self.get_bias_jacobian(obs, prior), "concentration", "bias"
+        )
+
         return ForwardOperator([flux_jac_blk, bias_jac_blk])
 
     def get_prior_error(self, prior: Vector) -> CovarianceMatrix:
