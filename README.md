@@ -14,12 +14,31 @@ Salt Lake Valley python modules
 
 ## Installation
 
-### From Source
+### Standard (uv or pip)
 
 ```bash
 git clone https://github.com/jmineau/slv.git
 cd slv
-pip install -e .
+uv sync  # or: pip install -e .
+```
+
+To include the inversion module:
+
+```bash
+uv sync --extra inversion  # or: pip install -e ".[inversion]"
+```
+
+### With `xesmf` (inversion + regridding)
+
+`xesmf` requires a pre-built ESMF library and must be installed via conda-forge
+alongside the rest of the environment:
+
+```bash
+git clone https://github.com/jmineau/slv.git
+cd slv
+conda env create -f ci/environment.yml
+conda activate slv
+pip install --no-deps -e .
 ```
 
 ## Usage

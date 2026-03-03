@@ -1,0 +1,36 @@
+name: slv
+
+channels:
+  - conda-forge
+  - nodefaults
+
+dependencies:
+  # python version is injected from the workflow matrix: python=${{ matrix.python-version }}
+  - python
+  - esmpy>=8.4
+  - xesmf
+
+  # slv core deps available on conda-forge
+  - cartopy
+  - geopandas
+  - matplotlib
+  - pandas
+  - siphon>=0.10.0
+  - xarray
+
+  # test / dev / docs / quality deps
+  - pytest>=7.0.0
+  - pytest-cov>=4.0.0
+  - pydata-sphinx-theme>=0.14.0
+  - sphinx>=7.0.0
+  - sphinx-autodoc-typehints>=1.24.0
+  - pyright>=1.1.0
+  - ruff>=0.1.0
+  - docstr-coverage>=2.0.0
+
+  - pip
+  - pip:
+      # git-only deps not on conda-forge
+      - fips[flux] @ git+https://github.com/jmineau/fips
+      - lair[science] @ git+https://github.com/jmineau/lair
+      - uataq @ git+https://github.com/jmineau/uataq

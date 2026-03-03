@@ -19,21 +19,21 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -l {0}
     steps:
       - uses: actions/checkout@v5
 
-      - name: Install uv
-        uses: astral-sh/setup-uv@v4
+      - name: Create conda environment
+        uses: mamba-org/setup-micromamba@v2
         with:
-          enable-cache: true
+          cache-downloads: true
+          micromamba-version: "latest"
+          environment-file: ci/environment.yml
 
-      - name: Set up Python
-        uses: actions/setup-python@v6
-        with:
-          python-version: '3.10'
-
-      - name: Install dependencies
-        run: uv sync --group dev
+      - name: Install slv (editable)
+        run: pip install --no-deps -e .
 
       - name: Setup just
         uses: extractions/setup-just@v3

@@ -9,30 +9,30 @@ on:
 jobs:
   quality-check:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -l {0}
 
     steps:
     - uses: actions/checkout@v5
 
-    - name: Install uv
-      uses: astral-sh/setup-uv@v4
+    - name: Create conda environment
+      uses: mamba-org/setup-micromamba@v2
       with:
-        enable-cache: true
+        cache-downloads: true
+        micromamba-version: "latest"
+        environment-file: ci/environment.yml
 
-    - name: Set up Python
-      uses: actions/setup-python@v6
-      with:
-        python-version: '3.10'
-
-    - name: Install dependencies
-      run: uv sync --group dev
+    - name: Install slv (editable)
+      run: pip install --no-deps -e .
 
     - name: Lint with ruff
-      run: uv run ruff check --output-format=github src/slv
+      run: ruff check --output-format=github src/slv
 
     - name: Type checking with pyright
       if: ${{ !cancelled() }}
-      run: uv run pyright src/slv
+      run: pyright src/slv
 
     - name: Check docstring coverage
       if: ${{ !cancelled() }}
-      run: uv run docstr-coverage src/slv --skip-magic --skip-init
+      run: docstr-coverage src/slv --skip-magic --skip-init

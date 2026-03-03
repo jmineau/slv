@@ -27,6 +27,7 @@ dependencies = [
     "lair[science] @ git+https://github.com/jmineau/lair",
     "matplotlib",
     "pandas",
+    "siphon>=0.10.0",
     "uataq @ git+https://github.com/jmineau/uataq",
     "xarray",
 ]
@@ -34,7 +35,7 @@ dependencies = [
 [project.optional-dependencies]
 inversion = [
     "fips[flux] @ git+https://github.com/jmineau/fips",
-    "xesmf",
+    # "xesmf",
 ]
 
 [dependency-groups]

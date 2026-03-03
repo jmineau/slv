@@ -1,5 +1,4 @@
 import xarray as xr
-import xesmf as xe
 from lair import inventories
 
 
@@ -73,6 +72,8 @@ def load_epa_prior(
         total = inventories.sum_sectors(express.data)
 
     # Regrid
+    import xesmf as xe  # conda-forge only; lazy to avoid import-time failure
+
     regridder = xe.Regridder(total, out_grid, method="conservative")
     inventory: xr.Dataset = regridder(total)
 

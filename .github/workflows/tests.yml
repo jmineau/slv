@@ -8,39 +8,41 @@ on:
 
 jobs:
   test:
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash -l {0}
     strategy:
+      fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-        python-version: ['3.10', '3.11', '3.12']
+        python-version: ["3.11", "3.12"]
 
     steps:
     - uses: actions/checkout@v5
 
-    - name: Install uv
-      uses: astral-sh/setup-uv@v4
+    - name: Create conda environment
+      uses: mamba-org/setup-micromamba@v2
       with:
-        enable-cache: true
+        cache-downloads: true
+        micromamba-version: "latest"
+        environment-file: ci/environment.yml
+        create-args: >-
+          python=${{ matrix.python-version }}
 
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v6
-      with:
-        python-version: ${{ matrix.python-version }}
-
-    - name: Install dependencies
-      run: uv sync --group dev --python ${{ matrix.python-version }}
+    - name: Install slv (editable)
+      run: pip install --no-deps -e .
 
     - name: Run tests with pytest
-      run: uv run --python ${{ matrix.python-version }} pytest -v --cov=slv --junitxml=junit.xml -o junit_family=legacy
+      run: pytest -v --cov=slv --junitxml=junit.xml -o junit_family=legacy
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v5
-      if: ${{ matrix.os == 'ubuntu-latest' && matrix.python-version == '3.10' && !cancelled() }}
+      if: ${{ matrix.python-version == '3.12' && !cancelled() }}
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
 
     - name: Upload test results to Codecov
-      if: ${{ matrix.os == 'ubuntu-latest' && matrix.python-version == '3.10' && !cancelled() }}
+      if: ${{ matrix.python-version == '3.12' && !cancelled() }}
       uses: codecov/test-results-action@v1
       with:
         token: ${{ secrets.CODECOV_TOKEN }}

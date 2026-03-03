@@ -354,6 +354,18 @@ class SLVMethaneInversionWithBias(SLVMethaneInversion):
     Override ``get_bias_jacobian()`` for a custom forward mapping.
     """
 
+    def _get_site_group(self, site: str) -> str:
+        """Map site to organization group (UATAQ or DAQ)."""
+        if site not in self.config.site_config.index:
+            return "unknown"
+        org = self.config.site_config.loc[site, "organization"]
+        if org == "UATAQ":
+            return "UATAQ"
+        elif org == "DAQ":
+            return "DAQ"
+        else:
+            return "other"
+
     def get_bias(self) -> pd.Series:
         """Build the bias prior as a zero-valued Series indexed by ``config.flux_times``.
 
@@ -420,3 +432,63 @@ class SLVMethaneInversionWithBias(SLVMethaneInversion):
         bias_err_blk = MatrixBlock(bias_err, "bias", "bias")
 
         return CovarianceMatrix(name="prior_error", data=[flux_err_blk, bias_err_blk])
+
+
+class SLVMethaneInversionWithSiteGroupBias(SLVMethaneInversionWithBias):
+    """SLV inversion with separate bias terms for UATAQ and DAQ site groups.
+
+    Creates a bias state vector with separate terms for each site organization
+    (UATAQ, DAQ) at each flux time interval. The forward operator maps each
+    observation to the bias term matching its site's organization and time.
+
+    Usage:
+        config = InversionConfig(bias_std=0.5)
+        inv = SLVMethaneInversionWithSiteGroupBias(config)
+    """
+
+    def get_bias(self) -> pd.Series:
+        """Build bias prior with (site_group, time) MultiIndex.
+
+        Returns a zero-valued Series with one bias term per site group
+        (UATAQ, DAQ, other) per flux time interval.
+        """
+        site_groups = ["UATAQ", "DAQ"]
+        index = pd.MultiIndex.from_product(
+            [site_groups, self.config.flux_times], names=["site_group", "time"]
+        )
+        return pd.Series(0.0, index=index, name="bias")
+
+    def get_bias_jacobian(self, obs: Vector, prior: Vector) -> pd.DataFrame:
+        """Build obs × bias Jacobian mapping each obs to its site group + time.
+
+        Each row (obs) gets a 1.0 in the column (site_group, time) where:
+          - site_group matches the obs location's organization
+          - time is the flux interval containing that observation's obs_time
+        """
+        obs_index = obs["concentration"].index
+        bias_index = prior["bias"].index
+
+        # Map each obs to its site group
+        obs_locs = obs_index.get_level_values("obs_location")
+        obs_sites = obs_locs.map(
+            lambda loc: self.config.location_site_map.get(loc, "unknown")
+        )
+        obs_site_groups = obs_sites.map(self._get_site_group)
+
+        # Bin obs times into flux intervals
+        obs_times = obs_index.get_level_values("obs_time")
+        cut = pd.cut(obs_times, bins=self.config.flux_time_bins)
+        flux_times = cut.map(lambda iv: iv.left if pd.notna(iv) else None)
+
+        # Create a categorical combining (site_group, flux_time)
+        bias_keys = pd.Series(
+            list(zip(obs_site_groups, flux_times, strict=True)),
+            index=obs_index,
+            dtype=object,
+        )
+
+        # One-hot encode
+        jac = pd.get_dummies(bias_keys, dtype=float)
+
+        # Reindex columns to match bias MultiIndex
+        return jac.reindex(columns=bias_index, fill_value=0.0)
