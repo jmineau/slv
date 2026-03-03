@@ -8,11 +8,11 @@ cng,CNG Filling,-111.9910777,40.7401967
 cng,CNG Filling,-111.9964037,40.6074038
 cng,CNG Filling,-112.026515,40.7735635
 cng,CNG Filling,-111.986924,40.5947642
-lanfill,Bountiful Landfill,-111.9162833,40.91106944
-lanfill,Trans-Jordan Landfill,-112.0576028,40.55578056
-lanfill,Waste Management,-112.0581667,40.74202778
-lanfill,Construction Waste Management,-112.0664,40.73547222
-lanfill,Salt Lake Landfill,-112.0434028,40.74459444
+landfill,Bountiful Landfill,-111.9162833,40.91106944
+landfill,Trans-Jordan Landfill,-112.0576028,40.55578056
+landfill,Waste Management,-112.0581667,40.74202778
+landfill,Construction Waste Management,-112.0664,40.73547222
+landfill,Salt Lake Landfill,-112.0434028,40.74459444
 lpg,LPG Filling,-111.9073484839582,40.68672582194225
 lpg,LPG Filling,-111.8985719178848,40.58115606168649
 lpg,LPG Filling,-111.8997669784608,40.86185923463794
