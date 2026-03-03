@@ -1518,6 +1518,14 @@ dependencies = [
     { name = "xarray", version = "2026.2.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
 ]
 
+[package.optional-dependencies]
+science = [
+    { name = "molmass", version = "2025.4.14", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
+    { name = "molmass", version = "2026.1.8", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
+    { name = "scipy", version = "1.15.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
+    { name = "scipy", version = "1.17.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
+]
+
 [[package]]
 name = "llvmlite"
 version = "0.46.0"
@@ -1725,6 +1733,42 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/c7/74/97e72a36efd4ae2bccb3463284300f8953f199b5ffbc04cbbb0ec78f74b1/matplotlib_inline-0.2.1.tar.gz", hash = "sha256:e1ee949c340d771fc39e241ea75683deb94762c8fa5f2927ec57c83c4dffa9fe", size = 8110, upload-time = "2025-10-23T09:00:22.126Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/af/33/ee4519fa02ed11a94aef9559552f3b17bb863f2ecfe1a35dc7f548cde231/matplotlib_inline-0.2.1-py3-none-any.whl", hash = "sha256:d56ce5156ba6085e00a9d54fead6ed29a9c47e215cd1bba2e976ef39f5710a76", size = 9516, upload-time = "2025-10-23T09:00:20.675Z" },
+]
+
+[[package]]
+name = "molmass"
+version = "2025.4.14"
+source = { registry = "https://pypi.org/simple" }
+resolution-markers = [
+    "python_full_version < '3.11' and platform_machine == 'ARM64' and sys_platform == 'win32'",
+    "(python_full_version < '3.11' and platform_machine != 'ARM64') or (python_full_version < '3.11' and sys_platform != 'win32')",
+]
+sdist = { url = "https://files.pythonhosted.org/packages/96/0f/d4f68780aaa42707fdf2bef4be789da8d0d0de661efc12692ac5a0a0f55b/molmass-2025.4.14.tar.gz", hash = "sha256:cb9c15f482b09ed8ad484315ccdf14b4eb3059d57538cdab2d1e1962f5f80e50", size = 76797, upload-time = "2025-04-14T02:42:07.459Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/8a/5f/c6c6fea1f0958ae5c319a4b308e52612570da3fb5a5bc524312394c66de8/molmass-2025.4.14-py3-none-any.whl", hash = "sha256:810ef2ec19b2206691e94f52f60e583698e41b00ccbf28b88c62a72f6cd832ed", size = 75921, upload-time = "2025-04-14T02:42:06.075Z" },
+]
+
+[[package]]
+name = "molmass"
+version = "2026.1.8"
+source = { registry = "https://pypi.org/simple" }
+resolution-markers = [
+    "python_full_version >= '3.14' and platform_machine == 'ARM64' and sys_platform == 'win32'",
+    "python_full_version >= '3.14' and platform_machine != 'ARM64' and sys_platform == 'win32'",
+    "python_full_version >= '3.14' and sys_platform == 'emscripten'",
+    "python_full_version >= '3.14' and sys_platform != 'emscripten' and sys_platform != 'win32'",
+    "python_full_version >= '3.12' and python_full_version < '3.14' and platform_machine == 'ARM64' and sys_platform == 'win32'",
+    "python_full_version >= '3.12' and python_full_version < '3.14' and platform_machine != 'ARM64' and sys_platform == 'win32'",
+    "python_full_version == '3.11.*' and platform_machine == 'ARM64' and sys_platform == 'win32'",
+    "python_full_version == '3.11.*' and platform_machine != 'ARM64' and sys_platform == 'win32'",
+    "python_full_version >= '3.12' and python_full_version < '3.14' and sys_platform == 'emscripten'",
+    "python_full_version == '3.11.*' and sys_platform == 'emscripten'",
+    "python_full_version >= '3.12' and python_full_version < '3.14' and sys_platform != 'emscripten' and sys_platform != 'win32'",
+    "python_full_version == '3.11.*' and sys_platform != 'emscripten' and sys_platform != 'win32'",
+]
+sdist = { url = "https://files.pythonhosted.org/packages/50/b6/a9adb3a4f142d52295aed0194161ffa0b1ee5d5bc986be608c328245e075/molmass-2026.1.8.tar.gz", hash = "sha256:6f677940148f876a6690149956598841f068111cb8ff3c63cf831833e88a5247", size = 83094, upload-time = "2026-01-08T17:13:39.699Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/03/12/b6f548ac321f0239c3523b32bd629ccf8025ff59fbf8dbada22b0de96ce2/molmass-2026.1.8-py3-none-any.whl", hash = "sha256:d7ad83bd542c5bf132a8eca28630ad774c10f0890d9cf51625774838d03d5f8b", size = 73797, upload-time = "2026-01-08T17:13:38.643Z" },
 ]
 
 [[package]]
@@ -3791,7 +3835,7 @@ source = { editable = "." }
 dependencies = [
     { name = "cartopy" },
     { name = "geopandas" },
-    { name = "lair" },
+    { name = "lair", extra = ["science"] },
     { name = "matplotlib" },
     { name = "pandas", version = "2.3.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
     { name = "pandas", version = "3.0.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
@@ -3831,7 +3875,7 @@ requires-dist = [
     { name = "cartopy" },
     { name = "fips", extras = ["flux"], marker = "extra == 'inversion'", git = "https://github.com/jmineau/fips" },
     { name = "geopandas" },
-    { name = "lair", git = "https://github.com/jmineau/lair" },
+    { name = "lair", extras = ["science"], git = "https://github.com/jmineau/lair" },
     { name = "matplotlib" },
     { name = "pandas" },
     { name = "uataq", git = "https://github.com/jmineau/uataq" },

@@ -24,7 +24,7 @@ classifiers = [
 dependencies = [
     "cartopy",
     "geopandas",
-    "lair @ git+https://github.com/jmineau/lair",
+    "lair[science] @ git+https://github.com/jmineau/lair",
     "matplotlib",
     "pandas",
     "uataq @ git+https://github.com/jmineau/uataq",
