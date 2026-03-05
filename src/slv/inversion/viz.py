@@ -1,4 +1,5 @@
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 from lair.geo import PC, add_latlon_ticks
 
@@ -171,5 +172,53 @@ def plot_total_fluxes_over_time(*total_fluxes: pd.Series):
     fig.autofmt_xdate()
 
     ax.legend()
+
+    return fig, ax
+
+
+def plot_mdm_components(components: dict[str, pd.DataFrame]):
+    """Plot the total error magnitude for each MDM error component.
+
+    Parameters
+    ----------
+    components : dict of str to pd.DataFrame
+        Dictionary where keys are component names and values are covariance matrices
+        as DataFrames with symmetric indexes.
+
+    Notes
+    -----
+    The total error is computed using the Frobenius norm of the covariance matrix,
+    which includes contributions from off-diagonal elements (correlations).
+    """
+    names = []
+    total_errors = []
+
+    for name, cov_matrix in components.items():
+        names.append(name)
+
+        # Compute Frobenius norm: sqrt(sum of all squared elements)
+        # This includes off-diagonal covariances
+        total_error = np.linalg.norm(cov_matrix.values, "fro")
+        total_errors.append(total_error)
+
+    # Create bar plot
+    fig, ax = plt.subplots(figsize=(10, 6))
+
+    bars = ax.bar(names, total_errors, alpha=0.7, edgecolor="black", linewidth=1.5)
+
+    # Color bars with a gradient
+    colors = plt.cm.viridis(np.linspace(0.2, 0.8, len(names)))
+    for bar, color in zip(bars, colors, strict=False):
+        bar.set_color(color)
+
+    ax.set_ylabel("Total Error Magnitude [ppm]", fontsize=12)
+    ax.set_xlabel("MDM Error Component", fontsize=12)
+    ax.set_title("Model-Data Mismatch Error Components", fontsize=14, fontweight="bold")
+    ax.grid(True, alpha=0.3, axis="y")
+
+    # Rotate x-axis labels if needed
+    plt.setp(ax.xaxis.get_majorticklabels(), rotation=45, ha="right")
+
+    plt.tight_layout()
 
     return fig, ax

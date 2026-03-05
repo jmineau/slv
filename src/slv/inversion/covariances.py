@@ -51,12 +51,100 @@ def build_mdm_error(
     scale=None,
     interday=False,
     time_dim="obs_time",
+    site_config=None,
+    **kwargs,
 ) -> ErrorComponent:
     """
     Unified builder for Model-Data Mismatch covariance components.
+
+    Parameters
+    ----------
+    name : str
+        Component name
+    obs_index : pd.MultiIndex
+        Observation index with 'obs_location' and 'obs_time' levels
+    std : float or dict
+        Absolute standard deviation in ppm.
+        If dict with nested dicts: std[site][season] structure (site/season-specific)
+        If dict with scalar values: std[organization] structure (organization-specific)
+    correlated : bool
+        Whether errors are correlated
+    scale : str, optional
+        Time scale for correlation decay
+    interday : bool
+        Whether correlations extend across midnight
+    time_dim : str
+        Name of the time dimension
+    site_config : pd.DataFrame, optional
+        Site configuration with 'organization' column, required for organization-based std
+    **kwargs
+        Additional unused parameters (for compatibility)
     """
-    # Covariance components expect variance, so square the standard deviation
-    variances = std**2
+    # Check if std is a dict (site/season-specific or organization-specific) or scalar
+    if isinstance(std, dict):
+        times = obs_index.get_level_values(time_dim)
+        locations = obs_index.get_level_values("obs_location")
+
+        # Detect if this is a nested dict (site/season) or flat dict (organization)
+        first_value = next(iter(std.values()))
+        is_nested = isinstance(first_value, dict)
+
+        if is_nested:
+            # Site/season-specific std
+            seasons = (
+                times.to_series()
+                .dt.month.map(
+                    {
+                        12: "DJF",
+                        1: "DJF",
+                        2: "DJF",
+                        3: "MAM",
+                        4: "MAM",
+                        5: "MAM",
+                        6: "JJA",
+                        7: "JJA",
+                        8: "JJA",
+                        9: "SON",
+                        10: "SON",
+                        11: "SON",
+                    }
+                )
+                .values
+            )
+
+            # Look up std for each observation by site and season
+            std_values = []
+            for loc, season in zip(locations, seasons, strict=False):
+                try:
+                    std_val = std[loc][season]
+                    std_values.append(std_val)
+                except (KeyError, TypeError):
+                    raise ValueError(
+                        f"No std value found for site='{loc}', season='{season}' in component '{name}'"
+                    )
+        else:
+            # Organization-specific std (flat dict)
+            if site_config is None:
+                raise ValueError(
+                    f"site_config must be provided for organization-based std in component '{name}'"
+                )
+
+            # Look up std for each observation by organization
+            std_values = []
+            for loc in locations:
+                org = site_config.at[loc, "organization"]
+                try:
+                    std_val = std[org]
+                    std_values.append(std_val)
+                except KeyError:
+                    raise ValueError(
+                        f"No std value found for organization='{org}' (site='{loc}') in component '{name}'"
+                    )
+
+        variances = pd.Series(std_values, index=obs_index) ** 2
+    else:
+        # Scalar std
+        variances = std**2
 
     # Uncorrelated errors (diagonal)
     if not correlated:

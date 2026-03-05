@@ -4,7 +4,7 @@ from .pipelines import (
     SLVMethaneInversionWithBias,
     SLVMethaneInversionWithSiteGroupBias,
 )
-from .sweep import SweepResults, get_sweep_configs, run_sweep, run_sweep_job
+from .sweep import Sweep, SweepResults, run_sweep_job
 
 __all__ = [
     "InversionConfig",
@@ -12,8 +12,7 @@ __all__ = [
     "SLVMethaneInversionWithBias",
     "SLVMethaneInversionWithSiteGroupBias",
     # Sweep harness
-    "get_sweep_configs",
-    "run_sweep",
+    "Sweep",
     "run_sweep_job",
     "SweepResults",
 ]

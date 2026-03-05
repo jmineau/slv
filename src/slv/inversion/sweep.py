@@ -8,10 +8,13 @@ Quick start — single-node sweep
 --------------------------------
 .. code-block:: python
 
-    from slv.inversion.sweep import get_sweep_configs, run_sweep, SweepResults
+    from slv.inversion.sweep import Sweep, SweepResults
+    from slv.inversion.pipelines import SLVMethaneInversion
 
-    configs = get_sweep_configs(
+    # Create and run a parameter sweep
+    sweep = Sweep(
         cache="/scratch/my_sweep/cache",
+        pipeline_cls=SLVMethaneInversion,
         prior_base_std=[0.01, 0.019, 0.03],
         prior_std_frac=[0.3, 0.5, 0.7],
         bg_baseline_window=["7d", "14d", "21d"],
@@ -22,7 +25,7 @@ Quick start — single-node sweep
         ],
     )
     # 3 × 3 × 3 × 3 = 81 configs
-    results = run_sweep(configs, results_dir="/scratch/my_sweep", n_jobs=8)
+    results = sweep.run(results_dir="/scratch/my_sweep", n_jobs=8)
 
     best = results.best(tol=0.1)  # chi² ∈ [0.9, 1.1]
     results.plot_chi2("cfg_prior_base_std")
@@ -34,9 +37,9 @@ SLURM job-array usage
 
     # 1. Generate the grid without running (n_jobs=0)
     python -c "
-    from slv.inversion.sweep import get_sweep_configs, run_sweep
-    configs = get_sweep_configs(cache='/scratch/sweep/cache', ...)
-    run_sweep(configs, results_dir='/scratch/sweep', n_jobs=0)
+    from slv.inversion.sweep import Sweep
+    sweep = Sweep(cache='/scratch/sweep/cache', ...)
+    sweep.run(results_dir='/scratch/sweep', n_jobs=0)
     "
 
     # 2. Submit one job per config
@@ -51,7 +54,6 @@ SLURM job-array usage
 
 from __future__ import annotations
 
-import concurrent.futures
 import contextlib
 import dataclasses
 import hashlib
@@ -60,11 +62,13 @@ import itertools
 import json
 import logging
 import os
+import sys
 import traceback
 from pathlib import Path
 from typing import Any
 
 import pandas as pd
+from joblib import Parallel, delayed
 
 from slv.inversion.config import InversionConfig
 from slv.inversion.pipelines import (
@@ -127,83 +131,410 @@ def config_id(config: InversionConfig) -> str:
 
 
 # ---------------------------------------------------------------------------
-# Config grid builder
+# Sweep class
 # ---------------------------------------------------------------------------
 
 
-def get_sweep_configs(
-    cache: str | Path,
-    pipeline_cls: type[SLVMethaneInversion] = SLVMethaneInversion,
-    base_config: InversionConfig | None = None,
-    **sweep_kwargs: list[Any],
-) -> list[tuple[InversionConfig, type[SLVMethaneInversion]]]:
-    """Build a Cartesian-product grid of :class:`InversionConfig` instances.
-
-    Parameters
-    ----------
-    cache :
-        Shared cache directory for all runs.  Passed as ``config.cache`` on
-        every generated config so all runs share the content-addressed cache.
-    pipeline_cls :
-        Pipeline class to pair with every generated config
-        (default: :class:`~slv.inversion.pipelines.SLVMethaneInversion`).
-    base_config :
-        Base :class:`InversionConfig` whose fields are used as defaults before
-        sweep overrides are applied.  If *None*, factory defaults are used.
-    **sweep_kwargs :
-        Each keyword must be a field name on :class:`InversionConfig`; its
-        value must be a **list** of alternatives to sweep over.  All
-        combinations are taken (Cartesian product).
-
-    Returns
-    -------
-    list of ``(InversionConfig, pipeline_cls)`` tuples — one per combination.
+class Sweep:
+    """Object-oriented interface for parameter sweeps.
 
     Examples
     --------
-    >>> configs = get_sweep_configs(
-    ...     cache="/scratch/sweep/cache",
-    ...     prior_base_std=[0.01, 0.019, 0.03],
-    ...     prior_std_frac=[0.3, 0.5],
-    ... )
-    >>> len(configs)  # 3 × 2 = 6
-    6
+    **Basic usage:**
+
+    .. code-block:: python
+
+        sweep = Sweep(
+            cache="./cache",
+            pipeline_cls=SLVMethaneInversionWithBias,
+            base_config=base,
+            prior_base_std=[0.01, 0.02],
+            gamma=[1.0, 3.0],
+        )
+        results = sweep.run(results_dir="./my_sweep", n_jobs=40)
+        problem = sweep.get_problem(results.best().iloc[0]["config_id"])
+
+    **Resume/merge with existing grid:**
+
+    .. code-block:: python
+
+        sweep = Sweep(
+            cache="./cache",
+            grid_path="./my_sweep/sweep_grid.json",  # Load existing
+            prior_base_std=[0.03, 0.04],  # Add new configs
+        )
+        results = sweep.run(results_dir="./my_sweep", n_jobs=40, resume=True)
+
+    **SLURM job array:**
+
+    .. code-block:: python
+
+        # Generate grid without running
+        sweep = Sweep(cache="./cache", prior_base_std=[...], ...)
+        sweep.run(results_dir="./my_sweep", n_jobs=0)
+
+        # Submit SLURM job array (uses run_sweep_job)
+        # sbatch --array=0-N job.sh
     """
-    if not sweep_kwargs:
-        raise ValueError(
-            "Provide at least one sweep parameter as a keyword argument, "
-            "e.g. prior_base_std=[0.01, 0.02]."
+
+    def __init__(
+        self,
+        cache: str | Path,
+        pipeline_cls: type[SLVMethaneInversion] = SLVMethaneInversion,
+        base_config: InversionConfig | None = None,
+        grid_path: str | Path | None = None,
+        **sweep_kwargs: list[Any],
+    ):
+        """Initialize sweep with configs.
+
+        Parameters
+        ----------
+        cache :
+            Cache directory for inversion components.
+        pipeline_cls :
+            Pipeline class to use for inversions.
+        base_config :
+            Base configuration for all configs.
+        grid_path :
+            Optional path to existing grid JSON. If provided, configs are loaded
+            from the grid and merged with any new configs from ``**sweep_kwargs``.
+        **sweep_kwargs :
+            Parameter sweep ranges (e.g., ``prior_base_std=[0.01, 0.02]``).
+        """
+        self.cache = Path(cache)
+        self.pipeline_cls = pipeline_cls
+        self.base_config = base_config
+        self.sweep_kwargs = sweep_kwargs
+
+        self.configs: list[tuple[InversionConfig, type]] = []
+        self._config_map: dict[str, tuple[InversionConfig, type]] = {}
+
+        self._build_configs(grid_path)
+
+    def _build_configs(self, grid_path: str | Path | None) -> None:
+        """Build configs from grid (if exists) and/or sweep_kwargs."""
+        existing_ids: set[str] = set()
+
+        # Load from existing grid if provided
+        if grid_path:
+            grid_path = Path(grid_path)
+            if grid_path.exists():
+                with open(grid_path) as f:
+                    grid = json.load(f)
+
+                for entry in grid:
+                    fields = entry["fields"]
+                    valid = {
+                        f.name
+                        for f in dataclasses.fields(InversionConfig)
+                        if f.name != "tiler"
+                    }
+                    cfg = InversionConfig(
+                        **{k: v for k, v in fields.items() if k in valid}
+                    )
+
+                    module_path, cls_name = entry["pipeline_cls"].rsplit(".", 1)
+                    cls = getattr(importlib.import_module(module_path), cls_name)
+
+                    cid = config_id(cfg)
+                    self.configs.append((cfg, cls))
+                    self._config_map[cid] = (cfg, cls)
+                    existing_ids.add(cid)
+
+                print(f"Loaded {len(grid)} configs from {grid_path}")
+
+        # Generate new configs from sweep_kwargs
+        if self.sweep_kwargs:
+            # Validate sweep parameters are InversionConfig fields
+            valid_fields = {f.name for f in dataclasses.fields(InversionConfig)}
+            unknown = set(self.sweep_kwargs.keys()) - valid_fields
+            if unknown:
+                raise ValueError(
+                    f"Unknown InversionConfig field(s): {', '.join(sorted(unknown))}"
+                )
+
+            # Cartesian product of sweep parameters
+            base_fields = (
+                {
+                    f.name: getattr(self.base_config, f.name)
+                    for f in dataclasses.fields(self.base_config)
+                }
+                if self.base_config
+                else {}
+            )
+
+            param_names = list(self.sweep_kwargs.keys())
+            param_values = list(self.sweep_kwargs.values())
+
+            added = 0
+            for combo in itertools.product(*param_values):
+                overrides = dict(zip(param_names, combo, strict=True))
+                all_fields = {**base_fields, **overrides, "cache": str(self.cache)}
+                cfg = InversionConfig(
+                    **{k: v for k, v in all_fields.items() if k in valid_fields}
+                )
+
+                cid = config_id(cfg)
+                if cid not in existing_ids:
+                    self.configs.append((cfg, self.pipeline_cls))
+                    self._config_map[cid] = (cfg, self.pipeline_cls)
+                    existing_ids.add(cid)
+                    added += 1
+
+            if added > 0:
+                print(f"Added {added} new configs from sweep parameters")
+
+        if not self.configs:
+            raise ValueError(
+                "No configs to sweep. Provide either grid_path or **sweep_kwargs."
+            )
+
+        print(f"Sweep initialized with {len(self.configs)} total configs")
+
+    def run(
+        self,
+        results_dir: str | Path,
+        n_jobs: int = 1,
+        swept_params: list[str] | None = None,
+        resume: bool = True,
+        config_ids: list[str] | None = None,
+    ) -> SweepResults:
+        """Run the sweep.
+
+        Parameters
+        ----------
+        results_dir :
+            Directory for results CSV and grid JSON.
+        n_jobs :
+            Number of parallel workers (0 = write grid only, no runs).
+        swept_params :
+            Config fields to capture as columns. None = all scientific fields.
+        resume :
+            Skip configs already in results CSV.
+        config_ids :
+            Optional list of config IDs to run. If None, run all configs.
+            Use this to run a random sample of the full sweep.
+
+        Returns
+        -------
+        SweepResults wrapping the output CSV.
+        """
+        results_dir = Path(results_dir)
+        results_dir.mkdir(parents=True, exist_ok=True)
+        csv_path = results_dir / "sweep_results.csv"
+        grid_path = results_dir / "sweep_grid.json"
+
+        # Write grid for SLURM compatibility
+        self._write_grid(grid_path)
+
+        if n_jobs == 0:
+            print("n_jobs=0: grid written, no runs executed.")
+            return (
+                SweepResults(csv_path)
+                if csv_path.exists()
+                else SweepResults.__new__(SweepResults)
+            )
+
+        # Determine which configs still need to run
+        done_ids: set[str] = set()
+        if resume and csv_path.exists():
+            existing = pd.read_csv(csv_path)
+            if "config_id" in existing.columns:
+                done_ids = set(existing["config_id"].dropna().tolist())
+            skipped = sum(1 for cfg, _ in self.configs if config_id(cfg) in done_ids)
+            remaining = len(self.configs) - skipped
+            print(f"Resuming: {skipped} already done, {remaining} remaining.")
+
+        # Filter by config_ids if provided
+        target_ids = set(config_ids) if config_ids is not None else None
+        if target_ids is not None:
+            print(f"Targeting {len(target_ids)} specific config IDs")
+
+        pending = [
+            (cfg, cls, str(results_dir), swept_params, n_jobs > 1)
+            for cfg, cls in self.configs
+            if config_id(cfg) not in done_ids
+            and (target_ids is None or config_id(cfg) in target_ids)
+        ]
+
+        if not pending:
+            print("All configs already completed.")
+            return SweepResults(csv_path)
+
+        # Run sweep (sequential or parallel)
+        if n_jobs == 1:
+            print("Running sweep sequentially (n_jobs=1)...")
+            try:
+                from tqdm import tqdm
+
+                iterator = tqdm(pending, desc="Sweep", unit="run")
+            except ImportError:
+                iterator = iter(pending)
+            for args in iterator:
+                self._append_row(csv_path, self._run_single(args))
+        else:
+            print(
+                f"Running sweep in parallel (n_jobs={n_jobs}). "
+                f"Output suppressed - check errors.log for failures."
+            )
+            # Use loky backend for robust nested parallelism
+            rows = Parallel(n_jobs=n_jobs, backend="loky", return_as="generator")(
+                delayed(self._run_single)(args) for args in pending
+            )
+            try:
+                from tqdm import tqdm
+
+                rows = tqdm(rows, total=len(pending), desc="Sweep", unit="run")
+            except ImportError:
+                pass
+            for row in rows:
+                self._append_row(csv_path, row)
+
+        print(f"Sweep complete. Results at {csv_path}")
+        return SweepResults(csv_path)
+
+    def _run_single(
+        self,
+        args: tuple[InversionConfig, type, str, list[str] | None, bool],
+    ) -> dict[str, Any]:
+        """Run one inversion and return a metrics dict.
+
+        Catches all exceptions so a single failed run does not abort the whole sweep.
+        """
+        config, pipeline_cls, results_dir, swept_params, suppress_output = args
+        cid = config_id(config)
+
+        # Suppress plots in sweep runs
+        config.plot_inputs = False
+        config.plot_results = False
+        config.plot_diagnostics = False
+
+        try:
+            # Suppress stdout/stderr when running in parallel
+            if suppress_output:
+                with _suppress_output():
+                    pipeline = pipeline_cls(config)
+                    problem = pipeline.run()
+            else:
+                pipeline = pipeline_cls(config)
+                problem = pipeline.run()
+            return collect_metrics(problem, config, pipeline, swept_params=swept_params)
+        except Exception as exc:
+            tb = traceback.format_exc()
+            # Log to file instead of printing full traceback
+            error_log = Path(results_dir) / "errors.log"
+            with open(error_log, "a") as f:
+                f.write(f"\n{'=' * 60}\n")
+                f.write(f"Config: {cid}\n")
+                f.write(f"Error: {exc}\n")
+                f.write(tb)
+            logger.error(f"[{cid}] Run failed: {exc}")
+            if not suppress_output:
+                print(f"[{cid}] Error: {exc}")
+
+            # Return same column structure as collect_metrics, with None values
+            error_row: dict[str, Any] = {
+                "config_id": cid,
+                "error": str(exc),
+                "runtime_seconds": None,
+                "reduced_chi2": None,
+                "chi2_distance": None,
+                "R2": None,
+                "RMSE": None,
+                "DOFS": None,
+                "uncertainty_reduction": None,
+                "prior_flux_mean": None,
+                "posterior_flux_mean": None,
+                "posterior_flux_std": None,
+                "flux_change_pct": None,
+                "prior_conc_rmse": None,
+                "posterior_conc_rmse": None,
+                "prior_conc_bias": None,
+                "posterior_conc_bias": None,
+                "n_obs": None,
+                "n_state": None,
+            }
+
+            # Add swept config params
+            if swept_params is None:
+                swept_params = [
+                    f.name
+                    for f in dataclasses.fields(config)
+                    if f.name not in _NON_SCIENTIFIC_FIELDS
+                ]
+            for p in swept_params:
+                val = getattr(config, p, None)
+                if isinstance(val, (dict, list)):
+                    val = json.dumps(_to_json(val), sort_keys=True)
+                else:
+                    val = _to_json(val)
+                error_row[f"cfg_{p}"] = val
+
+            return error_row
+
+    @staticmethod
+    def _append_row(csv_path: Path, row: dict | None) -> None:
+        """Atomically append one row to the results CSV."""
+        if row is None:
+            return
+        pd.DataFrame([row]).to_csv(
+            csv_path, mode="a", header=not csv_path.exists(), index=False
         )
 
-    valid_fields = {f.name for f in dataclasses.fields(InversionConfig)}
+    def _write_grid(self, path: Path) -> None:
+        """Write configs to grid JSON for SLURM job arrays."""
+        grid = []
+        for i, (cfg, cls) in enumerate(self.configs):
+            entry = {
+                "index": i,
+                "config_id": config_id(cfg),
+                "pipeline_cls": f"{cls.__module__}.{cls.__qualname__}",
+                "fields": _to_json(
+                    {
+                        f.name: getattr(cfg, f.name)
+                        for f in dataclasses.fields(cfg)
+                        if f.name != "tiler"
+                    }
+                ),
+            }
+            grid.append(entry)
 
-    # Validate all sweep keys upfront for fast feedback
-    bad = set(sweep_kwargs) - valid_fields
-    if bad:
-        raise ValueError(
-            f"Unknown InversionConfig field(s): {sorted(bad)}. "
-            f"Valid fields: {sorted(valid_fields)}"
-        )
+        with open(path, "w") as f:
+            json.dump(grid, f, indent=2)
 
-    # Base field values
-    base_fields: dict[str, Any] = {}
-    if base_config is not None:
-        for f in dataclasses.fields(base_config):
-            base_fields[f.name] = getattr(base_config, f.name)
+    def get_problem(self, config_id: str):
+        """Reconstruct and run a single config by ID.
 
-    param_names = list(sweep_kwargs.keys())
-    param_values = list(sweep_kwargs.values())
+        Parameters
+        ----------
+        config_id :
+            Config ID from results CSV.
 
-    configs: list[tuple[InversionConfig, type[SLVMethaneInversion]]] = []
-    for combo in itertools.product(*param_values):
-        overrides = dict(zip(param_names, combo, strict=True))
-        all_fields = {**base_fields, **overrides, "cache": str(cache)}
-        cfg = InversionConfig(
-            **{k: v for k, v in all_fields.items() if k in valid_fields}
-        )
-        configs.append((cfg, pipeline_cls))
+        Returns
+        -------
+        FluxProblem instance from running the pipeline.
 
-    return configs
+        Raises
+        ------
+        ValueError
+            If config_id not found in sweep.
+        """
+        if config_id not in self._config_map:
+            raise ValueError(
+                f"Config {config_id} not found in sweep. "
+                f"Available IDs: {list(self._config_map.keys())[:10]}..."
+            )
+
+        cfg, cls = self._config_map[config_id]
+        pipeline = cls(cfg)
+        return pipeline.run()
+
+    def __len__(self) -> int:
+        """Return number of configs in sweep."""
+        return len(self.configs)
+
+    def __repr__(self) -> str:
+        return f"Sweep({len(self)} configs, pipeline={self.pipeline_cls.__name__})"
 
 
 # ---------------------------------------------------------------------------
@@ -310,170 +641,23 @@ def collect_metrics(
 
 
 # ---------------------------------------------------------------------------
-# Internal worker (used by both sequential and multiprocess paths)
+# Output suppression context manager
 # ---------------------------------------------------------------------------
 
 
-def _run_single(
-    args: tuple[InversionConfig, type, str, list[str] | None],
-) -> dict[str, Any]:
-    """Run one inversion and return a metrics dict.
-
-    Designed to be picklable for :class:`~concurrent.futures.ProcessPoolExecutor`.
-    Catches all exceptions so a single failed run does not abort the whole sweep.
-    """
-    config, pipeline_cls, _results_dir, swept_params = args
-    cid = config_id(config)
-
-    # Suppress plots in sweep runs — no interactive display available
-    config.plot_inputs = False
-    config.plot_results = False
-    config.plot_diagnostics = False
-
-    try:
-        pipeline = pipeline_cls(config)
-        problem = pipeline.run()
-        return collect_metrics(problem, config, pipeline, swept_params=swept_params)
-    except Exception as exc:
-        logger.error(f"[{cid}] Run failed: {exc}\n{traceback.format_exc()}")
-        return {
-            "config_id": cid,
-            "error": str(exc),
-            "reduced_chi2": None,
-            "chi2_distance": None,
-        }
-
-
-# ---------------------------------------------------------------------------
-# Sweep runner
-# ---------------------------------------------------------------------------
-
-
-def run_sweep(
-    configs: list[tuple[InversionConfig, type]],
-    results_dir: str | Path,
-    n_jobs: int = 1,
-    swept_params: list[str] | None = None,
-    resume: bool = True,
-) -> SweepResults:
-    """Run a parameter sweep, writing metrics to ``{results_dir}/sweep_results.csv``.
-
-    Parameters
-    ----------
-    configs :
-        List of ``(InversionConfig, pipeline_cls)`` tuples, typically from
-        :func:`get_sweep_configs`.
-    results_dir :
-        Directory for ``sweep_results.csv`` and ``sweep_grid.json``.
-        The grid JSON is written first so SLURM job arrays can reference it.
-    n_jobs :
-        Number of parallel worker processes.
-
-        * ``1``  — sequential (safe on CHPC login nodes / interactive jobs).
-        * ``> 1`` — uses :class:`~concurrent.futures.ProcessPoolExecutor`.
-          Workers share the cache on disk; content-addressed paths make
-          simultaneous writes safe (each hash → unique file).
-        * ``0``  — write ``sweep_grid.json`` only, do not run any configs.
-          Use this to prepare a SLURM job-array grid.
-    swept_params :
-        Config fields to capture as ``cfg_*`` columns (forwarded to
-        :func:`collect_metrics`).  *None* captures all scientific fields.
-    resume :
-        Skip configs whose ``config_id`` already appears in the CSV.
-
-    Returns
-    -------
-    :class:`SweepResults` wrapping the accumulated CSV.
-    """
-    results_dir = Path(results_dir)
-    results_dir.mkdir(parents=True, exist_ok=True)
-    csv_path = results_dir / "sweep_results.csv"
-    grid_path = results_dir / "sweep_grid.json"
-
-    # Serialise grid for SLURM resumption (always written, even for n_jobs=0)
-    grid = []
-    for i, (cfg, cls) in enumerate(configs):
-        entry = {
-            "index": i,
-            "config_id": config_id(cfg),
-            "pipeline_cls": f"{cls.__module__}.{cls.__qualname__}",
-            "fields": _to_json(
-                {
-                    f.name: getattr(cfg, f.name)
-                    for f in dataclasses.fields(cfg)
-                    if f.name != "tiler"
-                }
-            ),
-        }
-        grid.append(entry)
-
-    with open(grid_path, "w") as fh:
-        json.dump(grid, fh, indent=2)
-    print(f"Sweep grid ({len(configs)} configs) written to {grid_path}")
-
-    if n_jobs == 0:
-        print("n_jobs=0: grid written, no runs executed.")
-        return (
-            SweepResults(csv_path)
-            if csv_path.exists()
-            else SweepResults.__new__(SweepResults)
-        )
-
-    # Determine which configs still need to run
-    done_ids: set[str] = set()
-    if resume and csv_path.exists():
-        existing = pd.read_csv(csv_path)
-        if "config_id" in existing.columns:
-            done_ids = set(existing["config_id"].dropna().tolist())
-        skipped = sum(1 for cfg, _ in configs if config_id(cfg) in done_ids)
-        remaining = len(configs) - skipped
-        print(f"Resuming: {skipped} already done, {remaining} remaining.")
-
-    pending = [
-        (cfg, cls, str(results_dir), swept_params)
-        for cfg, cls in configs
-        if config_id(cfg) not in done_ids
-    ]
-
-    if not pending:
-        print("All configs already completed.")
-        return SweepResults(csv_path)
-
-    def _append_row(row: dict | None) -> None:
-        """Atomically append one row to the results CSV."""
-        if row is None:
-            return
-        pd.DataFrame([row]).to_csv(
-            csv_path, mode="a", header=not csv_path.exists(), index=False
-        )
-
-    if n_jobs == 1:
+@contextlib.contextmanager
+def _suppress_output():
+    """Context manager to suppress stdout and stderr."""
+    with open(os.devnull, "w") as devnull:
+        old_stdout = sys.stdout
+        old_stderr = sys.stderr
         try:
-            from tqdm import tqdm
-
-            iterator = tqdm(pending, desc="Sweep", unit="run")
-        except ImportError:
-            iterator = iter(pending)
-        for args in iterator:
-            _append_row(_run_single(args))
-    else:
-        with concurrent.futures.ProcessPoolExecutor(max_workers=n_jobs) as ex:
-            futs = {ex.submit(_run_single, args): args for args in pending}
-            try:
-                from tqdm import tqdm
-
-                pbar: Any = tqdm(total=len(futs), desc="Sweep", unit="run")
-            except ImportError:
-                pbar = None
-            for fut in concurrent.futures.as_completed(futs):
-                _append_row(fut.result())
-                if pbar is not None:
-                    pbar.update(1)
-            if pbar is not None:
-                pbar.close()
-
-    print(f"Sweep complete. Results at {csv_path}")
-    return SweepResults(csv_path)
+            sys.stdout = devnull
+            sys.stderr = devnull
+            yield
+        finally:
+            sys.stdout = old_stdout
+            sys.stderr = old_stderr
 
 
 # ---------------------------------------------------------------------------

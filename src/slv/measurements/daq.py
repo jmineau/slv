@@ -23,7 +23,13 @@ def load_picarro_g2307(
     # Filter to time range of interest
     if time_range is not None:
         data = data.set_index("Time_UTC").sort_index()
-        data = data.loc[time_range]
+        # Unpack tuple to slice notation for proper index-based filtering
+        start, end = (
+            time_range
+            if isinstance(time_range, tuple)
+            else (time_range.start, time_range.stop)
+        )
+        data = data.loc[start:end]
         data = data.reset_index()
 
     return data.dropna(subset="CH4d_ppm_cal")

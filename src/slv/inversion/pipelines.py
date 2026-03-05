@@ -5,6 +5,7 @@ import time
 from pathlib import Path
 
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 from fips import Block, CovarianceMatrix, ForwardOperator, MatrixBlock, Vector
 from fips.aggregators import ObsAggregator
@@ -62,8 +63,8 @@ DEFAULT_COMPONENT_DEPS: dict[str, frozenset[str]] = {
     | {
         "stilt_path",
         "sparse_jacobian",
-        "num_processes",
-        "timeout",
+        # num_processes and timeout intentionally excluded: they are
+        # computational knobs that do not change the Jacobian result.
     },
     "prior_error": _PRIOR_DEPS
     | {
@@ -226,8 +227,18 @@ class SLVMethaneInversion(FluxInversionPipeline):
 
     @fips_cache(ForwardOperator, "forward_operator")
     def get_forward_operator(self, obs: Vector, prior: Vector) -> ForwardOperator:
+        from slv.inversion.config import build_location_site_map
+
         simulations = sorted(list(Path(self.config.stilt_path).glob("out/by-id/*")))
         print(f"Found {len(simulations)} simulations")
+
+        # Auto-generate location mapper if not provided
+        location_mapper = self.config.location_site_map
+        if not location_mapper:
+            sim_ids = [sim.name for sim in simulations]
+            location_mapper = build_location_site_map(sim_ids, self.config.site_config)
+            print(f"Auto-generated location mapper for {len(location_mapper)} sites")
+            self.config.location_site_map = location_mapper
 
         jacobian_builder = JacobianBuilder(simulations)
         jacobian = jacobian_builder.build_from_coords(
@@ -235,7 +246,7 @@ class SLVMethaneInversion(FluxInversionPipeline):
             flux_times=self.config.flux_time_bins,
             resolution=self.config.resolution,
             subset_hours=self.config.subset_hours_utc,
-            location_mapper=self.config.location_site_map,
+            location_mapper=location_mapper,
             num_processes=self.config.num_processes,
             timeout=self.config.timeout,
             sparse=self.config.sparse_jacobian,
@@ -256,9 +267,20 @@ class SLVMethaneInversion(FluxInversionPipeline):
     @fips_cache(CovarianceMatrix, "modeldata_mismatch")
     def get_modeldata_mismatch(self, obs: Vector) -> CovarianceMatrix:
         components = [
-            build_mdm_error(obs_index=obs.index, **comp)
+            build_mdm_error(
+                obs_index=obs.index, site_config=self.config.site_config, **comp
+            )
             for comp in self.config.mdm_components
         ]
+
+        if self.config.plot_diagnostics:
+            built_comps = {comp.name: comp.build(obs.index) for comp in components}
+            viz.plot_mdm_components(built_comps)
+            return CovarianceMatrix(
+                name="modeldata_mismatch",
+                data=np.add.reduce([comp.to_numpy() for comp in built_comps.values()]),
+                index=obs.index,
+            )
 
         return CovarianceMatrix(
             name="modeldata_mismatch",
@@ -416,7 +438,7 @@ class SLVMethaneInversion(FluxInversionPipeline):
 
         plt.show()
 
-    def run(self, **kwargs) -> FluxProblem:
+    def run(self, estimator_kwargs: dict | None = None, **kwargs) -> FluxProblem:
         total_start = time.perf_counter()
         print("Getting problem inputs...")
         inputs = self.get_inputs()
@@ -437,7 +459,13 @@ class SLVMethaneInversion(FluxInversionPipeline):
 
         print("Solving...")
         step_start = time.perf_counter()
-        self.problem.solve(estimator=self.estimator)
+        # Build estimator kwargs: config gamma + explicit overrides
+        solve_kwargs = {}
+        if self.config.gamma is not None:
+            solve_kwargs["gamma"] = self.config.gamma
+        if estimator_kwargs:
+            solve_kwargs.update(estimator_kwargs)
+        self.problem.solve(estimator=self.estimator, **solve_kwargs)
         print(f"Solve completed in {time.perf_counter() - step_start:.2f}s")
 
         # Print summary report
@@ -504,6 +532,8 @@ class SLVMethaneInversionWithBias(SLVMethaneInversion):
     def get_prior(self) -> Vector:
         """Returns a multi-block prior Vector: [flux, bias]."""
         flux_prior = super().get_prior()
+        if self.config.bias_std is None:
+            return flux_prior
         bias_blk = Block(self.get_bias(), name="bias")
         return Vector(name="prior", data=[flux_prior.blocks["flux"], bias_blk])
 
@@ -531,6 +561,8 @@ class SLVMethaneInversionWithBias(SLVMethaneInversion):
 
     def get_forward_operator(self, obs: Vector, prior: Vector) -> ForwardOperator:
         """Returns a multi-block ForwardOperator: [flux_jac | bias_jac]."""
+        if self.config.bias_std is None:
+            return super().get_forward_operator(obs, prior)
         flux_only_prior = Vector(prior.blocks["flux"])
         fo = super().get_forward_operator(obs, flux_only_prior)
 
@@ -543,6 +575,8 @@ class SLVMethaneInversionWithBias(SLVMethaneInversion):
 
     def get_prior_error(self, prior: Vector) -> CovarianceMatrix:
         """Returns a multi-block prior error CovarianceMatrix: [flux_err, bias_err]."""
+        if self.config.bias_std is None:
+            return super().get_prior_error(prior)
         flux_err = super().get_prior_error(Vector(prior.blocks["flux"]))
         flux_err_blk = flux_err.blocks["flux", "flux"]
 
@@ -575,7 +609,9 @@ class SLVMethaneInversionWithSiteGroupBias(SLVMethaneInversionWithBias):
         """
         site_groups = ["UATAQ", "DAQ"]
         index = pd.MultiIndex.from_product(
-            [site_groups, self.config.flux_times], names=["site_group", "time"]
+            # put time first because it will be discovered first from the flux_prior
+            [self.config.flux_times, site_groups],
+            names=["time", "site_group"],
         )
         return pd.Series(0.0, index=index, name="bias")
 
@@ -589,11 +625,8 @@ class SLVMethaneInversionWithSiteGroupBias(SLVMethaneInversionWithBias):
         obs_index = obs["concentration"].index
         bias_index = prior["bias"].index
 
-        # Map each obs to its site group
-        obs_locs = obs_index.get_level_values("obs_location")
-        obs_sites = obs_locs.map(
-            lambda loc: self.config.location_site_map.get(loc, "unknown")
-        )
+        # Map each obs location (site name) to its site group
+        obs_sites = obs_index.get_level_values("obs_location")
         obs_site_groups = obs_sites.map(self.get_site_group)
 
         # Bin obs times into flux intervals
@@ -601,15 +634,20 @@ class SLVMethaneInversionWithSiteGroupBias(SLVMethaneInversionWithBias):
         cut = pd.cut(obs_times, bins=self.config.flux_time_bins)
         flux_times = cut.map(lambda iv: iv.left if pd.notna(iv) else None)
 
-        # Create a categorical combining (site_group, flux_time)
+        # Create a categorical combining (flux_time, site_group) for one-hot encoding
         bias_keys = pd.Series(
-            list(zip(obs_site_groups, flux_times, strict=True)),
+            list(zip(flux_times, obs_site_groups, strict=True)),
             index=obs_index,
             dtype=object,
         )
 
         # One-hot encode
         jac = pd.get_dummies(bias_keys, dtype=float)
+
+        # Convert tuple columns to MultiIndex for proper alignment
+        jac.columns = pd.MultiIndex.from_tuples(
+            jac.columns, names=["time", "site_group"]
+        )
 
         # Reindex columns to match bias MultiIndex
         return jac.reindex(columns=bias_index, fill_value=0.0)

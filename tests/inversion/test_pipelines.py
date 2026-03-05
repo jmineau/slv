@@ -268,7 +268,7 @@ class TestGetBiasJacobian:
 
 
 # ---------------------------------------------------------------------------
-# SLVMethaneInversionWithSiteGroupBias._get_site_group
+# SLVMethaneInversionWithSiteGroupBias.get_site_group
 # ---------------------------------------------------------------------------
 
 
@@ -284,13 +284,13 @@ class TestGetSiteGroup:
         )
 
     def test_uataq_site(self, pipeline):
-        assert pipeline._get_site_group("wbb") == "UATAQ"
+        assert pipeline.get_site_group("wbb") == "UATAQ"
 
     def test_daq_site(self, pipeline):
-        assert pipeline._get_site_group("hw") == "DAQ"
+        assert pipeline.get_site_group("hw") == "DAQ"
 
     def test_unknown_site(self, pipeline):
-        assert pipeline._get_site_group("nonexistent") == "unknown"
+        assert pipeline.get_site_group("nonexistent") == "unknown"
 
 
 # ---------------------------------------------------------------------------

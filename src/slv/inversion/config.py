@@ -2,6 +2,7 @@ from dataclasses import dataclass, field
 from functools import cached_property
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 from cartopy.io.img_tiles import GoogleTiles
 from lair.geo import generate_regular_grid, write_rio_crs
@@ -10,13 +11,34 @@ from slv.domain import UTC_OFFSET, XMAX, XMIN, YMAX, YMIN
 from slv.measurements.sites import load_site_config
 
 # Default MDM component parameters
+# Notes:
+# - `std`: absolute standard deviation in ppm (can be float or dict[site][season])
 DEFAULT_MDM_CONFIG = {
     "part": {"std": 0.00047, "correlated": False},
-    "instr_wbb": {"std": 0.0033, "correlated": False},
+    "instr": {
+        "std": {"UATAQ": 0.0033, "DAQ": 0.0033 * 3},
+        "correlated": False,
+    },  # per org error
     "aggr": {"std": 0.06, "scale": None, "interday": False},
     "bg": {"std": 0.011, "scale": "7d", "interday": True},
-    "transport_wind": {"std": 0.01, "scale": "2.8h", "interday": False},
-    "transport_pbl": {"std": 0.15, "scale": "2.8h", "interday": False},
+    "transport_wind": {  # per site per season error
+        "std": {
+            "bv": {"DJF": 0.0027, "JJA": 0.001, "MAM": 0.0011, "SON": 0.0021},
+            "ed": {"DJF": 0.001, "JJA": 0.0002, "MAM": 0.0002, "SON": 0.0003},
+            "hw": {"DJF": 0.0018, "JJA": 0.0006, "MAM": 0.0007, "SON": 0.0011},
+            "rb": {"DJF": 0.0022, "JJA": 0.0004, "MAM": 0.0005, "SON": 0.0008},
+            "ut": {"DJF": 0.0025, "JJA": 0.001, "MAM": 0.0011, "SON": 0.0015},
+            "wbb": {"DJF": 0.0016, "JJA": 0.0004, "MAM": 0.0006, "SON": 0.0009},
+            "zz": {"DJF": 0.0085, "JJA": 0.0022, "MAM": np.nan, "SON": 0.0042},
+        },
+        "scale": "2.8h",
+        "interday": False,
+    },
+    "transport_pbl": {
+        "std": 0.15 * 0.0514,
+        "scale": "2.8h",
+        "interday": False,
+    },  # 15% of typical PBL enhancement (0.0514 ppm)
 }
 
 
@@ -27,6 +49,70 @@ def get_mdm_comp_configs(config: dict) -> list[dict]:
         params = {**default_params, **(config.get(name, {}))}
         merged_components.append({"name": name, **params})
     return merged_components
+
+
+def build_location_site_map(
+    simulation_ids: list[str],
+    site_config: pd.DataFrame,
+) -> dict[str, str]:
+    """Build location mapper from STILT simulation IDs to site names.
+
+    Parses simulation IDs (format: "lon_lat_height") and matches them to sites
+    in the site_config based on coordinate proximity.
+
+    Parameters
+    ----------
+    simulation_ids : list[str]
+        List of STILT simulation IDs (e.g., "-111.847672_40.766189_35.0").
+    site_config : pd.DataFrame
+        Site configuration with latitude/longitude columns indexed by site name.
+
+    Returns
+    -------
+    dict[str, str]
+        Mapping from location ID to site name.
+        Unmapped IDs are omitted from the result.
+
+    Examples
+    --------
+    >>> sim_ids = ["-111.847672_40.766189_35.0", "-111.884505_40.902945_4.0"]
+    >>> site_config = load_site_config()
+    >>> mapper = build_location_site_map(sim_ids, site_config)
+    >>> mapper["-111.847672_40.766189_35.0"]
+    'wbb'
+    """
+
+    mapper = {}
+
+    for sim_id in simulation_ids:
+        # Parse simulation ID to extract coordinates
+        try:
+            parts = sim_id.split("_")
+            if len(parts) != 4:
+                continue
+
+            location_id = "_".join(parts[1:])
+            if location_id in mapper:
+                continue
+
+            lon_sim, lat_sim, z_sim = float(parts[1]), float(parts[2]), float(parts[3])
+        except (ValueError, IndexError):
+            continue
+
+        matches = site_config[
+            np.isclose(site_config["latitude"].astype(float), lat_sim)
+            & np.isclose(site_config["longitude"].astype(float), lon_sim)
+            & np.isclose(site_config["height_agl"].astype(float), z_sim)
+        ]
+
+        if len(matches) == 1:
+            site_name = matches.index[0]
+            mapper[location_id] = site_name
+        else:
+            # No match or multiple matches found; skip this simulation ID
+            continue
+
+    return mapper
 
 
 @dataclass
@@ -61,9 +147,9 @@ class InversionConfig:
         False  # Whether to aggregate obs space ('1d' for daily, '12h' for 12-hourly, etc.)
     )
 
-    location_site_map: dict[str, str] = field(
-        default_factory=lambda: {"-111.847672_40.766189_35.0": "wbb"}
-    )
+    # Maps STILT simulation IDs (format: "lon_lat_height") to site names.
+    # If empty (default), auto-generated from site_config and simulation paths.
+    location_site_map: dict[str, str] = field(default_factory=dict)
 
     # --- Prior ---
     prior: str = "epa"
@@ -98,6 +184,12 @@ class InversionConfig:
     # --- Inversion Solver Settings ---
     min_obs_per_interval: int = 60
     min_sims_per_interval: int = 70
+
+    # Regularization parameter: scales observation error by 1/gamma.
+    # gamma > 1: reduces obs error weight, forces solution toward data
+    # gamma < 1: increases obs error weight, stays closer to prior
+    # gamma = 1: no scaling (default)
+    gamma: float | None = None
 
     # --- Cache ---
     # False/None = no caching, True = cache in cwd, str/Path = cache in that directory

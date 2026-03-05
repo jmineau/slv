@@ -3820,6 +3820,7 @@ dependencies = [
 [package.optional-dependencies]
 inversion = [
     { name = "fips", extra = ["flux"] },
+    { name = "joblib" },
 ]
 
 [package.dev-dependencies]
@@ -3846,6 +3847,7 @@ requires-dist = [
     { name = "cartopy" },
     { name = "fips", extras = ["flux"], marker = "extra == 'inversion'", git = "https://github.com/jmineau/fips" },
     { name = "geopandas" },
+    { name = "joblib", marker = "extra == 'inversion'", specifier = ">=1.5.3" },
     { name = "lair", extras = ["science"], git = "https://github.com/jmineau/lair" },
     { name = "matplotlib" },
     { name = "pandas" },

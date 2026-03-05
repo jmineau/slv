@@ -17,11 +17,10 @@ from slv.inversion.pipelines import (
     _component_hash,
 )
 from slv.inversion.sweep import (
+    Sweep,
     SweepResults,
     collect_metrics,
     config_id,
-    get_sweep_configs,
-    run_sweep,
 )
 
 # ---------------------------------------------------------------------------
@@ -214,66 +213,64 @@ class TestFipsCache:
 
 
 # ---------------------------------------------------------------------------
-# 3. get_sweep_configs
+# 3. Sweep class config generation
 # ---------------------------------------------------------------------------
 
 
-class TestGetSweepConfigs:
+class TestSweepConfigs:
     def test_cartesian_product_count(self):
-        configs = get_sweep_configs(
+        sweep = Sweep(
             cache="/tmp/sweep",
             prior_base_std=[0.01, 0.02, 0.03],
             prior_std_frac=[0.3, 0.7],
         )
-        assert len(configs) == 6  # 3 × 2
+        assert len(sweep.configs) == 6  # 3 × 2
 
     def test_all_values_covered(self):
-        configs = get_sweep_configs(
+        sweep = Sweep(
             cache="/tmp/sweep",
             prior_base_std=[0.01, 0.02],
         )
-        stds = {cfg.prior_base_std for cfg, _ in configs}
+        stds = {cfg.prior_base_std for cfg, _ in sweep.configs}
         assert stds == {0.01, 0.02}
 
     def test_cache_injected(self):
-        configs = get_sweep_configs(
+        sweep = Sweep(
             cache="/tmp/my_cache",
             prior_base_std=[0.01],
         )
-        assert all(cfg.cache == "/tmp/my_cache" for cfg, _ in configs)
+        assert all(cfg.cache == "/tmp/my_cache" for cfg, _ in sweep.configs)
 
     def test_pipeline_cls_propagated(self):
-        configs = get_sweep_configs(
+        sweep = Sweep(
             cache="/tmp/sweep",
             pipeline_cls=SLVMethaneInversionWithBias,
             prior_base_std=[0.01],
         )
-        assert all(cls is SLVMethaneInversionWithBias for _, cls in configs)
+        assert all(cls is SLVMethaneInversionWithBias for _, cls in sweep.configs)
 
     def test_base_config_fields_inherited(self):
         base = _cfg(tstart="2020-01-01", tend="2021-01-01")
-        configs = get_sweep_configs(
+        sweep = Sweep(
             cache="/tmp/sweep",
             base_config=base,
             prior_base_std=[0.01, 0.02],
         )
-        for cfg, _ in configs:
+        for cfg, _ in sweep.configs:
             assert str(cfg.tstart) == "2020-01-01"
             assert str(cfg.tend) == "2021-01-01"
 
     def test_unknown_field_raises(self):
         with pytest.raises(ValueError, match="Unknown InversionConfig field"):
-            get_sweep_configs(cache="/tmp/sweep", not_a_real_field=[1, 2])
+            Sweep(cache="/tmp/sweep", not_a_real_field=[1, 2])
 
     def test_no_sweep_params_raises(self):
         with pytest.raises(ValueError):
-            get_sweep_configs(cache="/tmp/sweep")
+            Sweep(cache="/tmp/sweep")
 
     def test_single_sweep_param(self):
-        configs = get_sweep_configs(
-            cache="/tmp/sweep", bg_baseline_window=["7d", "14d"]
-        )
-        assert len(configs) == 2
+        sweep = Sweep(cache="/tmp/sweep", bg_baseline_window=["7d", "14d"])
+        assert len(sweep.configs) == 2
 
 
 # ---------------------------------------------------------------------------
@@ -373,44 +370,45 @@ class TestCollectMetrics:
 
 
 # ---------------------------------------------------------------------------
-# 6. run_sweep resume behaviour
+# 6. Sweep.run() resume behaviour
 # ---------------------------------------------------------------------------
 
 
-class TestRunSweep:
-    def _make_trivial_configs(self, cache_dir):
-        return get_sweep_configs(
+class TestSweepRun:
+    def _make_trivial_sweep(self, cache_dir):
+        return Sweep(
             cache=str(cache_dir),
             prior_base_std=[0.01, 0.02],
         )
 
     def test_writes_csv(self, tmp_path):
-        configs = self._make_trivial_configs(tmp_path / "cache")
+        sweep = self._make_trivial_sweep(tmp_path / "cache")
         # Patch _run_single to avoid real inversions
         fake_row = {
             "config_id": "abc123",
             "reduced_chi2": 0.95,
             "chi2_distance": 0.05,
         }
-        with patch("slv.inversion.sweep._run_single", return_value=fake_row):
-            run_sweep(configs, results_dir=tmp_path, n_jobs=1)
+        with patch.object(Sweep, "_run_single", return_value=fake_row):
+            sweep.run(results_dir=tmp_path, n_jobs=1)
         assert (tmp_path / "sweep_results.csv").exists()
 
     def test_grid_json_written(self, tmp_path):
-        configs = self._make_trivial_configs(tmp_path / "cache")
-        with patch(
-            "slv.inversion.sweep._run_single",
+        sweep = self._make_trivial_sweep(tmp_path / "cache")
+        with patch.object(
+            Sweep,
+            "_run_single",
             return_value={"config_id": "x", "reduced_chi2": 1.0, "chi2_distance": 0.0},
         ):
-            run_sweep(configs, results_dir=tmp_path, n_jobs=1)
+            sweep.run(results_dir=tmp_path, n_jobs=1)
         grid_path = tmp_path / "sweep_grid.json"
         assert grid_path.exists()
         grid = json.loads(grid_path.read_text())
         assert len(grid) == 2
 
     def test_resume_skips_done_configs(self, tmp_path):
-        configs = self._make_trivial_configs(tmp_path / "cache")
-        cid_first = config_id(configs[0][0])
+        sweep = self._make_trivial_sweep(tmp_path / "cache")
+        cid_first = config_id(sweep.configs[0][0])
 
         # Pre-write first config as done
         pd.DataFrame(
@@ -423,16 +421,16 @@ class TestRunSweep:
             call_count.append(1)
             return {"config_id": "new", "reduced_chi2": 1.1, "chi2_distance": 0.1}
 
-        with patch("slv.inversion.sweep._run_single", side_effect=fake_run):
-            run_sweep(configs, results_dir=tmp_path, n_jobs=1)
+        with patch.object(Sweep, "_run_single", side_effect=fake_run):
+            sweep.run(results_dir=tmp_path, n_jobs=1)
 
         # Only the second config should have been run
         assert len(call_count) == 1
 
     def test_n_jobs_zero_writes_grid_only(self, tmp_path):
-        configs = self._make_trivial_configs(tmp_path / "cache")
-        with patch("slv.inversion.sweep._run_single") as mock_run:
-            run_sweep(configs, results_dir=tmp_path, n_jobs=0)
+        sweep = self._make_trivial_sweep(tmp_path / "cache")
+        with patch.object(Sweep, "_run_single") as mock_run:
+            sweep.run(results_dir=tmp_path, n_jobs=0)
             mock_run.assert_not_called()
         assert (tmp_path / "sweep_grid.json").exists()
         assert not (tmp_path / "sweep_results.csv").exists()
