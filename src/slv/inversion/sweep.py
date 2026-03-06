@@ -146,7 +146,7 @@ class Sweep:
 
         sweep = Sweep(
             cache="./cache",
-            pipeline_cls=SLVMethaneInversionWithBias,
+            pipeline_cls=SLVMethaneInversion,
             base_config=base,
             prior_base_std=[0.01, 0.02],
             gamma=[1.0, 3.0],
@@ -730,7 +730,28 @@ def run_sweep_job(results_dir: str | Path) -> None:
             print(f"[{idx}] {cid} already done — skipping.")
             return
 
-    row = _run_single((cfg, pipeline_cls, str(results_dir), None))
+    # Run inversion and collect metrics
+    cfg.plot_inputs = False
+    cfg.plot_results = False
+    cfg.plot_diagnostics = False
+
+    try:
+        pipeline = pipeline_cls(cfg)
+        problem = pipeline.run()
+        row = collect_metrics(problem, cfg, pipeline, swept_params=None)
+    except Exception as exc:
+        import traceback
+
+        tb = traceback.format_exc()
+        error_log = results_dir / "errors.log"
+        with open(error_log, "a") as f:
+            f.write(f"\n{'=' * 60}\n")
+            f.write(f"Config: {cid}\n")
+            f.write(f"Error: {exc}\n")
+            f.write(tb)
+        print(f"[{idx}] {cid} → error: {exc}")
+        row = {"config_id": cid, "error": str(exc)}
+
     pd.DataFrame([row]).to_csv(
         csv_path, mode="a", header=not csv_path.exists(), index=False
     )

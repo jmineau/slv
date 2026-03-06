@@ -13,7 +13,6 @@ from slv.inversion.config import InversionConfig
 from slv.inversion.pipelines import (
     DEFAULT_COMPONENT_DEPS,
     SLVMethaneInversion,
-    SLVMethaneInversionWithBias,
     _component_hash,
 )
 from slv.inversion.sweep import (
@@ -244,10 +243,10 @@ class TestSweepConfigs:
     def test_pipeline_cls_propagated(self):
         sweep = Sweep(
             cache="/tmp/sweep",
-            pipeline_cls=SLVMethaneInversionWithBias,
+            pipeline_cls=SLVMethaneInversion,
             prior_base_std=[0.01],
         )
-        assert all(cls is SLVMethaneInversionWithBias for _, cls in sweep.configs)
+        assert all(cls is SLVMethaneInversion for _, cls in sweep.configs)
 
     def test_base_config_fields_inherited(self):
         base = _cfg(tstart="2020-01-01", tend="2021-01-01")

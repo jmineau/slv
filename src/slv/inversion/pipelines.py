@@ -53,8 +53,6 @@ _PRIOR_DEPS: frozenset[str] = frozenset(
 )
 
 #: Default mapping of pipeline component → config fields that affect it.
-#: Subclasses may override ``COMPONENT_DEPS`` to add extra dependencies
-#: (e.g. ``SLVMethaneInversionWithBias`` adds ``"bias_std"`` to ``"prior_error"``).
 DEFAULT_COMPONENT_DEPS: dict[str, frozenset[str]] = {
     "obs": _OBS_DEPS,
     "prior": _PRIOR_DEPS,
@@ -190,11 +188,19 @@ def fips_cache(cls, filename):
 
 
 class SLVMethaneInversion(FluxInversionPipeline):
-    """SLV-specific implementation of the flux inversion pipeline."""
+    """SLV-specific implementation of the flux inversion pipeline.
+
+    Supports optional bias correction via config.bias_std and config.bias_grouping.
+    When bias_std is set, augments the state vector with bias terms that can be
+    grouped by time (default), site, or site organization.
+    """
 
     #: Maps each cache component to the InversionConfig fields it depends on.
-    #: Inherit and extend in subclasses to declare additional dependencies.
-    COMPONENT_DEPS: dict[str, frozenset[str]] = DEFAULT_COMPONENT_DEPS
+    COMPONENT_DEPS: dict[str, frozenset[str]] = {
+        **DEFAULT_COMPONENT_DEPS,
+        "prior_error": DEFAULT_COMPONENT_DEPS["prior_error"]
+        | {"bias_std", "bias_grouping"},
+    }
 
     @fips_cache(Vector, "obs")
     def get_obs(self) -> Vector:
@@ -216,6 +222,11 @@ class SLVMethaneInversion(FluxInversionPipeline):
 
     @fips_cache(Vector, "prior")
     def get_prior(self) -> Vector:
+        """Get the prior vector, optionally including bias terms.
+
+        Returns a single-block flux prior if bias_std is None, otherwise
+        returns a multi-block [flux, bias] prior.
+        """
         prior = get_slv_prior(
             prior=self.config.prior,
             out_grid=self.config.grid,
@@ -223,10 +234,21 @@ class SLVMethaneInversion(FluxInversionPipeline):
             bbox=self.config.bbox,
             **self.config.prior_kwargs,
         )
-        return Vector(name="prior", data=Block(name="flux", data=prior))
+        flux_prior = Vector(name="prior", data=Block(name="flux", data=prior))
+
+        # Add bias block if enabled
+        if self.config.bias_std is None:
+            return flux_prior
+        bias_blk = Block(self.get_bias(), name="bias")
+        return Vector(name="prior", data=[flux_prior.blocks["flux"], bias_blk])
 
     @fips_cache(ForwardOperator, "forward_operator")
     def get_forward_operator(self, obs: Vector, prior: Vector) -> ForwardOperator:
+        """Get the forward operator, optionally including bias Jacobian.
+
+        Returns a single-block flux Jacobian if bias_std is None, otherwise
+        returns a multi-block [flux_jac | bias_jac] operator.
+        """
         from slv.inversion.config import build_location_site_map
 
         simulations = sorted(list(Path(self.config.stilt_path).glob("out/by-id/*")))
@@ -240,6 +262,7 @@ class SLVMethaneInversion(FluxInversionPipeline):
             print(f"Auto-generated location mapper for {len(location_mapper)} sites")
             self.config.location_site_map = location_mapper
 
+        # Build flux Jacobian
         jacobian_builder = JacobianBuilder(simulations)
         jacobian = jacobian_builder.build_from_coords(
             self.config.grid_coords,
@@ -251,18 +274,52 @@ class SLVMethaneInversion(FluxInversionPipeline):
             timeout=self.config.timeout,
             sparse=self.config.sparse_jacobian,
         )
-        return ForwardOperator(jacobian)
+
+        # Return flux-only operator if no bias
+        if self.config.bias_std is None:
+            return ForwardOperator(jacobian)
+
+        # Add bias Jacobian
+        flux_jac_blk = ForwardOperator(jacobian).blocks["concentration", "flux"]
+        bias_jac_blk = MatrixBlock(
+            self.get_bias_jacobian(obs, prior), "concentration", "bias"
+        )
+        return ForwardOperator([flux_jac_blk, bias_jac_blk])
 
     @fips_cache(CovarianceMatrix, "prior_error")
     def get_prior_error(self, prior: Vector) -> CovarianceMatrix:
+        """Get prior error covariance, optionally including bias error.
+
+        Returns a single-block flux error if bias_std is None, otherwise
+        returns a multi-block [flux_err, bias_err] covariance.
+        """
+        # Build flux error
+        flux_prior = Vector(
+            prior.blocks["flux"] if self.config.bias_std else prior.data
+        )
         S_0 = build_prior_error(
-            prior,
+            flux_prior,
             base_std=self.config.prior_base_std,
             std_frac=self.config.prior_std_frac,
             time_scale=self.config.prior_time_scale,
             spatial_scale=self.config.prior_spatial_scale,
         )
-        return CovarianceMatrix(name="prior_error", data=S_0)
+
+        # Return flux-only error if no bias
+        if self.config.bias_std is None:
+            return CovarianceMatrix(name="prior_error", data=S_0)
+
+        # Add bias error
+        flux_err_blk = CovarianceMatrix(name="prior_error", data=S_0).blocks[
+            "flux", "flux"
+        ]
+        bias_index = prior["bias"].index
+        bias_err = DiagonalError(
+            name="bias_error", variances=self.config.bias_std**2
+        ).build(bias_index)
+        bias_err_blk = MatrixBlock(bias_err, "bias", "bias")
+
+        return CovarianceMatrix(name="prior_error", data=[flux_err_blk, bias_err_blk])
 
     @fips_cache(CovarianceMatrix, "modeldata_mismatch")
     def get_modeldata_mismatch(self, obs: Vector) -> CovarianceMatrix:
@@ -492,162 +549,103 @@ class SLVMethaneInversion(FluxInversionPipeline):
         """Map site to organization group."""
         return self.config.site_config.organization.to_dict().get(site, "unknown")
 
-
-class SLVMethaneInversionWithBias(SLVMethaneInversion):
-    """SLV methane inversion pipeline with an additional background bias block.
-
-    Extends SLVMethaneInversion by augmenting the state vector with a bias
-    correction term, allowing systematic offsets (e.g., per-site or per-period
-    background biases) to be jointly estimated alongside fluxes.
-
-    Requires ``config.bias_std`` to be set.
-    Override ``get_bias()`` for a custom bias index or initial values.
-    Override ``get_bias_jacobian()`` for a custom forward mapping.
-
-    Notes
-    -----
-    ``COMPONENT_DEPS`` is extended to include ``bias_std`` in the ``prior_error``
-    component so the cache invalidates correctly when the bias prior changes.
-    """
-
-    COMPONENT_DEPS: dict[str, frozenset[str]] = {
-        **DEFAULT_COMPONENT_DEPS,
-        "prior_error": DEFAULT_COMPONENT_DEPS["prior_error"] | {"bias_std"},
-    }
-
     def get_bias(self) -> pd.Series:
-        """Build the bias prior as a zero-valued Series indexed by ``config.flux_times``.
+        """Build the bias prior based on config.bias_grouping.
 
-        Override this method in a subclass to use a custom index (e.g.,
-        per-site x per-interval) or non-zero initial values.  The returned
-        Series must have a named index so it can form a well-labelled
-        ``Block``.
+        Returns a zero-valued Series with index determined by bias_grouping:
+          - None or "time": one bias per time interval
+          - "site": one bias per (time, obs_location)
+          - "site_group": one bias per (time, organization)
+
+        Override this method for non-zero initial values or custom groupings.
         """
-        return pd.Series(
-            0.0,
-            index=pd.Index(self.config.flux_times, name="time"),
-            name="bias",
-        )
+        grouping = self.config.bias_grouping
 
-    def get_prior(self) -> Vector:
-        """Returns a multi-block prior Vector: [flux, bias]."""
-        flux_prior = super().get_prior()
-        if self.config.bias_std is None:
-            return flux_prior
-        bias_blk = Block(self.get_bias(), name="bias")
-        return Vector(name="prior", data=[flux_prior.blocks["flux"], bias_blk])
+        if grouping in (None, "time"):
+            # Time-only bias (default)
+            index = pd.Index(self.config.flux_times, name="time")
 
-    def get_bias_jacobian(self, obs: Vector, prior: Vector) -> pd.DataFrame:
-        """Build the obs × bias Jacobian via interval assignment.
+        elif grouping == "site":
+            # Per-site bias
+            index = pd.MultiIndex.from_product(
+                [self.config.flux_times, self.config.sites],
+                names=["time", "obs_location"],
+            )
 
-        Each row (obs) gets a 1.0 in the column whose flux interval contains
-        that observation's ``obs_time``, and 0.0 everywhere else.  This is the
-        correct default for a temporally-indexed bias block.
+        elif grouping == "site_group":
+            # Per-site-group (organization) bias - only for configured sites
+            site_groups = (
+                self.config.site_config.loc[self.config.sites, "organization"]
+                .unique()
+                .tolist()
+            )
+            index = pd.MultiIndex.from_product(
+                [self.config.flux_times, site_groups], names=["time", "site_group"]
+            )
 
-        Override for a custom mapping (e.g. per-site weighting).
-        """
-        obs_index = obs["concentration"].index
-        bias_index = prior["bias"].index
-        obs_times = obs_index.get_level_values("obs_time")
+        else:
+            raise ValueError(
+                f"Unknown bias_grouping: {grouping}. "
+                f"Expected None, 'time', 'site', or 'site_group'"
+            )
 
-        # Bin each obs_time into its flux interval, then one-hot encode
-        cut = pd.cut(obs_times, bins=self.config.flux_time_bins)
-        jac = pd.get_dummies(cut, dtype=float)
-        jac.columns = jac.columns.map(lambda iv: iv.left)
-        jac.index = obs_index
-
-        # Align to bias index (handles any time-range trimming)
-        return jac.reindex(columns=bias_index, fill_value=0.0)
-
-    def get_forward_operator(self, obs: Vector, prior: Vector) -> ForwardOperator:
-        """Returns a multi-block ForwardOperator: [flux_jac | bias_jac]."""
-        if self.config.bias_std is None:
-            return super().get_forward_operator(obs, prior)
-        flux_only_prior = Vector(prior.blocks["flux"])
-        fo = super().get_forward_operator(obs, flux_only_prior)
-
-        flux_jac_blk = fo.blocks["concentration", "flux"]
-        bias_jac_blk = MatrixBlock(
-            self.get_bias_jacobian(obs, prior), "concentration", "bias"
-        )
-
-        return ForwardOperator([flux_jac_blk, bias_jac_blk])
-
-    def get_prior_error(self, prior: Vector) -> CovarianceMatrix:
-        """Returns a multi-block prior error CovarianceMatrix: [flux_err, bias_err]."""
-        if self.config.bias_std is None:
-            return super().get_prior_error(prior)
-        flux_err = super().get_prior_error(Vector(prior.blocks["flux"]))
-        flux_err_blk = flux_err.blocks["flux", "flux"]
-
-        bias_index = prior["bias"].index
-        bias_err = DiagonalError(
-            name="bias_error", variances=self.config.bias_std**2
-        ).build(bias_index)
-        bias_err_blk = MatrixBlock(bias_err, "bias", "bias")
-
-        return CovarianceMatrix(name="prior_error", data=[flux_err_blk, bias_err_blk])
-
-
-class SLVMethaneInversionWithSiteGroupBias(SLVMethaneInversionWithBias):
-    """SLV inversion with separate bias terms for UATAQ and DAQ site groups.
-
-    Creates a bias state vector with separate terms for each site organization
-    (UATAQ, DAQ) at each flux time interval. The forward operator maps each
-    observation to the bias term matching its site's organization and time.
-
-    Usage:
-        config = InversionConfig(bias_std=0.5)
-        inv = SLVMethaneInversionWithSiteGroupBias(config)
-    """
-
-    def get_bias(self) -> pd.Series:
-        """Build bias prior with (site_group, time) MultiIndex.
-
-        Returns a zero-valued Series with one bias term per site group
-        (UATAQ, DAQ, other) per flux time interval.
-        """
-        site_groups = ["UATAQ", "DAQ"]
-        index = pd.MultiIndex.from_product(
-            # put time first because it will be discovered first from the flux_prior
-            [self.config.flux_times, site_groups],
-            names=["time", "site_group"],
-        )
         return pd.Series(0.0, index=index, name="bias")
 
     def get_bias_jacobian(self, obs: Vector, prior: Vector) -> pd.DataFrame:
-        """Build obs × bias Jacobian mapping each obs to its site group + time.
+        """Build the obs × bias Jacobian based on config.bias_grouping.
 
-        Each row (obs) gets a 1.0 in the column (site_group, time) where:
-          - site_group matches the obs location's organization
-          - time is the flux interval containing that observation's obs_time
+        Maps each observation to its corresponding bias term:
+          - time: match by time interval only
+          - site: match by (time, obs_location)
+          - site_group: match by (time, organization)
         """
         obs_index = obs["concentration"].index
         bias_index = prior["bias"].index
-
-        # Map each obs location (site name) to its site group
-        obs_sites = obs_index.get_level_values("obs_location")
-        obs_site_groups = obs_sites.map(self.get_site_group)
+        obs_times = obs_index.get_level_values("obs_time")
+        grouping = self.config.bias_grouping
 
         # Bin obs times into flux intervals
-        obs_times = obs_index.get_level_values("obs_time")
         cut = pd.cut(obs_times, bins=self.config.flux_time_bins)
         flux_times = cut.map(lambda iv: iv.left if pd.notna(iv) else None)
 
-        # Create a categorical combining (flux_time, site_group) for one-hot encoding
-        bias_keys = pd.Series(
-            list(zip(flux_times, obs_site_groups, strict=True)),
-            index=obs_index,
-            dtype=object,
-        )
+        if grouping in (None, "time"):
+            # Time-only: simple one-hot encoding
+            jac = pd.get_dummies(cut, dtype=float)
+            jac.columns = jac.columns.map(lambda iv: iv.left)
+            jac.index = obs_index
 
-        # One-hot encode
-        jac = pd.get_dummies(bias_keys, dtype=float)
+        elif grouping == "site":
+            # Per-site: match (time, obs_location)
+            obs_sites = obs_index.get_level_values("obs_location")
+            bias_keys = pd.Series(
+                list(zip(flux_times, obs_sites, strict=True)),
+                index=obs_index,
+                dtype=object,
+            )
+            jac = pd.get_dummies(bias_keys, dtype=float)
+            jac.columns = pd.MultiIndex.from_tuples(
+                jac.columns, names=["time", "obs_location"]
+            )
 
-        # Convert tuple columns to MultiIndex for proper alignment
-        jac.columns = pd.MultiIndex.from_tuples(
-            jac.columns, names=["time", "site_group"]
-        )
+        elif grouping == "site_group":
+            # Per-site-group: match (time, organization)
+            obs_locs = obs_index.get_level_values("obs_location")
+            # Map obs_location to site first, then to organization
+            location_to_site = self.config.location_site_map or {}
+            obs_sites = obs_locs.map(lambda loc: location_to_site.get(loc, loc))
+            obs_site_groups = obs_sites.map(self.get_site_group)
+            bias_keys = pd.Series(
+                list(zip(flux_times, obs_site_groups, strict=True)),
+                index=obs_index,
+                dtype=object,
+            )
+            jac = pd.get_dummies(bias_keys, dtype=float)
+            jac.columns = pd.MultiIndex.from_tuples(
+                jac.columns, names=["time", "site_group"]
+            )
 
-        # Reindex columns to match bias MultiIndex
+        else:
+            raise ValueError(f"Unknown bias_grouping: {grouping}")
+
+        # Align to bias index (handles any time-range trimming)
         return jac.reindex(columns=bias_index, fill_value=0.0)

@@ -42,8 +42,8 @@ class TestGetMdmCompConfigs:
 
     def test_override_does_not_affect_other_components(self):
         components = get_mdm_comp_configs({"part": {"std": 0.001}})
-        instr = next(c for c in components if c["name"] == "instr_wbb")
-        assert instr["std"] == DEFAULT_MDM_CONFIG["instr_wbb"]["std"]
+        instr = next(c for c in components if c["name"] == "instr")
+        assert instr["std"] == DEFAULT_MDM_CONFIG["instr"]["std"]
 
     def test_override_multiple_components(self):
         components = get_mdm_comp_configs(

@@ -176,10 +176,13 @@ class InversionConfig:
         return get_mdm_comp_configs(self.mdm_config)
 
     # --- Bias ---
-    # Set bias_std to enable the bias block.  The default get_bias() builds one
-    # bias state per flux_time interval (all initialised to 0.0).
-    # Override SLVMethaneInversionWithBias.get_bias() for a custom index.
+    # Set bias_std to enable the bias block.
     bias_std: float | None = None  # Prior std-dev for each bias state (None = disabled)
+    # Bias grouping strategy:
+    #   None or "time": one bias per time interval
+    #   "site": one bias per (time, obs_location)
+    #   "site_group": one bias per (time, organization)
+    bias_grouping: str | None = None
 
     # --- Inversion Solver Settings ---
     min_obs_per_interval: int = 60

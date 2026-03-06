@@ -8,8 +8,7 @@ import pytest
 
 from slv.inversion.config import InversionConfig
 from slv.inversion.pipelines import (
-    SLVMethaneInversionWithBias,
-    SLVMethaneInversionWithSiteGroupBias,
+    SLVMethaneInversion,
     fips_cache,
 )
 
@@ -184,15 +183,15 @@ class TestFipsCache:
 
 
 # ---------------------------------------------------------------------------
-# SLVMethaneInversionWithBias.get_bias
+# SLVMethaneInversion.get_bias
 # ---------------------------------------------------------------------------
 
 
-class TestGetBias:
+class TestBiasGetBias:
     @pytest.fixture
     def pipeline(self):
         return make_pipeline(
-            SLVMethaneInversionWithBias,
+            SLVMethaneInversion,
             tstart="2020-01-01",
             tend="2020-04-01",
             flux_freq="MS",
@@ -222,15 +221,15 @@ class TestGetBias:
 
 
 # ---------------------------------------------------------------------------
-# SLVMethaneInversionWithBias.get_bias_jacobian
+# SLVMethaneInversion.get_bias_jacobian
 # ---------------------------------------------------------------------------
 
 
-class TestGetBiasJacobian:
+class TestBiasJacobian:
     @pytest.fixture
     def pipeline(self):
         return make_pipeline(
-            SLVMethaneInversionWithBias,
+            SLVMethaneInversion,
             tstart="2020-01-01",
             tend="2020-04-01",
             flux_freq="MS",
@@ -268,7 +267,7 @@ class TestGetBiasJacobian:
 
 
 # ---------------------------------------------------------------------------
-# SLVMethaneInversionWithSiteGroupBias.get_site_group
+# SLVMethaneInversion (site_group grouping)
 # ---------------------------------------------------------------------------
 
 
@@ -276,11 +275,12 @@ class TestGetSiteGroup:
     @pytest.fixture
     def pipeline(self):
         return make_pipeline(
-            SLVMethaneInversionWithSiteGroupBias,
+            SLVMethaneInversion,
             tstart="2020-01-01",
             tend="2020-04-01",
             flux_freq="MS",
             bias_std=0.5,
+            bias_grouping="site_group",
         )
 
     def test_uataq_site(self, pipeline):
@@ -294,7 +294,7 @@ class TestGetSiteGroup:
 
 
 # ---------------------------------------------------------------------------
-# SLVMethaneInversionWithSiteGroupBias.get_bias
+# SLVMethaneInversion.get_bias (site_group grouping)
 # ---------------------------------------------------------------------------
 
 
@@ -302,11 +302,13 @@ class TestSiteGroupBiasGetBias:
     @pytest.fixture
     def pipeline(self):
         return make_pipeline(
-            SLVMethaneInversionWithSiteGroupBias,
+            SLVMethaneInversion,
             tstart="2020-01-01",
             tend="2020-04-01",
             flux_freq="MS",
+            sites=["wbb", "hw"],  # UATAQ and DAQ
             bias_std=0.5,
+            bias_grouping="site_group",
         )
 
     def test_returns_series(self, pipeline):
@@ -319,7 +321,7 @@ class TestSiteGroupBiasGetBias:
 
     def test_index_names(self, pipeline):
         bias = pipeline.get_bias()
-        assert bias.index.names == ["site_group", "time"]
+        assert bias.index.names == ["time", "site_group"]
 
     def test_site_groups_present(self, pipeline):
         bias = pipeline.get_bias()
@@ -338,7 +340,7 @@ class TestSiteGroupBiasGetBias:
 
 
 # ---------------------------------------------------------------------------
-# SLVMethaneInversionWithSiteGroupBias.get_bias_jacobian
+# SLVMethaneInversion.get_bias_jacobian (site_group grouping)
 # ---------------------------------------------------------------------------
 
 
@@ -346,11 +348,13 @@ class TestSiteGroupBiasJacobian:
     @pytest.fixture
     def pipeline(self):
         return make_pipeline(
-            SLVMethaneInversionWithSiteGroupBias,
+            SLVMethaneInversion,
             tstart="2020-01-01",
             tend="2020-04-01",
             flux_freq="MS",
+            sites=["wbb", "hw"],  # UATAQ and DAQ
             bias_std=0.5,
+            bias_grouping="site_group",
             location_site_map={
                 "wbb_loc": "wbb",  # UATAQ
                 "hw_loc": "hw",  # DAQ
@@ -367,16 +371,16 @@ class TestSiteGroupBiasJacobian:
         obs = make_obs_vector(["wbb_loc"], obs_times)
 
         jac = pipeline.get_bias_jacobian(obs, prior)
-        assert jac[("UATAQ", pd.Timestamp("2020-01-01"))].iloc[0] == 1.0
-        assert jac[("DAQ", pd.Timestamp("2020-01-01"))].iloc[0] == 0.0
+        assert jac[(pd.Timestamp("2020-01-01"), "UATAQ")].iloc[0] == 1.0
+        assert jac[(pd.Timestamp("2020-01-01"), "DAQ")].iloc[0] == 0.0
 
     def test_daq_obs_maps_to_daq_column(self, pipeline, prior):
         obs_times = pd.to_datetime(["2020-02-20"])
         obs = make_obs_vector(["hw_loc"], obs_times)
 
         jac = pipeline.get_bias_jacobian(obs, prior)
-        assert jac[("DAQ", pd.Timestamp("2020-02-01"))].iloc[0] == 1.0
-        assert jac[("UATAQ", pd.Timestamp("2020-02-01"))].iloc[0] == 0.0
+        assert jac[(pd.Timestamp("2020-02-01"), "DAQ")].iloc[0] == 1.0
+        assert jac[(pd.Timestamp("2020-02-01"), "UATAQ")].iloc[0] == 0.0
 
     def test_each_obs_maps_to_exactly_one_column(self, pipeline, prior):
         obs_times = pd.to_datetime(["2020-01-15", "2020-02-10", "2020-03-05"])
