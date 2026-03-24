@@ -32,7 +32,7 @@ _OBS_DEPS: frozenset[str] = frozenset(
         "tend",
         "sites",
         "filter_pcaps",
-        "afternoon_hours_local",
+        "subset_hours",
         "utc_offset",
     }
 )
@@ -198,6 +198,9 @@ class SLVMethaneInversion(FluxInversionPipeline):
     #: Maps each cache component to the InversionConfig fields it depends on.
     COMPONENT_DEPS: dict[str, frozenset[str]] = {
         **DEFAULT_COMPONENT_DEPS,
+        "prior": DEFAULT_COMPONENT_DEPS["prior"] | {"bias_std", "bias_grouping"},
+        "forward_operator": DEFAULT_COMPONENT_DEPS["forward_operator"]
+        | {"bias_std", "bias_grouping"},
         "prior_error": DEFAULT_COMPONENT_DEPS["prior_error"]
         | {"bias_std", "bias_grouping"},
     }
@@ -213,7 +216,7 @@ class SLVMethaneInversion(FluxInversionPipeline):
                     sites=self.config.sites,
                     site_config=self.config.site_config,
                     time_range=self.config.time_range,
-                    subset_hours=self.config.subset_hours_utc,
+                    subset_hours=self.config.subset_hours,
                     filter_pcaps=self.config.filter_pcaps,
                     num_processes=self.config.num_processes,
                 ),
@@ -477,6 +480,9 @@ class SLVMethaneInversion(FluxInversionPipeline):
 
         # --- Plot Concentrations ---
         problem.plot.concentrations()
+
+        # --- Plot Background and Bias ---
+        viz.plot_background_and_bias(problem)
 
         plt.show()
 

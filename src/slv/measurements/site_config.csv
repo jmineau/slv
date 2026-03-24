@@ -10,5 +10,5 @@ trx01,TRAX 1136,UATAQ,mobile,TRUE,NA,NA,5,lgr_ugga lgr_ugga_manual_cal
 ut,Utah Division of Air Quality,DAQ,stationary,TRUE,40.777028,-111.945852,4,picarro_g2307
 uta,Wendover,NOAA GML,flask,TRUE,39.9018,-113.7181,NA,NA
 wbb,William Browning Building,UATAQ,stationary,TRUE,40.766189,-111.847672,35,lgr_ugga
-wyo,Wyoming Mobile Lab,UWY,mobile,FALSE,NA,NA,3,aeris
+wyo,Wyoming Mobile Lab,UWY,mobile,FALSE,NA,NA,3,picarro_g2401
 zz,Utah State Correctional Facility,DAQ,stationary,TRUE,40.80793,-112.087772,4,picarro_g2307

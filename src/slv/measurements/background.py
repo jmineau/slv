@@ -8,8 +8,8 @@ from functools import cached_property
 import pandas as pd
 import uataq
 import xarray as xr
-from lair.air import noaa
-from lair.air.background import rolling_baseline, thoning
+from lair import noaa
+from lair.background import rolling_baseline, thoning
 
 from slv.domain import SLV_LAT, SLV_LON, UT_BBOX
 
@@ -39,8 +39,11 @@ class UTAFlask(noaa.Flask):
     NOAA GML Flask Data for UTA site
     """
 
-    def __init__(self, include_preliminary: bool = True, **kwargs):
-        super().__init__(specie="ch4", site="uta", **kwargs)
+    def __init__(self, specie="ch4", include_preliminary: bool = True, **kwargs):
+        super().__init__(specie=specie, site="uta", **kwargs)
+
+        if not self.filepath.exists():
+            self.download()
 
         # Drop bad data
         flags = "..P" if include_preliminary else None

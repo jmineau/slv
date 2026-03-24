@@ -222,3 +222,163 @@ def plot_mdm_components(components: dict[str, pd.DataFrame]):
     plt.tight_layout()
 
     return fig, ax
+
+
+def plot_background_and_bias(problem):
+    """Plot background concentration and bias corrections.
+
+    Parameters
+    ----------
+    problem : FluxProblem
+        Solved inversion problem containing prior, posterior, and constant.
+
+    Notes
+    -----
+    - If bias exists, creates two subplots: background and bias
+    - If no bias, only plots background
+    - Background: automatically detects if all sites share the same regional
+      background (plots single line) or have site-specific backgrounds (plots
+      separate lines)
+    - Bias is shown as prior (initial) and posterior (estimated) values
+    - For grouped bias (site/site_group), each group gets its own line
+    """
+    # Check if bias exists
+    has_bias = False
+    if hasattr(problem, "prior") and hasattr(problem.prior, "data"):
+        # Check if prior has a "block" level in its index
+        prior_index = problem.prior.data.index
+        if isinstance(prior_index, pd.MultiIndex) and "block" in prior_index.names:
+            # Check if "bias" is one of the block values
+            has_bias = "bias" in prior_index.get_level_values("block").unique()
+
+    # Set up subplots
+    n_plots = 2 if has_bias else 1
+    fig, axes = plt.subplots(n_plots, 1, figsize=(12, 4 * n_plots))
+    if n_plots == 1:
+        axes = [axes]
+
+    # Plot background
+    if hasattr(problem, "constant") and problem.constant is not None:
+        bg_data = problem.constant["concentration"]
+
+        # Get unique sites
+        if isinstance(bg_data.index, pd.MultiIndex):
+            sites = bg_data.index.get_level_values("obs_location").unique()
+
+            # Check if all sites have identical background values
+            site_series = {
+                site: bg_data.xs(site, level="obs_location") for site in sites
+            }
+
+            # Compare all site series to the first one
+            first_site = list(site_series.keys())[0]
+            first_series = site_series[first_site]
+            all_identical = all(
+                site_series[site].equals(first_series) for site in sites
+            )
+
+            if all_identical:
+                # All sites share the same background - plot just one line
+                axes[0].plot(
+                    first_series.index,
+                    first_series.values,
+                    color="blue",
+                    linewidth=2,
+                    label="Regional Background (all sites)",
+                )
+            else:
+                # Sites have different backgrounds - plot each separately
+                for site in sites:
+                    site_data = site_series[site]
+                    axes[0].plot(
+                        site_data.index,
+                        site_data.values,
+                        label=site,
+                        alpha=0.7,
+                        linewidth=1.5,
+                    )
+        else:
+            axes[0].plot(
+                bg_data.index,
+                bg_data.values,
+                color="blue",
+                linewidth=2,
+                label="Regional Background",
+            )
+
+        axes[0].set_ylabel("Background [ppm]", fontsize=12)
+        axes[0].set_xlabel("Time", fontsize=12)
+        axes[0].set_title("Background Concentration", fontsize=14, fontweight="bold")
+        axes[0].legend(bbox_to_anchor=(1.05, 1), loc="upper left")
+        axes[0].grid(True, alpha=0.3)
+
+    # Plot bias if it exists
+    if has_bias:
+        prior_bias = problem.prior["bias"]
+        posterior_bias = problem.posterior["bias"]
+
+        # Check if bias has grouping (MultiIndex)
+        if isinstance(prior_bias.index, pd.MultiIndex):
+            # Grouped bias (site or site_group)
+            group_level = prior_bias.index.names[
+                1
+            ]  # Should be 'obs_location' or 'site_group'
+            groups = prior_bias.index.get_level_values(group_level).unique()
+
+            # Get the default color cycle
+            colors = plt.rcParams["axes.prop_cycle"].by_key()["color"]
+
+            for i, group in enumerate(groups):
+                prior_group = prior_bias.xs(group, level=group_level)
+                posterior_group = posterior_bias.xs(group, level=group_level)
+
+                # Use same color for prior and posterior of this group
+                color = colors[i % len(colors)]
+
+                # Plot prior as dashed, posterior as solid
+                axes[1].plot(
+                    prior_group.index,
+                    prior_group.values,
+                    "--",
+                    label=f"{group} (prior)",
+                    color=color,
+                    alpha=0.6,
+                    linewidth=1.5,
+                )
+                axes[1].plot(
+                    posterior_group.index,
+                    posterior_group.values,
+                    "-",
+                    label=f"{group} (posterior)",
+                    color=color,
+                    linewidth=2,
+                )
+        else:
+            # Time-only bias
+            axes[1].plot(
+                prior_bias.index,
+                prior_bias.values,
+                "--",
+                label="Prior",
+                color="gray",
+                alpha=0.6,
+                linewidth=1.5,
+            )
+            axes[1].plot(
+                posterior_bias.index,
+                posterior_bias.values,
+                "-",
+                label="Posterior",
+                color="red",
+                linewidth=2,
+            )
+
+        axes[1].axhline(y=0, color="black", linestyle=":", linewidth=1, alpha=0.5)
+        axes[1].set_ylabel("Bias [ppm]", fontsize=12)
+        axes[1].set_xlabel("Time", fontsize=12)
+        axes[1].set_title("Bias Correction", fontsize=14, fontweight="bold")
+        axes[1].legend(bbox_to_anchor=(1.05, 1), loc="upper left")
+        axes[1].grid(True, alpha=0.3)
+
+    plt.tight_layout()
+    return fig, axes

@@ -123,9 +123,15 @@ class InversionConfig:
     flux_freq: str = "MS"
     utc_offset: int = UTC_OFFSET
 
-    # Local afternoon hours (12 PM to 4 PM)
-    afternoon_hours_local: list[int] = field(
-        default_factory=lambda: [12, 13, 14, 15, 16]
+    # Hours of day (local time) to subset obs for inversion (e.g., afternoon hours when boundary layer is typically more developed).
+    subset_hours: list[int] = field(
+        default_factory=lambda: [
+            12,
+            13,
+            14,
+            15,
+            16,
+        ]  # Local afternoon hours (12 PM to 4 PM)
     )
 
     # Grid boundaries and resolution
@@ -281,7 +287,7 @@ class InversionConfig:
     @property
     def subset_hours_utc(self) -> list[float]:
         """Dynamically converts local afternoon hours to UTC for data subsetting."""
-        return [(hour - self.utc_offset) % 24 for hour in self.afternoon_hours_local]
+        return [(hour - self.utc_offset) % 24 for hour in self.subset_hours]
 
     @cached_property
     def site_config(self):
