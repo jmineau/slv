@@ -60,7 +60,7 @@ DEFAULT_COMPONENT_DEPS: dict[str, frozenset[str]] = {
     "forward_operator": _OBS_DEPS
     | _PRIOR_DEPS
     | {
-        "stilt_path",
+        "stilt_paths",
         "sparse_jacobian",
         # num_processes and timeout intentionally excluded: they are
         # computational knobs that do not change the Jacobian result.
@@ -256,8 +256,32 @@ class SLVMethaneInversion(FluxInversionPipeline):
         """
         from slv.inversion.config import build_location_site_map
 
-        simulations = sorted(list(Path(self.config.stilt_path).glob("out/by-id/*")))
-        print(f"Found {len(simulations)} simulations")
+        stilt_paths = self.config.stilt_paths
+        if isinstance(stilt_paths, str):
+            stilt_paths = [stilt_paths]
+
+        # Collect simulations from all paths, deduplicating by sim ID.
+        # When duplicates exist, prefer the path that has the requested resolution.
+        resolution = self.config.resolution
+        seen: dict[str, Path] = {}  # sim_id -> best path
+        for stilt_path in stilt_paths:
+            for sim_dir in Path(stilt_path).glob("out/by-id/*"):
+                sim_id = sim_dir.name
+                if sim_id not in seen:
+                    seen[sim_id] = sim_dir
+                elif resolution:
+                    # If the current winner lacks the resolution but this one has it, swap
+                    current_has = (
+                        seen[sim_id] / f"{sim_id}_{resolution}_foot.nc"
+                    ).exists()
+                    new_has = (sim_dir / f"{sim_id}_{resolution}_foot.nc").exists()
+                    if not current_has and new_has:
+                        seen[sim_id] = sim_dir
+
+        simulations = sorted(seen.values())
+        print(
+            f"Found {len(simulations)} simulations from {len(stilt_paths)} STILT path(s)"
+        )
 
         # Auto-generate location mapper if not provided
         location_mapper = self.config.location_site_map

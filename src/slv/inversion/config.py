@@ -162,7 +162,7 @@ class InversionConfig:
     prior_kwargs: dict = field(default_factory=dict)
 
     # --- Jacobian ---
-    stilt_path: str = (
+    stilt_paths: str | list[str] = (
         "/uufs/chpc.utah.edu/common/home/u6036966/wkspace/methane/SLV/stilt/wbb"
     )
     sparse_jacobian: bool = True
@@ -189,6 +189,13 @@ class InversionConfig:
     #   "site": one bias per (time, obs_location)
     #   "site_group": one bias per (time, organization)
     bias_grouping: str | None = None
+
+    # --- Jacobian Coverage Filter ---
+    # Minimum total Jacobian column sum per (lat, lon) cell, summed across all
+    # observations and time steps.  Cells below this threshold are removed from
+    # the state vector (across ALL months) and held fixed at the prior.
+    # None = no filtering (default).
+    min_jacobian_coverage: float | None = None
 
     # --- Inversion Solver Settings ---
     min_obs_per_interval: int = 60
