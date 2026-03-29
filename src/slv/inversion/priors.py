@@ -1,13 +1,17 @@
+import pandas as pd
 import xarray as xr
 from lair import inventories
 
 
-def get_slv_prior(prior: str, out_grid, flux_times, bbox=None, extent=None, **kwargs):
+def get_slv_prior(
+    prior: str, out_grid, flux_times, flux_freq=None, bbox=None, extent=None, **kwargs
+):
     units = "umol/m2/s"  # Must match jacobian (STILT)
     if prior.lower() == "epa":
         return load_epa_prior(
             out_grid=out_grid,
             flux_times=flux_times,
+            flux_freq=flux_freq,
             bbox=bbox,
             extent=extent,
             units=units,
@@ -21,6 +25,7 @@ def get_slv_prior(prior: str, out_grid, flux_times, bbox=None, extent=None, **kw
 def load_epa_prior(
     out_grid,
     flux_times,
+    flux_freq=None,
     bbox=None,
     extent=None,
     units=None,
@@ -80,15 +85,18 @@ def load_epa_prior(
     inventory.name = "flux"  # Rename emissions
     inventory.attrs["units"] = total.attrs["units"]
 
-    if express:
-        # Forward fill months with annual value
-        prior = (
-            inventory.sel(time="2020")
-            .reindex(time=flux_times, method="nearest")
-            .to_series()
-        )
-    else:
-        prior = inventory.reindex(time=flux_times, method="nearest").to_series()
+    # Resample inventory to target flux frequency if needed
+    if flux_freq is not None:
+        inv_freq = pd.infer_freq(inventory.time.values)
+        if inv_freq is not None:
+            ref = pd.Timestamp("2020-01-01")
+            target_step = ref + pd.tseries.frequencies.to_offset(flux_freq)
+            inv_step = ref + pd.tseries.frequencies.to_offset(inv_freq)
+            if target_step > inv_step:
+                inventory = inventory.resample(time=flux_freq).mean()
+
+    # Align to exact flux_times (nearest-neighbor fills finer-than-inventory requests)
+    prior = inventory.reindex(time=flux_times, method="nearest").to_series()
 
     if return_regridder:
         return prior, regridder

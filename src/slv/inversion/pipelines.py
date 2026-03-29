@@ -234,6 +234,7 @@ class SLVMethaneInversion(FluxInversionPipeline):
             prior=self.config.prior,
             out_grid=self.config.grid,
             flux_times=self.config.flux_times,
+            flux_freq=self.config.flux_freq,
             bbox=self.config.bbox,
             **self.config.prior_kwargs,
         )
