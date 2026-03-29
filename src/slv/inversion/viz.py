@@ -231,6 +231,93 @@ def plot_mdm_components(components: dict[str, pd.DataFrame]):
     return fig, ax
 
 
+def plot_residuals(
+    problem,
+    rolling_window="30d",
+    gap_threshold="7d",
+    show_raw=True,
+    location_dim="obs_location",
+):
+    """Plot posterior - observed concentration residuals for all sites.
+
+    Parameters
+    ----------
+    problem : FluxProblem
+        Solved inversion problem.
+    rolling_window : str or int, default '30d'
+        Rolling window for smoothed lines.
+    gap_threshold : str, default '7d'
+        Minimum gap duration to highlight as missing data.
+    show_raw : bool, default True
+        Whether to show raw residual points behind the smoothed lines.
+    location_dim : str, default 'obs_location'
+        Name of the location dimension in the data.
+    """
+    obs = problem.concentrations
+    posterior = problem.posterior_concentrations
+    residuals = (posterior - obs).dropna()
+
+    locations = residuals.index.get_level_values(location_dim).unique()
+    gap_td = pd.Timedelta(gap_threshold)
+
+    fig, ax = plt.subplots()
+
+    for location in locations:
+        loc_resid = residuals.loc[location]
+        color = ax._get_lines.get_next_color()
+
+        if show_raw:
+            ax.scatter(
+                loc_resid.index,
+                loc_resid.values,
+                s=4,
+                alpha=0.15,
+                color=color,
+            )
+
+        # Detect gaps
+        times = loc_resid.index.sort_values()
+        diffs = times.to_series().diff()
+        gap_starts = times[diffs > gap_td]
+
+        # Smoothed line with gaps broken
+        smoothed = loc_resid.rolling(
+            window=rolling_window, center=True, min_periods=1
+        ).mean()
+        for gap_start in gap_starts:
+            gap_begin = times[times < gap_start][-1]
+            mid = gap_begin + (gap_start - gap_begin) / 2
+            smoothed.loc[mid:gap_start] = np.nan
+
+        ax.plot(
+            smoothed.index,
+            smoothed.values,
+            linewidth=1.5,
+            color=color,
+            label=location,
+        )
+
+    ax.axhline(0, color="black", linewidth=0.8, linestyle="--")
+    ax.legend()
+
+    # Percentile-based y-limits
+    all_vals = residuals.values
+    all_vals = all_vals[~np.isnan(all_vals)]
+    if len(all_vals) > 0:
+        p01, p99 = np.percentile(all_vals, [1, 99])
+        margin = (p99 - p01) * 0.1
+        ax.set_ylim(p01 - margin, p99 + margin)
+
+    ax.set(
+        title="Concentration Residuals (posterior $-$ observed)",
+        ylabel="Residual [ppm]",
+        xlabel="Time",
+    )
+    fig.autofmt_xdate()
+
+    return fig, ax
+
+
 def plot_background_and_bias(problem):
     """Plot background concentration and bias corrections.
 

@@ -3,6 +3,7 @@ import hashlib
 import json
 import time
 from pathlib import Path
+from typing import Any
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -414,7 +415,7 @@ class SLVMethaneInversion(FluxInversionPipeline):
         ds = fluxes.to_xarray().to_dataset()
 
         time_step = {
-            "a": "annual",
+            "YS": "annual",
             "MS": "monthly",
             "D": "daily",
         }[self.config.flux_freq]
@@ -482,6 +483,9 @@ class SLVMethaneInversion(FluxInversionPipeline):
         # --- Plot Concentrations ---
         problem.plot.concentrations()
 
+        # --- Plot Residuals ---
+        viz.plot_residuals(problem)
+
         # --- Plot Background and Bias ---
         viz.plot_background_and_bias(problem)
 
@@ -502,11 +506,165 @@ class SLVMethaneInversion(FluxInversionPipeline):
 
         plt.show()
 
+    def _apply_jacobian_coverage_filter(self, inputs: dict[str, Any]) -> dict[str, Any]:
+        """Remove cells with insufficient Jacobian coverage from the state vector.
+
+        Cells are removed across ALL time steps to preserve the Kronecker
+        structure of the prior error covariance.  Removed cells are stored
+        so they can be reinstated at the prior value via ``reconstruct_posterior``.
+        """
+        threshold = self.config.min_jacobian_coverage
+        prior = inputs["prior"]
+        forward_operator = inputs["forward_operator"]
+        has_bias = self.config.bias_std is not None
+
+        # --- Compute per-cell coverage ---
+        flux_blk = forward_operator.blocks["concentration", "flux"]
+        flux_jac = (
+            flux_blk.data
+        )  # DataFrame: (obs_location, obs_time) × (lon, lat, time)
+
+        col_abs_sums = flux_jac.abs().sum(axis=0)
+        lat_vals = col_abs_sums.index.get_level_values("lat")
+        lon_vals = col_abs_sums.index.get_level_values("lon")
+        cell_coverage = col_abs_sums.groupby([lat_vals, lon_vals]).sum()
+
+        retained_cells = set(cell_coverage[cell_coverage >= threshold].index.tolist())
+        removed_cells = set(cell_coverage[cell_coverage < threshold].index.tolist())
+
+        n_total = len(cell_coverage)
+        n_removed = len(removed_cells)
+        print(
+            f"  Keeping {n_total - n_removed}/{n_total} cells "
+            f"(removed {n_removed} below threshold {threshold:.2e})"
+        )
+
+        if n_removed == 0:
+            return inputs
+
+        # Store for posterior reconstruction
+        self._full_prior = prior
+        self._removed_cells = removed_cells
+
+        # --- Helper: boolean mask for a MultiIndex with lat/lon levels ---
+        def _cell_mask(index):
+            lats = index.get_level_values("lat")
+            lons = index.get_level_values("lon")
+            return pd.array(
+                [
+                    (lat, lon) in retained_cells
+                    for lat, lon in zip(lats, lons, strict=False)
+                ],
+                dtype=bool,
+            )
+
+        # --- Filter prior ---
+        flux_series = prior["flux"]
+        filtered_flux = flux_series[_cell_mask(flux_series.index)]
+
+        if has_bias:
+            filtered_prior = Vector(
+                name=prior.name,
+                data=[Block(filtered_flux, name="flux"), prior.blocks["bias"]],
+            )
+        else:
+            filtered_prior = Vector(
+                name=prior.name, data=Block(name="flux", data=filtered_flux)
+            )
+
+        # --- Filter forward operator ---
+        jac_mask = _cell_mask(flux_jac.columns)
+        filtered_flux_jac = flux_jac.loc[:, jac_mask]
+        filtered_flux_blk = MatrixBlock(
+            filtered_flux_jac,
+            row_block="concentration",
+            col_block="flux",
+            sparse=self.config.sparse_jacobian,
+        )
+
+        if has_bias:
+            bias_blk = forward_operator.blocks["concentration", "bias"]
+            filtered_fo = ForwardOperator([filtered_flux_blk, bias_blk])
+        else:
+            filtered_fo = ForwardOperator(filtered_flux_blk)
+
+        # --- Rebuild prior error for the smaller grid ---
+        flux_prior_vec = Vector(filtered_prior.blocks["flux"])
+        S_0 = build_prior_error(
+            flux_prior_vec,
+            base_std=self.config.prior_base_std,
+            std_frac=self.config.prior_std_frac,
+            time_scale=self.config.prior_time_scale,
+            spatial_scale=self.config.prior_spatial_scale,
+        )
+
+        if not has_bias:
+            prior_error = CovarianceMatrix(name="prior_error", data=S_0)
+        else:
+            flux_err_blk = CovarianceMatrix(name="prior_error", data=S_0).blocks[
+                "flux", "flux"
+            ]
+            bias_index = filtered_prior["bias"].index
+            bias_err = DiagonalError(
+                name="bias_error", variances=self.config.bias_std**2
+            ).build(bias_index)
+            bias_err_blk = MatrixBlock(bias_err, "bias", "bias")
+            prior_error = CovarianceMatrix(
+                name="prior_error", data=[flux_err_blk, bias_err_blk]
+            )
+
+        return {
+            **inputs,
+            "prior": filtered_prior,
+            "forward_operator": filtered_fo,
+            "prior_error": prior_error,
+        }
+
+    def reconstruct_posterior(
+        self, posterior_fluxes: pd.Series | None = None
+    ) -> pd.Series:
+        """Reconstruct the full posterior by inserting prior for unconstrained cells.
+
+        Parameters
+        ----------
+        posterior_fluxes : pd.Series, optional
+            Posterior flux series from the inversion.  If None, uses
+            ``self.problem.posterior_fluxes``.
+
+        Returns
+        -------
+        pd.Series
+            Full posterior with constrained cells from the inversion and
+            unconstrained cells filled with prior values.
+        """
+        if posterior_fluxes is None:
+            posterior_fluxes = self.problem.posterior_fluxes
+
+        if not hasattr(self, "_full_prior") or not hasattr(self, "_removed_cells"):
+            return posterior_fluxes
+
+        # Get the full prior flux series
+        full_flux = self._full_prior["flux"]
+
+        # Start with prior, then overwrite constrained cells
+        full_posterior = full_flux.copy()
+        full_posterior.name = posterior_fluxes.name
+        full_posterior.loc[posterior_fluxes.index] = posterior_fluxes.values
+
+        return full_posterior
+
     def run(self, estimator_kwargs: dict | None = None, **kwargs) -> FluxProblem:
         total_start = time.perf_counter()
         print("Getting problem inputs...")
         inputs = self.get_inputs()
         print(f"Inputs prepared in {time.perf_counter() - total_start:.2f}s")
+
+        # Apply Jacobian-based cell filtering
+        if self.config.min_jacobian_coverage is not None:
+            step_start = time.perf_counter()
+            print("Filtering cells by Jacobian coverage...")
+            inputs = self._apply_jacobian_coverage_filter(inputs)
+            print(f"Cells filtered in {time.perf_counter() - step_start:.2f}s")
 
         print("Initializing solver...")
         step_start = time.perf_counter()
