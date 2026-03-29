@@ -18,8 +18,39 @@ def get_slv_prior(
             return_regridder=False,
             **kwargs,
         )
+    elif prior.lower() == "constant":
+        return build_constant_prior(
+            out_grid=out_grid,
+            flux_times=flux_times,
+            units=units,
+            **kwargs,
+        )
     else:
         raise ValueError(f"Unsupported prior: {prior}")
+
+
+def build_constant_prior(out_grid, flux_times, value=0.0, units=None):
+    """Build a spatially and temporally uniform prior.
+
+    Parameters
+    ----------
+    out_grid : xr.DataArray
+        Target grid with lon/lat coordinates.
+    flux_times : pd.DatetimeIndex
+        Time points for flux estimation.
+    value : float
+        Constant flux value to fill the prior with (default 0.0).
+    units : str, optional
+        Units string to attach as metadata.
+    """
+    grid_da = xr.DataArray(
+        data=value,
+        coords={"time": flux_times, "lon": out_grid["lon"], "lat": out_grid["lat"]},
+        dims=["time", "lon", "lat"],
+        name="flux",
+        attrs={"units": units} if units else {},
+    )
+    return grid_da.to_series()
 
 
 def load_epa_prior(
