@@ -32,16 +32,21 @@ def plot_grid(
     sites=None,
     site_config=None,
     site_color="black",
-    add_point_sources={
-        "landfill": "yellow",
-        "refinery": "cyan",
-        "powerplant": "orange",
-        "industrial": "purple",
-        "wastewater": "blue",
-        "unknown": "pink",
-    },
-    subplot_kwargs={"figsize": (6, 6)},
+    add_point_sources=None,
+    subplot_kwargs=None,
 ):
+    if add_point_sources is None:
+        add_point_sources = {
+            "landfill": "yellow",
+            "refinery": "cyan",
+            "powerplant": "orange",
+            "industrial": "purple",
+            "wastewater": "blue",
+            "unknown": "pink",
+        }
+    if subplot_kwargs is None:
+        subplot_kwargs = {"figsize": (6, 6)}
+
     fig, ax = plt.subplots(subplot_kw={"projection": tiler.crs}, **subplot_kwargs)
 
     ax.set_extent(extent, crs=PC)
@@ -63,10 +68,10 @@ def plot_grid(
 def plot_concentrations(obs):
     fig, ax = plt.subplots()
 
-    obs.unstack(level="obs_location").resample("h").mean().plot(ax=ax, alpha=0.7)
+    obs.unstack(level="obs_location").plot(ax=ax, alpha=0.7)
 
     ax.set(
-        title="Hourly Averaged Valid CH$_4$ Observations",
+        title="Valid CH$_4$ Observations",
         xlabel="Time [UTC]",
         ylabel="CH$_4$ [ppm]",
     )
@@ -75,7 +80,9 @@ def plot_concentrations(obs):
     return fig, ax
 
 
-def plot_inventory(inventory, extent, tiler, zoom, subplot_kwargs={"figsize": (6, 6)}):
+def plot_inventory(inventory, extent, tiler, zoom, subplot_kwargs=None):
+    if subplot_kwargs is None:
+        subplot_kwargs = {"figsize": (6, 6)}
     fig, ax = plt.subplots(subplot_kw={"projection": tiler.crs}, **subplot_kwargs)
 
     ax.set_extent(extent, crs=PC)
