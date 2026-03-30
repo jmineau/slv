@@ -36,6 +36,7 @@ dependencies = [
 inversion = [
     "fips[flux] @ git+https://github.com/jmineau/fips",
     "joblib>=1.5.3",
+    "seaborn",
     # "xesmf",
 ]
 

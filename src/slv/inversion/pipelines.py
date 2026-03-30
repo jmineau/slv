@@ -458,6 +458,50 @@ class SLVMethaneInversion(FluxInversionPipeline):
             .to_series()
         )
 
+    def desroziers_diagnostic(
+        self,
+        groupby: str | list[str] | None = "obs_location",
+        freq: str | None = None,
+    ) -> pd.DataFrame:
+        """Compare Desroziers-diagnosed vs specified observation error variances.
+
+        Parameters
+        ----------
+        groupby : str, list of str, or None
+            Index level(s) to aggregate by. Default groups by site.
+            Use None for per-observation values.
+        freq : str, optional
+            Temporal resampling frequency (e.g. 'MS', 'QS', 'YS').
+            Groups obs_time into bins at this frequency in addition to
+            any levels in ``groupby``.
+
+        Returns
+        -------
+        pd.DataFrame
+            Columns: diagnosed, specified, ratio (diagnosed / specified).
+        """
+        diagnosed = self.problem.desroziers.variances.to_series()
+        diagnosed.name = "diagnosed"
+
+        specified = self.problem.modeldata_mismatch.variances.to_series()
+        specified.name = "specified"
+
+        result = pd.concat([diagnosed, specified], axis=1)
+
+        if groupby is not None or freq is not None:
+            groupers = []
+            if groupby is not None:
+                if isinstance(groupby, str):
+                    groupby = [groupby]
+                groupers.extend(groupby)
+            if freq is not None:
+                groupers.append(pd.Grouper(level="obs_time", freq=freq))
+            result = result.groupby(groupers).mean()
+
+        result["ratio"] = result["diagnosed"] / result["specified"]
+
+        return result
+
     def plot_inputs(self, problem: FluxProblem):
         config = self.config
 
@@ -526,6 +570,13 @@ class SLVMethaneInversion(FluxInversionPipeline):
             add_sites=True,
             sites=config.sites,
             site_config=config.site_config,
+        )
+
+        # --- Plot Desroziers Diagnostic ---
+        viz.plot_desroziers(
+            by_site=self.desroziers_diagnostic(),
+            per_obs=self.desroziers_diagnostic(groupby=None),
+            timeseries=self.desroziers_diagnostic(freq=config.flux_freq),
         )
 
         plt.show()

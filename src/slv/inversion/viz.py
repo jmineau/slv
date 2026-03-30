@@ -231,6 +231,97 @@ def plot_mdm_components(components: dict[str, pd.DataFrame]):
     return fig, ax
 
 
+def plot_desroziers(
+    by_site: pd.DataFrame, per_obs: pd.DataFrame, timeseries: pd.DataFrame
+):
+    """Plot Desroziers diagnostic: variance comparison, box-whisker, and timeseries.
+
+    Parameters
+    ----------
+    by_site : pd.DataFrame
+        Site-aggregated Desroziers diagnostic (default groupby) with
+        'diagnosed', 'specified', and 'ratio' columns.
+    per_obs : pd.DataFrame
+        Per-observation Desroziers diagnostic (groupby=None) with
+        'diagnosed', 'specified', and 'ratio' columns. Index should have
+        'obs_location' and 'obs_time' levels.
+    timeseries : pd.DataFrame
+        Temporally-aggregated Desroziers diagnostic with 'ratio' column.
+        Index should have 'obs_location' and 'obs_time' levels.
+    """
+    import seaborn as sns
+
+    fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(12, 13))
+
+    # --- Panel 1: side-by-side variance bars by site ---
+    x = np.arange(len(by_site))
+    width = 0.35
+    labels = [str(idx) for idx in by_site.index]
+
+    ax1.bar(
+        x - width / 2,
+        by_site["specified"],
+        width,
+        label="Specified (MDM)",
+        color="steelblue",
+        edgecolor="black",
+        linewidth=0.8,
+    )
+    ax1.bar(
+        x + width / 2,
+        by_site["diagnosed"],
+        width,
+        label="Diagnosed (Desroziers)",
+        color="coral",
+        edgecolor="black",
+        linewidth=0.8,
+    )
+    ax1.set_ylabel("Mean Variance [ppm$^2$]")
+    ax1.set_title(
+        "Desroziers Diagnostic: Specified vs Diagnosed Error", fontweight="bold"
+    )
+    ax1.set_xticks(x)
+    ax1.set_xticklabels(labels)
+    ax1.legend()
+    ax1.grid(True, alpha=0.3, axis="y")
+
+    # --- Panel 2: box-whisker of ratio by site ---
+    plot_data = per_obs.reset_index()
+    upper = plot_data["ratio"].quantile(0.95)
+    sns.boxplot(
+        data=plot_data,
+        x="obs_location",
+        y="ratio",
+        ax=ax2,
+        showfliers=False,
+        palette="Set2",
+    )
+    ax2.set_ylim(top=max(upper * 1.1, 1.5))
+    ax2.axhline(1.0, color="black", linestyle="--", linewidth=1)
+    ax2.set_ylabel("Ratio (Diagnosed / Specified)")
+    ax2.set_xlabel("")
+    ax2.set_title("Desroziers Ratio Distribution by Site", fontweight="bold")
+    ax2.grid(True, alpha=0.3, axis="y")
+
+    # --- Panel 3: ratio timeseries per site ---
+    ts = timeseries.reset_index()
+    for site, group in ts.groupby("obs_location"):
+        ax3.plot(
+            group["obs_time"], group["ratio"], marker="o", markersize=3, label=site
+        )
+    ax3.axhline(1.0, color="black", linestyle="--", linewidth=1)
+    ax3.set_ylabel("Ratio (Diagnosed / Specified)")
+    ax3.set_xlabel("Time")
+    ax3.set_title("Desroziers Ratio Over Time", fontweight="bold")
+    ax3.legend(title="Site")
+    ax3.grid(True, alpha=0.3)
+    fig.autofmt_xdate()
+
+    plt.tight_layout()
+
+    return fig, (ax1, ax2, ax3)
+
+
 def plot_residuals(
     problem,
     rolling_window="30d",
