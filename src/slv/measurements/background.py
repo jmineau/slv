@@ -34,51 +34,69 @@ class CarbonTrackerCH4(noaa.CarbonTrackerCH4):
         return mf
 
 
-class UTAFlask(noaa.Flask):
+class GMLDiscrete(noaa.GMLData):
     """
-    NOAA GML Flask Data for UTA site
+    NOAA GML discrete sample data with QC filtering and Thoning curve support.
     """
 
-    def __init__(self, specie="ch4", include_preliminary: bool = True, **kwargs):
-        super().__init__(specie=specie, site="uta", **kwargs)
+    def __init__(
+        self,
+        specie: str,
+        site: str,
+        value_col: str = "value",
+        include_preliminary: bool = True,
+        **kwargs,
+    ):
+        super().__init__(specie=specie, site=site, **kwargs)
 
         if not self.filepath.exists():
             self.download()
 
         # Drop bad data
         flags = "..P" if include_preliminary else None
-        self.data = noaa.Flask.apply_qaqc(self.data, flags=flags)
+        self._raw = noaa.GMLData.apply_qaqc(self.data, flags=flags)
 
-        # Reduce to CH4 column
-        self.data = self.data.rename(columns={"value": "CH4"})["CH4"]
+        # Extract value column
+        self.data = self._raw.rename(columns={value_col: specie.upper()})[
+            specie.upper()
+        ]
 
     @cached_property
     def latitude(self) -> float:
-        return self.data.latitude.values[0]
+        return self._raw.latitude.values[0]
 
     @cached_property
     def longitude(self) -> float:
-        return self.data.longitude.values[0]
+        return self._raw.longitude.values[0]
 
     def thoning_curve(
         self, smooth_time: list[dt.datetime] | None = None, **kwargs
     ) -> pd.Series:
         """
-        Thoning curve for the UTA flask data
+        Thoning curve fit to the discrete sample data.
 
         Parameters
         ----------
         smooth_time : list[dt.datetime] | None
-            Time range to smooth over. If None, use the entire time range of the data.
+            Times to evaluate the smooth curve at. If None, use the data times.
         **kwargs : dict
-            Additional arguments to pass to the thonning filter.
+            Additional arguments to pass to the Thoning filter.
 
         Returns
         -------
         pd.Series
-            Thoning curve for the UTA flask data.
+            Smoothed curve.
         """
         return thoning(self.data, smooth_time=smooth_time, **kwargs)
+
+
+class UTAFlask(GMLDiscrete):
+    """
+    NOAA GML Flask Data for UTA site
+    """
+
+    def __init__(self, **kwargs):
+        super().__init__(specie="ch4", site="uta", **kwargs)
 
 
 class UATAQCH4:
@@ -114,8 +132,7 @@ class UATAQCH4:
         data = data.resample("1h").mean()
 
         # Apply method
-        if method:
-            if method == "base":
-                data = rolling_baseline(data)
+        if method and method == "base":
+            data = rolling_baseline(data)
 
         return data
