@@ -260,7 +260,7 @@ class SaltLake:
 
     @collect_feature
     def add_census(self, census, alpha):
-        DATA_DIR = get_data_dir("SLV_DATA_DIR")
+        DATA_DIR = get_data_dir("LINGROUP_DATA_DIR")
 
         def thous_formatter(x, pos):
             if x == 0:
@@ -270,7 +270,7 @@ class SaltLake:
         if census == "population":
             # http://doi.org/10.18128/D050.V17.0
 
-            file = DATA_DIR / "census" / "block_groups" / "utah_2020_pop.geojson"
+            file = DATA_DIR / "spatial" / "census" / "block_groups" / "utah_2020_pop.geojson"
             gdf = gpd.read_file(file)
 
             crs = ccrs.AlbersEqualArea()
@@ -324,8 +324,8 @@ class SaltLake:
 
     @collect_feature
     def add_border(self, lvl):
-        DATA_DIR = get_data_dir("SLV_DATA_DIR")
-        borders_dir = DATA_DIR / "Utah_boundaries"
+        DATA_DIR = get_data_dir("LINGROUP_DATA_DIR")
+        borders_dir = DATA_DIR / "spatial/administrative" / "boundaries"
         lvl_file = {
             "state": borders_dir / "Utah.shp",
             "county": borders_dir / "Counties.shp",
@@ -347,8 +347,8 @@ class SaltLake:
     @collect_feature
     def add_interstates(self):
         # FIXME interstates not plotting
-        DATA_DIR = get_data_dir("SLV_DATA_DIR")
-        file = DATA_DIR / "Utah_boundaries" / "Roads.shp"
+        DATA_DIR = get_data_dir("LINGROUP_DATA_DIR")
+        file = DATA_DIR / "spatial" / "transportation" / "Roads.shp"
 
         roads = gpd.read_file(file, bbox=self.bounds)
 
@@ -376,7 +376,7 @@ class SaltLake:
     @collect_feature
     def add_MesoWest(self, status="active", networks=["UUNET"]):
         # TODO create MesoWest module
-        DATA_DIR = get_data_dir("SLV_DATA_DIR")
+        DATA_DIR = get_data_dir("LINGROUP_DATA_DIR")
         file = DATA_DIR / "MesoWest" / "MesoWest_Utah_stations_20221017.csv"
 
         # Read MesoWest data

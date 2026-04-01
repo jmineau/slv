@@ -505,6 +505,62 @@ class SLVMethaneInversion(FluxInversionPipeline):
 
         return result
 
+    def summarize(self) -> None:
+        from scipy import stats
+
+        super().summarize()
+        config = self.config
+        problem = self.problem
+
+        prior_flux = problem.prior_fluxes
+        post_flux = problem.posterior_fluxes
+
+        # --- Domain total emissions (requires inventory/regridding) ---
+        if self._retained_cells is not None:
+            full_prior = self._full_prior["flux"].astype(float)
+            full_prior.name = prior_flux.name
+            reconstructed = self.reconstruct_posterior()
+            total_prior = self.calculate_total_flux(
+                full_prior, units=config.output_units
+            )
+            total_post = self.calculate_total_flux(
+                reconstructed, units=config.output_units
+            )
+        else:
+            total_prior = self.calculate_total_flux(
+                prior_flux, units=config.output_units
+            )
+            total_post = self.calculate_total_flux(post_flux, units=config.output_units)
+
+        units = config.output_units or "umol/m2/s"
+
+        print("--------------------------------------------------")
+        print(f"DOMAIN TOTAL EMISSIONS [{units}]:")
+        summary = pd.DataFrame(
+            {
+                "prior": total_prior,
+                "posterior": total_post,
+                "change_%": ((total_post / total_prior) - 1) * 100,
+            }
+        )
+        print(summary.to_string(float_format="%.2f"))
+        print(f"  Mean Prior:     {total_prior.mean():.2f}")
+        print(f"  Mean Posterior: {total_post.mean():.2f}")
+        print(
+            f"  Mean Change:    {((total_post.mean() / total_prior.mean()) - 1) * 100:+.1f}%"
+        )
+
+        if len(total_post) > 2:
+            t = total_post.index
+            t_years = t.year + (t.day_of_year - 1) / 365.25
+            slope, intercept, r_value, p_value, std_err = stats.linregress(
+                t_years, total_post.values
+            )
+            print(
+                f"  Trend:          {slope:+.2f} {units}/yr (R^2={r_value**2:.3f}, p={p_value:.3g})"
+            )
+        print("==================================================")
+
     @property
     def _all_cells(self) -> set | None:
         """Return the set of all (lat, lon) cells, or None if no filter applied."""
