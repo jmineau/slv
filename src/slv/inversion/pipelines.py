@@ -73,7 +73,7 @@ DEFAULT_COMPONENT_DEPS: dict[str, frozenset[str]] = {
         "prior_spatial_scale",
     },
     "modeldata_mismatch": _OBS_DEPS | {"mdm_config"},
-    "constant": _OBS_DEPS | {"bg_baseline_window", "bg_min_periods"},
+    "constant": _OBS_DEPS | {"background", "background_kwargs"},
 }
 
 
@@ -375,16 +375,19 @@ class SLVMethaneInversion(FluxInversionPipeline):
 
     @fips_cache(Vector, "constant")
     def get_constant(self, obs: Vector) -> Vector:
+        obs_times = obs.data.index.get_level_values("obs_time").unique()
         data = get_slv_background(
+            background=self.config.background,
+            obs_times=obs_times,
             sites=self.config.sites,
             site_config=self.config.site_config,
             time_range=self.config.time_range,
-            baseline_window=self.config.bg_baseline_window,
             filter_pcaps=self.config.filter_pcaps,
             num_processes=self.config.num_processes,
+            **self.config.background_kwargs,
         )
 
-        # Duplicate obs for each location
+        # Align background to obs index
         data = (
             obs.data.reset_index()
             .join(data, on="obs_time", lsuffix="_obs")
@@ -502,6 +505,23 @@ class SLVMethaneInversion(FluxInversionPipeline):
 
         return result
 
+    @property
+    def _all_cells(self) -> set | None:
+        """Return the set of all (lat, lon) cells, or None if no filter applied."""
+        if not hasattr(self, "_full_prior"):
+            return None
+        full_flux = self._full_prior["flux"]
+        lats = full_flux.index.get_level_values("lat")
+        lons = full_flux.index.get_level_values("lon")
+        return set(zip(lats, lons, strict=False))
+
+    @property
+    def _retained_cells(self) -> set | None:
+        """Return the set of retained (lat, lon) cells, or None if no filter applied."""
+        if self._all_cells is None:
+            return None
+        return self._all_cells - self._removed_cells
+
     def plot_inputs(self, problem: FluxProblem):
         config = self.config
 
@@ -518,19 +538,33 @@ class SLVMethaneInversion(FluxInversionPipeline):
         # --- Plot Concentrations ---
         viz.plot_concentrations(problem.concentrations)
 
-        # --- Plot Fluxes ---
-        viz.plot_inventory(
-            problem.prior_fluxes.to_xarray(),
-            extent=config.map_extent,
-            tiler=config.tiler,
-            zoom=config.tiler_zoom,
-        )
+        # --- Plot Prior Fluxes ---
+        if self._retained_cells is not None:
+            full_prior_xr = self._full_prior["flux"].to_xarray()
+            viz.plot_prior_with_coverage(
+                full_prior_xr,
+                self._retained_cells,
+                self._all_cells,
+                dx=config.dx,
+                dy=config.dy,
+                extent=config.map_extent,
+                tiler=config.tiler,
+                zoom=config.tiler_zoom,
+            )
+        else:
+            viz.plot_inventory(
+                problem.prior_fluxes.to_xarray(),
+                extent=config.map_extent,
+                tiler=config.tiler,
+                zoom=config.tiler_zoom,
+            )
 
         plt.show()
 
     def plot_results(self, problem: FluxProblem):
         config = self.config
-        # --- Plot Fluxes ---
+
+        # --- Plot Fluxes (inversion domain only) ---
         viz.plot_fluxes(
             problem,
             tiler=config.tiler,
@@ -540,12 +574,40 @@ class SLVMethaneInversion(FluxInversionPipeline):
             site_config=config.site_config,
         )
 
-        total_prior = self.calculate_total_flux(
-            problem.prior_fluxes, units=config.output_units
-        )
-        total_posterior = self.calculate_total_flux(
-            problem.posterior_fluxes, units=config.output_units
-        )
+        # --- Plot Reconstructed Posterior (full domain) ---
+        if self._retained_cells is not None:
+            reconstructed = self.reconstruct_posterior()
+            reconstructed_xr = reconstructed.to_xarray()
+            viz.plot_reconstructed_posterior(
+                reconstructed_xr,
+                self._retained_cells,
+                self._all_cells,
+                dx=config.dx,
+                dy=config.dy,
+                extent=config.map_extent,
+                tiler=config.tiler,
+                zoom=config.tiler_zoom,
+                sites=config.sites,
+                site_config=config.site_config,
+            )
+
+        # --- Total Emissions (use full reconstructed domain) ---
+        if self._retained_cells is not None:
+            full_prior = self._full_prior["flux"]
+            full_prior.name = problem.prior_fluxes.name
+            total_prior = self.calculate_total_flux(
+                full_prior, units=config.output_units
+            )
+            total_posterior = self.calculate_total_flux(
+                reconstructed, units=config.output_units
+            )
+        else:
+            total_prior = self.calculate_total_flux(
+                problem.prior_fluxes, units=config.output_units
+            )
+            total_posterior = self.calculate_total_flux(
+                problem.posterior_fluxes, units=config.output_units
+            )
         viz.plot_total_fluxes_over_time(total_prior, total_posterior)
 
         # --- Plot Concentrations ---
@@ -579,6 +641,13 @@ class SLVMethaneInversion(FluxInversionPipeline):
             timeseries=self.desroziers_diagnostic(freq=config.flux_freq),
         )
 
+        # --- Plot Unconstrained Cells Contribution ---
+        if hasattr(self, "_removed_contribution"):
+            viz.plot_removed_contribution(
+                self._removed_contribution,
+                problem.constant["concentration"],
+            )
+
         plt.show()
 
     def _apply_jacobian_coverage_filter(self, inputs: dict[str, Any]) -> dict[str, Any]:
@@ -588,22 +657,24 @@ class SLVMethaneInversion(FluxInversionPipeline):
         structure of the prior error covariance.  Removed cells are stored
         so they can be reinstated at the prior value via ``reconstruct_posterior``.
         """
-        threshold = self.config.min_jacobian_coverage
+        percentile = self.config.jacobian_coverage_percentile
         prior = inputs["prior"]
         forward_operator = inputs["forward_operator"]
         has_bias = self.config.bias_std is not None
 
-        # --- Compute per-cell coverage ---
+        # --- Compute mean per-observation-location sensitivity per cell ---
         flux_blk = forward_operator.blocks["concentration", "flux"]
-        flux_jac = (
-            flux_blk.data
-        )  # DataFrame: (obs_location, obs_time) × (lon, lat, time)
+        flux_jac = flux_blk.data  # (obs_time, obs_location) × (lat, lon, time)
+
+        n_obs_locations = flux_jac.index.get_level_values("obs_location").nunique()
 
         col_abs_sums = flux_jac.abs().sum(axis=0)
         lat_vals = col_abs_sums.index.get_level_values("lat")
         lon_vals = col_abs_sums.index.get_level_values("lon")
-        cell_coverage = col_abs_sums.groupby([lat_vals, lon_vals]).sum()
+        cell_total = col_abs_sums.groupby([lat_vals, lon_vals]).sum()
+        cell_coverage = cell_total / n_obs_locations
 
+        threshold = np.percentile(cell_coverage.values, percentile)
         retained_cells = set(cell_coverage[cell_coverage >= threshold].index.tolist())
         removed_cells = set(cell_coverage[cell_coverage < threshold].index.tolist())
 
@@ -611,7 +682,8 @@ class SLVMethaneInversion(FluxInversionPipeline):
         n_removed = len(removed_cells)
         print(
             f"  Keeping {n_total - n_removed}/{n_total} cells "
-            f"(removed {n_removed} below threshold {threshold:.2e})"
+            f"(removed {n_removed} below {percentile}th percentile, "
+            f"threshold={threshold:.2e})"
         )
 
         if n_removed == 0:
@@ -649,6 +721,7 @@ class SLVMethaneInversion(FluxInversionPipeline):
 
         # --- Filter forward operator ---
         jac_mask = _cell_mask(flux_jac.columns)
+        removed_jac_mask = ~jac_mask
         filtered_flux_jac = flux_jac.loc[:, jac_mask]
         filtered_flux_blk = MatrixBlock(
             filtered_flux_jac,
@@ -662,6 +735,33 @@ class SLVMethaneInversion(FluxInversionPipeline):
             filtered_fo = ForwardOperator([filtered_flux_blk, bias_blk])
         else:
             filtered_fo = ForwardOperator(filtered_flux_blk)
+
+        # --- Add removed cells' contribution to the constant ---
+        removed_flux = flux_series[~_cell_mask(flux_series.index)]
+        removed_flux_jac = flux_jac.loc[:, removed_jac_mask]
+        removed_fo = ForwardOperator(
+            MatrixBlock(
+                removed_flux_jac,
+                row_block="concentration",
+                col_block="flux",
+                sparse=self.config.sparse_jacobian,
+            )
+        )
+        removed_prior = Vector(
+            name="removed_prior",
+            data=Block(name="flux", data=removed_flux),
+        )
+        removed_contribution = removed_fo.convolve(removed_prior)
+        self._removed_contribution = removed_contribution
+
+        constant = inputs["constant"]
+        constant_data = constant["concentration"]
+        updated_constant_data = constant_data.copy()
+        updated_constant_data[:] = constant_data.values + removed_contribution.values
+        updated_constant = Vector(
+            name=constant.name,
+            data=Block(name="concentration", data=updated_constant_data),
+        )
 
         # --- Rebuild prior error for the smaller grid ---
         flux_prior_vec = Vector(filtered_prior.blocks["flux"])
@@ -693,6 +793,7 @@ class SLVMethaneInversion(FluxInversionPipeline):
             "prior": filtered_prior,
             "forward_operator": filtered_fo,
             "prior_error": prior_error,
+            "constant": updated_constant,
         }
 
     def reconstruct_posterior(
@@ -722,7 +823,7 @@ class SLVMethaneInversion(FluxInversionPipeline):
         full_flux = self._full_prior["flux"]
 
         # Start with prior, then overwrite constrained cells
-        full_posterior = full_flux.copy()
+        full_posterior = full_flux.astype(float).copy()
         full_posterior.name = posterior_fluxes.name
         full_posterior.loc[posterior_fluxes.index] = posterior_fluxes.values
 
@@ -735,7 +836,7 @@ class SLVMethaneInversion(FluxInversionPipeline):
         print(f"Inputs prepared in {time.perf_counter() - total_start:.2f}s")
 
         # Apply Jacobian-based cell filtering
-        if self.config.min_jacobian_coverage is not None:
+        if self.config.jacobian_coverage_percentile is not None:
             step_start = time.perf_counter()
             print("Filtering cells by Jacobian coverage...")
             inputs = self._apply_jacobian_coverage_filter(inputs)

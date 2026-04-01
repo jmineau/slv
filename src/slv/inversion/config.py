@@ -146,8 +146,8 @@ class InversionConfig:
     sites: list[str] = field(default_factory=lambda: ["wbb"])
     filter_pcaps: bool = True
 
-    bg_baseline_window: str = "14d"
-    bg_min_periods: int = int(24 * 3.5)  # 3.5 days worth of hourly obs
+    background: str = "rolling"  # "rolling", "gml"
+    background_kwargs: dict = field(default_factory=dict)
 
     aggregate_obs: bool | str = (
         False  # Whether to aggregate obs space ('1d' for daily, '12h' for 12-hourly, etc.)
@@ -191,11 +191,13 @@ class InversionConfig:
     bias_grouping: str | None = None
 
     # --- Jacobian Coverage Filter ---
-    # Minimum total Jacobian column sum per (lat, lon) cell, summed across all
-    # observations and time steps.  Cells below this threshold are removed from
-    # the state vector (across ALL months) and held fixed at the prior.
+    # Percentile threshold for Jacobian coverage filtering.  Per-cell coverage
+    # is the mean absolute Jacobian sensitivity per observation location.
+    # Cells below this percentile are removed from the state vector across all
+    # time steps and held fixed at the prior.
+    # E.g., 10 removes the least-sensitive 10% of cells.
     # None = no filtering (default).
-    min_jacobian_coverage: float | None = None
+    jacobian_coverage_percentile: float | None = None
 
     # --- Inversion Solver Settings ---
     min_obs_per_interval: int = 60

@@ -104,6 +104,131 @@ def plot_inventory(inventory, extent, tiler, zoom, subplot_kwargs=None):
     return fig, ax
 
 
+def shade_removed_cells(ax, retained_cells, all_cells, dx, dy):
+    """Shade removed (unconstrained) cells with cross-hatching."""
+    from matplotlib.patches import Rectangle
+
+    removed_cells = all_cells - retained_cells
+    for lat, lon in removed_cells:
+        rect = Rectangle(
+            (lon - dx / 2, lat - dy / 2),
+            dx,
+            dy,
+            linewidth=0.5,
+            edgecolor="black",
+            facecolor="none",
+            hatch="///",
+            transform=PC,
+        )
+        ax.add_patch(rect)
+    return ax
+
+
+def _plot_flux_with_coverage(
+    flux_xr,
+    retained_cells,
+    all_cells,
+    dx,
+    dy,
+    extent,
+    tiler,
+    zoom,
+    title,
+    cmap="Reds",
+    add_sites=True,
+    sites=None,
+    site_config=None,
+    site_color="black",
+    add_point_sources=None,
+    subplot_kwargs=None,
+):
+    """Plot flux map with removed cells shaded out."""
+    if subplot_kwargs is None:
+        subplot_kwargs = {"figsize": (6, 6)}
+    fig, ax = plt.subplots(subplot_kw={"projection": tiler.crs}, **subplot_kwargs)
+
+    ax.set_extent(extent, crs=PC)
+    ax.add_image(tiler, zoom)
+
+    flux_xr.mean(dim="time").plot(
+        ax=ax,
+        transform=PC,
+        add_colorbar=True,
+        cmap=cmap,
+        alpha=0.55,
+        cbar_kwargs={"label": "CH$_4$ Flux [umol/m$^2$/s]"},
+    )
+
+    shade_removed_cells(ax, retained_cells, all_cells, dx, dy)
+
+    if add_point_sources is None:
+        add_point_sources = {"landfill": "yellow", "refinery": "cyan"}
+    if add_point_sources:
+        for ps_type, color in add_point_sources.items():
+            plot_point_sources(ax=ax, kind=ps_type, color=color)
+    if add_sites and sites is not None and site_config is not None:
+        plot_sites(ax, sites=sites, site_config=site_config, color=site_color)
+
+    add_latlon_ticks(ax, extent, x_rotation=45)
+    ax.set(title=title)
+
+    return fig, ax
+
+
+def plot_prior_with_coverage(
+    full_prior_xr,
+    retained_cells,
+    all_cells,
+    dx,
+    dy,
+    extent,
+    tiler,
+    zoom,
+    **kwargs,
+):
+    """Plot the full prior with removed cells shaded."""
+    return _plot_flux_with_coverage(
+        full_prior_xr,
+        retained_cells,
+        all_cells,
+        dx,
+        dy,
+        extent,
+        tiler,
+        zoom,
+        title="Prior Flux (shaded = unconstrained)",
+        cmap="Reds",
+        **kwargs,
+    )
+
+
+def plot_reconstructed_posterior(
+    posterior_xr,
+    retained_cells,
+    all_cells,
+    dx,
+    dy,
+    extent,
+    tiler,
+    zoom,
+    **kwargs,
+):
+    """Plot the reconstructed posterior with removed cells shaded."""
+    return _plot_flux_with_coverage(
+        posterior_xr,
+        retained_cells,
+        all_cells,
+        dx,
+        dy,
+        extent,
+        tiler,
+        zoom,
+        title="Reconstructed Posterior (shaded = unconstrained)",
+        cmap="coolwarm",
+        **kwargs,
+    )
+
+
 def plot_fluxes(
     problem,
     tiler,
@@ -163,6 +288,28 @@ def plot_fluxes_by_timestep(
             plot_sites(ax, sites=sites, site_config=site_config, color=site_color)
 
     return facet
+
+
+def plot_removed_contribution(removed_contribution, background):
+    """Plot the concentration contribution from unconstrained cells vs background."""
+    fig, axes = plt.subplots(2, 1, figsize=(10, 6), sharex=True)
+
+    times = background.index.get_level_values("obs_time")
+
+    axes[0].plot(times, background.values, color="C0")
+    axes[0].set(ylabel="Background [ppm]", title="Background Concentration")
+
+    axes[1].plot(times, removed_contribution.values, color="C1")
+    axes[1].set(
+        ylabel="Contribution [ppm]",
+        title="Unconstrained Cells' Contribution",
+        xlabel="Time",
+    )
+
+    fig.suptitle("Constant Term Components", fontsize=14, fontweight="bold")
+    fig.tight_layout()
+
+    return fig, axes
 
 
 def plot_total_fluxes_over_time(*total_fluxes: pd.Series):
