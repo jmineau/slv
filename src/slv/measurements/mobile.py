@@ -3,10 +3,13 @@ from pathlib import Path
 import cartopy.crs as ccrs
 import geopandas as gpd
 import uataq
+from lair.geo import points_along_line
+from shapely import Point
 
 from slv import get_data_dir
 
 GROUP_DIR = Path(get_data_dir("LINGROUP_DATA_DIR"))
+USER_DIR = Path(get_data_dir("SLV_USER_DATA_DIR"))
 
 storage_locations = {
     "JRRSC": GROUP_DIR
@@ -39,6 +42,48 @@ def load_trax_lines(meters=False) -> gpd.GeoDataFrame:
         # Convert to UTM zone 12 for meter units
         lines = lines.to_crs(ccrs.UTM(12).proj4_init)
     return lines
+
+
+def load_trax_points(
+    spacing=2000, meters=False, resolution_factor=None
+) -> gpd.GeoDataFrame:
+    points_geojson = USER_DIR / f"trax/points_{spacing}m.geojson"
+
+    if points_geojson.exists():
+        print(f"Loading cached TRAX points from {points_geojson}")
+        points_df = gpd.read_file(points_geojson)
+    else:
+        print(f"Generating TRAX points with {spacing}m spacing...")
+        # Generate points along TRAX lines at specified spacing
+        lines = load_trax_lines(meters=True)
+        points = points_along_line(
+            lines.geometry, spacing=spacing, resolution_factor=resolution_factor
+        )
+        # Round UTM coordinates to whole meters
+        points = [Point(round(p.x), round(p.y)) for p in points]
+        points_df = gpd.GeoDataFrame(geometry=points, crs=ccrs.UTM(12).proj4_init)
+
+        # Determine which TRAX lines pass through each buffered point
+        buffered = points_df.copy()
+        buffered.geometry = points_df.buffer(spacing / 2)
+        joined = gpd.sjoin(
+            buffered, lines[["line", "geometry"]], how="left", predicate="intersects"
+        )
+        points_df["lines"] = joined.groupby(joined.index)["line"].apply(
+            lambda x: "".join(sorted(x))
+        )
+        points_df.to_file(points_geojson, index=False)
+
+    if meters:
+        return points_df
+    else:
+        points_df = points_df.to_crs("EPSG:4326")
+        points_df.geometry = gpd.points_from_xy(
+            # Round lat/lon to 5 decimal places (~1 meter) to avoid excessive precision in GeoJSON
+            points_df.geometry.x.round(5),
+            points_df.geometry.y.round(5),
+        )
+        return points_df
 
 
 def merge_with_gps(
