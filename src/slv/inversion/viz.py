@@ -7,20 +7,56 @@ from slv.emissions.point_sources import plot_point_sources
 
 
 def plot_sites(ax, sites, site_config, color="black"):
+    # Plot all mobile and stationary sites, but only return one handle/label for each type
+    mobile_marker = "^"
+    stationary_marker = "o"
+    mobile_sites = []
+    stationary_sites = []
     for site in sites:
-        ax.scatter(
-            site_config.at[site, "longitude"],
-            site_config.at[site, "latitude"],
+        is_mobile = False
+        if "type" in site_config.columns:
+            is_mobile = site_config.at[site, "type"].lower() == "mobile"
+        elif "mobile" in site.lower():
+            is_mobile = True
+        if is_mobile:
+            mobile_sites.append(site)
+        else:
+            stationary_sites.append(site)
+    handles = []
+    labels = []
+    # Plot stationary sites
+    if stationary_sites:
+        h_stat = ax.scatter(
+            site_config.loc[stationary_sites, "longitude"],
+            site_config.loc[stationary_sites, "latitude"],
             transform=PC,
-            label=site.upper(),
+            label="Stationary Site",
             c=color,
-            marker="o",
+            marker=stationary_marker,
             s=100,
             edgecolor="white",
             linewidth=1.5,
+            zorder=10,
         )
-
-    return ax
+        handles.append(h_stat)
+        labels.append("Stationary Site")
+    # Plot mobile sites
+    if mobile_sites:
+        h_mob = ax.scatter(
+            site_config.loc[mobile_sites, "longitude"],
+            site_config.loc[mobile_sites, "latitude"],
+            transform=PC,
+            label="Mobile Site",
+            c=color,
+            marker=mobile_marker,
+            s=120,
+            edgecolor="white",
+            linewidth=1.5,
+            zorder=10,
+        )
+        handles.append(h_mob)
+        labels.append("Mobile Site")
+    return handles, labels
 
 
 def plot_grid(
@@ -36,13 +72,14 @@ def plot_grid(
     subplot_kwargs=None,
 ):
     if add_point_sources is None:
+        # Okabe-Ito colorblind-friendly palette
         add_point_sources = {
-            "landfill": "yellow",
-            "refinery": "cyan",
-            "powerplant": "orange",
-            "industrial": "purple",
-            "wastewater": "blue",
-            "unknown": "pink",
+            "landfill": "#E69F00",  # orange
+            "refinery": "#56B4E9",  # sky blue
+            "powerplant": "#009E73",  # teal green
+            "industrial": "#F0E442",  # yellow
+            "wastewater": "#0072B2",  # blue
+            "unknown": "#D55E00",  # vermillion
         }
     if subplot_kwargs is None:
         subplot_kwargs = {"figsize": (6, 6)}
@@ -52,16 +89,98 @@ def plot_grid(
     ax.set_extent(extent, crs=PC)
     ax.add_image(tiler, zoom)
 
-    grid.plot(ax=ax, transform=PC, add_colorbar=False, fc="None", ec="black")
+    grid.plot(
+        ax=ax,
+        transform=PC,
+        add_colorbar=False,
+        fc="None",
+        ec="black",
+        linewidth=1.5,
+        zorder=1,
+    )
 
+    # --- Plot point sources and collect legend handles ---
+    ps_handles = []
+    ps_labels = []
     if add_point_sources:
+        from slv.emissions.point_sources import markers as ps_markers
+
         for ps_type, color in add_point_sources.items():
+            # Plot one dummy for legend
+            h = ax.scatter(
+                [],
+                [],
+                c=color,
+                marker=ps_markers.get(ps_type, "o"),
+                s=80,
+                label=ps_type.title(),
+                edgecolor="k",
+                linewidth=0.8,
+            )
+            ps_handles.append(h)
+            ps_labels.append(ps_type.title())
             plot_point_sources(ax=ax, kind=ps_type, color=color)
+
+    # --- Plot sites and collect handles ---
+    site_handles, site_labels = [], []
     if add_sites and sites is not None and site_config is not None:
-        plot_sites(ax, sites=sites, site_config=site_config, color=site_color)
+        site_handles, site_labels = plot_sites(
+            ax, sites=sites, site_config=site_config, color=site_color
+        )
 
     add_latlon_ticks(ax, extent, x_rotation=45)
 
+    # Clean up axis and title labels
+    ax.set_title("SLV Inversion Domain and Sites", fontsize=14, fontweight="bold")
+    ax.set(xlabel=None, ylabel=None)
+
+    # --- Build visually grouped legend ---
+    import matplotlib.patches as mpatches
+
+    grouped_handles = []
+    grouped_labels = []
+    # Section header: Sites
+    if site_handles:
+        sites_header = mpatches.Patch(facecolor="none", edgecolor="none", label="Sites")
+        grouped_handles.append(sites_header)
+        grouped_labels.append("Sites")
+        grouped_handles.extend(site_handles)
+        grouped_labels.extend(site_labels)
+    # Section header: Point Sources
+    if ps_handles:
+        ps_header = mpatches.Patch(
+            facecolor="none", edgecolor="none", label="Point Sources"
+        )
+        grouped_handles.append(ps_header)
+        grouped_labels.append("Point Sources")
+        grouped_handles.extend(ps_handles)
+        grouped_labels.extend(ps_labels)
+
+    # Use fontweight for section headers
+    def _legend_text_props(label):
+        if label in ("Sites", "Point Sources"):
+            return {"weight": "bold"}
+        return {}
+
+    leg = ax.legend(
+        grouped_handles,
+        grouped_labels,
+        loc="upper left",
+        bbox_to_anchor=(1.01, 1.0),
+        fontsize=9,
+        frameon=True,
+        fancybox=True,
+        borderpad=0.8,
+        handletextpad=0.8,
+        borderaxespad=0.8,
+        labelspacing=0.8,
+        prop={"weight": "normal"},
+    )
+    # Bold section headers
+    for text in leg.get_texts():
+        if text.get_text() in ("Sites", "Point Sources"):
+            text.set_fontweight("bold")
+    fig.tight_layout(rect=[0, 0, 0.85, 1])
     return fig, ax
 
 
