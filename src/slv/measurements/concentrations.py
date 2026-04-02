@@ -110,7 +110,9 @@ def load_concentrations(
 
             # -- DAQ with Picarro G2307 ---
             elif org == "DAQ" and instr_name == "picarro_g2307":
-                data_dir = Path(get_data_dir("SLV_DAQ_DIR"))
+                data_dir = (
+                    Path(get_data_dir("SLV_DAQ_DIR")) / "formaldehyde_methane/data"
+                )
                 pattern = f"{site}/picarro_g2307/{lvl}/*.dat"
                 files = list(data_dir.rglob(pattern))
                 if not files:

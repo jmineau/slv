@@ -8,8 +8,8 @@ import pandas as pd
 from slv import get_data_dir
 
 PCAP_EVENTS_CSV = (
-    Path(pcap_dir) / "pcap_events.csv"
-    if (pcap_dir := os.environ.get("SLV_PCAP_DIR"))
+    Path(data_dir) / "pcap_events.csv"
+    if (data_dir := os.environ.get("SLV_USER_DATA_DIR"))
     else None
 )
 
@@ -52,8 +52,8 @@ def get_pcap_events(time_range, threshold=4.04, min_periods=3, sounding_kwargs=N
 
     Notes
     -----
-    If the environment variable ``SLV_PCAP_DIR`` is set, events are cached as
-    ``$SLV_PCAP_DIR/pcap_events.csv`` and reloaded on subsequent calls.
+    If the environment variable ``SLV_USER_DATA_DIR`` is set, events are cached as
+    ``$SLV_USER_DATA_DIR/pcap_events.csv`` and reloaded on subsequent calls.
     """
     if PCAP_EVENTS_CSV is not None and PCAP_EVENTS_CSV.exists():
         print(f"Loading cached PCAP events from {PCAP_EVENTS_CSV}")
