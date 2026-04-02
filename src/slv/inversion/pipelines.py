@@ -298,7 +298,7 @@ class SLVMethaneInversion(FluxInversionPipeline):
             flux_times=self.config.flux_time_bins,
             resolution=self.config.resolution,
             subset_hours=self.config.subset_hours_utc,
-            location_mapper=location_mapper,
+            location_mapper=self.config.location_site_map,
             num_processes=self.config.num_processes,
             timeout=self.config.timeout,
             sparse=self.config.sparse_jacobian,
