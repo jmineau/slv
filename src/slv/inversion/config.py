@@ -52,18 +52,18 @@ def get_mdm_comp_configs(config: dict) -> list[dict]:
 
 
 def build_location_site_map(
-    simulation_ids: list[str],
+    location_ids: list[str],
     site_config: pd.DataFrame,
 ) -> dict[str, str]:
-    """Build location mapper from STILT simulation IDs to site names.
+    """Build location mapper from STILT location IDs to site names.
 
-    Parses simulation IDs (format: "lon_lat_height") and matches them to sites
+    Parses location IDs (format: "lon_lat_height") and matches them to sites
     in the site_config based on coordinate proximity.
 
     Parameters
     ----------
-    simulation_ids : list[str]
-        List of STILT simulation IDs (e.g., "-111.847672_40.766189_35.0").
+    location_ids : list[str]
+        List of STILT location IDs (e.g., "-111.847672_40.766189_35").
     site_config : pd.DataFrame
         Site configuration with latitude/longitude columns indexed by site name.
 
@@ -75,42 +75,35 @@ def build_location_site_map(
 
     Examples
     --------
-    >>> sim_ids = ["-111.847672_40.766189_35.0", "-111.884505_40.902945_4.0"]
+    >>> loc_ids = ["-111.847672_40.766189_35", "-111.884505_40.902945_4"]
     >>> site_config = load_site_config()
-    >>> mapper = build_location_site_map(sim_ids, site_config)
-    >>> mapper["-111.847672_40.766189_35.0"]
+    >>> mapper = build_location_site_map(loc_ids, site_config)
+    >>> mapper["-111.847672_40.766189_35"]
     'wbb'
     """
-
     mapper = {}
 
-    for sim_id in simulation_ids:
-        # Parse simulation ID to extract coordinates
+    for location_id in set(location_ids):
+        if location_id in mapper:
+            continue
+
+        parts = location_id.split("_")
+        if len(parts) != 3:
+            continue
+
         try:
-            parts = sim_id.split("_")
-            if len(parts) != 4:
-                continue
-
-            location_id = "_".join(parts[1:])
-            if location_id in mapper:
-                continue
-
-            lon_sim, lat_sim, z_sim = float(parts[1]), float(parts[2]), float(parts[3])
+            lon, lat, z = float(parts[0]), float(parts[1]), float(parts[2])
         except (ValueError, IndexError):
             continue
 
         matches = site_config[
-            np.isclose(site_config["latitude"].astype(float), lat_sim)
-            & np.isclose(site_config["longitude"].astype(float), lon_sim)
-            & np.isclose(site_config["height_agl"].astype(float), z_sim)
+            np.isclose(site_config["latitude"].astype(float), lat)
+            & np.isclose(site_config["longitude"].astype(float), lon)
+            & np.isclose(site_config["height_agl"].astype(float), z)
         ]
 
         if len(matches) == 1:
-            site_name = matches.index[0]
-            mapper[location_id] = site_name
-        else:
-            # No match or multiple matches found; skip this simulation ID
-            continue
+            mapper[location_id] = matches.index[0]
 
     return mapper
 

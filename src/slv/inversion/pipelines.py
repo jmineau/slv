@@ -254,40 +254,45 @@ class SLVMethaneInversion(FluxInversionPipeline):
         Returns a single-block flux Jacobian if bias_std is None, otherwise
         returns a multi-block [flux_jac | bias_jac] operator.
         """
+        from stilt import Model
+        from stilt.model import parse_sim_id
+
         from slv.inversion.config import build_location_site_map
 
         stilt_paths = self.config.stilt_paths
         if isinstance(stilt_paths, str):
             stilt_paths = [stilt_paths]
 
-        # Collect simulations from all paths, deduplicating by sim ID.
-        # When duplicates exist, prefer the path that has the requested resolution.
+        # Collect simulations from all STILT projects, deduplicating by sim ID.
+        # When duplicates exist, prefer the project that has the requested resolution.
         resolution = self.config.resolution
-        seen: dict[str, Path] = {}  # sim_id -> best path
+        seen: dict[str, Path] = {}
         for stilt_path in stilt_paths:
-            for sim_dir in Path(stilt_path).glob("out/by-id/*"):
-                sim_id = sim_dir.name
+            model = Model(stilt_path)
+            for sim_id, row in model.simulations.iterrows():
                 if sim_id not in seen:
-                    seen[sim_id] = sim_dir
+                    seen[sim_id] = row.path
                 elif resolution:
-                    # If the current winner lacks the resolution but this one has it, swap
                     current_has = (
                         seen[sim_id] / f"{sim_id}_{resolution}_foot.nc"
                     ).exists()
-                    new_has = (sim_dir / f"{sim_id}_{resolution}_foot.nc").exists()
+                    new_has = (row.path / f"{sim_id}_{resolution}_foot.nc").exists()
                     if not current_has and new_has:
-                        seen[sim_id] = sim_dir
+                        seen[sim_id] = row.path
 
         simulations = sorted(seen.values())
         print(
-            f"Found {len(simulations)} simulations from {len(stilt_paths)} STILT path(s)"
+            f"Found {len(simulations)} simulations"
+            f" from {len(stilt_paths)} STILT project(s)"
         )
 
         # Auto-generate location mapper if not provided
         location_mapper = self.config.location_site_map
         if not location_mapper:
-            sim_ids = [sim.name for sim in simulations]
-            location_mapper = build_location_site_map(sim_ids, self.config.site_config)
+            location_ids = [parse_sim_id(sim.name)[1] for sim in simulations]
+            location_mapper = build_location_site_map(
+                location_ids, self.config.site_config
+            )
             print(f"Auto-generated location mapper for {len(location_mapper)} sites")
             self.config.location_site_map = location_mapper
 
