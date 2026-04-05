@@ -155,7 +155,7 @@ class InversionConfig:
     prior_kwargs: dict = field(default_factory=dict)
 
     # --- Jacobian ---
-    stilt_paths: str | list[str] = (
+    stilt_project: str | Path = (
         "/uufs/chpc.utah.edu/common/home/u6036966/wkspace/methane/SLV/stilt/wbb"
     )
     sparse_jacobian: bool = True

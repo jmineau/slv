@@ -60,7 +60,7 @@ DEFAULT_COMPONENT_DEPS: dict[str, frozenset[str]] = {
     "forward_operator": _OBS_DEPS
     | _PRIOR_DEPS
     | {
-        "stilt_paths",
+        "stilt_project",
         "sparse_jacobian",
         # num_processes and timeout intentionally excluded: they are
         # computational knobs that do not change the Jacobian result.
@@ -255,46 +255,42 @@ class SLVMethaneInversion(FluxInversionPipeline):
         returns a multi-block [flux_jac | bias_jac] operator.
         """
         from stilt import Model
-        from stilt.model import parse_sim_id
 
         from slv.inversion.config import build_location_site_map
 
-        stilt_paths = self.config.stilt_paths
-        if isinstance(stilt_paths, str):
-            stilt_paths = [stilt_paths]
+        model = Model(self.config.stilt_project)
 
-        # Collect simulations from all STILT projects, deduplicating by sim ID.
-        # When duplicates exist, prefer the project that has the requested resolution.
-        resolution = self.config.resolution
-        seen: dict[str, Path] = {}
-        for stilt_path in stilt_paths:
-            model = Model(stilt_path)
-            for sim_id, row in model.simulations.iterrows():
-                if sim_id not in seen:
-                    seen[sim_id] = row.path
-                elif resolution:
-                    current_has = (
-                        seen[sim_id] / f"{sim_id}_{resolution}_foot.nc"
-                    ).exists()
-                    new_has = (row.path / f"{sim_id}_{resolution}_foot.nc").exists()
-                    if not current_has and new_has:
-                        seen[sim_id] = row.path
-
-        simulations = sorted(seen.values())
-        print(
-            f"Found {len(simulations)} simulations"
-            f" from {len(stilt_paths)} STILT project(s)"
-        )
-
-        # Auto-generate location mapper if not provided
+        # Build location mapper from all simulations in the project.
+        # Must happen before filtering so stationary sites can be resolved.
+        # Mobile location_ids won't appear in the mapper (no site_config entry),
+        # so mapper.get(lid, lid) returns the location_id itself for mobile sims.
         location_mapper = self.config.location_site_map
         if not location_mapper:
-            location_ids = [parse_sim_id(sim.name)[1] for sim in simulations]
+            all_location_ids = list(model.simulations["location_id"].unique())
             location_mapper = build_location_site_map(
-                location_ids, self.config.site_config
+                all_location_ids, self.config.site_config
             )
             print(f"Auto-generated location mapper for {len(location_mapper)} sites")
             self.config.location_site_map = location_mapper
+
+        # Filter to simulations relevant for this obs set.
+        # For stationary sims: mapper resolves location_id → site name → in obs.
+        # For mobile sims: location_id not in mapper → falls back to location_id
+        #   itself, which IS the obs_location for mobile sites.
+        obs_locations = set(obs.index.get_level_values("obs_location"))
+        relevant_location_ids = {
+            lid
+            for lid in model.simulations["location_id"].unique()
+            if location_mapper.get(lid, lid) in obs_locations
+        }
+        simulations = model.get_simulations(
+            resolution=self.config.resolution,
+            location_ids=relevant_location_ids,
+        )
+        print(
+            f"Found {len(simulations)} relevant simulations"
+            f" ({len(model.simulations)} total in project)"
+        )
 
         # Build flux Jacobian
         jacobian_builder = JacobianBuilder(simulations)
