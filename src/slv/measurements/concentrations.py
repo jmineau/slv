@@ -250,7 +250,6 @@ def load_concentrations(
 def generate_stilt_receptors(
     obs: pd.DataFrame,
     out_csv: str | Path | None = None,
-    precision: int = 5,
 ):
     # Rename columns to match expected output
     obs = obs.rename(
@@ -262,11 +261,6 @@ def generate_stilt_receptors(
         }
     )
     receptors = obs[["site", "time", "lati", "long", "zagl"]].copy()
-
-    # Round coordinates to prevent floating-point noise in sim_ids
-    receptors["lati"] = receptors["lati"].round(precision)
-    receptors["long"] = receptors["long"].round(precision)
-    receptors["zagl"] = receptors["zagl"].round(0).astype(int)
 
     # Build simulation id for later matching
     receptors["sim_id"] = (
