@@ -87,7 +87,7 @@ _NON_SCIENTIFIC_FIELDS = frozenset(
         "plot_inputs",
         "plot_results",
         "plot_diagnostics",
-        "stilt_paths",
+        "stilt_project",
         "num_processes",
         "timeout",
     }

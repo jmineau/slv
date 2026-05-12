@@ -158,6 +158,7 @@ class InversionConfig:
     stilt_project: str | Path = (
         "/uufs/chpc.utah.edu/common/home/u6036966/wkspace/methane/SLV/stilt/wbb"
     )
+    footprint: str | None = None  # Named footprint config or hash; None = finest available
     sparse_jacobian: bool = True
 
     # --- Prior Error Covariance (S_0) ---

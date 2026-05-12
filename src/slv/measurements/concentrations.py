@@ -257,7 +257,7 @@ def generate_stilt_receptors(
             "Time_UTC": "time",
             "latitude": "lati",
             "longitude": "long",
-            "height_agl": "zagl",
+            "height": "zagl",
         }
     )
     receptors = obs[["site", "time", "lati", "long", "zagl"]].copy()

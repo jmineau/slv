@@ -62,6 +62,7 @@ DEFAULT_COMPONENT_DEPS: dict[str, frozenset[str]] = {
     | {
         "stilt_project",
         "sparse_jacobian",
+        "footprint",
         # num_processes and timeout intentionally excluded: they are
         # computational knobs that do not change the Jacobian result.
     },
@@ -254,7 +255,7 @@ class SLVMethaneInversion(FluxInversionPipeline):
         Returns a single-block flux Jacobian if bias_std is None, otherwise
         returns a multi-block [flux_jac | bias_jac] operator.
         """
-        from stilt import Model
+        from stilt import Model, SimID
 
         from slv.inversion.config import build_location_site_map
 
@@ -266,7 +267,7 @@ class SLVMethaneInversion(FluxInversionPipeline):
         # so mapper.get(lid, lid) returns the location_id itself for mobile sims.
         location_mapper = self.config.location_site_map
         if not location_mapper:
-            all_location_ids = list(model.simulations["location_id"].unique())
+            all_location_ids = list({SimID(sid).location for sid in model.simulations})
             location_mapper = build_location_site_map(
                 all_location_ids, self.config.site_config
             )
@@ -280,24 +281,17 @@ class SLVMethaneInversion(FluxInversionPipeline):
         obs_locations = set(obs.index.get_level_values("obs_location"))
         relevant_location_ids = {
             lid
-            for lid in model.simulations["location_id"].unique()
+            for lid in {SimID(sid).location for sid in model.simulations}
             if location_mapper.get(lid, lid) in obs_locations
         }
-        simulations = model.get_simulations(
-            resolution=self.config.resolution,
-            location_ids=relevant_location_ids,
-        )
-        print(
-            f"Found {len(simulations)} relevant simulations"
-            f" ({len(model.simulations)} total in project)"
-        )
 
         # Build flux Jacobian
-        jacobian_builder = JacobianBuilder(simulations)
+        jacobian_builder = JacobianBuilder(model)
         jacobian = jacobian_builder.build_from_coords(
             self.config.grid_coords,
             flux_times=self.config.flux_time_bins,
-            resolution=self.config.resolution,
+            footprint=self.config.footprint,
+            location_ids=relevant_location_ids,
             subset_hours=self.config.subset_hours_utc,
             location_mapper=self.config.location_site_map,
             num_processes=self.config.num_processes,
