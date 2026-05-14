@@ -156,9 +156,11 @@ class InversionConfig:
 
     # --- Jacobian ---
     stilt_project: str | Path = (
-        "/uufs/chpc.utah.edu/common/home/u6036966/wkspace/methane/SLV/stilt/wbb"
+        "/uufs/chpc.utah.edu/common/home/lin-group27/jkm/stilt/simulations/stilt"
     )
-    footprint: str | None = None  # Named footprint config or hash; None = finest available
+    footprint: str | None = (
+        None  # Named footprint config or hash; None = finest available
+    )
     sparse_jacobian: bool = True
 
     # --- Prior Error Covariance (S_0) ---

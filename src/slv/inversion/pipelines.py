@@ -285,12 +285,24 @@ class SLVMethaneInversion(FluxInversionPipeline):
             if location_mapper.get(lid, lid) in obs_locations
         }
 
+        # Resolve footprint name: None → finest (smallest xres) in project config
+        footprint = self.config.footprint
+        if footprint is None:
+            foot_configs = model.config.footprints
+            if not foot_configs:
+                raise ValueError(
+                    "No footprints configured in the STILT project. "
+                    "Set InversionConfig.footprint explicitly."
+                )
+            footprint = min(foot_configs, key=lambda n: foot_configs[n].grid.xres)
+            print(f"  Auto-selected finest footprint: '{footprint}'")
+
         # Build flux Jacobian
         jacobian_builder = JacobianBuilder(model)
         jacobian = jacobian_builder.build_from_coords(
             self.config.grid_coords,
             flux_times=self.config.flux_time_bins,
-            footprint=self.config.footprint,
+            footprint=footprint,
             location_ids=relevant_location_ids,
             subset_hours=self.config.subset_hours_utc,
             location_mapper=self.config.location_site_map,
