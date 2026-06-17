@@ -24,7 +24,7 @@ classifiers = [
 dependencies = [
     "cartopy",
     "geopandas",
-    "lair[science] @ git+https://github.com/jmineau/lair",
+    "lair[science,geo] @ git+https://github.com/jmineau/lair",  # geo: lair.geo (rasterio/rioxarray/shapely)
     "matplotlib",
     "pandas",
     "siphon>=0.10.0",
@@ -34,7 +34,7 @@ dependencies = [
 
 [project.optional-dependencies]
 inversion = [
-    "fips[flux]>=0.1.0b3",
+    "fips[flux]>=0.1.0b4",
     "joblib>=1.5.3",
     "seaborn",
     # "xesmf",
