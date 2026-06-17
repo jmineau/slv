@@ -18,7 +18,7 @@ SITE_COORDS = {
 }
 
 
-def make_stationary(n_per_hour=30, hours=2, sites=("A", "B"), instrument="LGR_UGGA"):
+def make_stationary(n_per_hour=30, hours=2, sites=("A", "B"), instrument="lgr_ugga"):
     """Build a minimal stationary observations DataFrame."""
     rows = []
     base = pd.Timestamp("2024-01-01")
@@ -44,7 +44,7 @@ def make_stationary(n_per_hour=30, hours=2, sites=("A", "B"), instrument="LGR_UG
     return pd.DataFrame(rows)
 
 
-def make_mobile(n_per_bin=5, n_bins=3, instrument="LGR_UGGA"):
+def make_mobile(n_per_bin=5, n_bins=3, instrument="lgr_ugga"):
     """Build a minimal mobile observations DataFrame with distinct spatial clusters."""
     rows = []
     base = pd.Timestamp("2024-01-01")
@@ -107,7 +107,7 @@ class TestStationaryAggregation:
         obs = make_stationary()
         result = aggregate_obs(obs.copy(), freq="h")
         assert "instrument" in result.columns
-        assert result["instrument"].iloc[0] == "LGR_UGGA"
+        assert result["instrument"].iloc[0] == "lgr_ugga"
 
     def test_location_columns_preserved_after_aggregation(self):
         obs = make_stationary(n_per_hour=10, hours=1, sites=("A", "B"))
@@ -131,9 +131,9 @@ class TestStationaryAggregation:
 
 class TestStationaryMinPercent:
     def test_full_coverage_passes(self):
-        # LGR_UGGA has samples_per_hour=309; give it enough samples
+        # lgr_ugga has samples_per_hour=309; give it enough samples
         obs = make_stationary(
-            n_per_hour=309, hours=1, sites=("A",), instrument="LGR_UGGA"
+            n_per_hour=309, hours=1, sites=("A",), instrument="lgr_ugga"
         )
         result = aggregate_obs(obs.copy(), freq="h", stationary_min_percent=0.5)
         assert len(result) == 1
@@ -141,27 +141,27 @@ class TestStationaryMinPercent:
     def test_sparse_group_filtered_out(self):
         # 1 sample out of 309 expected → well below any reasonable threshold
         obs = make_stationary(
-            n_per_hour=1, hours=1, sites=("A",), instrument="LGR_UGGA"
+            n_per_hour=1, hours=1, sites=("A",), instrument="lgr_ugga"
         )
         with pytest.raises(ValueError, match="No data to aggregate"):
             aggregate_obs(obs.copy(), freq="h", stationary_min_percent=0.5)
 
     def test_mixed_coverage_filters_only_sparse(self):
         dense = make_stationary(
-            n_per_hour=200, hours=1, sites=("A",), instrument="LGR_UGGA"
+            n_per_hour=200, hours=1, sites=("A",), instrument="lgr_ugga"
         )
         sparse = make_stationary(
-            n_per_hour=1, hours=1, sites=("B",), instrument="LGR_UGGA"
+            n_per_hour=1, hours=1, sites=("B",), instrument="lgr_ugga"
         )
         obs = pd.concat([dense, sparse], ignore_index=True)
         result = aggregate_obs(obs.copy(), freq="h", stationary_min_percent=0.5)
         assert list(result["site"]) == ["A"]
 
     def test_fallback_to_sample_rate_for_instrument_without_samples_per_hour(self):
-        # Picarro_G2401 has sample_rate='2s' but no samples_per_hour
+        # picarro_g2401 has sample_rate='2s' but no samples_per_hour
         # At 2s rate, expected per hour = 1800; give it enough
         obs = make_stationary(
-            n_per_hour=1000, hours=1, sites=("A",), instrument="Picarro_G2401"
+            n_per_hour=1000, hours=1, sites=("A",), instrument="picarro_g2401"
         )
         result = aggregate_obs(obs.copy(), freq="h", stationary_min_percent=0.5)
         assert len(result) == 1
@@ -217,7 +217,7 @@ class TestMobileMinCount:
                 {
                     "Time_UTC": base + pd.Timedelta(seconds=i),
                     "site": "m",
-                    "instrument": "LGR_UGGA",
+                    "instrument": "lgr_ugga",
                     "is_mobile": True,
                     "latitude": 40.70,
                     "longitude": -111.90,
@@ -232,7 +232,7 @@ class TestMobileMinCount:
                     {
                         "Time_UTC": base + pd.Timedelta(seconds=100 + b * 10 + i),
                         "site": "m",
-                        "instrument": "LGR_UGGA",
+                        "instrument": "lgr_ugga",
                         "is_mobile": True,
                         "latitude": lat,
                         "longitude": lon,

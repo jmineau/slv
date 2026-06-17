@@ -136,11 +136,11 @@ class TestInversionConfigTime:
 
     def test_subset_hours_utc_conversion(self):
         # Mountain Standard Time is UTC-7
-        config = InversionConfig(afternoon_hours_local=[12, 13], utc_offset=-7)
+        config = InversionConfig(subset_hours=[12, 13], utc_offset=-7)
         assert config.subset_hours_utc == [19, 20]
 
     def test_subset_hours_utc_wraps_midnight(self):
-        config = InversionConfig(afternoon_hours_local=[23], utc_offset=-1)
+        config = InversionConfig(subset_hours=[23], utc_offset=-1)
         # 23 - (-1) = 24 -> wraps to 0
         assert config.subset_hours_utc == [0]
 

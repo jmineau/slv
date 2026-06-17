@@ -268,7 +268,7 @@ class TestSweepConfigs:
             Sweep(cache="/tmp/sweep")
 
     def test_single_sweep_param(self):
-        sweep = Sweep(cache="/tmp/sweep", bg_baseline_window=["7d", "14d"])
+        sweep = Sweep(cache="/tmp/sweep", prior_time_scale=["16d", "32d"])
         assert len(sweep.configs) == 2
 
 
