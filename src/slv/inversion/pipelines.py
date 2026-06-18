@@ -1,7 +1,11 @@
 import functools
 import hashlib
+import importlib
 import json
+import subprocess
 import time
+from importlib.metadata import PackageNotFoundError
+from importlib.metadata import version as _dist_version
 from pathlib import Path
 from typing import Any
 
@@ -96,6 +100,64 @@ def _component_hash(config, fields: frozenset[str]) -> str:
     return hashlib.sha256(serialized.encode()).hexdigest()[:12]
 
 
+def _pkg_rev(import_name: str, dist_name: str) -> str:
+    """Source revision of a package, for cache keying.
+
+    For an editable git checkout (the dev setup), ``git describe`` yields a tag +
+    commits-since + short SHA (+ ``-dirty``), so any commit *or* uncommitted edit
+    to the package busts the cache automatically -- no reinstall or version bump
+    needed.  Falls back to the installed metadata version for a non-git
+    (distributed) install where there is no source tree to inspect.
+    """
+    src = None
+    try:
+        mod = importlib.import_module(import_name)
+        if mod.__file__:
+            src = Path(mod.__file__).resolve().parent
+    except ImportError:
+        src = None
+    if src is not None:
+        try:
+            out = subprocess.run(
+                [
+                    "git",
+                    "-C",
+                    str(src),
+                    "describe",
+                    "--tags",
+                    "--always",
+                    "--dirty",
+                    "--abbrev=8",
+                ],
+                capture_output=True,
+                text=True,
+                timeout=5,
+            )
+            if out.returncode == 0 and out.stdout.strip():
+                return out.stdout.strip()
+        except (OSError, subprocess.SubprocessError):
+            pass
+    try:
+        return _dist_version(dist_name)
+    except PackageNotFoundError:
+        return "unknown"
+
+
+@functools.lru_cache(maxsize=1)
+def _version_tag() -> str:
+    """``.fips/`` cache namespace pinning the running fips + pystilt source revision.
+
+    Computed once per process from ``_pkg_rev`` so that committing or editing
+    fips/pystilt code lands the cache in a fresh tree instead of silently reusing a
+    stale component -- e.g. a Jacobian built by the old footprint aggregation.
+
+    slv's own revision is intentionally *not* in the key: slv changes often, so
+    when you change slv component-building logic (obs/prior/mdm/constant), force a
+    rebuild via ``config.cache_overwrite`` rather than relying on the tag.
+    """
+    return f"fips-{_pkg_rev('fips', 'fips')}_pystilt-{_pkg_rev('stilt', 'pystilt')}"
+
+
 def fips_cache(cls, filename):
     """Content-addressed cache decorator for pipeline methods.
 
@@ -108,9 +170,14 @@ def fips_cache(cls, filename):
 
     Cache layout
     ------------
-    Files are stored under ``{cache_dir}/{component}/{hash}.pkl`` where ``hash``
-    is derived only from the config fields that actually affect that component
-    (see ``COMPONENT_DEPS``).  This means:
+    Files are stored under
+    ``{cache_dir}/.fips/{version_tag}/{component}/{hash}.pkl`` where
+    ``version_tag`` pins the running fips/pystilt source revision (``git describe``
+    of the editable checkout, else installed metadata; see ``_version_tag``) and
+    ``hash`` is derived only from the config fields that actually affect that
+    component (see ``COMPONENT_DEPS``).  Committing/bumping a package therefore
+    lands in a fresh tree rather than silently reusing a stale component.  This
+    means:
 
     * Changing ``prior_base_std`` reuses ``obs.pkl`` and ``forward_operator.pkl``
       untouched, and only regenerates ``prior_error.pkl``.
@@ -147,18 +214,22 @@ def fips_cache(cls, filename):
                 should_overwrite = filename in set(overwrite)
 
             cache_dir = Path.cwd() if cache is True else Path(cache)
+            # All fips-managed cache files live under ``.fips/<version tag>/`` so
+            # the workflow tree stays clean and a fips/pystilt change lands in a
+            # fresh tree instead of silently reusing stale components.
+            fips_dir = cache_dir / ".fips" / _version_tag()
 
             # --- Content-addressed path ---
             component_deps = getattr(self, "COMPONENT_DEPS", DEFAULT_COMPONENT_DEPS)
             fields = component_deps.get(filename)
             if fields:
                 h = _component_hash(self.config, fields)
-                component_dir = cache_dir / filename
+                component_dir = fips_dir / filename
                 path = component_dir / f"{h}.pkl"
             else:
                 # Fallback: flat file for components not listed in COMPONENT_DEPS
-                component_dir = cache_dir
-                path = cache_dir / f"{filename}.pkl"
+                component_dir = fips_dir
+                path = fips_dir / f"{filename}.pkl"
 
             if path.exists() and not should_overwrite:
                 print(
