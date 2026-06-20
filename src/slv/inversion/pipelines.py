@@ -472,6 +472,12 @@ class SLVMethaneInversion(FluxInversionPipeline):
             .set_index(["obs_location", "obs_time"])["concentration"]
         )
 
+        # Drop obs whose background is missing (e.g. days outside the ct_stilt
+        # product, or rolling-baseline edge gaps). fips Vectors reject NaN, and
+        # aggregate_obs_space reduces obs to match so these obs are dropped rather
+        # than back-filled to zero by the obs.index reindex downstream.
+        data = data.dropna()
+
         return Vector(name="background", data=Block(name="concentration", data=data))
 
     def filter_state_space(self, obs: Vector, prior: Vector) -> tuple[Vector, Vector]:
@@ -506,6 +512,28 @@ class SLVMethaneInversion(FluxInversionPipeline):
         constant: Vector | None,
     ) -> tuple[Vector, ForwardOperator, CovarianceMatrix, Vector | None]:
         """Aggregates the observation space if specified in the config."""
+        # Drop obs whose background is missing. get_constant returns a NaN-free
+        # (reduced) constant; reduce obs to match here -- before the aggregator and
+        # the InverseProblem reindex everything to obs.index -- so gap-day obs are
+        # dropped rather than back-filled to zero. Generalizes the old
+        # CTStiltBackgroundInversion obs-dropping to any background.
+        if constant is not None:
+            obs_series = obs.to_series()
+            bg_index = constant["concentration"].index
+            # obs carries a leading "block" index level that the background lacks;
+            # match on the levels the background is actually indexed by.
+            obs_key = obs_series.index
+            extra = [n for n in obs_key.names if n not in bg_index.names]
+            if extra:
+                obs_key = obs_key.droplevel(extra)
+            have_bg = obs_key.isin(bg_index)
+            if not have_bg.all():
+                print(
+                    f"  Dropping {int((~have_bg).sum())}/{len(have_bg)} obs "
+                    "with missing background"
+                )
+                obs = Vector(obs_series[have_bg], name=obs.name)
+
         if self.config.aggregate_obs:
             aggregator = ObsAggregator(
                 level="obs_time", freq=self.config.aggregate_obs, blocks="concentration"

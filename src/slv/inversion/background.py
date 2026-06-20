@@ -30,6 +30,8 @@ def get_slv_background(
         )
     elif background == "gml":
         return get_gml_background(obs_times=obs_times, **kwargs)
+    elif background == "ct_stilt":
+        return get_ct_stilt_background(obs_times=obs_times, **kwargs)
     else:
         raise ValueError(f"Unsupported background: {background}")
 
@@ -99,3 +101,31 @@ def get_gml_background(
     background.name = "concentration"
     background.index.name = "obs_time"
     return background / 1000  # convert from ppb to ppm
+
+
+def get_ct_stilt_background(
+    obs_times,
+    csv_path,
+    value_col: str = "ct_ch4_ppm",
+    **kwargs,
+) -> pd.Series:
+    """CarbonTracker-STILT endpoint background [ppm], joined to obs by UTC date.
+
+    Reads the daily CT-STILT background product (built by sampling the
+    CarbonTracker-CH4 field at STILT trajectory endpoints -- see
+    ``lair.noaa.CarbonTracker.background`` + ``stilt.Trajectories.endpoints``) and
+    aligns it to ``obs_times`` by date. ``csv_path`` is passed explicitly (e.g. via
+    ``background_kwargs``) so the package stays decoupled from any workspace layout.
+    Obs whose date is absent from the product get NaN.
+    """
+    ct = pd.read_csv(csv_path)
+    day = pd.to_datetime(ct["obs_time"], utc=True).dt.tz_localize(None).dt.normalize()
+    daily = pd.Series(ct[value_col].to_numpy(), index=day)
+    obs_times = pd.DatetimeIndex(obs_times)
+    background = pd.Series(
+        daily.reindex(obs_times.normalize()).to_numpy(),
+        index=obs_times,
+        name="concentration",
+    )
+    background.index.name = "obs_time"
+    return background  # CSV is already ppm
