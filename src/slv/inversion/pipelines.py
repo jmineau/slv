@@ -551,6 +551,7 @@ class SLVMethaneInversion(FluxInversionPipeline):
             "YS": "annual",
             "QS": "quarterly",
             "MS": "monthly",
+            "2W": "biweekly",
             "D": "daily",
         }[self.config.flux_freq]
 
