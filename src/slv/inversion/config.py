@@ -13,23 +13,35 @@ from slv.measurements.sites import load_site_config
 # Default MDM component parameters
 # Notes:
 # - `std`: absolute standard deviation in ppm (can be float or dict[site][season])
+# - Footprint-dependent terms recomputed 2026-06 on the full-hour PYSTILT sims
+#   (see inversions/mdm/): `part` = finite-particle SEM; `transport_wind` =
+#   median var(error)-var(regular). `aggr` right-sized from the inflated 60 ppb
+#   placeholder to the measured TRAX per-pass spatial std (mean, Mallia 2020).
+#   `instr`/`bg`/`transport_pbl` unchanged (no footprints).
 DEFAULT_MDM_CONFIG = {
-    "part": {"std": 0.00047, "correlated": False},
+    "part": {
+        "std": 0.000765,
+        "correlated": False,
+    },  # finite-particle SEM, full footprints
     "instr": {
         "std": {"UATAQ": 0.0033, "DAQ": 0.0033 * 3},
         "correlated": False,
     },  # per org error
-    "aggr": {"std": 0.06, "scale": None, "interday": False},
+    "aggr": {
+        "std": 0.0257,
+        "scale": None,
+        "interday": False,
+    },  # TRAX per-pass spatial std (mean)
     "bg": {"std": 0.011, "scale": "7d", "interday": True},
-    "transport_wind": {  # per site per season error
+    "transport_wind": {  # per site per season; recomputed on full-hour sims (median)
         "std": {
-            "bv": {"DJF": 0.0027, "JJA": 0.001, "MAM": 0.0011, "SON": 0.0021},
-            "ed": {"DJF": 0.001, "JJA": 0.0002, "MAM": 0.0002, "SON": 0.0003},
-            "hw": {"DJF": 0.0018, "JJA": 0.0006, "MAM": 0.0007, "SON": 0.0011},
-            "rb": {"DJF": 0.0022, "JJA": 0.0004, "MAM": 0.0005, "SON": 0.0008},
-            "ut": {"DJF": 0.0025, "JJA": 0.001, "MAM": 0.0011, "SON": 0.0015},
-            "wbb": {"DJF": 0.0016, "JJA": 0.0004, "MAM": 0.0006, "SON": 0.0009},
-            "zz": {"DJF": 0.0085, "JJA": 0.0022, "MAM": np.nan, "SON": 0.0042},
+            "bv": {"DJF": 0.01631, "JJA": 0.00849, "MAM": 0.00977, "SON": 0.00977},
+            "ed": {"DJF": 0.0171, "JJA": 0.00498, "MAM": 0.00598, "SON": 0.00846},
+            "hw": {"DJF": 0.01643, "JJA": 0.00466, "MAM": 0.01141, "SON": 0.00677},
+            "rb": {"DJF": 0.01914, "JJA": 0.00445, "MAM": 0.00849, "SON": 0.00892},
+            "ut": {"DJF": 0.0096, "JJA": 0.00966, "MAM": 0.0084, "SON": 0.00597},
+            "wbb": {"DJF": 0.01311, "JJA": 0.00536, "MAM": 0.00949, "SON": 0.00658},
+            "zz": {"DJF": 0.00568, "JJA": 0.00859, "MAM": np.nan, "SON": 0.01174},
         },
         "scale": "2.8h",
         "interday": False,
@@ -38,7 +50,7 @@ DEFAULT_MDM_CONFIG = {
         "std": 0.15 * 0.0514,
         "scale": "2.8h",
         "interday": False,
-    },  # 15% of typical PBL enhancement (0.0514 ppm)
+    },  # 15% of typical (observed) PBL enhancement (0.0514 ppm); footprint-independent
 }
 
 
