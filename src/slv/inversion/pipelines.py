@@ -77,7 +77,7 @@ DEFAULT_COMPONENT_DEPS: dict[str, frozenset[str]] = {
         "prior_time_scale",
         "prior_spatial_scale",
     },
-    "modeldata_mismatch": _OBS_DEPS | {"mdm_config"},
+    "modeldata_mismatch": _OBS_DEPS | {"mdm_components"},
     "constant": _OBS_DEPS | {"background", "background_kwargs"},
 }
 
@@ -549,6 +549,7 @@ class SLVMethaneInversion(FluxInversionPipeline):
 
         time_step = {
             "YS": "annual",
+            "QS": "quarterly",
             "MS": "monthly",
             "D": "daily",
         }[self.config.flux_freq]
