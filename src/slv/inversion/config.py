@@ -151,6 +151,13 @@ class InversionConfig:
     sites: list[str] = field(default_factory=lambda: ["wbb"])
     filter_pcaps: bool = True
 
+    # Drop days with anomalously high within-hour CH4 variance: passing plumes /
+    # non-steady conditions that a footprint (which convolves the period mean)
+    # cannot faithfully represent. Off by default; enabled for the WBB inversion
+    # (see inversions/wbb/_shared.py). Takes reduced chi^2 from ~2 to ~1.2 there.
+    filter_spikes: bool = False
+    spike_percentile: float = 0.90  # within-hour-std percentile flagged as spiky
+
     background: str = "rolling"  # "rolling", "gml"
     background_kwargs: dict = field(default_factory=dict)
 

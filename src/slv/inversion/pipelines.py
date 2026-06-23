@@ -41,6 +41,11 @@ _OBS_DEPS: frozenset[str] = frozenset(
         "utc_offset",
     }
 )
+#: Obs-filter deps: change WHICH obs survive (and so the obs-indexed MDM/constant),
+#: but NOT the footprint Jacobian, which is built per simulation receptor (filtered
+#: only by obs_location) and reindexed to the surviving obs. Keeping these out of the
+#: forward_operator key avoids a needless (expensive) Jacobian rebuild when toggled.
+_OBS_FILTER_DEPS: frozenset[str] = frozenset({"filter_spikes", "spike_percentile"})
 _PRIOR_DEPS: frozenset[str] = frozenset(
     {
         "prior",
@@ -59,7 +64,7 @@ _PRIOR_DEPS: frozenset[str] = frozenset(
 
 #: Default mapping of pipeline component → config fields that affect it.
 DEFAULT_COMPONENT_DEPS: dict[str, frozenset[str]] = {
-    "obs": _OBS_DEPS,
+    "obs": _OBS_DEPS | _OBS_FILTER_DEPS,
     "prior": _PRIOR_DEPS,
     "forward_operator": _OBS_DEPS
     | _PRIOR_DEPS
@@ -77,8 +82,8 @@ DEFAULT_COMPONENT_DEPS: dict[str, frozenset[str]] = {
         "prior_time_scale",
         "prior_spatial_scale",
     },
-    "modeldata_mismatch": _OBS_DEPS | {"mdm_components"},
-    "constant": _OBS_DEPS | {"background", "background_kwargs"},
+    "modeldata_mismatch": _OBS_DEPS | _OBS_FILTER_DEPS | {"mdm_components"},
+    "constant": _OBS_DEPS | _OBS_FILTER_DEPS | {"background", "background_kwargs"},
 }
 
 
@@ -291,6 +296,8 @@ class SLVMethaneInversion(FluxInversionPipeline):
                     time_range=self.config.time_range,
                     subset_hours=self.config.subset_hours,
                     filter_pcaps=self.config.filter_pcaps,
+                    filter_spikes=self.config.filter_spikes,
+                    spike_percentile=self.config.spike_percentile,
                     num_processes=self.config.num_processes,
                 ),
             ),
