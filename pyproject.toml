@@ -35,6 +35,7 @@ dependencies = [
 [project.optional-dependencies]
 inversion = [
     "fips[flux]>=0.1.0b4",
+    "pystilt>=0.1.0a4",  # Trajectories.endpoints() for background sampling
     "joblib>=1.5.3",
     "seaborn",
     # "xesmf",
