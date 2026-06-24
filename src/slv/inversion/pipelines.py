@@ -46,6 +46,15 @@ _OBS_DEPS: frozenset[str] = frozenset(
 #: only by obs_location) and reindexed to the surviving obs. Keeping these out of the
 #: forward_operator key avoids a needless (expensive) Jacobian rebuild when toggled.
 _OBS_FILTER_DEPS: frozenset[str] = frozenset({"filter_spikes", "spike_percentile"})
+#: State-filter deps: filter_state_space drops obs in flux intervals (months) with too
+#: few obs/sims (min_obs_per_interval / min_sims_per_interval). The obs-indexed MDM and
+#: constant are built AFTER that filter, so they must re-key on it -- otherwise a run at
+#: a lower threshold reuses the higher-threshold MDM and back-fills the recovered months
+#: with ZERO variance, giving a singular S_z. Not on forward_operator (receptor-based,
+#: reindexed) or obs (get_obs returns the full record; the filter is applied downstream).
+_STATE_FILTER_DEPS: frozenset[str] = frozenset(
+    {"min_obs_per_interval", "min_sims_per_interval"}
+)
 _PRIOR_DEPS: frozenset[str] = frozenset(
     {
         "prior",
@@ -82,8 +91,14 @@ DEFAULT_COMPONENT_DEPS: dict[str, frozenset[str]] = {
         "prior_time_scale",
         "prior_spatial_scale",
     },
-    "modeldata_mismatch": _OBS_DEPS | _OBS_FILTER_DEPS | {"mdm_components"},
-    "constant": _OBS_DEPS | _OBS_FILTER_DEPS | {"background", "background_kwargs"},
+    "modeldata_mismatch": _OBS_DEPS
+    | _OBS_FILTER_DEPS
+    | _STATE_FILTER_DEPS
+    | {"mdm_components"},
+    "constant": _OBS_DEPS
+    | _OBS_FILTER_DEPS
+    | _STATE_FILTER_DEPS
+    | {"background", "background_kwargs"},
 }
 
 
