@@ -1,4 +1,4 @@
-# Salt Lakey Valley py
+# Salt Lake Valley py
 
 [![Tests](https://github.com/jmineau/slv/actions/workflows/tests.yml/badge.svg)](https://github.com/jmineau/slv/actions/workflows/tests.yml)
 [![Documentation](https://github.com/jmineau/slv/actions/workflows/docs.yml/badge.svg)](https://github.com/jmineau/slv/actions/workflows/docs.yml)

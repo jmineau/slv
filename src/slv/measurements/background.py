@@ -16,7 +16,7 @@ from slv.domain import SLV_LAT, SLV_LON, UT_BBOX
 
 class CarbonTrackerCH4(noaa.CarbonTrackerCH4):
     """
-    NOAA GML CarbonTracker CH4 2023 Subclass specifically for the SLV
+    NOAA GML CarbonTracker CH4 subclass specifically for the SLV
     """
 
     def get_Utah_molefractions(self) -> xr.Dataset:
