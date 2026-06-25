@@ -91,10 +91,13 @@ DEFAULT_COMPONENT_DEPS: dict[str, frozenset[str]] = {
         "prior_time_scale",
         "prior_spatial_scale",
     },
+    # A multiplicative MDM term scales with the prior-modeled enhancement H x_prior, so the
+    # MDM now also depends on the forward-operator + prior deps (not just the obs deps).
     "modeldata_mismatch": _OBS_DEPS
     | _OBS_FILTER_DEPS
     | _STATE_FILTER_DEPS
-    | {"mdm_components"},
+    | _PRIOR_DEPS
+    | {"mdm_components", "stilt_project", "sparse_jacobian", "footprint"},
     "constant": _OBS_DEPS
     | _OBS_FILTER_DEPS
     | _STATE_FILTER_DEPS
@@ -450,14 +453,40 @@ class SLVMethaneInversion(FluxInversionPipeline):
 
         return CovarianceMatrix(name="prior_error", data=[flux_err_blk, bias_err_blk])
 
+    def _prior_modeled_enhancement(self, obs: Vector) -> np.ndarray:
+        """Per-obs |H x_prior| (the prior-modeled enhancement) for multiplicative MDM terms.
+
+        The forward operator is receptor-indexed at this stage, so the modeled enhancement
+        is reindexed to the obs; obs without a footprint row get 0 (floor-only error).
+        """
+        prior = self.get_prior()
+        flux = self.get_forward_operator(obs, prior)["concentration", "flux"]
+        e = pd.Series(
+            np.asarray(flux, dtype=float) @ prior["flux"].values, index=flux.index
+        )
+        key = obs.index.droplevel(
+            [n for n in obs.index.names if n not in flux.index.names]
+        )
+        return np.abs(e.reindex(key).fillna(0.0).to_numpy())
+
     @fips_cache(CovarianceMatrix, "modeldata_mismatch")
     def get_modeldata_mismatch(self, obs: Vector) -> CovarianceMatrix:
-        components = [
-            build_mdm_error(
-                obs_index=obs.index, site_config=self.config.site_config, **comp
+        comps = self.config.mdm_components
+        e_prior = (
+            self._prior_modeled_enhancement(obs)
+            if any(c.get("multiplicative") for c in comps)
+            else None
+        )
+        components = []
+        for comp in comps:
+            c = dict(comp)
+            if c.pop("multiplicative", False):
+                c["std"] = c.pop("fraction") * e_prior  # sigma = fraction * |H x_prior|
+            components.append(
+                build_mdm_error(
+                    obs_index=obs.index, site_config=self.config.site_config, **c
+                )
             )
-            for comp in self.config.mdm_components
-        ]
 
         if self.config.plot_diagnostics:
             built_comps = {comp.name: comp.build(obs.index) for comp in components}

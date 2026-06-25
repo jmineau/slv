@@ -33,24 +33,19 @@ DEFAULT_MDM_CONFIG = {
         "interday": False,
     },  # TRAX per-pass spatial std (mean)
     "bg": {"std": 0.011, "scale": "7d", "interday": True},
-    "transport_wind": {  # per site per season; recomputed on full-hour sims (median)
-        "std": {
-            "bv": {"DJF": 0.01631, "JJA": 0.00849, "MAM": 0.00977, "SON": 0.00977},
-            "ed": {"DJF": 0.0171, "JJA": 0.00498, "MAM": 0.00598, "SON": 0.00846},
-            "hw": {"DJF": 0.01643, "JJA": 0.00466, "MAM": 0.01141, "SON": 0.00677},
-            "rb": {"DJF": 0.01914, "JJA": 0.00445, "MAM": 0.00849, "SON": 0.00892},
-            "ut": {"DJF": 0.0096, "JJA": 0.00966, "MAM": 0.0084, "SON": 0.00597},
-            "wbb": {"DJF": 0.01311, "JJA": 0.00536, "MAM": 0.00949, "SON": 0.00658},
-            "zz": {"DJF": 0.00568, "JJA": 0.00859, "MAM": np.nan, "SON": 0.01174},
-        },
+    # Multiplicative transport + representation error: sigma = fraction * |H x_prior| (the
+    # prior-modeled enhancement). Extreme shallow-PBL footprint days -- which STILT models
+    # least reliably and which over-leverage the winter months under a flat error -- get a
+    # proportionally large error instead of the old per-season constant. Supersedes the
+    # additive transport_wind (per-site/season median) + transport_pbl (15% of a *typical*
+    # enhancement) terms; those are recoverable from git history. fraction is calibrated to
+    # reduced chi^2 ~ 1 on the WBB inversion (see diagnostics/transport_error/).
+    "transport": {
+        "fraction": 0.7,
+        "multiplicative": True,
         "scale": "2.8h",
         "interday": False,
     },
-    "transport_pbl": {
-        "std": 0.15 * 0.0514,
-        "scale": "2.8h",
-        "interday": False,
-    },  # 15% of typical (observed) PBL enhancement (0.0514 ppm); footprint-independent
 }
 
 

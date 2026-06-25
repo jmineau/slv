@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 from fips.covariance import (
     BlockDecayError,
@@ -121,7 +122,7 @@ def build_mdm_error(
                 except (KeyError, TypeError):
                     raise ValueError(
                         f"No std value found for site='{loc}', season='{season}' in component '{name}'"
-                    )
+                    ) from None
         else:
             # Organization-specific std (flat dict)
             if site_config is None:
@@ -139,9 +140,13 @@ def build_mdm_error(
                 except KeyError:
                     raise ValueError(
                         f"No std value found for organization='{org}' (site='{loc}') in component '{name}'"
-                    )
+                    ) from None
 
         variances = pd.Series(std_values, index=obs_index) ** 2
+    elif isinstance(std, (np.ndarray, pd.Series, list, tuple)):
+        # Per-observation std array, aligned to obs_index (e.g. a multiplicative
+        # transport term f * |H x_prior| that scales with the modeled enhancement).
+        variances = pd.Series(np.asarray(std, dtype=float), index=obs_index) ** 2
     else:
         # Scalar std
         variances = std**2
