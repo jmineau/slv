@@ -91,13 +91,21 @@ DEFAULT_COMPONENT_DEPS: dict[str, frozenset[str]] = {
         "prior_time_scale",
         "prior_spatial_scale",
     },
-    # A multiplicative MDM term scales with the prior-modeled enhancement H x_prior, so the
-    # MDM now also depends on the forward-operator + prior deps (not just the obs deps).
+    # A multiplicative MDM term scales with the enhancement (observed obs-background, or the
+    # prior-modeled H x_prior), so the MDM also depends on the background and forward-operator
+    # + prior deps -- not just the obs deps.
     "modeldata_mismatch": _OBS_DEPS
     | _OBS_FILTER_DEPS
     | _STATE_FILTER_DEPS
     | _PRIOR_DEPS
-    | {"mdm_components", "stilt_project", "sparse_jacobian", "footprint"},
+    | {
+        "mdm_components",
+        "stilt_project",
+        "sparse_jacobian",
+        "footprint",
+        "background",
+        "background_kwargs",
+    },
     "constant": _OBS_DEPS
     | _OBS_FILTER_DEPS
     | _STATE_FILTER_DEPS
@@ -453,12 +461,43 @@ class SLVMethaneInversion(FluxInversionPipeline):
 
         return CovarianceMatrix(name="prior_error", data=[flux_err_blk, bias_err_blk])
 
-    def _prior_modeled_enhancement(self, obs: Vector) -> np.ndarray:
-        """Per-obs |H x_prior| (the prior-modeled enhancement) for multiplicative MDM terms.
+    def _multiplicative_scale(self, obs: Vector, scale_on: str) -> np.ndarray:
+        """Per-obs scale [ppm] for a multiplicative MDM term.
 
-        The forward operator is receptor-indexed at this stage, so the modeled enhancement
-        is reindexed to the obs; obs without a footprint row get 0 (floor-only error).
+        ``scale_on="obs"``   -> |obs - background| (observed enhancement; the actual signal,
+        so extreme shallow-PBL days the prior under-predicts still get a large error).
+        ``scale_on="prior"`` -> |H x_prior| (prior-modeled enhancement; under-scales where
+        the EPA prior is low -- exactly the over-leveraged days). Obs lacking the needed
+        term get 0 (floor-only error).
+        ``scale_on="footprint"`` -> |H| * mean(x_prior): footprint strength in enhancement
+        units. Down-weights extreme shallow-PBL days by how much air they integrate,
+        independent of the obs (no circularity) or the EPA pattern -- so it eases both the
+        low-obs winter dips and the high-obs spikes, which share an extreme |H|.
         """
+        if scale_on == "footprint":
+            prior = self.get_prior()
+            flux = self.get_forward_operator(obs, prior)["concentration", "flux"]
+            xref = float(np.mean(prior["flux"].values))
+            s = pd.Series(
+                np.abs(np.asarray(flux, dtype=float)).sum(axis=1) * xref,
+                index=flux.index,
+            )
+            key = obs.index.droplevel(
+                [n for n in obs.index.names if n not in flux.index.names]
+            )
+            return s.reindex(key).fillna(0.0).to_numpy()
+        if scale_on == "obs":
+            bg = self.get_constant(obs)["concentration"]
+            obs_s = obs.to_series()
+            key = obs_s.index.droplevel(
+                [n for n in obs_s.index.names if n not in bg.index.names]
+            )
+            bg_a = (
+                pd.Series(np.asarray(bg.values, dtype=float), index=bg.index)
+                .reindex(key)
+                .to_numpy()
+            )
+            return np.abs(np.nan_to_num(obs_s.to_numpy() - bg_a, nan=0.0))
         prior = self.get_prior()
         flux = self.get_forward_operator(obs, prior)["concentration", "flux"]
         e = pd.Series(
@@ -471,17 +510,12 @@ class SLVMethaneInversion(FluxInversionPipeline):
 
     @fips_cache(CovarianceMatrix, "modeldata_mismatch")
     def get_modeldata_mismatch(self, obs: Vector) -> CovarianceMatrix:
-        comps = self.config.mdm_components
-        e_prior = (
-            self._prior_modeled_enhancement(obs)
-            if any(c.get("multiplicative") for c in comps)
-            else None
-        )
         components = []
-        for comp in comps:
+        for comp in self.config.mdm_components:
             c = dict(comp)
             if c.pop("multiplicative", False):
-                c["std"] = c.pop("fraction") * e_prior  # sigma = fraction * |H x_prior|
+                scale = self._multiplicative_scale(obs, c.pop("scale_on", "footprint"))
+                c["std"] = c.pop("fraction") * scale  # sigma = fraction * enhancement
             components.append(
                 build_mdm_error(
                     obs_index=obs.index, site_config=self.config.site_config, **c

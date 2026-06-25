@@ -33,16 +33,20 @@ DEFAULT_MDM_CONFIG = {
         "interday": False,
     },  # TRAX per-pass spatial std (mean)
     "bg": {"std": 0.011, "scale": "7d", "interday": True},
-    # Multiplicative transport + representation error: sigma = fraction * |H x_prior| (the
-    # prior-modeled enhancement). Extreme shallow-PBL footprint days -- which STILT models
-    # least reliably and which over-leverage the winter months under a flat error -- get a
-    # proportionally large error instead of the old per-season constant. Supersedes the
-    # additive transport_wind (per-site/season median) + transport_pbl (15% of a *typical*
-    # enhancement) terms; those are recoverable from git history. fraction is calibrated to
-    # reduced chi^2 ~ 1 on the WBB inversion (see diagnostics/transport_error/).
+    # Multiplicative transport + representation error: sigma = fraction * |H| * mean(x_prior)
+    # (footprint strength in enhancement units). Extreme shallow-PBL footprint days -- which
+    # STILT models least reliably and which over-leverage the winter months under a flat error
+    # -- get a proportionally large error, regardless of what the obs did (no circularity) or
+    # the EPA spatial pattern. Scaling on the observed enhancement instead trusts the low-obs
+    # winter dips (the strong footprint sees little) and biases the total low; scaling on the
+    # prior under-weights exactly the low-EPA-cell footprints that over-leverage. Supersedes
+    # the additive transport_wind + transport_pbl terms (recoverable from git history).
+    # fraction calibrated to reduced chi^2 ~ 1 on the WBB inversion (f=0.80; see
+    # diagnostics/transport_error/footprint_scale_sweep.py).
     "transport": {
-        "fraction": 0.7,
+        "fraction": 0.8,
         "multiplicative": True,
+        "scale_on": "footprint",  # |H|*mean(x_prior); also "obs" (|obs-bg|) or "prior" (|H x_prior|)
         "scale": "2.8h",
         "interday": False,
     },
