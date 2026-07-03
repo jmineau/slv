@@ -31,7 +31,21 @@ DEFAULT_MDM_CONFIG = {
         "std": 0.0257,
         "scale": None,
         "interday": False,
-    },  # TRAX per-pass spatial std (mean)
+    },  # spatial representativeness: TRAX per-pass spatial std (mean)
+    # Temporal representativeness: sigma = fraction * (per-obs within-hour CH4 std). The hour-mean
+    # footprint cannot represent sub-hour structure, so each obs is down-weighted by how unsteady
+    # it actually was -- a passing-plume day gets a large error instead of being dropped. Replaces
+    # the binary spike filter (top-10% within-hour-variance drop), which removed those days' real
+    # emission signal and biased the total low (see diagnostics/obs_qc/spike_filter_cost.py); this
+    # keeps them, weighted. The temporal counterpart to aggr (spatial). fraction=2.0 calibrated
+    # to reduced chi^2 ~ 1 with filter_spikes=False (headline 36 dropping them -> 37.6 keeping
+    # them weighted; see diagnostics/obs_qc/subhour_calibration.py). The ~2x factor absorbs the
+    # daily aggregation: the term is built per-hour then averaged to daily, which shrinks it.
+    "subhour": {
+        "per_obs": "subhour",
+        "fraction": 2.0,
+        "correlated": False,
+    },
     "bg": {"std": 0.011, "scale": "7d", "interday": True},
     # Multiplicative transport + representation error: sigma = fraction * |H| * mean(x_prior)
     # (footprint strength in enhancement units). Extreme shallow-PBL footprint days -- which

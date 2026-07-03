@@ -92,3 +92,46 @@ def get_slv_observations(
 
     obs = obs.rename(columns={"Time_UTC": "obs_time"})
     return obs.set_index(["obs_location", "obs_time"])["CH4"].to_frame()
+
+
+def get_slv_subhour_std(
+    sites: list[str],
+    site_config: pd.DataFrame,
+    time_range: tuple,
+    subset_hours: list[int] | None = None,
+    filter_pcaps: bool = True,
+    num_processes: int = 1,
+) -> pd.Series:
+    """Per-obs within-hour CH4 std -- the temporal representativeness error for the ``subhour``
+    MDM component.
+
+    Loads the native (sub-hourly) record and returns, for each hourly obs, the std of the
+    sub-hour CH4 measurements in that hour: precisely the sub-hour signal an hour-mean footprint
+    cannot represent (the same quantity the spike filter thresholds, kept per-obs instead of used
+    to drop the top decile). Indexed (obs_location, obs_time) to match ``get_slv_observations``;
+    hours with a single native point (std undefined) are NaN, so the caller can fill 0 (no
+    representativeness penalty). Stationary sites only (obs_location == site); mobile obs return
+    no rows and get 0 downstream.
+    """
+    obs = load_concentrations(
+        pollutants=["CH4"],
+        sites=sites,
+        time_range=time_range,
+        site_config=site_config,
+        subset_hours=subset_hours,
+        filter_pcaps=filter_pcaps,
+        num_processes=num_processes,
+    )
+    if obs.empty:
+        return pd.Series(dtype=float, name="subhour_std").rename_axis(
+            ["obs_location", "obs_time"]
+        )
+    t = pd.to_datetime(obs["Time_UTC"])
+    tmp = pd.DataFrame(
+        {
+            "obs_location": obs["site"].to_numpy(),  # stationary: obs_location == site
+            "obs_time": t.dt.floor("h").to_numpy(),
+            "ch4": obs["CH4"].to_numpy(),
+        }
+    )
+    return tmp.groupby(["obs_location", "obs_time"])["ch4"].std().rename("subhour_std")

@@ -22,7 +22,7 @@ from lair import inventories
 from slv.inversion import viz
 from slv.inversion.background import get_slv_background
 from slv.inversion.covariances import build_mdm_error, build_prior_error
-from slv.inversion.data import get_slv_observations
+from slv.inversion.data import get_slv_observations, get_slv_subhour_std
 from slv.inversion.priors import get_slv_prior
 
 # ---------------------------------------------------------------------------
@@ -508,6 +508,28 @@ class SLVMethaneInversion(FluxInversionPipeline):
         )
         return np.abs(e.reindex(key).fillna(0.0).to_numpy())
 
+    def _per_obs_std(self, obs: Vector, src: str) -> np.ndarray:
+        """Per-obs std [ppm] for a data-derived MDM term.
+
+        ``src="subhour"`` -> each obs's within-hour CH4 std (temporal representativeness error:
+        the sub-hour variability an hour-mean footprint cannot represent). Obs with no
+        multi-point hour (std undefined) get 0 -- no representativeness penalty.
+        """
+        if src != "subhour":
+            raise ValueError(f"unknown per_obs MDM source {src!r}")
+        s = get_slv_subhour_std(
+            sites=self.config.sites,
+            site_config=self.config.site_config,
+            time_range=self.config.time_range,
+            subset_hours=self.config.subset_hours,
+            filter_pcaps=self.config.filter_pcaps,
+            num_processes=self.config.num_processes,
+        )
+        key = obs.index.droplevel(
+            [n for n in obs.index.names if n not in s.index.names]
+        )
+        return s.reindex(key).fillna(0.0).to_numpy()
+
     @fips_cache(CovarianceMatrix, "modeldata_mismatch")
     def get_modeldata_mismatch(self, obs: Vector) -> CovarianceMatrix:
         components = []
@@ -516,6 +538,9 @@ class SLVMethaneInversion(FluxInversionPipeline):
             if c.pop("multiplicative", False):
                 scale = self._multiplicative_scale(obs, c.pop("scale_on", "footprint"))
                 c["std"] = c.pop("fraction") * scale  # sigma = fraction * enhancement
+            elif (src := c.pop("per_obs", None)) is not None:
+                # sigma = fraction * per-obs data-derived std (e.g. subhour within-hour std)
+                c["std"] = c.pop("fraction", 1.0) * self._per_obs_std(obs, src)
             components.append(
                 build_mdm_error(
                     obs_index=obs.index, site_config=self.config.site_config, **c
