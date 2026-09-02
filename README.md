@@ -7,6 +7,7 @@
 [![PyPI version](https://badge.fury.io/py/slv.svg)](https://badge.fury.io/py/slv)
 [![Python Version](https://img.shields.io/pypi/pyversions/slv.svg)](https://pypi.org/project/slv/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.22258471.svg)](https://doi.org/10.5281/zenodo.22258471)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 [![Pyright](https://img.shields.io/badge/pyright-checked-brightgreen.svg)](https://github.com/microsoft/pyright)
 
