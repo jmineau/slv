@@ -18,6 +18,20 @@ def get_slv_prior(
             return_regridder=False,
             **kwargs,
         )
+    elif prior.lower() == "edgar":
+        kwargs.pop(
+            "express", None
+        )  # EPA-only kwarg; base_config injects it, N/A to EDGAR
+        return load_edgar_prior(
+            out_grid=out_grid,
+            flux_times=flux_times,
+            flux_freq=flux_freq,
+            bbox=bbox,
+            extent=extent,
+            units=units,
+            return_regridder=False,
+            **kwargs,
+        )
     elif prior.lower() == "constant":
         return build_constant_prior(
             out_grid=out_grid,
@@ -127,6 +141,55 @@ def load_epa_prior(
                 inventory = inventory.resample(time=flux_freq).mean()
 
     # Align to exact flux_times (nearest-neighbor fills finer-than-inventory requests)
+    prior = inventory.reindex(time=flux_times, method="nearest").to_series()
+
+    if return_regridder:
+        return prior, regridder
+    return prior
+
+
+def load_edgar_prior(
+    out_grid,
+    flux_times,
+    flux_freq=None,
+    bbox=None,
+    extent=None,
+    units=None,
+    return_regridder=False,
+):
+    """EDGAR v8 annual CH4 prior -- the sensitivity alternative to the EPA prior.
+
+    Mirrors ``load_epa_prior``'s express branch (load -> clip -> convert -> sum sectors ->
+    conservative regrid -> resample/reindex to flux_times). EDGAR v8 annual covers 1970-2022,
+    so 2023 nearest-fills from 2022 (cf. EPA holding 2020 for 2021-2023).
+    """
+    edgar = inventories.EDGARv8("CH4", time_step="annual")
+
+    if any([bbox, extent]):
+        edgar = edgar.clip(bbox=bbox, extent=extent)
+    if units:
+        edgar = edgar.convert_units(units)
+
+    total = inventories.sum_sectors(edgar.data)
+
+    # Regrid
+    import xesmf as xe  # conda-forge only; lazy to avoid import-time failure
+
+    regridder = xe.Regridder(total, out_grid, method="conservative")
+    inventory: xr.Dataset = regridder(total)
+
+    inventory.name = "flux"
+    inventory.attrs["units"] = total.attrs["units"]
+
+    if flux_freq is not None:
+        inv_freq = pd.infer_freq(inventory.time.values)
+        if inv_freq is not None:
+            ref = pd.Timestamp("2020-01-01")
+            target_step = ref + pd.tseries.frequencies.to_offset(flux_freq)
+            inv_step = ref + pd.tseries.frequencies.to_offset(inv_freq)
+            if target_step > inv_step:
+                inventory = inventory.resample(time=flux_freq).mean()
+
     prior = inventory.reindex(time=flux_times, method="nearest").to_series()
 
     if return_regridder:
