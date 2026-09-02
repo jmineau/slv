@@ -1,0 +1,14 @@
+{
+  "title": "slv",
+  "description": "Salt Lake Valley methane analysis and inversion workflows: measurements, inventories, domain definitions, and the flux-inversion pipeline built on fips and pystilt.",
+  "creators": [
+    {
+      "name": "Mineau, James K.",
+      "affiliation": "University of Utah",
+      "orcid": "0000-0002-2289-2252"
+    }
+  ],
+  "license": "MIT",
+  "upload_type": "software",
+  "keywords": ["methane", "urban-emissions", "bayesian-inversion", "salt-lake-valley"]
+}

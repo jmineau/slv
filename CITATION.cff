@@ -1,0 +1,20 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+type: software
+title: "slv"
+abstract: "Salt Lake Valley methane analysis and inversion workflows: measurements, inventories, domain definitions, and the flux-inversion pipeline built on fips and pystilt."
+version: 2026.9.0
+date-released: 2026-09-02
+authors:
+  - family-names: Mineau
+    given-names: James K.
+    email: jameskmineau@gmail.com
+    affiliation: "University of Utah"
+    orcid: "https://orcid.org/0000-0002-2289-2252"
+license: MIT
+repository-code: "https://github.com/jmineau/slv"
+keywords:
+  - methane
+  - urban-emissions
+  - bayesian-inversion
+  - salt-lake-valley
