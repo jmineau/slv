@@ -1,3 +1,4 @@
+import os
 from dataclasses import dataclass, field
 from functools import cached_property
 from pathlib import Path
@@ -9,6 +10,11 @@ from lair.geo import generate_regular_grid, write_rio_crs
 
 from slv.domain import UTC_OFFSET, XMAX, XMIN, YMAX, YMIN
 from slv.measurements.sites import load_site_config
+
+# CHPC location of the production PYSTILT project (fallback when SLV_STILT_DIR is unset).
+DEFAULT_STILT_PROJECT = (
+    "/uufs/chpc.utah.edu/common/home/lin-group27/jkm/stilt/simulations/stilt"
+)
 
 # Default MDM component parameters
 # Notes:
@@ -187,8 +193,10 @@ class InversionConfig:
     prior_kwargs: dict = field(default_factory=dict)
 
     # --- Jacobian ---
-    stilt_project: str | Path = (
-        "/uufs/chpc.utah.edu/common/home/lin-group27/jkm/stilt/simulations/stilt"
+    # Production PYSTILT project. Override per-machine with the SLV_STILT_DIR env var
+    # (set in ~/.env alongside the other SLV_*_DIR vars) rather than editing this.
+    stilt_project: str | Path = field(
+        default_factory=lambda: os.environ.get("SLV_STILT_DIR", DEFAULT_STILT_PROJECT)
     )
     footprint: str | None = (
         None  # Named footprint config or hash; None = finest available
