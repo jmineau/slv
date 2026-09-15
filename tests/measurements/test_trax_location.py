@@ -21,6 +21,7 @@ def _feat(n, **cols):
         "speed": 0.0,
         "speed_max": 0.0,
         "d_line": 200.0,
+        "d_track": 200.0,
         "d_yard": 0.0,
         "in_yard": 1.0,
         "in_depot": False,
@@ -67,6 +68,7 @@ def test_line_pass_route_stopped_and_unknown():
         5,
         speed_max=[0.0, 12.0, 12.0, 0.0, 0.0],
         d_line=[200.0, 10.0, 300.0, 5000.0, 5000.0],
+        d_track=[200.0, 10.0, 5.0, 5.0, 5.0],
         d_yard=[0.0, 0.0, 0.0, 3000.0, 3000.0],
         n_gps=[12, 12, 12, 12, 0],
     )
@@ -143,3 +145,20 @@ def test_location_features_without_speed_column():
     f = location_features(gps)
     assert len(f) == 3 and f.speed_max.isna().all() and f.speed_est.notna().sum() == 1
     assert f.speed_est.dropna().iloc[0] > 0.5
+
+
+def test_untrusted_positions_are_unknown():
+    # near the yard but neither on the line nor inside the buffer -> unknown (ejecta);
+    # far from the yard and > 100 m off any track -> unknown; on-track stop stays stopped
+    f = _feat(
+        4,
+        d_yard=[120.0, 120.0, 3000.0, 3000.0],
+        d_line=[150.0, 10.0, 5000.0, 5000.0],
+        d_track=[150.0, 10.0, 130.0, 5.0],
+        speed_max=[0.0, 12.0, 0.0, 0.0],
+    )
+    st = classify_location(f, smooth_min=1)
+    assert st.state.tolist() == ["unknown", "line", "unknown", "stopped"]
+    # inside the yard buffer the track distance is irrelevant (yard tracks are unmapped)
+    f = _feat(2, d_yard=0.0, d_track=250.0)
+    assert (classify_location(f, smooth_min=1).state == "yard").all()

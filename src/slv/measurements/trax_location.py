@@ -20,7 +20,10 @@ resolution:
 * **route** — moving anywhere else (normal operation; the route-buffer test in
   :func:`slv.measurements.mobile.merge_with_gps` handles the rest).
 * **stopped** — stationary away from the yard (a station stop, a siding).
-* **unknown** — no usable GPS in the minute.
+* **unknown** — no usable GPS in the minute, or a position that cannot be trusted:
+  more than :data:`OFF_TRACK` m from any TRAX track (GPS junk, or a siding missing
+  from the line geojson), or within :data:`NEAR_YARD` m of the storage polygon but
+  neither on the line nor inside the yard buffer (multipath ejecta from the depot).
 
 Supporting evidence that is *not* used by the classifier but is worth plotting:
 inside the heated depot the roof temperature sits at 22–23 °C with low RH, ozone
@@ -73,6 +76,12 @@ SCATTER_M = 1.0
 LOW_NSAT = 6
 #: Buffer (m) around the storage polygon: scattered depot fixes leak past its edge.
 YARD_BUFFER = 30.0
+#: Radius (m) around the storage polygon inside which an off-line, off-yard minute is
+#: multipath ejecta from the depot rather than a real stop → ``unknown``.
+NEAR_YARD = 300.0
+#: Distance (m) from any TRAX track beyond which a minute is ``unknown`` (a train is
+#: never that far off the mapped lines; catches GPS junk and unmapped sidings).
+OFF_TRACK = 100.0
 #: Logger battery voltage below which train power is off (charging level is ~13–14 V).
 POWER_OFF_V = 12.5
 #: Centred window (minutes) for the majority vote that removes single-minute flips.
@@ -230,7 +239,8 @@ def location_features(
 
     Columns: ``n_gps``, ``x``/``y`` (UTM median), ``scatter`` (max of x/y std, m),
     ``speed`` (median m/s), ``speed_max``, ``speed_est`` (position-derived, see
-    :data:`MOVING_SPEED_EST`), ``d_line`` (median distance to the
+    :data:`MOVING_SPEED_EST`), ``d_line``, ``d_track`` (median distance to any
+    TRAX track, m) (median distance to the
     ``line`` track, m), ``d_yard`` (median distance to the storage polygon, 0 inside),
     ``in_yard`` (fraction of fixes inside the polygon), ``in_depot`` (median position
     inside :func:`load_depot_footprint`), ``nsat`` (median, if present), and from
@@ -243,10 +253,12 @@ def location_features(
     yard_geom = yard.geometry.union_all()
     lines = load_trax_lines(meters=True)
     line_geom = lines[lines.line == line].geometry.union_all()
+    track_geom = lines.geometry.union_all()
 
     g["x"] = g.geometry.x
     g["y"] = g.geometry.y
     g["d_line"] = g.geometry.distance(line_geom)
+    g["d_track"] = g.geometry.distance(track_geom)
     g["d_yard"] = g.geometry.distance(yard_geom)
     g["in_yard"] = g.geometry.within(yard_geom)
 
@@ -260,6 +272,7 @@ def location_features(
             "speed": r.Speed_m_s.median(),
             "speed_max": r.Speed_m_s.max(),
             "d_line": r.d_line.median(),
+            "d_track": r.d_track.median(),
             "d_yard": r.d_yard.median(),
             "in_yard": r.in_yard.mean(),
         }
@@ -298,6 +311,8 @@ def classify_location(
     scatter_m: float = SCATTER_M,
     low_nsat: int = LOW_NSAT,
     yard_buffer: float = YARD_BUFFER,
+    near_yard_m: float = NEAR_YARD,
+    off_track_m: float = OFF_TRACK,
     smooth_min: int = SMOOTH_MIN,
     use_footprint: bool = False,
 ) -> pd.DataFrame:
@@ -316,6 +331,9 @@ def classify_location(
        padded footprint, so it mislabels clean yard nights (e.g. 2025-02-16).
        Otherwise ``yard``.
     4. stationary elsewhere → ``stopped``.
+    5. overrides to ``unknown``: ``d_track > off_track_m`` (unless inside the yard
+       buffer), or within ``near_yard_m`` of the storage polygon while neither on the
+       line nor inside the yard buffer.
 
     Returns a frame with ``state`` (categorical), ``degraded`` (raw per-minute
     flag), ``degraded_smooth`` and, when battery voltage is present, ``powered``
@@ -353,6 +371,11 @@ def classify_location(
     state[stat_yard] = "yard"
     state[depot] = "depot"
     state[has_fix & ~moving & ~near_yard] = "stopped"
+    # positions that cannot be trusted
+    untrusted = has_fix & ~near_yard & (feat.d_yard <= near_yard_m) & ~on_line
+    if "d_track" in feat.columns:
+        untrusted |= has_fix & ~near_yard & (feat.d_track > off_track_m)
+    state[untrusted] = "unknown"
     out["state"] = pd.Categorical(state, categories=STATES)
 
     if "volt_min" in feat.columns:

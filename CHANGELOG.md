@@ -13,7 +13,9 @@ versions are calendar-based (YYYY.M.PATCH).
   `powered` flag from the CR1000 battery voltage; `read_horel_cr1000`,
   `state_intervals`, `label_observations`; packaged `jrrsc_depot.geojson`.
   Works without a recorded speed (GPGGA-only eras) via a position-derived
-  `speed_est`; `read_lin_gps` / `read_trax_gps` pick the GPS source by era
+  `speed_est`; `read_lin_gps` / `read_trax_gps` pick the GPS source by era.
+  Untrusted positions (> 100 m off any track, or near the yard but neither on
+  the line nor in the yard buffer) are `unknown`
 
 ## [2026.9.0] - 2026-09-02
 
