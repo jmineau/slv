@@ -111,3 +111,35 @@ def test_label_observations_floors_to_minute():
     )
     lab = label_observations(obs, st)
     assert lab.tolist()[:2] == ["yard", "depot"] and pd.isna(lab.iloc[2])
+
+
+def test_speed_est_fallback_when_no_speed_recorded():
+    # no recorded speed: minutes 1-2 move 500 m/min (speed_est ~4 m/s), rest still
+    n = 6
+    x = np.array([0.0, 0.0, 500.0, 1000.0, 1000.0, 1000.0]) + 422300.0
+    est = np.hypot(np.r_[np.nan, x[2:] - x[:-2], np.nan], 0) / 120
+    f = _feat(n, x=x, speed_max=np.nan, speed_est=est, d_line=300.0)
+    st = classify_location(f, smooth_min=1)
+    assert st.state.tolist()[1:4] == ["yard", "yard", "yard"]  # moving in yard -> yard
+    f["d_line"] = 10.0
+    st = classify_location(f, smooth_min=1)
+    assert st.state.tolist() == ["yard", "line", "line", "line", "yard", "yard"]
+    # a recorded speed wins over the estimate
+    f["speed_max"] = 0.0
+    assert (classify_location(f, smooth_min=1).state == "yard").all()
+
+
+def test_location_features_without_speed_column():
+    from slv.measurements.trax_location import location_features
+
+    idx = pd.date_range("2025-03-01", periods=180, freq="1s")
+    gps = pd.DataFrame(
+        {
+            "Latitude_deg": np.linspace(40.7235, 40.7236, 180),
+            "Longitude_deg": np.linspace(-111.92, -111.918, 180),
+        },
+        index=idx,
+    )
+    f = location_features(gps)
+    assert len(f) == 3 and f.speed_max.isna().all() and f.speed_est.notna().sum() == 1
+    assert f.speed_est.dropna().iloc[0] > 0.5

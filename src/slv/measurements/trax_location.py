@@ -34,8 +34,10 @@ Typical use::
     states = classify_location(feat)  # per-minute state
     intervals = state_intervals(states)  # start/end/state table
 
-``gps`` needs a datetime index and ``Latitude_deg``, ``Longitude_deg``,
-``Speed_m_s``; ``N_Sat`` is optional. Either the lin-group GPS (``uataq.read_data
+``gps`` needs a datetime index and ``Latitude_deg``, ``Longitude_deg``;
+``Speed_m_s`` and ``N_Sat`` are optional. Speed is missing wherever only GPGGA was
+logged (lin-group GPS Dec 2015 – 19 Jan 2018; horel pilot logger Nov 2014 – Nov 2018):
+there ``moving`` comes from the position-derived ``speed_est`` instead. Either the lin-group GPS (``uataq.read_data
 ('trx01', 'gps', lvl='qaqc')``) or the horel-group logger GPS (:func:`read_horel_cr1000`)
 works. The horel logger runs on its own battery and keeps recording when train power
 is off, so it is the better source for a continuous record.
@@ -57,6 +59,10 @@ UTM12 = "EPSG:32612"
 #: Speed (m/s, per-minute maximum) at or above which the train counts as moving.
 #: Depot multipath produces spurious speeds up to ~1 m/s; a real move exceeds 2.
 MOVING_SPEED = 2.0
+#: Threshold (m/s) for the position-derived speed estimate used when no speed was
+#: recorded (GPGGA-only eras): displacement between the minute medians one minute
+#: before and after, over 120 s. Reproduces the speed rule on 98.9 % of 2025 minutes.
+MOVING_SPEED_EST = 1.5
 #: Distance (m) from the green line within which a moving train is "on the line".
 LINE_DISTANCE = 50.0
 #: Per-minute position std (m, max of x/y) above which the fix is degraded.
@@ -72,8 +78,11 @@ SMOOTH_MIN = 15
 
 STATES = ("depot", "yard", "line", "route", "stopped", "unknown")
 
-HOREL_CR1000_DIR = Path(
-    "/uufs/chpc.utah.edu/common/home/horel-group/uutrax/cr1000"
+HOREL_CR1000_DIRS = (
+    Path("/uufs/chpc.utah.edu/common/home/horel-group/uutrax/cr1000"),  # Nov 2018 on
+    Path(
+        "/uufs/chpc.utah.edu/common/home/horel-group/uutrax_pilot/cr1000"
+    ),  # Nov 2014 - Nov 2018
 )  # TODO move into uataq once its horel GPS reader keeps NSAT/RSTS
 
 
@@ -95,7 +104,10 @@ def read_horel_cr1000(time_range, site: str = "trx01") -> pd.DataFrame:
     horel reader drops the satellite count and RMC status. Columns are renamed to
     the uataq convention (``Latitude_deg``, ``Speed_m_s``, ``N_Sat``, ``Status``,
     ``Battery_Voltage_V``, ``Logger_T_C``, ``Ambient_T_C``, ``Ambient_RH_pct``).
-    Available from Nov 2018 (post-pilot); ``time_range`` is any pair pandas can parse.
+    Covers Nov 2014 on (pilot files first, then the post-pilot tree). The pilot-phase
+    files (to Nov 2018) have no speed or RMC status, so ``Speed_m_s`` is NaN there and
+    :func:`classify_location` falls back to the position-derived estimate.
+    ``time_range`` is any pair pandas can parse.
     """
     import tables
 
@@ -114,19 +126,22 @@ def read_horel_cr1000(time_range, site: str = "trx01") -> pd.DataFrame:
     }
     parts = []
     for m in pd.period_range(start, end, freq="M"):
-        path = HOREL_CR1000_DIR / f"{site.upper()}_{m.year}_{m.month:02d}_cr1000.h5"
-        if not path.exists():
-            continue
-        with tables.open_file(path) as h5:
-            df = pd.DataFrame(h5.root["obsdata/observations"].read())
-        parts.append(df)
+        name = f"{site.upper()}_{m.year}_{m.month:02d}_cr1000.h5"
+        for d in HOREL_CR1000_DIRS:
+            if (d / name).exists():
+                with tables.open_file(d / name) as h5:
+                    parts.append(pd.DataFrame(h5.root["obsdata/observations"].read()))
     if not parts:
         return pd.DataFrame()
     df = pd.concat(parts, ignore_index=True).replace(-9999.0, np.nan)
     df.index = pd.to_datetime(df.pop("EPOCHTIME"), unit="s").rename("Time_UTC")
-    df["Speed_m_s"] = df.pop("RSPD") * 0.514444  # knots -> m/s
-    df = df.drop(columns=["GTIM"], errors="ignore").rename(columns=rename)
-    return df.loc[start:end].sort_index()
+    if "RSPD" in df.columns:
+        df["Speed_m_s"] = df.pop("RSPD") * 0.514444  # knots -> m/s
+    else:
+        df["Speed_m_s"] = np.nan
+    df = df.drop(columns=["GTIM", "PRES"], errors="ignore").rename(columns=rename)
+    df = df[~df.index.duplicated()].sort_index()
+    return df.loc[start:end]
 
 
 def _prep_gps(gps: pd.DataFrame) -> gpd.GeoDataFrame:
@@ -148,13 +163,16 @@ def location_features(
     """Per-``freq`` GPS features that the classifier needs (plus power, if available).
 
     Columns: ``n_gps``, ``x``/``y`` (UTM median), ``scatter`` (max of x/y std, m),
-    ``speed`` (median m/s), ``speed_max``, ``d_line`` (median distance to the
+    ``speed`` (median m/s), ``speed_max``, ``speed_est`` (position-derived, see
+    :data:`MOVING_SPEED_EST`), ``d_line`` (median distance to the
     ``line`` track, m), ``d_yard`` (median distance to the storage polygon, 0 inside),
     ``in_yard`` (fraction of fixes inside the polygon), ``in_depot`` (median position
     inside :func:`load_depot_footprint`), ``nsat`` (median, if present), and from
     ``cr1000``: ``volt`` (median), ``volt_min``, ``amb_T``, ``amb_RH``.
     """
     g = _prep_gps(gps)
+    if "Speed_m_s" not in g.columns:
+        g["Speed_m_s"] = np.nan
     yard = get_geodf(storage_polygon or storage_locations["JRRSC"]).to_crs(UTM12)
     yard_geom = yard.geometry.union_all()
     lines = load_trax_lines(meters=True)
@@ -180,6 +198,11 @@ def location_features(
             "in_yard": r.in_yard.mean(),
         }
     )
+    # position-derived speed for minutes/eras without a recorded speed:
+    # displacement between the minute medians one minute before and after, over 120 s
+    f["speed_est"] = (
+        np.hypot(f.x.shift(-1) - f.x.shift(1), f.y.shift(-1) - f.y.shift(1)) / 120
+    )
     if "N_Sat" in g.columns:
         f["nsat"] = r.N_Sat.median()
 
@@ -204,6 +227,7 @@ def _smooth_bool(s: pd.Series, window: int) -> pd.Series:
 def classify_location(
     feat: pd.DataFrame,
     moving_speed: float = MOVING_SPEED,
+    moving_speed_est: float = MOVING_SPEED_EST,
     line_distance: float = LINE_DISTANCE,
     scatter_m: float = SCATTER_M,
     low_nsat: int = LOW_NSAT,
@@ -216,7 +240,8 @@ def classify_location(
     Rules, per minute:
 
     1. no fixes → ``unknown``
-    2. ``speed_max >= moving_speed``: ``d_line < line_distance`` → ``line``, else
+    2. ``speed_max >= moving_speed`` (or, where no speed was recorded,
+       ``speed_est >= moving_speed_est``): ``d_line < line_distance`` → ``line``, else
        ``yard`` if within ``yard_buffer`` m of the storage polygon, else ``route``.
     3. stationary near the yard: degraded fix (``scatter > scatter_m`` or
        ``nsat <= low_nsat``, majority-voted over ``smooth_min`` minutes) → ``depot``;
@@ -233,6 +258,9 @@ def classify_location(
     out = pd.DataFrame(index=feat.index)
     has_fix = feat.n_gps.fillna(0) > 0
     moving = feat.speed_max >= moving_speed
+    if "speed_est" in feat.columns:  # GPGGA-only eras: no recorded speed
+        no_speed = feat.speed_max.isna()
+        moving = moving | (no_speed & (feat.speed_est >= moving_speed_est))
     near_yard = feat.d_yard <= yard_buffer
     on_line = feat.d_line < line_distance
 

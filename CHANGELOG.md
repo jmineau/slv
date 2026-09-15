@@ -11,7 +11,9 @@ versions are calendar-based (YYYY.M.PATCH).
 - `measurements.trax_location`: per-minute TRAX location classifier (depot / yard /
   green-line pass-by / route / stopped) from GPS scatter and satellite count, with a
   `powered` flag from the CR1000 battery voltage; `read_horel_cr1000`,
-  `state_intervals`, `label_observations`; packaged `jrrsc_depot.geojson`
+  `state_intervals`, `label_observations`; packaged `jrrsc_depot.geojson`.
+  Works without a recorded speed (GPGGA-only eras) via a position-derived
+  `speed_est`; the logger reader covers the pilot phase (Nov 2014 on)
 
 ## [2026.9.0] - 2026-09-02
 
