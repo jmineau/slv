@@ -1,0 +1,4 @@
+start,end,reason,enabled
+2016-01-01,2016-03-12,"tank 150909_J22 ran empty (notes 2015-12-23); no valid reference until the 2016-03-12 swap. LGR gain vs certified tanks: 0.9996 (Dec 2015) / 1.0041 (Sep 2016)",true
+2018-05-06,2018-06-05,"tank 171204_31 leaked/empty (calibrated flag -5 on 894k rows); leak checks + tank camera installed 2018-06-04. Slope 0.99 either side",true
+2020-05-19,2020-07-21,"tank emptied hours after the 2020-05-19 visit, valve closed, calibrations turned off (notes); calibrated flag -5 throughout; cal gas flowing again by 2020-07-22",true

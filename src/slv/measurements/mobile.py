@@ -1,7 +1,9 @@
+from importlib.resources import files
 from pathlib import Path
 
 import cartopy.crs as ccrs
 import geopandas as gpd
+import pandas as pd
 import uataq
 from lair.geo import points_along_line
 from shapely import Point
@@ -178,3 +180,191 @@ def merge_with_gps(
         data = data.drop(columns=["Pi_Time"])
 
     return data
+
+
+# ---------------------------------------------------------------------------
+# TRAX CH4 observations (calibrated + uncalibrated windows), cached to parquet
+# ---------------------------------------------------------------------------
+
+CAL_SOURCES = ("pipeline", "manual_cal", "uncalibrated")
+"""Provenance tag carried by every TRAX observation in ``cal_source``:
+
+- ``pipeline``: pipeline-calibrated value (``CH4d_ppm_cal`` from the ``calibrated`` level).
+- ``manual_cal``: the ``lgr_ugga_manual_cal`` instrument (no on-board tank since Nov 2023);
+  the pipeline applies no calibration, so this is the analyzer's raw ``CH4d_ppm``.
+- ``uncalibrated``: raw ``CH4d_ppm`` from the ``lgr_ugga`` qaqc level inside a window listed in
+  ``trax_uncalibrated_windows.csv`` (tank empty, no valid reference). Same treatment as
+  ``manual_cal``; the LGR's gain was within 0.5% of unity on either side of every window.
+"""
+
+
+def load_trax_uncalibrated_windows(
+    path: str | Path | None = None, enabled_only: bool = True
+) -> pd.DataFrame:
+    """Windows where the LGR ran without a valid reference tank but the raw data are good.
+
+    Packaged in ``trax_uncalibrated_windows.csv`` (columns: start, end, reason, enabled).
+    Set ``enabled`` to false to drop a window without deleting the row.
+    """
+    if path is None:
+        with (
+            files(__package__).joinpath("trax_uncalibrated_windows.csv").open("r") as f
+        ):
+            df = pd.read_csv(f)
+    else:
+        df = pd.read_csv(path)
+    df["start"] = pd.to_datetime(df["start"])
+    df["end"] = pd.to_datetime(df["end"])
+    df["enabled"] = df["enabled"].astype(str).str.lower().isin(("true", "1", "yes"))
+    if enabled_only:
+        df = df.loc[df["enabled"].to_numpy()]
+    return pd.DataFrame(df).reset_index(drop=True)
+
+
+def select_uncalibrated(
+    qaqc: pd.DataFrame, windows: pd.DataFrame, exclude_times: pd.Index | None = None
+) -> pd.DataFrame:
+    """Rows of a qaqc-level LGR frame that fall inside the uncalibrated windows.
+
+    ``qaqc`` must have a ``Time_UTC`` column (or a datetime index) and a ``CH4`` column that
+    has already passed :func:`slv.measurements.pollutants.normalize_pollutant`. Rows whose
+    time is in ``exclude_times`` (e.g. times that do have a pipeline calibration) are dropped.
+    Returns ``Time_UTC``, ``CH4`` and ``cal_source == "uncalibrated"``.
+    """
+    df = qaqc if "Time_UTC" in qaqc.columns else qaqc.reset_index()
+    t = pd.to_datetime(df["Time_UTC"])
+    mask = pd.Series(False, index=df.index)
+    for start, end in zip(windows["start"], windows["end"], strict=True):
+        mask |= (t >= start) & (t < end)
+    out = df.loc[mask & df["CH4"].notna(), ["Time_UTC", "CH4"]].copy()
+    if exclude_times is not None and len(exclude_times):
+        out = out[~out["Time_UTC"].isin(exclude_times)]
+    out["cal_source"] = "uncalibrated"
+    return pd.DataFrame(out).reset_index(drop=True)
+
+
+def filter_cal_source(
+    df: pd.DataFrame, include_uncalibrated: bool = True
+) -> pd.DataFrame:
+    """Drop the ``uncalibrated`` rows when ``include_uncalibrated`` is False.
+
+    ``manual_cal`` rows are always kept: they are the only post-Nov-2023 data.
+    """
+    if include_uncalibrated or "cal_source" not in df.columns:
+        return df
+    return pd.DataFrame(df.loc[(df["cal_source"] != "uncalibrated").to_numpy()])
+
+
+def _read_lgr(
+    site, instrument, lvl, value_col, time_range, num_processes
+) -> pd.DataFrame:
+    """Read one LGR level via uataq, validate CH4, return Time_UTC + CH4 (+ index reset)."""
+    from slv.measurements.pollutants import normalize_pollutant
+
+    df = uataq.read_data(
+        site,
+        instruments=instrument,
+        lvl=lvl,
+        time_range=time_range,
+        num_processes=num_processes,
+    )[instrument]
+    if "Time_UTC" not in df.columns:
+        df = df.reset_index()
+    df = df.rename(columns={value_col: "CH4"})
+    df["CH4"] = normalize_pollutant(df, "CH4")
+    return pd.DataFrame(df[["Time_UTC", "CH4"]])
+
+
+def build_trax_obs(
+    site: str = "trx01",
+    time_range=None,
+    num_processes: int = 1,
+    windows: pd.DataFrame | None = None,
+    **gps_kwargs,
+) -> gpd.GeoDataFrame:
+    """Build the georeferenced TRAX CH4 record from the pipeline levels.
+
+    Sources, each tagged in ``cal_source`` (see :data:`CAL_SOURCES`):
+    ``lgr_ugga`` calibrated → ``pipeline``; ``lgr_ugga_manual_cal`` qaqc → ``manual_cal``;
+    ``lgr_ugga`` qaqc inside the uncalibrated windows (default: the packaged table) →
+    ``uncalibrated``. QC via :func:`normalize_pollutant` (flags {0,1,2,-64,-140}, ID −10,
+    valid range). Then merged with GPS by :func:`merge_with_gps` (route buffer, storage
+    yard removed). Heavy: reads the full pipeline archive — run on a compute node.
+    """
+    if windows is None:
+        windows = load_trax_uncalibrated_windows()
+
+    print("Reading calibrated LGR data...")
+    cal = _read_lgr(
+        site, "lgr_ugga", "calibrated", "CH4d_ppm_cal", time_range, num_processes
+    )
+    cal = cal[cal.CH4.notna()].assign(cal_source="pipeline")
+
+    print("Reading manual-cal LGR data...")
+    try:
+        man = _read_lgr(
+            site, "lgr_ugga_manual_cal", "qaqc", "CH4d_ppm", time_range, num_processes
+        )
+        man = man[man.CH4.notna()].assign(cal_source="manual_cal")
+    except (FileNotFoundError, KeyError, ValueError):
+        man = cal.iloc[0:0]
+
+    parts = [cal, man]
+    for i, (start, end) in enumerate(
+        zip(windows["start"], windows["end"], strict=True)
+    ):
+        print(f"Reading uncalibrated window {start.date()} -> {end.date()} ...")
+        q = _read_lgr(site, "lgr_ugga", "qaqc", "CH4d_ppm", (start, end), num_processes)
+        parts.append(
+            select_uncalibrated(q, windows.iloc[[i]], exclude_times=cal.Time_UTC)
+        )
+
+    obs = pd.concat(parts, ignore_index=True).sort_values("Time_UTC")
+    obs = obs.drop_duplicates("Time_UTC", keep="first").rename(
+        columns={"CH4": "CH4_ppm"}
+    )
+
+    data = merge_with_gps(
+        site,
+        "UATAQ",
+        obs,
+        time_range=time_range,
+        num_processes=num_processes,
+        **gps_kwargs,
+    )
+    return gpd.GeoDataFrame(
+        data,
+        geometry=gpd.points_from_xy(data.Longitude_deg, data.Latitude_deg),
+        crs="EPSG:4326",
+    )
+
+
+def load_trax_obs(
+    cache: str | Path | None = None,
+    include_uncalibrated: bool = True,
+    rebuild: bool = False,
+    **build_kwargs,
+) -> gpd.GeoDataFrame:
+    """Load the cached TRAX CH4 record (``$SLV_USER_DATA_DIR/trax/obs.parquet``), building it if needed.
+
+    ``include_uncalibrated=False`` drops the tank-out windows so their effect can be tested;
+    the ``cal_source`` column is always present for finer filtering.
+    """
+    cache = USER_DIR / "trax" / "obs.parquet" if cache is None else Path(cache)
+    if cache.exists() and not rebuild:
+        data = pd.read_parquet(cache)
+        if "cal_source" not in data.columns:
+            raise ValueError(
+                f"{cache} predates cal_source tagging; call with rebuild=True"
+            )
+        data = gpd.GeoDataFrame(
+            data,
+            geometry=gpd.points_from_xy(data.Longitude_deg, data.Latitude_deg),
+            crs="EPSG:4326",
+        )
+    else:
+        data = build_trax_obs(**build_kwargs)
+        cache.parent.mkdir(parents=True, exist_ok=True)
+        print(f"Caching TRAX obs to {cache}")
+        pd.DataFrame(data.drop(columns="geometry")).to_parquet(cache)
+    return gpd.GeoDataFrame(filter_cal_source(data, include_uncalibrated))
