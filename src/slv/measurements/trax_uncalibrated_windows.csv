@@ -2,3 +2,5 @@ start,end,reason,enabled
 2016-01-01,2016-03-12,"tank 150909_J22 ran empty (notes 2015-12-23); no valid reference until the 2016-03-12 swap. LGR gain vs certified tanks: 0.9996 (Dec 2015) / 1.0041 (Sep 2016)",true
 2018-05-06,2018-06-05,"tank 171204_31 leaked/empty (calibrated flag -5 on 894k rows); leak checks + tank camera installed 2018-06-04. Slope 0.99 either side",true
 2020-05-19,2020-07-21,"tank emptied hours after the 2020-05-19 visit, valve closed, calibrations turned off (notes); calibrated flag -5 throughout; cal gas flowing again by 2020-07-22",true
+2022-10-28,2023-01-24,"RPi GPIO fault: inlet never switched to the tank, so no valid reference (bad file flags only the reference ID). Bracketing slopes 1.005 (Mar 2022) / 0.994 (Apr 2023). Train mostly parked",true
+2024-08-21,2024-08-28,"tank 240111_69 empty (bad file flags only the reference ID); raw atmosphere median 2.00 ppm, train moving 29% of the week",true
