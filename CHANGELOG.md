@@ -6,6 +6,13 @@ versions are calendar-based (YYYY.M.PATCH).
 
 ## [Unreleased]
 
+### Added
+
+- `measurements.trax_location`: per-minute TRAX location classifier (depot / yard /
+  green-line pass-by / route / stopped) from GPS scatter and satellite count, with a
+  `powered` flag from the CR1000 battery voltage; `read_horel_cr1000`,
+  `state_intervals`, `label_observations`; packaged `jrrsc_depot.geojson`
+
 ## [2026.9.0] - 2026-09-02
 
 ### Added

@@ -1,0 +1,307 @@
+"""Where is the TRAX train: on the line, parked in the JRRSC yard, or inside the depot?
+
+The trx01 train spends most nights at the Jordan River Rail Service Center (JRRSC).
+Sometimes it is parked outside on the yard loop, sometimes inside the maintenance
+depot, and the green line runs right past the yard's north edge. The pipeline's
+storage flag (GPS ``QAQC_Flag == 20``) and the slv loader's storage polygon lump all
+three together. This module separates them from the GPS behaviour, at one-minute
+resolution:
+
+* **depot** — stationary and the GPS fix is degraded: the per-minute position
+  scatter is metres (multipath under the roof, the "crazy" GPS) and the satellite
+  count is low. Site visits (which happen inside the depot) show 2.5–7 m scatter
+  and 6–7 satellites; parked outside the scatter is < 0.3 m with 8–12 satellites.
+  The scattered fixes' medians cluster inside the building footprint
+  (:data:`DEPOT_FOOTPRINT`, derived from Jan–Aug 2025 data).
+* **yard** — stationary (or creeping) with a clean fix, inside the storage polygon
+  but not on the line. Includes the loop track within 50 m of the green line.
+* **line** — moving (max speed ≥ :data:`MOVING_SPEED` m/s) within :data:`LINE_DISTANCE` m of
+  the green line, whether or not inside the storage polygon (a pass-by).
+* **route** — moving anywhere else (normal operation; the route-buffer test in
+  :func:`slv.measurements.mobile.merge_with_gps` handles the rest).
+* **stopped** — stationary away from the yard (a station stop, a siding).
+* **unknown** — no usable GPS in the minute.
+
+Supporting evidence that is *not* used by the classifier but is worth plotting:
+inside the heated depot the roof temperature sits at 22–23 °C with low RH, ozone
+goes to ~0, CO2 climbs; none of these are season-independent on their own. Battery
+voltage (cr1000) separates *powered* from *train power off* (< :data:`POWER_OFF_V`),
+not depot from yard, so it is returned as a separate ``powered`` flag.
+
+Typical use::
+
+    feat = location_features(gps, cr1000=logger)  # 1-min feature table
+    states = classify_location(feat)  # per-minute state
+    intervals = state_intervals(states)  # start/end/state table
+
+``gps`` needs a datetime index and ``Latitude_deg``, ``Longitude_deg``,
+``Speed_m_s``; ``N_Sat`` is optional. Either the lin-group GPS (``uataq.read_data
+('trx01', 'gps', lvl='qaqc')``) or the horel-group logger GPS (:func:`read_horel_cr1000`)
+works. The horel logger runs on its own battery and keeps recording when train power
+is off, so it is the better source for a continuous record.
+"""
+
+from __future__ import annotations
+
+from importlib.resources import files
+from pathlib import Path
+
+import geopandas as gpd
+import numpy as np
+import pandas as pd
+
+from slv.measurements.mobile import get_geodf, load_trax_lines, storage_locations
+
+UTM12 = "EPSG:32612"
+
+#: Speed (m/s, per-minute maximum) at or above which the train counts as moving.
+#: Depot multipath produces spurious speeds up to ~1 m/s; a real move exceeds 2.
+MOVING_SPEED = 2.0
+#: Distance (m) from the green line within which a moving train is "on the line".
+LINE_DISTANCE = 50.0
+#: Per-minute position std (m, max of x/y) above which the fix is degraded.
+SCATTER_M = 1.0
+#: Satellite count at or below which the fix is degraded (only if ``N_Sat`` present).
+LOW_NSAT = 6
+#: Buffer (m) around the storage polygon: scattered depot fixes leak past its edge.
+YARD_BUFFER = 30.0
+#: Logger battery voltage below which train power is off (charging level is ~13–14 V).
+POWER_OFF_V = 12.5
+#: Centred window (minutes) for the majority vote that removes single-minute flips.
+SMOOTH_MIN = 15
+
+STATES = ("depot", "yard", "line", "route", "stopped", "unknown")
+
+HOREL_CR1000_DIR = Path(
+    "/uufs/chpc.utah.edu/common/home/horel-group/uutrax/cr1000"
+)  # TODO move into uataq once its horel GPS reader keeps NSAT/RSTS
+
+
+def load_depot_footprint(meters: bool = False) -> gpd.GeoDataFrame:
+    """Packaged JRRSC depot building footprint (``jrrsc_depot.geojson``).
+
+    Data-derived: the 5–95 % box of the per-minute median positions of scattered
+    (degraded) fixes, Jan–Aug 2025, padded 15 m. Roughly 120 × 180 m.
+    """
+    with files(__package__).joinpath("jrrsc_depot.geojson").open("r") as f:
+        gdf = gpd.read_file(f)
+    return gdf.to_crs(UTM12) if meters else gdf
+
+
+def read_horel_cr1000(time_range, site: str = "trx01") -> pd.DataFrame:
+    """Horel-group CR1000 logger record (5 s): GPS + battery voltage + roof T/RH.
+
+    Reads the monthly ``TRX01_YYYY_MM_cr1000.h5`` files directly because the uataq
+    horel reader drops the satellite count and RMC status. Columns are renamed to
+    the uataq convention (``Latitude_deg``, ``Speed_m_s``, ``N_Sat``, ``Status``,
+    ``Battery_Voltage_V``, ``Logger_T_C``, ``Ambient_T_C``, ``Ambient_RH_pct``).
+    Available from Nov 2018 (post-pilot); ``time_range`` is any pair pandas can parse.
+    """
+    import tables
+
+    start, end = (pd.Timestamp(t) for t in time_range)
+    rename = {
+        "GLAT": "Latitude_deg",
+        "GLON": "Longitude_deg",
+        "GELV": "Altitude_msl",
+        "RDIR": "Course_deg",
+        "NSAT": "N_Sat",
+        "RSTS": "Status",
+        "VOLT": "Battery_Voltage_V",
+        "TICC": "Logger_T_C",
+        "TRNT": "Ambient_T_C",
+        "TRNR": "Ambient_RH_pct",
+    }
+    parts = []
+    for m in pd.period_range(start, end, freq="M"):
+        path = HOREL_CR1000_DIR / f"{site.upper()}_{m.year}_{m.month:02d}_cr1000.h5"
+        if not path.exists():
+            continue
+        with tables.open_file(path) as h5:
+            df = pd.DataFrame(h5.root["obsdata/observations"].read())
+        parts.append(df)
+    if not parts:
+        return pd.DataFrame()
+    df = pd.concat(parts, ignore_index=True).replace(-9999.0, np.nan)
+    df.index = pd.to_datetime(df.pop("EPOCHTIME"), unit="s").rename("Time_UTC")
+    df["Speed_m_s"] = df.pop("RSPD") * 0.514444  # knots -> m/s
+    df = df.drop(columns=["GTIM"], errors="ignore").rename(columns=rename)
+    return df.loc[start:end].sort_index()
+
+
+def _prep_gps(gps: pd.DataFrame) -> gpd.GeoDataFrame:
+    g = gps.dropna(subset=["Latitude_deg", "Longitude_deg"])
+    g = g[g.Latitude_deg.between(40.3, 41.2) & g.Longitude_deg.between(-112.3, -111.5)]
+    pts = gpd.GeoSeries(
+        gpd.points_from_xy(g.Longitude_deg, g.Latitude_deg), crs="EPSG:4326"
+    ).to_crs(UTM12)
+    return gpd.GeoDataFrame(g, geometry=pts.values, crs=UTM12)
+
+
+def location_features(
+    gps: pd.DataFrame,
+    cr1000: pd.DataFrame | None = None,
+    freq: str = "1min",
+    storage_polygon=None,
+    line: str = "G",
+) -> pd.DataFrame:
+    """Per-``freq`` GPS features that the classifier needs (plus power, if available).
+
+    Columns: ``n_gps``, ``x``/``y`` (UTM median), ``scatter`` (max of x/y std, m),
+    ``speed`` (median m/s), ``speed_max``, ``d_line`` (median distance to the
+    ``line`` track, m), ``d_yard`` (median distance to the storage polygon, 0 inside),
+    ``in_yard`` (fraction of fixes inside the polygon), ``in_depot`` (median position
+    inside :func:`load_depot_footprint`), ``nsat`` (median, if present), and from
+    ``cr1000``: ``volt`` (median), ``volt_min``, ``amb_T``, ``amb_RH``.
+    """
+    g = _prep_gps(gps)
+    yard = get_geodf(storage_polygon or storage_locations["JRRSC"]).to_crs(UTM12)
+    yard_geom = yard.geometry.union_all()
+    lines = load_trax_lines(meters=True)
+    line_geom = lines[lines.line == line].geometry.union_all()
+
+    g["x"] = g.geometry.x
+    g["y"] = g.geometry.y
+    g["d_line"] = g.geometry.distance(line_geom)
+    g["d_yard"] = g.geometry.distance(yard_geom)
+    g["in_yard"] = g.geometry.within(yard_geom)
+
+    r = g.drop(columns="geometry").resample(freq)
+    f = pd.DataFrame(
+        {
+            "n_gps": r.size(),
+            "x": r.x.median(),
+            "y": r.y.median(),
+            "scatter": pd.concat([r.x.std(), r.y.std()], axis=1).max(axis=1),
+            "speed": r.Speed_m_s.median(),
+            "speed_max": r.Speed_m_s.max(),
+            "d_line": r.d_line.median(),
+            "d_yard": r.d_yard.median(),
+            "in_yard": r.in_yard.mean(),
+        }
+    )
+    if "N_Sat" in g.columns:
+        f["nsat"] = r.N_Sat.median()
+
+    depot = load_depot_footprint(meters=True).geometry.union_all()
+    med = gpd.GeoSeries(gpd.points_from_xy(f.x, f.y), crs=UTM12, index=f.index)
+    f["in_depot"] = med.within(depot) & f.x.notna()
+
+    if cr1000 is not None and len(cr1000):
+        c = cr1000.resample(freq)
+        f["volt"] = c.Battery_Voltage_V.median()
+        f["volt_min"] = c.Battery_Voltage_V.min()
+        f["amb_T"] = c.Ambient_T_C.median()
+        f["amb_RH"] = c.Ambient_RH_pct.median()
+    return f
+
+
+def _smooth_bool(s: pd.Series, window: int) -> pd.Series:
+    """Centred majority vote over ``window`` samples (NaN counts as 0)."""
+    return s.astype(float).rolling(window, center=True, min_periods=1).mean() > 0.5
+
+
+def classify_location(
+    feat: pd.DataFrame,
+    moving_speed: float = MOVING_SPEED,
+    line_distance: float = LINE_DISTANCE,
+    scatter_m: float = SCATTER_M,
+    low_nsat: int = LOW_NSAT,
+    yard_buffer: float = YARD_BUFFER,
+    smooth_min: int = SMOOTH_MIN,
+    use_footprint: bool = False,
+) -> pd.DataFrame:
+    """Classify each row of :func:`location_features` into one of :data:`STATES`.
+
+    Rules, per minute:
+
+    1. no fixes → ``unknown``
+    2. ``speed_max >= moving_speed``: ``d_line < line_distance`` → ``line``, else
+       ``yard`` if within ``yard_buffer`` m of the storage polygon, else ``route``.
+    3. stationary near the yard: degraded fix (``scatter > scatter_m`` or
+       ``nsat <= low_nsat``, majority-voted over ``smooth_min`` minutes) → ``depot``;
+       with ``use_footprint`` a clean fix whose median sits inside the depot
+       footprint is also ``depot``. Off by default: the yard loop runs through the
+       padded footprint, so it mislabels clean yard nights (e.g. 2025-02-16).
+       Otherwise ``yard``.
+    4. stationary elsewhere → ``stopped``.
+
+    Returns a frame with ``state`` (categorical), ``degraded`` (raw per-minute
+    flag), ``degraded_smooth`` and, when battery voltage is present, ``powered``
+    (``volt_min >= POWER_OFF_V``).
+    """
+    out = pd.DataFrame(index=feat.index)
+    has_fix = feat.n_gps.fillna(0) > 0
+    moving = feat.speed_max >= moving_speed
+    near_yard = feat.d_yard <= yard_buffer
+    on_line = feat.d_line < line_distance
+
+    degraded = feat.scatter > scatter_m
+    if "nsat" in feat.columns:
+        degraded |= feat.nsat <= low_nsat
+    degraded &= has_fix & ~moving
+    out["degraded"] = degraded
+    # vote only among stationary near-yard minutes so passes/gaps don't dilute it
+    stat_yard = has_fix & ~moving & near_yard
+    vote = degraded.where(stat_yard)
+    out["degraded_smooth"] = (
+        _smooth_bool(vote.ffill(limit=2).fillna(False), smooth_min) & stat_yard
+    )
+
+    depot = out.degraded_smooth.copy()
+    if use_footprint and "in_depot" in feat.columns:
+        depot |= stat_yard & feat.in_depot.fillna(False)
+
+    state = pd.Series("unknown", index=feat.index, dtype=object)
+    state[has_fix & moving & on_line] = "line"
+    state[has_fix & moving & ~on_line & near_yard] = "yard"
+    state[has_fix & moving & ~on_line & ~near_yard] = "route"
+    state[stat_yard] = "yard"
+    state[depot] = "depot"
+    state[has_fix & ~moving & ~near_yard] = "stopped"
+    out["state"] = pd.Categorical(state, categories=STATES)
+
+    if "volt_min" in feat.columns:
+        out["powered"] = feat.volt_min >= POWER_OFF_V
+    return out
+
+
+def state_intervals(
+    states: pd.Series | pd.DataFrame, min_minutes: int = 0
+) -> pd.DataFrame:
+    """Run-length table of a per-minute state series: ``start``, ``end``, ``state``, ``minutes``.
+
+    ``end`` is the last minute of the run (inclusive). Runs shorter than
+    ``min_minutes`` are dropped (not merged) — useful to list depot stays only.
+    """
+    s = states["state"] if isinstance(states, pd.DataFrame) else states
+    s = s.astype(object)
+    run = (s != s.shift()).cumsum()
+    grp = s.groupby(run)
+    iv = pd.DataFrame(
+        {
+            "start": grp.apply(lambda x: x.index[0]),
+            "end": grp.apply(lambda x: x.index[-1]),
+            "state": grp.first(),
+            "minutes": grp.size(),
+        }
+    ).reset_index(drop=True)
+    return iv[iv.minutes >= min_minutes].reset_index(drop=True)
+
+
+def label_observations(
+    obs: pd.DataFrame, states: pd.DataFrame, time_col: str = "Time_UTC"
+) -> pd.Series:
+    """Per-observation ``state`` from the per-minute table (time floored to the minute).
+
+    Times outside the classified range come back as NaN.
+    """
+    t = (
+        pd.to_datetime(obs[time_col])
+        if time_col in obs.columns
+        else pd.Series(obs.index)
+    )
+    minute = pd.DatetimeIndex(t).floor("min")
+    return pd.Series(
+        states["state"].reindex(minute).values, index=obs.index, name="state"
+    )
