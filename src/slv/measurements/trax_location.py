@@ -39,8 +39,9 @@ Typical use::
 logged (lin-group GPS Dec 2015 – 19 Jan 2018; horel pilot logger Nov 2014 – Nov 2018):
 there ``moving`` comes from the position-derived ``speed_est`` instead. Either the lin-group GPS (``uataq.read_data
 ('trx01', 'gps', lvl='qaqc')``) or the horel-group logger GPS (:func:`read_horel_cr1000`)
-works. The horel logger runs on its own battery and keeps recording when train power
-is off, so it is the better source for a continuous record.
+works; :func:`read_trax_gps` picks by era (lin GPS for the pilot years, horel logger
+from 19 Nov 2018, which runs on its own battery and keeps recording when train power
+is off).
 """
 
 from __future__ import annotations
@@ -52,6 +53,7 @@ import geopandas as gpd
 import numpy as np
 import pandas as pd
 
+from slv import get_data_dir
 from slv.measurements.mobile import get_geodf, load_trax_lines, storage_locations
 
 UTM12 = "EPSG:32612"
@@ -105,8 +107,9 @@ def read_horel_cr1000(time_range, site: str = "trx01") -> pd.DataFrame:
     the uataq convention (``Latitude_deg``, ``Speed_m_s``, ``N_Sat``, ``Status``,
     ``Battery_Voltage_V``, ``Logger_T_C``, ``Ambient_T_C``, ``Ambient_RH_pct``).
     Covers Nov 2014 on (pilot files first, then the post-pilot tree). The pilot-phase
-    files (to Nov 2018) have no speed or RMC status, so ``Speed_m_s`` is NaN there and
-    :func:`classify_location` falls back to the position-derived estimate.
+    files (to 19 Nov 2018) are a different setup: one fix per minute (so the scatter
+    feature is undefined), a receiver that reports 3–8 satellites, and no speed or RMC
+    status. Do not classify from them — use :func:`read_lin_gps` for the pilot era.
     ``time_range`` is any pair pandas can parse.
     """
     import tables
@@ -142,6 +145,69 @@ def read_horel_cr1000(time_range, site: str = "trx01") -> pd.DataFrame:
     df = df.drop(columns=["GTIM", "PRES"], errors="ignore").rename(columns=rename)
     df = df[~df.index.duplicated()].sort_index()
     return df.loc[start:end]
+
+
+#: Post-pilot start of the horel logger (5-s GPS with speed and RMC status).
+HOREL_POST_PILOT = pd.Timestamp("2018-11-19T20:04")
+
+LIN_GPS_DIR = Path(get_data_dir("LINGROUP_MEASUREMENTS_DIR")) / "data"
+#: GPS QAQC flags dropped before classifying: bad fix quality, < 4 satellites,
+#: invalid RMC status, pi-clock overlap. Flag 20 (storage box) and 0 are kept.
+LIN_GPS_DROP_FLAGS = (-21, -22, -23, -200)
+
+
+def read_lin_gps(time_range, site: str = "trx01", lvl: str = "qaqc") -> pd.DataFrame:
+    """Lin-group (air-trend) GPS at 1 s from the pipeline ``qaqc`` level, Dec 2014 on.
+
+    Read directly from the monthly ``YYYY_MM_qaqc.dat`` files (uataq's reader drops
+    ``N_Sat``). Rows with :data:`LIN_GPS_DROP_FLAGS` are removed. ``Speed_m_s`` is NA
+    from Dec 2015 to 19 Jan 2018 (GPGGA only), which :func:`classify_location`
+    handles via ``speed_est``. Indexed by GPS ``Time_UTC``; ``Pi_Time`` is kept for
+    merging with the LGR. Only records while the Pi has train power.
+    """
+    start, end = (pd.Timestamp(t) for t in time_range)
+    cols = [
+        "Time_UTC",
+        "Pi_Time",
+        "Latitude_deg",
+        "Longitude_deg",
+        "Altitude_msl",
+        "Speed_m_s",
+        "Course_deg",
+        "N_Sat",
+        "Fix_Quality",
+        "QAQC_Flag",
+    ]
+    parts = []
+    for m in pd.period_range(start, end, freq="M"):
+        path = LIN_GPS_DIR / site / "gps" / lvl / f"{m.year}_{m.month:02d}_{lvl}.dat"
+        if not path.exists():
+            continue
+        df = pd.read_csv(
+            path, usecols=lambda c: c in cols, na_values="NA", low_memory=False
+        )
+        df["Time_UTC"] = pd.to_datetime(df.Time_UTC, errors="coerce")
+        df = df.dropna(subset=["Time_UTC"])
+        if "QAQC_Flag" in df.columns:
+            df = df[~df.QAQC_Flag.isin(LIN_GPS_DROP_FLAGS)]
+        parts.append(df)
+    if not parts:
+        return pd.DataFrame()
+    df = pd.concat(parts, ignore_index=True).set_index("Time_UTC").sort_index()
+    return df.loc[start:end]
+
+
+def read_trax_gps(time_range, site: str = "trx01") -> pd.DataFrame:
+    """Best GPS source for classifying, by era: lin-group GPS before
+    :data:`HOREL_POST_PILOT`, horel logger (with battery/T/RH) after."""
+    start, end = (pd.Timestamp(t) for t in time_range)
+    parts = []
+    if start < HOREL_POST_PILOT:
+        parts.append(read_lin_gps((start, min(end, HOREL_POST_PILOT)), site))
+    if end >= HOREL_POST_PILOT:
+        parts.append(read_horel_cr1000((max(start, HOREL_POST_PILOT), end), site))
+    parts = [p for p in parts if len(p)]
+    return pd.concat(parts).sort_index() if parts else pd.DataFrame()
 
 
 def _prep_gps(gps: pd.DataFrame) -> gpd.GeoDataFrame:
@@ -210,7 +276,7 @@ def location_features(
     med = gpd.GeoSeries(gpd.points_from_xy(f.x, f.y), crs=UTM12, index=f.index)
     f["in_depot"] = med.within(depot) & f.x.notna()
 
-    if cr1000 is not None and len(cr1000):
+    if cr1000 is not None and len(cr1000) and "Battery_Voltage_V" in cr1000.columns:
         c = cr1000.resample(freq)
         f["volt"] = c.Battery_Voltage_V.median()
         f["volt_min"] = c.Battery_Voltage_V.min()

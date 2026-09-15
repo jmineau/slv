@@ -13,7 +13,7 @@ versions are calendar-based (YYYY.M.PATCH).
   `powered` flag from the CR1000 battery voltage; `read_horel_cr1000`,
   `state_intervals`, `label_observations`; packaged `jrrsc_depot.geojson`.
   Works without a recorded speed (GPGGA-only eras) via a position-derived
-  `speed_est`; the logger reader covers the pilot phase (Nov 2014 on)
+  `speed_est`; `read_lin_gps` / `read_trax_gps` pick the GPS source by era
 
 ## [2026.9.0] - 2026-09-02
 
