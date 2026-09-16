@@ -43,6 +43,9 @@ versions are calendar-based (YYYY.M.PATCH).
   `slv.measurements.mobile.wyoming`. Both yard polygons are now packaged
   (`jrrsc.geojson` copied from the group spatial dir, `mrsc.geojson`); the depot
   footprint column is `name` (was `site`)
+- `mobile.gps` readers are thin uataq wrappers (`raw` level for the horel logger,
+  `qaqc` for the lin GPS) instead of reading the h5/CSV files directly; output
+  is unchanged (verified bit-identical on Mar 2025 and Jun 2016)
 - `load_trax_obs` no longer drops yard-parked data at build time; the old
   route-buffer + storage-polygon behaviour is the `on_track` default (now also
   keeps pass-bys at the yards and drops shed multipath ejecta)
