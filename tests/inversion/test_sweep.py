@@ -71,9 +71,18 @@ class TestComponentHash:
     def test_mdm_hash_changes_with_mdm_config(self):
         """Changing mdm_config MUST change the modeldata_mismatch hash."""
         c1 = _cfg(mdm_config={})
-        c2 = _cfg(mdm_config={"transport_pbl": {"std": 0.20}})
+        c2 = _cfg(mdm_config={"transport": {"fraction": 0.5}})
         fields = DEFAULT_COMPONENT_DEPS["modeldata_mismatch"]
         assert _component_hash(c1, fields) != _component_hash(c2, fields)
+
+    def test_unknown_mdm_component_is_rejected(self):
+        """A retired/misspelled MDM key must fail loudly, not be ignored (and share a hash)."""
+        import pytest
+
+        from slv.inversion.config import get_mdm_comp_configs
+
+        with pytest.raises(ValueError, match="transport_pbl"):
+            get_mdm_comp_configs({"transport_pbl": {"std": 0.20}})
 
     def test_forward_operator_hash_changes_with_time(self):
         """Changing tend MUST change the forward_operator hash (obs & prior dep)."""
@@ -96,7 +105,16 @@ class TestComponentHash:
 
 
 class TestFipsCache:
-    """Smoke-tests for the cache decorator using fake fips objects."""
+    """Smoke-tests for the cache decorator using fake fips objects.
+
+    Hashed components live under ``<cache>/.fips/<version tag>/<component>/<hash>.pkl``.
+    """
+
+    @staticmethod
+    def _component_files(cache_dir, component):
+        from slv.inversion.pipelines import _version_tag
+
+        return list((cache_dir / ".fips" / _version_tag() / component).glob("*.pkl"))
 
     def _make_pipeline(self, config, cache_dir):
         """Build a minimal mock pipeline to exercise the cache decorator."""
@@ -133,7 +151,7 @@ class TestFipsCache:
         result = p.get_obs()
         assert result.val == 42
         # File should exist somewhere under tmp_path/obs/
-        obs_files = list((tmp_path / "obs").glob("*.pkl"))
+        obs_files = self._component_files(tmp_path, "obs")
         assert len(obs_files) == 1
 
     def test_cache_hit_loads_file(self, tmp_path):
@@ -157,7 +175,7 @@ class TestFipsCache:
         p1.get_obs()
         p2.get_obs()
         # Only one unique hash file should exist
-        obs_files = list((tmp_path / "obs").glob("*.pkl"))
+        obs_files = self._component_files(tmp_path, "obs")
         assert len(obs_files) == 1
 
     def test_different_sites_produce_different_cache_files(self, tmp_path):
@@ -167,21 +185,21 @@ class TestFipsCache:
         p2 = self._make_pipeline(c2, tmp_path)
         p1.get_obs()
         p2.get_obs()
-        obs_files = list((tmp_path / "obs").glob("*.pkl"))
+        obs_files = self._component_files(tmp_path, "obs")
         assert len(obs_files) == 2
 
     def test_cache_overwrite_all_clears_component(self, tmp_path):
         config = _cfg()
         p = self._make_pipeline(config, tmp_path)
         p.get_obs()
-        obs_files_before = list((tmp_path / "obs").glob("*.pkl"))
+        obs_files_before = self._component_files(tmp_path, "obs")
         assert len(obs_files_before) == 1
 
         config.cache_overwrite = "all"
         p2 = self._make_pipeline(config, tmp_path)
         p2.get_obs()
         # File count stays 1 (old file deleted, new one written)
-        obs_files_after = list((tmp_path / "obs").glob("*.pkl"))
+        obs_files_after = self._component_files(tmp_path, "obs")
         assert len(obs_files_after) == 1
 
     def test_cache_disabled_does_not_create_files(self, tmp_path):
@@ -328,8 +346,8 @@ class TestCollectMetrics:
         )
 
         pipeline = MagicMock()
-        pipeline.calculate_total_flux.side_effect = (
-            lambda fluxes, units=None: pd.Series([float(fluxes.sum())])
+        pipeline.calculate_total_flux.side_effect = lambda fluxes, units=None: (
+            pd.Series([float(fluxes.sum())])
         )
 
         return problem, pipeline

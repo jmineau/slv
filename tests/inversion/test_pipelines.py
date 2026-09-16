@@ -33,8 +33,8 @@ def make_obs_vector(locations, times):
     mock_block.index = index
 
     mock_vector = MagicMock()
-    mock_vector.__getitem__ = (
-        lambda self, key: mock_block if key == "concentration" else None
+    mock_vector.__getitem__ = lambda self, key: (
+        mock_block if key == "concentration" else None
     )
     return mock_vector
 
@@ -97,7 +97,10 @@ class TestFipsCache:
                 return FakeCacheObject(99)
 
         FakePipeline().compute()
-        assert (tmp_path / "test_data.pkl").exists()
+        # flat (un-hashed) components live under .fips/<fips+pystilt version tag>/
+        from slv.inversion.pipelines import _version_tag
+
+        assert (tmp_path / ".fips" / _version_tag() / "test_data.pkl").exists()
 
     def test_second_call_loads_from_cache(self, tmp_path):
         call_count = 0
@@ -420,7 +423,7 @@ class TestBiasIntegration:
 
     def test_get_prior_includes_bias_block(self, pipeline):
         """Test that get_prior() creates bias block when bias_std is set."""
-        prior = pipeline.get_bias()  # This returns just the bias Series
+        pipeline.get_bias()  # returns just the bias Series
         # Create a proper prior vector like get_prior does
         assert pipeline.config.bias_std is not None
 

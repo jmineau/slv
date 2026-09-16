@@ -27,6 +27,11 @@ versions are calendar-based (YYYY.M.PATCH).
 
 ### Fixed
 
+- `get_mdm_comp_configs` rejects unknown MDM component names instead of
+  ignoring them silently (a retired key such as `transport_pbl` left the
+  defaults, and the MDM cache hash, unchanged)
+- Inversion cache tests updated for the `.fips/<version tag>/` layout; the
+  MDM-hash test used the retired `transport_pbl` key
 - `merge_with_gps` duplicated observations where TRAX lines share track (the
   downtown trunk): the per-line route buffers are now dissolved before the
   spatial join (`filter_near_routes`). The legacy `data/trax/data.parquet` was

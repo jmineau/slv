@@ -74,7 +74,19 @@ DEFAULT_MDM_CONFIG = {
 
 
 def get_mdm_comp_configs(config: dict) -> list[dict]:
-    """Build MDM components list from config dict, merging with defaults."""
+    """Build MDM components list from config dict, merging with defaults.
+
+    Raises ``ValueError`` for a component name that is not in
+    :data:`DEFAULT_MDM_CONFIG`: a misspelled or retired key (e.g. the old
+    ``transport_pbl`` / ``transport_wind``) would otherwise be ignored silently, and
+    the MDM cache key would not change either.
+    """
+    unknown = set(config) - set(DEFAULT_MDM_CONFIG)
+    if unknown:
+        raise ValueError(
+            f"Unknown MDM component(s) {sorted(unknown)}; "
+            f"valid names: {sorted(DEFAULT_MDM_CONFIG)}"
+        )
     merged_components = []
     for name, default_params in DEFAULT_MDM_CONFIG.items():
         params = {**default_params, **(config.get(name, {}))}
