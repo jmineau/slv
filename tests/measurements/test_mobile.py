@@ -54,3 +54,57 @@ def test_filter_cal_source_switch():
     assert len(filter_cal_source(df, include_uncalibrated=True)) == 3
     kept = filter_cal_source(df, include_uncalibrated=False)
     assert set(kept.cal_source) == {"pipeline", "manual_cal"}
+
+
+def test_filter_location_sets():
+    from slv.measurements.mobile import LOCATION_SETS, filter_location
+
+    df = pd.DataFrame(
+        {
+            "state": ["route", "line", "stopped", "yard", "depot", "unknown"],
+            "CH4": range(6),
+        }
+    )
+    assert filter_location(df).state.tolist() == ["route", "line", "stopped"]
+    assert filter_location(df, "outdoor").state.tolist() == [
+        "route",
+        "line",
+        "stopped",
+        "yard",
+    ]
+    assert len(filter_location(df, "all")) == 6 and len(filter_location(df, None)) == 6
+    assert filter_location(df, ("depot",)).state.tolist() == ["depot"]
+    assert set(LOCATION_SETS) == {"on_track", "outdoor", "all"}
+    # frames without a state column pass through untouched
+    assert len(filter_location(df.drop(columns="state"))) == 6
+
+
+def test_label_trax_location_with_given_states():
+    from slv.measurements.mobile import label_trax_location
+
+    idx = pd.date_range("2025-03-01", periods=3, freq="1min")
+    states = pd.DataFrame(
+        {
+            "state": pd.Categorical(["yard", "depot", "line"]),
+            "indoor": pd.array([False, True, False], dtype="boolean"),
+            "yard_name": ["JRRSC", "JRRSC", None],
+        },
+        index=idx,
+    )
+    obs = pd.DataFrame(
+        {
+            "Time_UTC": [
+                idx[0] + pd.Timedelta("10s"),
+                idx[1] + pd.Timedelta("59s"),
+                idx[2],
+                idx[2] + pd.Timedelta("5min"),
+            ],
+            "CH4_ppm": [2.0, 2.5, 2.1, 2.2],
+        }
+    )
+    out = label_trax_location(obs, states=states)
+    assert out.state.tolist() == ["yard", "depot", "line", "unknown"]
+    assert out.indoor.tolist()[:3] == [False, True, False] and pd.isna(
+        out.indoor.iloc[3]
+    )
+    assert out.yard_name.tolist()[:2] == ["JRRSC", "JRRSC"]

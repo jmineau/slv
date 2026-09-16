@@ -20,6 +20,16 @@ versions are calendar-based (YYYY.M.PATCH).
   Second storage yard: the Midvale Rail Service Center (`MRSC`, trx03's home;
   packaged `mrsc.geojson`, added to `mobile.storage_locations`), with shed
   footprints for both yards in `trax_depots.geojson`
+- `build_trax_obs` merges every GPS fix and tags each observation with `state`,
+  `indoor`, `yard_name` (`label_trax_location`); `load_trax_obs(location=...)`
+  filters at load time (`LOCATION_SETS`: `on_track` default, `outdoor`, `all`).
+  Caches without a `state` column must be rebuilt
+
+### Changed
+
+- `load_trax_obs` no longer drops yard-parked data at build time; the old
+  route-buffer + storage-polygon behaviour is the `on_track` default (now also
+  keeps pass-bys at the yards and drops shed multipath ejecta)
 
 ## [2026.9.0] - 2026-09-02
 

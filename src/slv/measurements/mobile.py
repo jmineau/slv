@@ -262,6 +262,79 @@ def filter_cal_source(
     return pd.DataFrame(df.loc[(df["cal_source"] != "uncalibrated").to_numpy()])
 
 
+#: Named sets of location states kept by :func:`load_trax_obs`.
+#: ``on_track`` reproduces the old route-buffer behaviour (minus shed multipath ejecta,
+#: plus pass-bys at the yards); ``outdoor`` adds minutes parked outside in a yard;
+#: ``all`` keeps everything, including indoor (shed) and unknown minutes.
+LOCATION_SETS: dict[str, tuple[str, ...] | None] = {
+    "on_track": ("route", "line", "stopped"),
+    "outdoor": ("route", "line", "stopped", "yard"),
+    "all": None,
+}
+
+
+def filter_location(
+    df: pd.DataFrame, location: str | tuple[str, ...] | None = "on_track"
+) -> pd.DataFrame:
+    """Keep rows whose ``state`` is in ``location`` (a :data:`LOCATION_SETS` name or a
+    tuple of states). ``None``/``"all"`` keeps every row."""
+    if location is None or "state" not in df.columns:
+        return df
+    states = LOCATION_SETS[location] if isinstance(location, str) else tuple(location)
+    if states is None:
+        return df
+    return df[df["state"].isin(states)]
+
+
+def label_trax_location(
+    obs: pd.DataFrame,
+    site: str = "trx01",
+    time_range=None,
+    states: pd.DataFrame | None = None,
+) -> pd.DataFrame:
+    """Add ``state``, ``indoor`` and ``yard_name`` to a georeferenced TRAX obs frame.
+
+    Uses :mod:`slv.measurements.trax_location`: per-minute states from the best GPS
+    source for the era (``states`` may be passed in to reuse a classification).
+    Observations are matched on ``Time_UTC`` floored to the minute; minutes without a
+    classification come back ``unknown`` / NA.
+    """
+    from slv.measurements.trax_location import (
+        classify_location,
+        label_observations,
+        location_features,
+        read_trax_gps,
+    )
+
+    if states is None:
+        if time_range is None:
+            t = pd.to_datetime(obs["Time_UTC"])
+            time_range = (t.min().floor("D"), t.max().ceil("D"))
+        gps = read_trax_gps(time_range, site=site)
+        if len(gps) == 0:
+            states = None
+        else:
+            feat = location_features(gps, cr1000=gps)
+            states = classify_location(feat)
+    out = obs.copy()
+    if states is None or len(states) == 0:
+        out["state"] = "unknown"
+        out["indoor"] = pd.array([pd.NA] * len(out), dtype="boolean")
+        out["yard_name"] = None
+        return out
+    out["state"] = (
+        label_observations(out, states).astype(object).fillna("unknown").values
+    )
+    minute = pd.DatetimeIndex(pd.to_datetime(out["Time_UTC"])).floor("min")
+    out["indoor"] = states["indoor"].reindex(minute).values
+    out["yard_name"] = (
+        states["yard_name"].reindex(minute).values
+        if "yard_name" in states.columns
+        else None
+    )
+    return out
+
+
 def _read_lgr(
     site, instrument, lvl, value_col, time_range, num_processes
 ) -> pd.DataFrame:
@@ -287,6 +360,7 @@ def build_trax_obs(
     time_range=None,
     num_processes: int = 1,
     windows: pd.DataFrame | None = None,
+    classify: bool = True,
     **gps_kwargs,
 ) -> gpd.GeoDataFrame:
     """Build the georeferenced TRAX CH4 record from the pipeline levels.
@@ -295,17 +369,30 @@ def build_trax_obs(
     ``lgr_ugga`` calibrated → ``pipeline``; ``lgr_ugga_manual_cal`` qaqc → ``manual_cal``;
     ``lgr_ugga`` qaqc inside the uncalibrated windows (default: the packaged table) →
     ``uncalibrated``. QC via :func:`normalize_pollutant` (flags {0,1,2,-64,-140}, ID −10,
-    valid range). Then merged with GPS by :func:`merge_with_gps` (route buffer, storage
-    yard removed). Heavy: reads the full pipeline archive — run on a compute node.
+    valid range). Then merged with *every* GPS fix by :func:`merge_with_gps` (no route
+    buffer, no storage-yard removal) and, with ``classify``, labelled per minute by
+    :func:`label_trax_location` (``state``, ``indoor``, ``yard_name``) so that the
+    location filter is applied at load time (:func:`load_trax_obs`). Pass ``routes`` /
+    ``storage_polygon`` in ``gps_kwargs`` to restore the old pre-filtering. Heavy: reads
+    the full pipeline archive — run on a compute node.
     """
     if windows is None:
         windows = load_trax_uncalibrated_windows()
 
-    print("Reading calibrated LGR data...")
-    cal = _read_lgr(
-        site, "lgr_ugga", "calibrated", "CH4d_ppm_cal", time_range, num_processes
+    empty = pd.DataFrame(
+        {"Time_UTC": pd.to_datetime([]), "CH4": pd.Series(dtype=float)}
     )
-    cal = cal[cal.CH4.notna()].assign(cal_source="pipeline")
+
+    print("Reading calibrated LGR data...")
+    try:
+        cal = _read_lgr(
+            site, "lgr_ugga", "calibrated", "CH4d_ppm_cal", time_range, num_processes
+        )
+        cal = cal[cal.CH4.notna()].assign(cal_source="pipeline")
+    except (FileNotFoundError, KeyError, ValueError, uataq.errors.ReaderError):
+        cal = empty.assign(
+            cal_source="pipeline"
+        )  # e.g. post-Nov-2023 ranges: manual cal only
 
     print("Reading manual-cal LGR data...")
     try:
@@ -313,8 +400,8 @@ def build_trax_obs(
             site, "lgr_ugga_manual_cal", "qaqc", "CH4d_ppm", time_range, num_processes
         )
         man = man[man.CH4.notna()].assign(cal_source="manual_cal")
-    except (FileNotFoundError, KeyError, ValueError):
-        man = cal.iloc[0:0]
+    except (FileNotFoundError, KeyError, ValueError, uataq.errors.ReaderError):
+        man = empty.assign(cal_source="manual_cal")
 
     parts = [cal, man]
     for i, (start, end) in enumerate(
@@ -331,6 +418,8 @@ def build_trax_obs(
         columns={"CH4": "CH4_ppm"}
     )
 
+    gps_kwargs.setdefault("routes", False)
+    gps_kwargs.setdefault("storage_polygon", False)
     data = merge_with_gps(
         site,
         "UATAQ",
@@ -339,6 +428,9 @@ def build_trax_obs(
         num_processes=num_processes,
         **gps_kwargs,
     )
+    if classify:
+        print("Classifying location (indoor / yard / line) ...")
+        data = label_trax_location(data, site=site, time_range=time_range)
     return gpd.GeoDataFrame(
         data,
         geometry=gpd.points_from_xy(data.Longitude_deg, data.Latitude_deg),
@@ -349,20 +441,25 @@ def build_trax_obs(
 def load_trax_obs(
     cache: str | Path | None = None,
     include_uncalibrated: bool = True,
+    location: str | tuple[str, ...] | None = "on_track",
     rebuild: bool = False,
     **build_kwargs,
 ) -> gpd.GeoDataFrame:
     """Load the cached TRAX CH4 record (``$SLV_USER_DATA_DIR/trax/obs.parquet``), building it if needed.
 
     ``include_uncalibrated=False`` drops the tank-out windows so their effect can be tested;
-    the ``cal_source`` column is always present for finer filtering.
+    the ``cal_source`` column is always present for finer filtering. ``location`` selects
+    where the train was (:data:`LOCATION_SETS`): ``"on_track"`` (default) keeps
+    route / line / stopped, ``"outdoor"`` also keeps yard-parked minutes, ``"all"`` keeps
+    everything (indoor shed air and untrusted positions included); the ``state``,
+    ``indoor`` and ``yard_name`` columns are always present.
     """
     cache = USER_DIR / "trax" / "obs.parquet" if cache is None else Path(cache)
     if cache.exists() and not rebuild:
         data = pd.read_parquet(cache)
-        if "cal_source" not in data.columns:
+        if "cal_source" not in data.columns or "state" not in data.columns:
             raise ValueError(
-                f"{cache} predates cal_source tagging; call with rebuild=True"
+                f"{cache} predates cal_source / location tagging; call with rebuild=True"
             )
         data = gpd.GeoDataFrame(
             data,
