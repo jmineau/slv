@@ -95,6 +95,23 @@ def load_trax_points(
         return points_df
 
 
+def filter_near_routes(
+    gps: gpd.GeoDataFrame, routes: gpd.GeoDataFrame, buffer: float
+) -> gpd.GeoDataFrame:
+    """Keep GPS points within ``buffer`` (in ``routes``' CRS units) of any route.
+
+    The per-line buffers are dissolved into one geometry first: where lines share
+    track (the red/blue/green downtown trunk) a point falls inside several buffers and
+    a plain ``sjoin`` duplicated it — the old builder more than doubled rows there.
+    """
+    routes_buff = gpd.GeoDataFrame(
+        geometry=[routes.buffer(buffer).union_all()], crs=routes.crs
+    ).to_crs(gps.crs)
+    return gpd.sjoin(gps, routes_buff, how="inner", predicate="within").drop(
+        columns=["index_right"]
+    )
+
+
 def merge_with_gps(
     site,
     org,
@@ -147,13 +164,7 @@ def merge_with_gps(
     routes = get_geodf(routes)
     if routes is not None and route_buffer is not None:
         print("Filtering GPS points near routes...")
-        routes_buff = gpd.GeoDataFrame(
-            geometry=routes.buffer(route_buffer), crs=routes.crs
-        )
-        routes_buff = routes_buff.to_crs("EPSG:4326")
-        gps = gpd.sjoin(gps, routes_buff, how="inner", predicate="within").drop(
-            columns=["index_right"]
-        )
+        gps = filter_near_routes(gps, routes, route_buffer)
 
     # Remove gps points within storage polygon
     storage_polygon = get_geodf(storage_polygon)

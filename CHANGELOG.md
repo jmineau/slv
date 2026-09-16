@@ -25,6 +25,13 @@ versions are calendar-based (YYYY.M.PATCH).
   filters at load time (`LOCATION_SETS`: `on_track` default, `outdoor`, `all`).
   Caches without a `state` column must be rebuilt
 
+### Fixed
+
+- `merge_with_gps` duplicated observations where TRAX lines share track (the
+  downtown trunk): the per-line route buffers are now dissolved before the
+  spatial join (`filter_near_routes`). The legacy `data/trax/data.parquet` was
+  built with the same join and carries those duplicates
+
 ### Changed
 
 - `load_trax_obs` no longer drops yard-parked data at build time; the old

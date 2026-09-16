@@ -108,3 +108,29 @@ def test_label_trax_location_with_given_states():
         out.indoor.iloc[3]
     )
     assert out.yard_name.tolist()[:2] == ["JRRSC", "JRRSC"]
+
+
+def test_filter_near_routes_does_not_duplicate_on_shared_track():
+    import geopandas as gpd
+    from shapely.geometry import LineString
+
+    from slv.measurements.mobile import filter_near_routes
+
+    # two lines sharing a trunk (x 0..100), then diverging
+    routes = gpd.GeoDataFrame(
+        {"line": ["R", "B"]},
+        geometry=[
+            LineString([(0, 0), (100, 0), (200, 50)]),
+            LineString([(0, 0), (100, 0), (200, -50)]),
+        ],
+        crs="EPSG:32612",
+    )
+    pts = gpd.GeoDataFrame(
+        {"id": [1, 2, 3]},
+        geometry=gpd.points_from_xy(
+            [50, 190, 150], [5, 45, 300]
+        ),  # trunk, R branch, far away
+        crs="EPSG:32612",
+    ).to_crs("EPSG:4326")
+    out = filter_near_routes(pts, routes, 20)
+    assert out.id.tolist() == [1, 2]  # point 1 once, not twice
