@@ -1,29 +1,35 @@
 """Where is the TRAX train: on the line, parked in the JRRSC yard, or inside the depot?
 
-The trx01 train spends most nights at the Jordan River Rail Service Center (JRRSC).
-Sometimes it is parked outside on the yard loop, sometimes inside the maintenance
-depot, and the green line runs right past the yard's north edge. The pipeline's
-storage flag (GPS ``QAQC_Flag == 20``) and the slv loader's storage polygon lump all
-three together. This module separates them from the GPS behaviour, at one-minute
-resolution:
+The TRAX trains sleep at a rail service center: trx01/trx02 at the Jordan River RSC
+(JRRSC, where the green line runs right past the yard's north edge), trx03 at the
+Midvale RSC (MRSC, the old-train yard beside the red/blue line). Sometimes a train is
+parked outside on the yard tracks, sometimes inside the maintenance shed. The
+pipeline's storage flag (GPS ``QAQC_Flag == 20``) and the slv loader's storage polygon
+lump everything at a yard together. This module separates them from the GPS
+behaviour, at one-minute resolution, so that **outdoor** minutes can be kept even when
+the train is not on the line and **indoor** minutes dropped:
 
-* **depot** — stationary and the GPS fix is degraded: the per-minute position
-  scatter is metres (multipath under the roof, the "crazy" GPS) and the satellite
-  count is low. Site visits (which happen inside the depot) show 2.5–7 m scatter
-  and 6–7 satellites; parked outside the scatter is < 0.3 m with 8–12 satellites.
-  The scattered fixes' medians cluster inside the building footprint
-  (:data:`DEPOT_FOOTPRINT`, derived from Jan–Aug 2025 data).
-* **yard** — stationary (or creeping) with a clean fix, inside the storage polygon
-  but not on the line. Includes the loop track within 50 m of the green line.
-* **line** — moving (max speed ≥ :data:`MOVING_SPEED` m/s) within :data:`LINE_DISTANCE` m of
-  the green line, whether or not inside the storage polygon (a pass-by).
-* **route** — moving anywhere else (normal operation; the route-buffer test in
-  :func:`slv.measurements.mobile.merge_with_gps` handles the rest).
-* **stopped** — stationary away from the yard (a station stop, a siding).
+* **depot** (indoor) — stationary at a yard and the GPS fix is degraded: the
+  per-minute position scatter is metres (multipath under the roof, the "crazy" GPS)
+  and the satellite count is low. JRRSC site visits (which happen inside the shed)
+  show 2.5–7 m scatter and 6–7 satellites; parked outside the scatter is < 0.3 m with
+  8–12 satellites. The scattered fixes' medians cluster inside the shed footprints
+  (:func:`load_depot_footprint`, derived from 2025 data).
+* **yard** (outdoor) — stationary (or creeping) with a clean fix inside a storage
+  polygon (+ :data:`YARD_BUFFER`). Includes yard tracks within 50 m of the main line.
+* **line** (outdoor) — moving (max speed ≥ :data:`MOVING_SPEED` m/s) on a track
+  (within :data:`LINE_DISTANCE` m) within :data:`NEAR_YARD` m of a storage polygon:
+  a pass-by, or arriving/leaving. Kept separate so pass-by data can be evaluated.
+* **route** (outdoor) — moving on a track anywhere else (normal operation).
+* **stopped** (outdoor) — stationary on a track away from the yards (a station
+  stop, a layover).
 * **unknown** — no usable GPS in the minute, or a position that cannot be trusted:
   more than :data:`OFF_TRACK` m from any TRAX track (GPS junk, or a siding missing
-  from the line geojson), or within :data:`NEAR_YARD` m of the storage polygon but
-  neither on the line nor inside the yard buffer (multipath ejecta from the depot).
+  from the line geojson), or within :data:`NEAR_YARD` m of a storage polygon but
+  neither on a track nor inside the yard buffer (multipath ejecta from the shed).
+
+``indoor`` in the output is True for ``depot``, False for the four outdoor states, and
+NA for ``unknown``; ``yard_name`` says which service center the minute is at.
 
 Supporting evidence that is *not* used by the classifier but is worth plotting:
 inside the heated depot the roof temperature sits at 22–23 °C with low RH, ozone
@@ -44,7 +50,7 @@ there ``moving`` comes from the position-derived ``speed_est`` instead. Either t
 ('trx01', 'gps', lvl='qaqc')``) or the horel-group logger GPS (:func:`read_horel_cr1000`)
 works; :func:`read_trax_gps` picks by era (lin GPS for the pilot years, horel logger
 from 19 Nov 2018, which runs on its own battery and keeps recording when train power
-is off).
+is off). trx03 has no lin-group GPS; its horel record starts Nov 2019.
 """
 
 from __future__ import annotations
@@ -68,7 +74,7 @@ MOVING_SPEED = 2.0
 #: recorded (GPGGA-only eras): displacement between the minute medians one minute
 #: before and after, over 120 s. Reproduces the speed rule on 98.9 % of 2025 minutes.
 MOVING_SPEED_EST = 1.5
-#: Distance (m) from the green line within which a moving train is "on the line".
+#: Distance (m) from a TRAX track within which a moving train is "on the line".
 LINE_DISTANCE = 50.0
 #: Per-minute position std (m, max of x/y) above which the fix is degraded.
 SCATTER_M = 1.0
@@ -98,14 +104,30 @@ HOREL_CR1000_DIRS = (
 
 
 def load_depot_footprint(meters: bool = False) -> gpd.GeoDataFrame:
-    """Packaged JRRSC depot building footprint (``jrrsc_depot.geojson``).
+    """Packaged shed footprints at the service centers (``trax_depots.geojson``).
 
-    Data-derived: the 5–95 % box of the per-minute median positions of scattered
-    (degraded) fixes, Jan–Aug 2025, padded 15 m. Roughly 120 × 180 m.
+    One feature per ``site`` (JRRSC, MRSC). Data-derived: the 5–95 % box of the
+    per-minute median positions of degraded fixes (trx01 at JRRSC, trx03 at MRSC,
+    Jan–Aug 2025), padded 15 m. Roughly 120 × 180 m and 220 × 230 m.
     """
-    with files(__package__).joinpath("jrrsc_depot.geojson").open("r") as f:
+    with files(__package__).joinpath("trax_depots.geojson").open("r") as f:
         gdf = gpd.read_file(f)
     return gdf.to_crs(UTM12) if meters else gdf
+
+
+def load_storage_polygons(meters: bool = False) -> gpd.GeoDataFrame:
+    """All storage yards in :data:`slv.measurements.mobile.storage_locations`, one row
+    each with a ``name`` column (JRRSC from the group spatial dir, MRSC packaged)."""
+    rows = []
+    for name, src in storage_locations.items():
+        g = get_geodf(src).to_crs(UTM12)
+        rows.append(
+            gpd.GeoDataFrame(
+                {"name": [name]}, geometry=[g.geometry.union_all()], crs=UTM12
+            )
+        )
+    gdf = pd.concat(rows, ignore_index=True)
+    return gdf if meters else gdf.to_crs("EPSG:4326")
 
 
 def read_horel_cr1000(time_range, site: str = "trx01") -> pd.DataFrame:
@@ -232,32 +254,34 @@ def location_features(
     gps: pd.DataFrame,
     cr1000: pd.DataFrame | None = None,
     freq: str = "1min",
-    storage_polygon=None,
-    line: str = "G",
+    storage_polygons: gpd.GeoDataFrame | None = None,
 ) -> pd.DataFrame:
     """Per-``freq`` GPS features that the classifier needs (plus power, if available).
 
     Columns: ``n_gps``, ``x``/``y`` (UTM median), ``scatter`` (max of x/y std, m),
     ``speed`` (median m/s), ``speed_max``, ``speed_est`` (position-derived, see
-    :data:`MOVING_SPEED_EST`), ``d_line``, ``d_track`` (median distance to any
-    TRAX track, m) (median distance to the
-    ``line`` track, m), ``d_yard`` (median distance to the storage polygon, 0 inside),
-    ``in_yard`` (fraction of fixes inside the polygon), ``in_depot`` (median position
-    inside :func:`load_depot_footprint`), ``nsat`` (median, if present), and from
-    ``cr1000``: ``volt`` (median), ``volt_min``, ``amb_T``, ``amb_RH``.
+    :data:`MOVING_SPEED_EST`), ``d_track`` (median distance to any TRAX track, m),
+    ``d_yard`` (median distance to the nearest storage polygon, 0 inside),
+    ``yard_name`` (that polygon's name where ``d_yard`` ≤ :data:`NEAR_YARD`),
+    ``in_yard`` (fraction of fixes inside a polygon), ``in_depot`` (median position
+    inside a :func:`load_depot_footprint` shed), ``nsat`` (median, if present), and
+    from ``cr1000``: ``volt`` (median), ``volt_min``, ``amb_T``, ``amb_RH``.
+    ``storage_polygons`` defaults to :func:`load_storage_polygons` (all yards); pass a
+    frame with a ``name`` column to restrict or replace them.
     """
     g = _prep_gps(gps)
     if "Speed_m_s" not in g.columns:
         g["Speed_m_s"] = np.nan
-    yard = get_geodf(storage_polygon or storage_locations["JRRSC"]).to_crs(UTM12)
-    yard_geom = yard.geometry.union_all()
-    lines = load_trax_lines(meters=True)
-    line_geom = lines[lines.line == line].geometry.union_all()
-    track_geom = lines.geometry.union_all()
+    yards = (
+        load_storage_polygons(meters=True)
+        if storage_polygons is None
+        else storage_polygons.to_crs(UTM12)
+    )
+    yard_geom = yards.geometry.union_all()
+    track_geom = load_trax_lines(meters=True).geometry.union_all()
 
     g["x"] = g.geometry.x
     g["y"] = g.geometry.y
-    g["d_line"] = g.geometry.distance(line_geom)
     g["d_track"] = g.geometry.distance(track_geom)
     g["d_yard"] = g.geometry.distance(yard_geom)
     g["in_yard"] = g.geometry.within(yard_geom)
@@ -271,7 +295,6 @@ def location_features(
             "scatter": pd.concat([r.x.std(), r.y.std()], axis=1).max(axis=1),
             "speed": r.Speed_m_s.median(),
             "speed_max": r.Speed_m_s.max(),
-            "d_line": r.d_line.median(),
             "d_track": r.d_track.median(),
             "d_yard": r.d_yard.median(),
             "in_yard": r.in_yard.mean(),
@@ -285,9 +308,19 @@ def location_features(
     if "N_Sat" in g.columns:
         f["nsat"] = r.N_Sat.median()
 
-    depot = load_depot_footprint(meters=True).geometry.union_all()
     med = gpd.GeoSeries(gpd.points_from_xy(f.x, f.y), crs=UTM12, index=f.index)
+    depot = load_depot_footprint(meters=True).geometry.union_all()
     f["in_depot"] = med.within(depot) & f.x.notna()
+    # which yard: nearest polygon, only within NEAR_YARD
+    dists = pd.DataFrame(
+        {
+            name: med.distance(geom).values
+            for name, geom in zip(yards["name"], yards.geometry, strict=True)
+        },
+        index=f.index,
+    )
+    nearest = dists.idxmin(axis=1)
+    f["yard_name"] = nearest.where((dists.min(axis=1) <= NEAR_YARD) & f.x.notna())
 
     if cr1000 is not None and len(cr1000) and "Battery_Voltage_V" in cr1000.columns:
         c = cr1000.resample(freq)
@@ -321,9 +354,10 @@ def classify_location(
     Rules, per minute:
 
     1. no fixes → ``unknown``
-    2. ``speed_max >= moving_speed`` (or, where no speed was recorded,
-       ``speed_est >= moving_speed_est``): ``d_line < line_distance`` → ``line``, else
-       ``yard`` if within ``yard_buffer`` m of the storage polygon, else ``route``.
+    2. moving (``speed_max >= moving_speed``, or where no speed was recorded
+       ``speed_est >= moving_speed_est``) on a track (``d_track < line_distance``):
+       ``line`` if within ``near_yard_m`` of a storage polygon, else ``route``;
+       moving off-track inside the yard buffer → ``yard``.
     3. stationary near the yard: degraded fix (``scatter > scatter_m`` or
        ``nsat <= low_nsat``, majority-voted over ``smooth_min`` minutes) → ``depot``;
        with ``use_footprint`` a clean fix whose median sits inside the depot
@@ -335,8 +369,10 @@ def classify_location(
        buffer), or within ``near_yard_m`` of the storage polygon while neither on the
        line nor inside the yard buffer.
 
-    Returns a frame with ``state`` (categorical), ``degraded`` (raw per-minute
-    flag), ``degraded_smooth`` and, when battery voltage is present, ``powered``
+    Returns a frame with ``state`` (categorical), ``indoor`` (nullable boolean:
+    depot → True, other located states → False, unknown → NA), ``yard_name``
+    (copied from ``feat`` if present), ``degraded`` (raw per-minute flag),
+    ``degraded_smooth`` and, when battery voltage is present, ``powered``
     (``volt_min >= POWER_OFF_V``).
     """
     out = pd.DataFrame(index=feat.index)
@@ -346,7 +382,8 @@ def classify_location(
         no_speed = feat.speed_max.isna()
         moving = moving | (no_speed & (feat.speed_est >= moving_speed_est))
     near_yard = feat.d_yard <= yard_buffer
-    on_line = feat.d_line < line_distance
+    on_track = feat.d_track < line_distance
+    by_yard = feat.d_yard <= near_yard_m
 
     degraded = feat.scatter > scatter_m
     if "nsat" in feat.columns:
@@ -365,18 +402,24 @@ def classify_location(
         depot |= stat_yard & feat.in_depot.fillna(False)
 
     state = pd.Series("unknown", index=feat.index, dtype=object)
-    state[has_fix & moving & on_line] = "line"
-    state[has_fix & moving & ~on_line & near_yard] = "yard"
-    state[has_fix & moving & ~on_line & ~near_yard] = "route"
+    state[has_fix & moving & on_track & by_yard] = "line"
+    state[has_fix & moving & on_track & ~by_yard] = "route"
+    state[has_fix & moving & ~on_track & near_yard] = "yard"
     state[stat_yard] = "yard"
     state[depot] = "depot"
     state[has_fix & ~moving & ~near_yard] = "stopped"
-    # positions that cannot be trusted
-    untrusted = has_fix & ~near_yard & (feat.d_yard <= near_yard_m) & ~on_line
-    if "d_track" in feat.columns:
-        untrusted |= has_fix & ~near_yard & (feat.d_track > off_track_m)
+    # positions that cannot be trusted: shed multipath ejecta around a yard, or off-track
+    untrusted = (
+        has_fix & ~near_yard & (by_yard & ~on_track | (feat.d_track > off_track_m))
+    )
     state[untrusted] = "unknown"
     out["state"] = pd.Categorical(state, categories=STATES)
+    indoor = pd.Series(pd.NA, index=feat.index, dtype="boolean")
+    indoor[out.state == "depot"] = True
+    indoor[out.state.isin(["yard", "line", "route", "stopped"])] = False
+    out["indoor"] = indoor
+    if "yard_name" in feat.columns:
+        out["yard_name"] = feat.yard_name
 
     if "volt_min" in feat.columns:
         out["powered"] = feat.volt_min >= POWER_OFF_V

@@ -14,8 +14,12 @@ versions are calendar-based (YYYY.M.PATCH).
   `state_intervals`, `label_observations`; packaged `jrrsc_depot.geojson`.
   Works without a recorded speed (GPGGA-only eras) via a position-derived
   `speed_est`; `read_lin_gps` / `read_trax_gps` pick the GPS source by era.
-  Untrusted positions (> 100 m off any track, or near the yard but neither on
-  the line nor in the yard buffer) are `unknown`
+  Untrusted positions (> 100 m off any track, or near a yard but neither on
+  a track nor in the yard buffer) are `unknown`. Output carries `indoor`
+  (depot → True, other located states → False, unknown → NA) and `yard_name`.
+  Second storage yard: the Midvale Rail Service Center (`MRSC`, trx03's home;
+  packaged `mrsc.geojson`, added to `mobile.storage_locations`), with shed
+  footprints for both yards in `trax_depots.geojson`
 
 ## [2026.9.0] - 2026-09-02
 

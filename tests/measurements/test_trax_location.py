@@ -20,7 +20,6 @@ def _feat(n, **cols):
         "scatter": 0.1,
         "speed": 0.0,
         "speed_max": 0.0,
-        "d_line": 200.0,
         "d_track": 200.0,
         "d_yard": 0.0,
         "in_yard": 1.0,
@@ -33,15 +32,23 @@ def _feat(n, **cols):
     )
 
 
-def test_packaged_footprint_is_near_jrrsc():
+def test_packaged_footprints_and_yards():
+    from slv.measurements.trax_location import load_storage_polygons
+
     fp = load_depot_footprint()
-    minx, miny, maxx, maxy = fp.total_bounds
-    assert -111.93 < minx < maxx < -111.91 and 40.72 < miny < maxy < 40.73
-    m = load_depot_footprint(meters=True).geometry.iloc[0]
-    assert (
-        100 < (m.bounds[2] - m.bounds[0]) < 200
-        and 150 < (m.bounds[3] - m.bounds[1]) < 250
-    )
+    assert sorted(fp.site) == ["JRRSC", "MRSC"]
+    j = fp[fp.site == "JRRSC"].total_bounds
+    assert -111.93 < j[0] < j[2] < -111.91 and 40.72 < j[1] < j[3] < 40.73
+    m = fp[fp.site == "MRSC"].total_bounds
+    assert -111.91 < m[0] < m[2] < -111.90 and 40.62 < m[1] < m[3] < 40.64
+    yards = load_storage_polygons(meters=True)
+    assert sorted(yards.name) == ["JRRSC", "MRSC"]
+    # each shed footprint lies (almost) inside its yard polygon
+    fpm = load_depot_footprint(meters=True)
+    for site in ("JRRSC", "MRSC"):
+        shed = fpm[fpm.site == site].geometry.iloc[0]
+        yard = yards[yards.name == site].geometry.iloc[0]
+        assert shed.intersection(yard).area / shed.area > 0.8
 
 
 def test_depot_vs_yard_from_scatter_and_nsat():
@@ -52,6 +59,7 @@ def test_depot_vs_yard_from_scatter_and_nsat():
     st = classify_location(f)
     assert (st.state.iloc[:50] == "yard").all()
     assert (st.state.iloc[70:] == "depot").all()
+    assert not st.indoor.iloc[:50].any() and st.indoor.iloc[70:].all()
     assert st.state.cat.categories.tolist() == list(STATES)
 
 
@@ -65,15 +73,15 @@ def test_single_minute_flip_is_smoothed_out():
 
 def test_line_pass_route_stopped_and_unknown():
     f = _feat(
-        5,
-        speed_max=[0.0, 12.0, 12.0, 0.0, 0.0],
-        d_line=[200.0, 10.0, 300.0, 5000.0, 5000.0],
-        d_track=[200.0, 10.0, 5.0, 5.0, 5.0],
-        d_yard=[0.0, 0.0, 0.0, 3000.0, 3000.0],
-        n_gps=[12, 12, 12, 12, 0],
+        6,
+        speed_max=[0.0, 12.0, 12.0, 12.0, 0.0, 0.0],
+        d_track=[200.0, 10.0, 200.0, 5.0, 5.0, 5.0],
+        d_yard=[0.0, 0.0, 0.0, 3000.0, 3000.0, 3000.0],
+        n_gps=[12, 12, 12, 12, 12, 0],
     )
     st = classify_location(f, smooth_min=1)
-    assert st.state.tolist() == ["yard", "line", "yard", "stopped", "unknown"]
+    assert st.state.tolist() == ["yard", "line", "yard", "route", "stopped", "unknown"]
+    assert st.indoor.tolist() == [False, False, False, False, False, pd.NA]
 
 
 def test_footprint_marks_frozen_fix_as_depot():
@@ -120,10 +128,10 @@ def test_speed_est_fallback_when_no_speed_recorded():
     n = 6
     x = np.array([0.0, 0.0, 500.0, 1000.0, 1000.0, 1000.0]) + 422300.0
     est = np.hypot(np.r_[np.nan, x[2:] - x[:-2], np.nan], 0) / 120
-    f = _feat(n, x=x, speed_max=np.nan, speed_est=est, d_line=300.0)
+    f = _feat(n, x=x, speed_max=np.nan, speed_est=est, d_track=300.0)
     st = classify_location(f, smooth_min=1)
     assert st.state.tolist()[1:4] == ["yard", "yard", "yard"]  # moving in yard -> yard
-    f["d_line"] = 10.0
+    f["d_track"] = 10.0
     st = classify_location(f, smooth_min=1)
     assert st.state.tolist() == ["yard", "line", "line", "line", "yard", "yard"]
     # a recorded speed wins over the estimate
@@ -143,6 +151,7 @@ def test_location_features_without_speed_column():
         index=idx,
     )
     f = location_features(gps)
+    assert f.yard_name.tolist() == ["JRRSC"] * 3
     assert len(f) == 3 and f.speed_max.isna().all() and f.speed_est.notna().sum() == 1
     assert f.speed_est.dropna().iloc[0] > 0.5
 
@@ -153,7 +162,6 @@ def test_untrusted_positions_are_unknown():
     f = _feat(
         4,
         d_yard=[120.0, 120.0, 3000.0, 3000.0],
-        d_line=[150.0, 10.0, 5000.0, 5000.0],
         d_track=[150.0, 10.0, 130.0, 5.0],
         speed_max=[0.0, 12.0, 0.0, 0.0],
     )

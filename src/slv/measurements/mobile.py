@@ -15,8 +15,11 @@ GROUP_DIR = Path(get_data_dir("LINGROUP_DATA_DIR"))
 USER_DIR = Path(get_data_dir("SLV_USER_DATA_DIR"))
 
 storage_locations = {
-    "JRRSC": GROUP_DIR
-    / "spatial/transportation/light_rail/JRRSC.geojson",  # Jordan River Rail Service Center
+    # Jordan River Rail Service Center - where trx01/trx02 sleep
+    "JRRSC": GROUP_DIR / "spatial/transportation/light_rail/JRRSC.geojson",
+    # Midvale Rail Service Center - the old-train yard, where trx03 sleeps
+    # (data-derived hull of trx03 parked positions; see trax_location)
+    "MRSC": files(__package__).joinpath("mrsc.geojson"),
 }
 
 
@@ -27,6 +30,9 @@ def get_geodf(
         return obj
     elif isinstance(obj, (str, Path)):
         return gpd.read_file(obj)
+    elif hasattr(obj, "open"):  # importlib.resources Traversable (packaged file)
+        with obj.open("r") as f:
+            return gpd.read_file(f)
     elif obj is False or obj is None:
         return None
     elif obj is True:

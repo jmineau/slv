@@ -1,8 +1,0 @@
-{
-"type": "FeatureCollection",
-"name": "jrrsc_depot",
-"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
-"features": [
-{ "type": "Feature", "properties": { "name": "JRRSC depot (data-derived: 5-95% box of scattered-fix minute medians, Jan-Aug 2025, +15 m)" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -111.91874843348819, 40.721692314305741 ], [ -111.918771034794204, 40.723335862789781 ], [ -111.920206655665368, 40.723324426328745 ], [ -111.920184019055938, 40.721680878503832 ], [ -111.91874843348819, 40.721692314305741 ] ] ] } }
-]
-}
