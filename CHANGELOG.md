@@ -37,6 +37,9 @@ versions are calendar-based (YYYY.M.PATCH).
   spatial join (`filter_near_routes`). The legacy `data/trax/data.parquet` was
   built with the same join and carries those duplicates
 
+- `slv.inversion.config.stilt_project_dir()`: the production PYSTILT project as a
+  `Path` (`$SLV_STILT_DIR`, else `DEFAULT_STILT_PROJECT`), for scripts
+
 ### Changed
 
 - `slv.measurements.mobile` is now a subpackage (`network`, `gps`, `location`,

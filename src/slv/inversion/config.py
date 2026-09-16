@@ -16,6 +16,14 @@ DEFAULT_STILT_PROJECT = (
     "/uufs/chpc.utah.edu/common/home/lin-group27/jkm/stilt/simulations/stilt"
 )
 
+
+def stilt_project_dir() -> Path:
+    """The production PYSTILT project: ``$SLV_STILT_DIR`` if set, else
+    :data:`DEFAULT_STILT_PROJECT`. Use this in scripts instead of spelling the path out;
+    ``stilt_project_dir() / "simulations" / "by-id"`` is the per-receptor tree."""
+    return Path(os.environ.get("SLV_STILT_DIR", DEFAULT_STILT_PROJECT))
+
+
 # Default MDM component parameters
 # Notes:
 # - `std`: absolute standard deviation in ppm (can be float or dict[site][season])

@@ -191,3 +191,14 @@ class TestInversionConfigCacheOverwrite:
     def test_cache_overwrite_single_string(self):
         config = InversionConfig(cache_overwrite="obs")
         assert config.cache_overwrite == "obs"
+
+
+def test_stilt_project_dir_env_override(monkeypatch):
+    from pathlib import Path
+
+    from slv.inversion.config import DEFAULT_STILT_PROJECT, stilt_project_dir
+
+    monkeypatch.delenv("SLV_STILT_DIR", raising=False)
+    assert stilt_project_dir() == Path(DEFAULT_STILT_PROJECT)
+    monkeypatch.setenv("SLV_STILT_DIR", "/tmp/other_stilt")
+    assert stilt_project_dir() == Path("/tmp/other_stilt")
