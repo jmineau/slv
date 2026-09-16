@@ -1,9 +1,9 @@
-"""Tests for slv.measurements.trax_location (synthetic per-minute features)."""
+"""Tests for slv.measurements.mobile.location (synthetic per-minute features)."""
 
 import numpy as np
 import pandas as pd
 
-from slv.measurements.trax_location import (
+from slv.measurements.mobile.location import (
     STATES,
     classify_location,
     load_depot_footprint,
@@ -33,20 +33,20 @@ def _feat(n, **cols):
 
 
 def test_packaged_footprints_and_yards():
-    from slv.measurements.trax_location import load_storage_polygons
+    from slv.measurements.mobile.location import load_storage_polygons
 
     fp = load_depot_footprint()
-    assert sorted(fp.site) == ["JRRSC", "MRSC"]
-    j = fp[fp.site == "JRRSC"].total_bounds
+    assert sorted(fp.name) == ["JRRSC", "MRSC"]
+    j = fp[fp.name == "JRRSC"].total_bounds
     assert -111.93 < j[0] < j[2] < -111.91 and 40.72 < j[1] < j[3] < 40.73
-    m = fp[fp.site == "MRSC"].total_bounds
+    m = fp[fp.name == "MRSC"].total_bounds
     assert -111.91 < m[0] < m[2] < -111.90 and 40.62 < m[1] < m[3] < 40.64
     yards = load_storage_polygons(meters=True)
     assert sorted(yards.name) == ["JRRSC", "MRSC"]
     # each shed footprint lies (almost) inside its yard polygon
     fpm = load_depot_footprint(meters=True)
     for site in ("JRRSC", "MRSC"):
-        shed = fpm[fpm.site == site].geometry.iloc[0]
+        shed = fpm[fpm.name == site].geometry.iloc[0]
         yard = yards[yards.name == site].geometry.iloc[0]
         assert shed.intersection(yard).area / shed.area > 0.8
 
@@ -105,7 +105,7 @@ def test_state_intervals_runs_and_min_length():
 
 
 def test_label_observations_floors_to_minute():
-    from slv.measurements.trax_location import label_observations
+    from slv.measurements.mobile.location import label_observations
 
     f = _feat(3, scatter=[0.1, 6.0, 6.0])
     st = classify_location(f, smooth_min=1)
@@ -140,7 +140,7 @@ def test_speed_est_fallback_when_no_speed_recorded():
 
 
 def test_location_features_without_speed_column():
-    from slv.measurements.trax_location import location_features
+    from slv.measurements.mobile.location import location_features
 
     idx = pd.date_range("2025-03-01", periods=180, freq="1s")
     gps = pd.DataFrame(

@@ -1,4 +1,4 @@
-"""Where is the TRAX train: on the line, parked in the JRRSC yard, or inside the depot?
+"""Where is the TRAX train, minute by minute: indoor (shed), yard, pass-by, route, stopped?
 
 The TRAX trains sleep at a rail service center: trx01/trx02 at the Jordan River RSC
 (JRRSC, where the green line runs right past the yard's north edge), trx03 at the
@@ -55,17 +55,16 @@ is off). trx03 has no lin-group GPS; its horel record starts Nov 2019.
 
 from __future__ import annotations
 
-from importlib.resources import files
-from pathlib import Path
-
 import geopandas as gpd
 import numpy as np
 import pandas as pd
 
-from slv import get_data_dir
-from slv.measurements.mobile import get_geodf, load_trax_lines, storage_locations
-
-UTM12 = "EPSG:32612"
+from slv.measurements.mobile.network import (
+    UTM12,
+    load_depot_footprint,
+    load_storage_polygons,
+    load_trax_lines,
+)
 
 #: Speed (m/s, per-minute maximum) at or above which the train counts as moving.
 #: Depot multipath produces spurious speeds up to ~1 m/s; a real move exceeds 2.
@@ -94,151 +93,6 @@ POWER_OFF_V = 12.5
 SMOOTH_MIN = 15
 
 STATES = ("depot", "yard", "line", "route", "stopped", "unknown")
-
-HOREL_CR1000_DIRS = (
-    Path("/uufs/chpc.utah.edu/common/home/horel-group/uutrax/cr1000"),  # Nov 2018 on
-    Path(
-        "/uufs/chpc.utah.edu/common/home/horel-group/uutrax_pilot/cr1000"
-    ),  # Nov 2014 - Nov 2018
-)  # TODO move into uataq once its horel GPS reader keeps NSAT/RSTS
-
-
-def load_depot_footprint(meters: bool = False) -> gpd.GeoDataFrame:
-    """Packaged shed footprints at the service centers (``trax_depots.geojson``).
-
-    One feature per ``site`` (JRRSC, MRSC). Data-derived: the 5–95 % box of the
-    per-minute median positions of degraded fixes (trx01 at JRRSC, trx03 at MRSC,
-    Jan–Aug 2025), padded 15 m. Roughly 120 × 180 m and 220 × 230 m.
-    """
-    with files(__package__).joinpath("trax_depots.geojson").open("r") as f:
-        gdf = gpd.read_file(f)
-    return gdf.to_crs(UTM12) if meters else gdf
-
-
-def load_storage_polygons(meters: bool = False) -> gpd.GeoDataFrame:
-    """All storage yards in :data:`slv.measurements.mobile.storage_locations`, one row
-    each with a ``name`` column (JRRSC from the group spatial dir, MRSC packaged)."""
-    rows = []
-    for name, src in storage_locations.items():
-        g = get_geodf(src).to_crs(UTM12)
-        rows.append(
-            gpd.GeoDataFrame(
-                {"name": [name]}, geometry=[g.geometry.union_all()], crs=UTM12
-            )
-        )
-    gdf = pd.concat(rows, ignore_index=True)
-    return gdf if meters else gdf.to_crs("EPSG:4326")
-
-
-def read_horel_cr1000(time_range, site: str = "trx01") -> pd.DataFrame:
-    """Horel-group CR1000 logger record (5 s): GPS + battery voltage + roof T/RH.
-
-    Reads the monthly ``TRX01_YYYY_MM_cr1000.h5`` files directly because the uataq
-    horel reader drops the satellite count and RMC status. Columns are renamed to
-    the uataq convention (``Latitude_deg``, ``Speed_m_s``, ``N_Sat``, ``Status``,
-    ``Battery_Voltage_V``, ``Logger_T_C``, ``Ambient_T_C``, ``Ambient_RH_pct``).
-    Covers Nov 2014 on (pilot files first, then the post-pilot tree). The pilot-phase
-    files (to 19 Nov 2018) are a different setup: one fix per minute (so the scatter
-    feature is undefined), a receiver that reports 3–8 satellites, and no speed or RMC
-    status. Do not classify from them — use :func:`read_lin_gps` for the pilot era.
-    ``time_range`` is any pair pandas can parse.
-    """
-    import tables
-
-    start, end = (pd.Timestamp(t) for t in time_range)
-    rename = {
-        "GLAT": "Latitude_deg",
-        "GLON": "Longitude_deg",
-        "GELV": "Altitude_msl",
-        "RDIR": "Course_deg",
-        "NSAT": "N_Sat",
-        "RSTS": "Status",
-        "VOLT": "Battery_Voltage_V",
-        "TICC": "Logger_T_C",
-        "TRNT": "Ambient_T_C",
-        "TRNR": "Ambient_RH_pct",
-    }
-    parts = []
-    for m in pd.period_range(start, end, freq="M"):
-        name = f"{site.upper()}_{m.year}_{m.month:02d}_cr1000.h5"
-        for d in HOREL_CR1000_DIRS:
-            if (d / name).exists():
-                with tables.open_file(d / name) as h5:
-                    parts.append(pd.DataFrame(h5.root["obsdata/observations"].read()))
-    if not parts:
-        return pd.DataFrame()
-    df = pd.concat(parts, ignore_index=True).replace(-9999.0, np.nan)
-    df.index = pd.to_datetime(df.pop("EPOCHTIME"), unit="s").rename("Time_UTC")
-    if "RSPD" in df.columns:
-        df["Speed_m_s"] = df.pop("RSPD") * 0.514444  # knots -> m/s
-    else:
-        df["Speed_m_s"] = np.nan
-    df = df.drop(columns=["GTIM", "PRES"], errors="ignore").rename(columns=rename)
-    df = df[~df.index.duplicated()].sort_index()
-    return df.loc[start:end]
-
-
-#: Post-pilot start of the horel logger (5-s GPS with speed and RMC status).
-HOREL_POST_PILOT = pd.Timestamp("2018-11-19T20:04")
-
-LIN_GPS_DIR = Path(get_data_dir("LINGROUP_MEASUREMENTS_DIR")) / "data"
-#: GPS QAQC flags dropped before classifying: bad fix quality, < 4 satellites,
-#: invalid RMC status, pi-clock overlap. Flag 20 (storage box) and 0 are kept.
-LIN_GPS_DROP_FLAGS = (-21, -22, -23, -200)
-
-
-def read_lin_gps(time_range, site: str = "trx01", lvl: str = "qaqc") -> pd.DataFrame:
-    """Lin-group (air-trend) GPS at 1 s from the pipeline ``qaqc`` level, Dec 2014 on.
-
-    Read directly from the monthly ``YYYY_MM_qaqc.dat`` files (uataq's reader drops
-    ``N_Sat``). Rows with :data:`LIN_GPS_DROP_FLAGS` are removed. ``Speed_m_s`` is NA
-    from Dec 2015 to 19 Jan 2018 (GPGGA only), which :func:`classify_location`
-    handles via ``speed_est``. Indexed by GPS ``Time_UTC``; ``Pi_Time`` is kept for
-    merging with the LGR. Only records while the Pi has train power.
-    """
-    start, end = (pd.Timestamp(t) for t in time_range)
-    cols = [
-        "Time_UTC",
-        "Pi_Time",
-        "Latitude_deg",
-        "Longitude_deg",
-        "Altitude_msl",
-        "Speed_m_s",
-        "Course_deg",
-        "N_Sat",
-        "Fix_Quality",
-        "QAQC_Flag",
-    ]
-    parts = []
-    for m in pd.period_range(start, end, freq="M"):
-        path = LIN_GPS_DIR / site / "gps" / lvl / f"{m.year}_{m.month:02d}_{lvl}.dat"
-        if not path.exists():
-            continue
-        df = pd.read_csv(
-            path, usecols=lambda c: c in cols, na_values="NA", low_memory=False
-        )
-        df["Time_UTC"] = pd.to_datetime(df.Time_UTC, errors="coerce")
-        df = df.dropna(subset=["Time_UTC"])
-        if "QAQC_Flag" in df.columns:
-            df = df[~df.QAQC_Flag.isin(LIN_GPS_DROP_FLAGS)]
-        parts.append(df)
-    if not parts:
-        return pd.DataFrame()
-    df = pd.concat(parts, ignore_index=True).set_index("Time_UTC").sort_index()
-    return df.loc[start:end]
-
-
-def read_trax_gps(time_range, site: str = "trx01") -> pd.DataFrame:
-    """Best GPS source for classifying, by era: lin-group GPS before
-    :data:`HOREL_POST_PILOT`, horel logger (with battery/T/RH) after."""
-    start, end = (pd.Timestamp(t) for t in time_range)
-    parts = []
-    if start < HOREL_POST_PILOT:
-        parts.append(read_lin_gps((start, min(end, HOREL_POST_PILOT)), site))
-    if end >= HOREL_POST_PILOT:
-        parts.append(read_horel_cr1000((max(start, HOREL_POST_PILOT), end), site))
-    parts = [p for p in parts if len(p)]
-    return pd.concat(parts).sort_index() if parts else pd.DataFrame()
 
 
 def _prep_gps(gps: pd.DataFrame) -> gpd.GeoDataFrame:

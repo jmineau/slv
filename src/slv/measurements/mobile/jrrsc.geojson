@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "jrrsc",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "name": "JRRSC", "long_name": "Jordan River Rail Service Center", "source": "hand-drawn polygon, copied from $LINGROUP_DATA_DIR/spatial/transportation/light_rail/JRRSC.geojson (2026-09-15)" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -111.91775011088545, 40.723463788110649 ], [ -111.92155207939706, 40.723966496341404 ], [ -111.923121402569876, 40.723292130772307 ], [ -111.91996657763481, 40.720741741019339 ], [ -111.917620682169883, 40.720729479294391 ], [ -111.91775011088545, 40.723463788110649 ] ] ] } }
+]
+}

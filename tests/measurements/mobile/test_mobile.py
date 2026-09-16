@@ -1,8 +1,8 @@
-"""Tests for the TRAX uncalibrated-window handling in slv.measurements.mobile."""
+"""Tests for slv.measurements.mobile: calibration windows, obs location filter, route buffer."""
 
 import pandas as pd
 
-from slv.measurements.mobile import (
+from slv.measurements.mobile.calibration import (
     CAL_SOURCES,
     filter_cal_source,
     load_trax_uncalibrated_windows,
@@ -57,7 +57,7 @@ def test_filter_cal_source_switch():
 
 
 def test_filter_location_sets():
-    from slv.measurements.mobile import LOCATION_SETS, filter_location
+    from slv.measurements.mobile.obs import LOCATION_SETS, filter_location
 
     df = pd.DataFrame(
         {
@@ -80,7 +80,7 @@ def test_filter_location_sets():
 
 
 def test_label_trax_location_with_given_states():
-    from slv.measurements.mobile import label_trax_location
+    from slv.measurements.mobile.obs import label_trax_location
 
     idx = pd.date_range("2025-03-01", periods=3, freq="1min")
     states = pd.DataFrame(
@@ -114,7 +114,7 @@ def test_filter_near_routes_does_not_duplicate_on_shared_track():
     import geopandas as gpd
     from shapely.geometry import LineString
 
-    from slv.measurements.mobile import filter_near_routes
+    from slv.measurements.mobile.network import filter_near_routes
 
     # two lines sharing a trunk (x 0..100), then diverging
     routes = gpd.GeoDataFrame(

@@ -34,6 +34,15 @@ versions are calendar-based (YYYY.M.PATCH).
 
 ### Changed
 
+- `slv.measurements.mobile` is now a subpackage (`network`, `gps`, `location`,
+  `calibration`, `obs`, `transects`); its `__init__` re-exports the public API so
+  existing `from slv.measurements.mobile import ...` lines keep working.
+  `slv.measurements.trax_location` was folded into `mobile.location` (classifier)
+  and `mobile.gps` (readers); import from `slv.measurements.mobile` instead.
+  `slv.measurements.wyoming` (the Wyoming mobile lab) moved to
+  `slv.measurements.mobile.wyoming`. Both yard polygons are now packaged
+  (`jrrsc.geojson` copied from the group spatial dir, `mrsc.geojson`); the depot
+  footprint column is `name` (was `site`)
 - `load_trax_obs` no longer drops yard-parked data at build time; the old
   route-buffer + storage-polygon behaviour is the `on_track` default (now also
   keeps pass-bys at the yards and drops shed multipath ejecta)
