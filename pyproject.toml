@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "slv"
-version = "2026.9.0"
+version = "2026.9.1"
 description = "Salt Lake Valley python modules"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -34,8 +34,8 @@ dependencies = [
 
 [project.optional-dependencies]
 inversion = [
-    "fips[flux]>=0.1.0b4",
-    "pystilt>=0.1.0a4",  # Trajectories.endpoints() for background sampling
+    "fips[flux]>=0.1.0b7",  # JacobianBuilder.build_from_target
+    "pystilt>=0.1.0a9",  # spatial geometries (Grid.index for the state grid)
     "joblib>=1.5.3",
     "seaborn",
     # "xesmf",

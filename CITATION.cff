@@ -3,8 +3,8 @@ message: "If you use this software, please cite it as below."
 type: software
 title: "slv"
 abstract: "Salt Lake Valley methane analysis and inversion workflows: measurements, inventories, domain definitions, and the flux-inversion pipeline built on fips and pystilt."
-version: 2026.9.0
-date-released: 2026-09-02
+version: 2026.9.1
+date-released: "2026-09-17"
 authors:
   - family-names: Mineau
     given-names: James K.

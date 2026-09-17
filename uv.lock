@@ -1014,7 +1014,7 @@ wheels = [
 
 [[package]]
 name = "fips"
-version = "0.1.0b4"
+version = "0.1.0b7"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "joblib" },
@@ -1028,9 +1028,9 @@ dependencies = [
     { name = "xarray", version = "2025.6.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
     { name = "xarray", version = "2026.2.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/75/b6/dc78317c212f9e3819982b50c6e0fffceaa944c2275682a8729fd99f337f/fips-0.1.0b4.tar.gz", hash = "sha256:8f08712a1e55aba4a18ab38df45f9d712d71509d3220bdba2b01ac18678189dd", size = 85115, upload-time = "2026-06-17T21:55:51.019Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/78/eb/ccca54b09d7e18f207ee8919838f397df8629296aa889040bfa76af192c8/fips-0.1.0b7.tar.gz", hash = "sha256:c15e47b9b91c823223fe0dd6ebd197780ef0704202172f7496566c8217a4485c", size = 88620, upload-time = "2026-09-17T21:17:30.691Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/7f/37/61469125212f17cc91fcf5bda10618382d1d37be5bc05a80fb6b30f42ff2/fips-0.1.0b4-py3-none-any.whl", hash = "sha256:bcb99863bbe61440b69f08a586adf285970d58efa02aabf86b538fd64bfc3937", size = 61906, upload-time = "2026-06-17T21:55:49.454Z" },
+    { url = "https://files.pythonhosted.org/packages/18/ad/371db153c85a9b317a6efde290783a9183dd408146f104de7c8be4c5f4bc/fips-0.1.0b7-py3-none-any.whl", hash = "sha256:cec3e3b82d1090250c6151918db729e63916f14268aeb2e486e57eba4d8d7bd5", size = 63005, upload-time = "2026-09-17T21:17:29.195Z" },
 ]
 
 [package.optional-dependencies]
@@ -3240,7 +3240,7 @@ wheels = [
 
 [[package]]
 name = "pystilt"
-version = "0.1.0a4"
+version = "0.1.0a9"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "arlmet" },
@@ -3263,9 +3263,9 @@ dependencies = [
     { name = "xarray", version = "2025.6.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
     { name = "xarray", version = "2026.2.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/a1/e9/1b54fee8ebb132c5a618a6cf7ab78e4cc6daa4fe6dd61439a2e1ea07e4bc/pystilt-0.1.0a4.tar.gz", hash = "sha256:26ab9a09d5c5bb0f12e45c72b2a7cf664fb0a595e818270459e57e764aff09c3", size = 1829717, upload-time = "2026-06-24T21:05:49.108Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/c5/eb/a31358851669d224a2c772accb192de0f157685bda085d3753994e287c84/pystilt-0.1.0a9.tar.gz", hash = "sha256:9d358767c322d6c5353b7bf62665c2978250bab2491c14a971118f9283b38571", size = 1851957, upload-time = "2026-09-17T21:15:57.325Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/87/19/272513db50e0a94fa1dc94efa8a7b51895e67614fc1ddd6d13938bf74a7e/pystilt-0.1.0a4-py3-none-any.whl", hash = "sha256:64e48f3a82a1061a81919a65c09ac99fc678da445a15911fabefc64bf84f5b4e", size = 1802471, upload-time = "2026-06-24T21:05:47.146Z" },
+    { url = "https://files.pythonhosted.org/packages/e4/5d/891bf10cee6fa1df7136ecab6b1306fadf57d852d2262bef69abdefae342/pystilt-0.1.0a9-py3-none-any.whl", hash = "sha256:a660ddd9b9e2914117561af7187d3d60b523acea6ecf0ca3608b35746f84a701", size = 1817703, upload-time = "2026-09-17T21:15:55.22Z" },
 ]
 
 [[package]]
@@ -3987,7 +3987,7 @@ wheels = [
 
 [[package]]
 name = "slv"
-version = "2026.9.0"
+version = "2026.9.1"
 source = { editable = "." }
 dependencies = [
     { name = "cartopy" },
@@ -4032,13 +4032,13 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "cartopy" },
-    { name = "fips", extras = ["flux"], marker = "extra == 'inversion'", specifier = ">=0.1.0b4" },
+    { name = "fips", extras = ["flux"], marker = "extra == 'inversion'", specifier = ">=0.1.0b7" },
     { name = "geopandas" },
     { name = "joblib", marker = "extra == 'inversion'", specifier = ">=1.5.3" },
     { name = "lair", extras = ["science", "geo"], git = "https://github.com/jmineau/lair" },
     { name = "matplotlib" },
     { name = "pandas" },
-    { name = "pystilt", marker = "extra == 'inversion'", specifier = ">=0.1.0a4" },
+    { name = "pystilt", marker = "extra == 'inversion'", specifier = ">=0.1.0a9" },
     { name = "seaborn", marker = "extra == 'inversion'" },
     { name = "siphon", specifier = ">=0.10.0" },
     { name = "uataq", git = "https://github.com/jmineau/uataq" },

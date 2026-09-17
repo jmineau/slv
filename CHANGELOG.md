@@ -6,6 +6,8 @@ versions are calendar-based (YYYY.M.PATCH).
 
 ## [Unreleased]
 
+## [2026.9.1] - 2026-09-17
+
 ### Added
 
 - `InversionConfig.state_grid`: the flux state geometry as a PYSTILT `Grid`

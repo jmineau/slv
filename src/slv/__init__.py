@@ -6,7 +6,7 @@ Salt Lake Valley python modules
 import os
 from pathlib import Path
 
-__version__ = "2026.9.0"
+__version__ = "2026.9.1"
 __author__ = "James Mineau"
 __email__ = "James.Mineau@utah.edu"
 
