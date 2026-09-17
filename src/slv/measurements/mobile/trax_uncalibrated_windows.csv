@@ -4,3 +4,11 @@ start,end,reason,enabled
 2020-05-19,2020-07-21,"tank emptied hours after the 2020-05-19 visit, valve closed, calibrations turned off (notes); calibrated flag -5 throughout; cal gas flowing again by 2020-07-22",true
 2022-10-28,2023-01-24,"RPi GPIO fault: inlet never switched to the tank, so no valid reference (bad file flags only the reference ID). Bracketing slopes 1.005 (Mar 2022) / 0.994 (Apr 2023). Train mostly parked",true
 2024-08-21,2024-08-28,"tank 240111_69 empty (bad file flags only the reference ID); raw atmosphere median 2.00 ppm, train moving 29% of the week",true
+2015-10-11T00:00,2015-10-11T16:00,"tank-swap day: reference ID flagged until the 16Z swap (old tank gas under the new config value), so the pipeline has no valid reference for these hours; raw fine (slope 1.006 / 1.011 either side)",true
+2015-11-12T00:00,2015-11-15T00:00,"tank 150909_J43 running empty, reference flagged (read atmosphere, ratio 0.72-0.97); LGR pulled 11-15. No GPS these days",true
+2016-11-15T00:00,2016-11-17T00:00,"tank 160330_J65 running low, reference flagged (atmosphere-like); recovered 11-18 to 11-24",true
+2016-11-25T00:00,2017-01-10T00:00,"tank 160330_J65 empty (notes 2016-12-02) but the reference line delivered atmosphere, so the pipeline calibrated with slope 0.82-0.94 (6-20% high); reference flagged 2026-09-17. Slope 1.002 (Nov 2016) / 1.005 (Feb 2017) either side",true
+2018-04-06T00:00,2018-04-06T20:00,"tank-swap day: reference ID flagged until the 20Z swap; raw fine (slope 1.001 / 1.010 either side)",true
+2019-03-01T00:00,2019-03-02T00:00,"tank-swap day: reference ID flagged (old 5.09 tank gas under the new 1.973 value); raw fine",true
+2019-10-01T00:00,2019-10-02T00:00,"tank-swap day: reference ID flagged (old 2.85 tank gas under the new 1.84 value); raw fine",true
+2020-09-22T00:00,2020-09-23T03:00,"tank-swap day plus a first-reference-after-restart that measured air; reference flagged; raw fine (slope 0.99-1.0)",true
