@@ -64,7 +64,6 @@ from .receptors import (
     find_segment_crossings,
     load_trax_fixes,
     load_trax_network_points,
-    load_trax_tracks,
 )
 from .transects import TRANSECT_LINES, load_transects
 
@@ -94,7 +93,6 @@ __all__ = [
     "load_trax_network_points",
     "load_trax_obs",
     "load_trax_points",
-    "load_trax_tracks",
     "load_trax_uncalibrated_windows",
     "location_features",
     "merge_with_gps",

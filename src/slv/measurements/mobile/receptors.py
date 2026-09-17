@@ -2,10 +2,11 @@
 
 The paper-2 inversion samples TRAX CH4 at the staged 2-km network points
 (:func:`~slv.measurements.mobile.network.load_trax_points`). Each staged point owns a
-*segment*: the 50-m track points nearest to it. The 50-m points are the per-line track
-files behind the transect matrices (``TRAX_50m_<line>_2022-01-25.csv``), merged into one
-network point set so that shared track (the downtown trunk) is one set of points
-(:func:`load_trax_network_points`). Every time the train crosses a segment
+*segment*: the 50-m network points nearest to it. Both point sets are generated the same
+way, ``lair.geo.points_along_line`` on the UTA line network (:func:`load_trax_points`), so
+shared track is one row of points (:func:`load_trax_network_points`); a crossing on one
+line releases only from that line's points of the segment (:func:`release_points`).
+Every time the train crosses a segment
 (:func:`find_segment_crossings`) it gets one PYSTILT ``MultiPointReceptor`` that releases
 particles from all of the segment's 50-m points at the median crossing time
 (:func:`build_trax_receptors`). PYSTILT spreads ``numpar`` evenly over the release points
@@ -27,18 +28,14 @@ from pathlib import Path
 import geopandas as gpd
 import numpy as np
 import pandas as pd
-from lair.transects import merge_route_points
 from pyproj import Transformer
 from scipy.spatial import cKDTree
 
 from slv.measurements.mobile.network import USER_DIR, UTM12, load_trax_points
 from slv.measurements.mobile.obs import LOCATION_SETS
 
-#: Date stamp of the per-line 50-m track files (``lat,lon`` rows, no header) under
-#: ``$SLV_USER_DATA_DIR/trax/tracks/`` — Logan's Red/Green/Blue track points as re-derived
-#: 2022-01-25 (copied from ``~/wkspace/mobile/trax/transect/tracks``).
-TRACKS_DATE = "2022-01-25"
-TRACK_LINES = ("r", "g", "b")
+#: Letters of the TRAX lines as :func:`load_trax_points` tags them (bit i of a line mask).
+LINE_LETTERS = "RGBS"
 #: Column order of a PYSTILT receptor CSV (``r_idx`` groups rows into one receptor).
 RECEPTOR_COLUMNS = [
     "r_idx",
@@ -53,59 +50,39 @@ _TO_UTM = Transformer.from_crs("EPSG:4326", UTM12, always_xy=True)
 _TO_LONLAT = Transformer.from_crs(UTM12, "EPSG:4326", always_xy=True)
 
 
-def load_trax_tracks(tracks_dir: str | Path | None = None) -> dict[str, np.ndarray]:
-    """Ordered ``(lon, lat)`` arrays of the per-line 50-m track points, keyed ``r``/``g``/``b``."""
-    d = USER_DIR / "trax" / "tracks" if tracks_dir is None else Path(tracks_dir)
-    out = {}
-    for line in TRACK_LINES:
-        t = pd.read_csv(
-            d / f"TRAX_50m_{line}_{TRACKS_DATE}.csv", header=None, names=["lat", "lon"]
-        )
-        out[line] = np.c_[t.lon.values, t.lat.values]
-    return out
-
-
 def load_trax_network_points(
     spacing: int = 50,
-    snap_tol: float = 25.0,
     segment_spacing: int = 2000,
     meters: bool = False,
     rebuild: bool = False,
-    tracks_dir: str | Path | None = None,
 ) -> gpd.GeoDataFrame:
-    """The merged 50-m network points with their 2-km segment membership.
+    """The 50-m network points with their 2-km segment membership.
 
-    Columns: ``point`` (stable integer id), ``lines`` (letters of the lines whose track
-    runs through the point, e.g. ``"RG"``), ``segment`` (index of the nearest staged
-    2-km point in :func:`load_trax_points`), ``segment_dist_m``. Cached as
-    ``$SLV_USER_DATA_DIR/trax/points_<spacing>m_network.geojson`` (UTM 12 N); returned in
-    lon/lat unless ``meters=True``.
+    Both point sets come from :func:`load_trax_points` (``lair.geo.points_along_line`` on
+    the UTA line network, so shared track is one row of points and every pair is at least
+    ``spacing`` apart; each point is tagged with the letters of the lines within
+    ``spacing/2`` of it). Columns: ``point`` (stable integer id), ``lines`` (e.g. ``"BGR"``
+    on the downtown trunk), ``segment`` (index of the nearest staged 2-km point),
+    ``segment_dist_m``. Cached as ``$SLV_USER_DATA_DIR/trax/points_<spacing>m_network.geojson``
+    (UTM 12 N); returned in lon/lat unless ``meters=True``.
     """
     cache = USER_DIR / "trax" / f"points_{spacing}m_network.geojson"
     if cache.exists() and not rebuild:
         pts = gpd.read_file(cache)
     else:
-        tracks = load_trax_tracks(tracks_dir)
-        routes = [np.c_[_TO_UTM.transform(t[:, 0], t[:, 1])] for t in tracks.values()]
-        net, index = merge_route_points(routes, snap_tol)
-        member = {line: np.zeros(len(net), bool) for line in tracks}
-        for line, idx in zip(tracks, index, strict=True):
-            member[line][idx] = True
-        lines = [
-            "".join(line.upper() for line in tracks if member[line][i])
-            for i in range(len(net))
-        ]
+        fine = load_trax_points(spacing, meters=True)
         segs = load_trax_points(segment_spacing, meters=True)
-        d, seg = cKDTree(np.c_[segs.geometry.x, segs.geometry.y]).query(net)
+        xy = np.c_[fine.geometry.x, fine.geometry.y]
+        d, seg = cKDTree(np.c_[segs.geometry.x, segs.geometry.y]).query(xy)
         pts = gpd.GeoDataFrame(
             {
-                "point": np.arange(len(net)),
-                "lines": lines,
+                "point": np.arange(len(fine)),
+                "lines": fine["lines"].fillna("").astype(str).values,
                 "segment": seg.astype(int),
                 "segment_dist_m": np.round(d, 1),
             },
-            geometry=gpd.points_from_xy(net[:, 0], net[:, 1]),
-            crs=UTM12,
+            geometry=fine.geometry.values,
+            crs=fine.crs,
         )
         cache.parent.mkdir(parents=True, exist_ok=True)
         pts.to_file(cache, index=False)
@@ -154,10 +131,12 @@ def find_segment_crossings(
     Each fix is snapped to the nearest 50-m network point (dropped if farther than
     ``max_point_dist`` m) and inherits its segment; a crossing is a run of consecutive
     fixes on one segment with no gap longer than ``max_gap``. One row per crossing:
-    ``crossing``, ``segment``, ``t_start``, ``t_end``, ``t_median``, ``n_fix``, ``n_points``
-    (distinct 50-m points hit), ``n_segment_points`` (points the segment has), ``span_m``
-    (farthest fix from the crossing's first fix — the length of track covered, robust to
-    the 10-s sampling era where only every other 50-m point gets a fix).
+    ``crossing``, ``segment``, ``lines`` (letters common to every point hit — the line the
+    train was on; ``"RGB"`` when only shared trunk points were hit), ``t_start``, ``t_end``,
+    ``t_median``, ``n_fix``, ``n_points`` (distinct 50-m points hit), ``n_segment_points``
+    (points the segment has), ``span_m`` (farthest fix from the crossing's first fix — the
+    length of track covered, robust to the 10-s sampling era where only every other 50-m
+    point gets a fix).
     """
     if points is None:
         points = load_trax_network_points(meters=True)
@@ -169,10 +148,13 @@ def find_segment_crossings(
     ts = _posix_seconds(fixes.Time_UTC.values[ok])
     seg = points["segment"].values[ip[ok]]
     pt = points["point"].values[ip[ok]]
+    mask = _line_masks(points["lines"].values)[ip[ok]]
     x, y = x[ok], y[ok]
     gap_s = pd.Timedelta(max_gap).total_seconds()
     new = np.ones(len(ts), bool)
     new[1:] = (np.diff(ts) > gap_s) | (np.diff(seg) != 0)
+    # lines common to every point hit in a crossing: bitwise AND over each run of fixes
+    common = np.bitwise_and.reduceat(mask, np.flatnonzero(new))
     df = pd.DataFrame(
         {
             "crossing": np.cumsum(new) - 1,
@@ -189,6 +171,7 @@ def find_segment_crossings(
     out = pd.DataFrame(
         {
             "segment": g.segment.first().astype(int),
+            "lines": [_mask_to_lines(int(m)) for m in common],
             "t_start": pd.to_datetime(g.t.min(), unit="s"),
             "t_end": pd.to_datetime(g.t.max(), unit="s"),
             "t_median": pd.to_datetime(g.t.median().round().astype("int64"), unit="s"),
@@ -202,6 +185,32 @@ def find_segment_crossings(
     return out.reset_index()
 
 
+def _line_masks(lines) -> np.ndarray:
+    """Bit mask per point from its ``lines`` letters (R=1, G=2, B=4, S=8)."""
+    bits = {c: 1 << i for i, c in enumerate(LINE_LETTERS)}
+    return np.array(
+        [sum(bits[c] for c in str(s) if c in bits) for s in lines], dtype=np.int64
+    )
+
+
+def _mask_to_lines(mask: int) -> str:
+    return "".join(c for i, c in enumerate(LINE_LETTERS) if mask & (1 << i))
+
+
+def release_points(points: gpd.GeoDataFrame, segment: int, lines: str) -> pd.Index:
+    """Index of the segment's points on every line in ``lines`` (all of them if ``lines`` is empty).
+
+    At a junction a staged 2-km point collects the arms of several lines (downtown,
+    segment 21 has 92 points on three arms); a train on one line only samples that line's
+    arms, so a receptor releases from the segment points whose ``lines`` contain every
+    letter the crossing's fixes had in common — the shared trunk plus that line's arm.
+    """
+    sel = points["segment"].values == segment
+    for c in lines:
+        sel &= points["lines"].str.contains(c).values
+    return points.index[sel]
+
+
 def build_trax_receptors(
     crossings: pd.DataFrame,
     points: gpd.GeoDataFrame | None = None,
@@ -213,11 +222,12 @@ def build_trax_receptors(
     """PYSTILT receptor table (:data:`RECEPTOR_COLUMNS`) from a crossings table.
 
     One ``r_idx`` (= ``crossing``) per crossing whose ``span_m`` is at least ``min_span_m``,
-    with one row per 50-m point of the segment (every point, not only those with a fix, so
-    a segment's receptor geometry is always the same and its PYSTILT location id stable).
-    ``time`` is the crossing's median fix time rounded to ``time_round`` (UTC); crossings
-    of one segment that round to the same minute are kept once. ``altitude`` is the roof
-    inlet height in m AGL.
+    with one row per 50-m point of the segment on the crossing's line
+    (:func:`release_points`; every such point, not only those with a fix, so a
+    segment × line receptor geometry is always the same and its PYSTILT location id
+    stable). ``time`` is the crossing's median fix time rounded to ``time_round`` (UTC);
+    crossings of one segment and line that round to the same minute are kept once.
+    ``altitude`` is the roof inlet height in m AGL.
     """
     if points is None:
         points = load_trax_network_points(meters=True)
@@ -228,18 +238,26 @@ def build_trax_receptors(
             "point": points["point"].values,
             "longitude": np.round(lon, 6),
             "latitude": np.round(lat, 6),
-        }
+        },
+        index=points.index,
     )
     c = crossings.loc[
-        crossings.span_m >= min_span_m, ["crossing", "segment", "t_median"]
+        crossings.span_m >= min_span_m, ["crossing", "segment", "lines", "t_median"]
     ].copy()
     t = pd.DatetimeIndex(c.t_median)
     t = t.tz_localize("UTC") if t.tz is None else t.tz_convert("UTC")
     c["time"] = t.round(time_round)
-    c = c.drop_duplicates(["segment", "time"])
+    c = c.drop_duplicates(["segment", "lines", "time"])
+    sets = [
+        pts.loc[release_points(points, int(segment), str(lines))].assign(lines=lines)
+        for segment, lines in c[["segment", "lines"]]
+        .drop_duplicates()
+        .itertuples(index=False)
+    ]
+    rel = pd.concat(sets, ignore_index=True) if sets else pts.iloc[:0].assign(lines="")
     rec = (
-        c[["crossing", "segment", "time"]]
-        .merge(pts, on="segment", how="inner")
+        c[["crossing", "segment", "lines", "time"]]
+        .merge(rel, on=["segment", "lines"], how="inner")
         .sort_values(["crossing", "point"])
         .rename(columns={"crossing": "r_idx"})
     )
@@ -249,12 +267,11 @@ def build_trax_receptors(
 
 
 __all__ = [
+    "LINE_LETTERS",
     "RECEPTOR_COLUMNS",
-    "TRACKS_DATE",
-    "TRACK_LINES",
     "build_trax_receptors",
     "find_segment_crossings",
     "load_trax_fixes",
     "load_trax_network_points",
-    "load_trax_tracks",
+    "release_points",
 ]

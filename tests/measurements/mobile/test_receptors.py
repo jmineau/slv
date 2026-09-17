@@ -97,3 +97,31 @@ def test_min_span_filters_and_duplicates_collapse():
     )  # same segment+minute twice
     rec = build_trax_receptors(cr2, pts)
     assert rec.r_idx.nunique() == 6
+
+
+def _junction_network():
+    """One segment: a Red-only arm (0-39), the shared trunk (40-79), a Blue-only arm (80-119)."""
+    pts = _network()
+    pts["segment"] = 0
+    pts["lines"] = ["R"] * 40 + ["RB"] * 40 + ["B"] * 40
+    return pts
+
+
+def test_release_points_follow_the_train_line():
+    pts = _junction_network()
+    f = _fixes(
+        length=3950.0
+    )  # out and back over the Red arm + trunk only (points 0-79)
+    cr = find_segment_crossings(f, pts)
+    assert len(cr) == 2 and (cr.lines == "R").all()
+    rec = build_trax_receptors(cr, pts)
+    assert (
+        rec.groupby("r_idx").size().eq(80).all()
+    )  # Red arm + trunk, never the Blue arm
+    # a crossing that only touched the trunk releases from the trunk alone
+    f2 = _fixes(length=5950.0)
+    lo, hi = TO_LONLAT.transform([pts.geometry.x[40], pts.geometry.x[79]], [Y0, Y0])[0]
+    f2 = f2[(f2.Longitude_deg >= lo - 1e-9) & (f2.Longitude_deg <= hi + 1e-9)]
+    cr2 = find_segment_crossings(f2, pts)
+    assert (cr2.lines == "RB").all()
+    assert build_trax_receptors(cr2, pts).groupby("r_idx").size().eq(40).all()
