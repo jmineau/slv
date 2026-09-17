@@ -26,7 +26,8 @@ def load_trax_uncalibrated_windows(
 ) -> pd.DataFrame:
     """Windows where the LGR ran without a valid reference tank but the raw data are good.
 
-    Packaged in ``trax_uncalibrated_windows.csv`` (columns: start, end, reason, enabled).
+    Packaged in ``trax_uncalibrated_windows.csv`` (columns: start, end, reason, enabled; start/end
+    are ISO dates or date-times, e.g. ``2015-10-11T16:00``).
     Set ``enabled`` to false to drop a window without deleting the row.
     """
     if path is None:
@@ -36,8 +37,8 @@ def load_trax_uncalibrated_windows(
             df = pd.read_csv(f)
     else:
         df = pd.read_csv(path)
-    df["start"] = pd.to_datetime(df["start"])
-    df["end"] = pd.to_datetime(df["end"])
+    df["start"] = pd.to_datetime(df["start"], format="ISO8601")  # dates or date-times
+    df["end"] = pd.to_datetime(df["end"], format="ISO8601")
     df["enabled"] = df["enabled"].astype(str).str.lower().isin(("true", "1", "yes"))
     if enabled_only:
         df = df.loc[df["enabled"].to_numpy()]
