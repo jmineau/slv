@@ -134,3 +134,37 @@ def test_filter_near_routes_does_not_duplicate_on_shared_track():
     ).to_crs("EPSG:4326")
     out = filter_near_routes(pts, routes, 20)
     assert out.id.tolist() == [1, 2]  # point 1 once, not twice
+
+
+def test_low_pressure_rule_keeps_band_and_tags():
+    from slv.measurements.mobile.obs import LOW_PRESSURE_BAND, apply_low_pressure_rule
+
+    df = pd.DataFrame(
+        {
+            "Time_UTC": pd.date_range("2026-08-01", periods=5, freq="10s"),
+            "CH4": [2.0, 2.1, 2.2, 2.3, 2.4],
+            "QAQC_Flag": [0, -63, -63, -63, -63],
+            "Cavity_P_torr": [140.0, 132.0, 105.0, 30.0, float("nan")],
+        }
+    )
+    out = apply_low_pressure_rule(df, LOW_PRESSURE_BAND)
+    # flag 0 untouched, -63 inside 100-145 kept and tagged, collapse (30 torr) and NaN dropped
+    assert out.CH4.notna().tolist() == [True, True, True, False, False]
+    assert out.low_pressure.tolist() == [False, True, True, False, False]
+    # band=None drops every -63 row
+    out2 = apply_low_pressure_rule(df, None)
+    assert out2.CH4.notna().tolist() == [True, False, False, False, False]
+    assert not out2.low_pressure.any()
+
+
+def test_build_chunk_edges_cover_range():
+    """The year chunking used by build_trax_obs covers the range without gaps or overlaps."""
+    t0, t1 = pd.Timestamp("2014-12-09"), pd.Timestamp("2016-03-05")
+    edges = pd.date_range(t0, t1, freq="YS")
+    edges = pd.DatetimeIndex([t0, *edges[(edges > t0) & (edges < t1)], t1])
+    assert edges.tolist() == [
+        t0,
+        pd.Timestamp("2015-01-01"),
+        pd.Timestamp("2016-01-01"),
+        t1,
+    ]
