@@ -15,6 +15,13 @@ versions are calendar-based (YYYY.M.PATCH).
   `JacobianBuilder.build_from_target(config.state_grid, ...)`; the Jacobian
   columns are unchanged.
 
+- `measurements.mobile.receptors`: TRAX STILT receptors, one PYSTILT
+  `MultiPointReceptor` per 2-km segment crossing, releasing from every 50-m
+  network point of the segment at the median crossing time, so the footprint
+  PYSTILT writes is already the 2-km aggregate. Crossings come from the
+  on-track GPS fixes of `obs.parquet` (same segment, gap <= 10 min) and must
+  cover at least 1 km of track.
+
 - `measurements.trax_location`: per-minute TRAX location classifier (depot / yard /
   green-line pass-by / route / stopped) from GPS scatter and satellite count, with a
   `powered` flag from the CR1000 battery voltage; `read_horel_cr1000`,

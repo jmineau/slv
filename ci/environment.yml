@@ -26,11 +26,13 @@ dependencies:
   - sphinx-autodoc-typehints>=1.24.0
   - pyright>=1.1.0
   - ruff>=0.1.0
-  - docstr-coverage>=2.0.0
 
   - pip
   - pip:
+      # not packaged on conda-forge
+      - docstr-coverage>=2.0.0
       # git-only deps not on conda-forge
       - fips[flux] @ git+https://github.com/jmineau/fips
-      - lair[science] @ git+https://github.com/jmineau/lair
+      # geo extra: lair.geo, imported by slv.inversion.config
+      - lair[science,geo] @ git+https://github.com/jmineau/lair
       - uataq @ git+https://github.com/jmineau/uataq
