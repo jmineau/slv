@@ -64,7 +64,10 @@ def load_trax_network_points(
     ``spacing/2`` of it). Columns: ``point`` (stable integer id), ``lines`` (e.g. ``"BGR"``
     on the downtown trunk), ``segment`` (index of the nearest staged 2-km point),
     ``segment_dist_m``. Cached as ``$SLV_USER_DATA_DIR/trax/points_<spacing>m_network.geojson``
-    (UTM 12 N); returned in lon/lat unless ``meters=True``.
+    (UTM 12 N); returned in lon/lat unless ``meters=True``. Generating the 50-m points the
+    first time takes ~1 h (pure-Python graph walk over a 5-m graph of the network; 1,397
+    points, 2026-09-17) — do it on a compute node; afterwards ``load_trax_points`` reads its
+    own cache in seconds.
     """
     cache = USER_DIR / "trax" / f"points_{spacing}m_network.geojson"
     if cache.exists() and not rebuild:
