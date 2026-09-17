@@ -403,8 +403,8 @@ class SLVMethaneInversion(FluxInversionPipeline):
 
         # Build flux Jacobian
         jacobian_builder = JacobianBuilder(model)
-        jacobian = jacobian_builder.build_from_grid(
-            self.config.grid,
+        jacobian = jacobian_builder.build_from_target(
+            self.config.state_grid,
             flux_times=self.config.flux_time_bins,
             footprint=footprint,
             location_ids=relevant_location_ids,

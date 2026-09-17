@@ -329,6 +329,31 @@ class InversionConfig:
         return grid
 
     @cached_property
+    def state_grid(self):
+        """
+        The flux state geometry as a PYSTILT ``Grid`` with the same cells as ``grid``.
+
+        ``lair.geo.generate_regular_grid`` keeps a partial last row/column when
+        the extent is not a whole number of cells (e.g. ``ymax=40.93`` with
+        ``dy=0.05`` yields a cell centred at 40.925), whereas ``stilt.Grid`` only
+        keeps complete cells.  Snap the extent up to whole cells so both grids
+        enumerate the same centres.
+        """
+        from stilt import Grid
+
+        eps = 1e-9
+        nx = int(np.ceil((self.xmax - self.xmin) / self.dx - eps))
+        ny = int(np.ceil((self.ymax - self.ymin) / self.dy - eps))
+        return Grid(
+            xmin=self.xmin,
+            xmax=round(self.xmin + nx * self.dx, 10),
+            ymin=self.ymin,
+            ymax=round(self.ymin + ny * self.dy, 10),
+            xres=self.dx,
+            yres=self.dy,
+        )
+
+    @cached_property
     def grid_coords(self):
         return pd.MultiIndex.from_product(
             [self.grid["lon"].values, self.grid["lat"].values]

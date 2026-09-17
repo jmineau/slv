@@ -8,6 +8,11 @@ versions are calendar-based (YYYY.M.PATCH).
 
 ### Added
 
+- `InversionConfig.state_grid`: the flux state geometry as a PYSTILT `Grid`
+  (same cells as `grid`). The flux Jacobian is now built with
+  `JacobianBuilder.build_from_target(config.state_grid, ...)`; the Jacobian
+  columns are unchanged.
+
 - `measurements.trax_location`: per-minute TRAX location classifier (depot / yard /
   green-line pass-by / route / stopped) from GPS scatter and satellite count, with a
   `powered` flag from the CR1000 battery voltage; `read_horel_cr1000`,
