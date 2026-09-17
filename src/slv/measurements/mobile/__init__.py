@@ -12,6 +12,8 @@ Submodules, one concern each:
 * :mod:`.obs` — :func:`build_trax_obs` / :func:`load_trax_obs`, the cached CH4 record
   with both tag sets and a load-time ``location`` filter.
 * :mod:`.transects` — the archived transect matrices.
+* :mod:`.receptors` — STILT receptors: 50-m network points, 2-km segment crossings,
+  one PYSTILT multipoint receptor per crossing.
 * :mod:`.wyoming` — the Wyoming mobile lab (Aeris + met readers, enhancement
   ratios, wind-barb map); not re-exported, import from the module.
 
@@ -56,29 +58,43 @@ from .obs import (
     label_trax_location,
     load_trax_obs,
 )
+from .receptors import (
+    RECEPTOR_COLUMNS,
+    build_trax_receptors,
+    find_segment_crossings,
+    load_trax_fixes,
+    load_trax_network_points,
+    load_trax_tracks,
+)
 from .transects import TRANSECT_LINES, load_transects
 
 __all__ = [
     "CAL_SOURCES",
     "HOREL_POST_PILOT",
     "LOCATION_SETS",
+    "RECEPTOR_COLUMNS",
     "STATES",
     "TRANSECT_LINES",
     "UTM12",
     "build_trax_obs",
+    "build_trax_receptors",
     "classify_location",
     "filter_cal_source",
     "filter_location",
     "filter_near_routes",
+    "find_segment_crossings",
     "get_geodf",
     "label_observations",
     "label_trax_location",
     "load_depot_footprint",
     "load_storage_polygons",
     "load_transects",
+    "load_trax_fixes",
     "load_trax_lines",
+    "load_trax_network_points",
     "load_trax_obs",
     "load_trax_points",
+    "load_trax_tracks",
     "load_trax_uncalibrated_windows",
     "location_features",
     "merge_with_gps",
