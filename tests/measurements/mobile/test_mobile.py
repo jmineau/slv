@@ -196,3 +196,19 @@ def test_slope_guard_accepts_string_slopes():
     )
     out = apply_slope_guard(df, 0.05)
     assert out.CH4.isna().sum() == 50
+
+
+def test_gps_numeric_coercion_handles_all_na_string_columns():
+    from slv.measurements.mobile.gps import _coerce_numeric
+
+    df = pd.DataFrame(
+        {
+            "Latitude_deg": [40.7, 40.8],
+            "Speed_m_s": pd.array([None, None], dtype="string[pyarrow]"),
+            "Status": ["A", "A"],
+        }
+    )
+    out = _coerce_numeric(df)
+    assert out["Speed_m_s"].dtype == float and out["Speed_m_s"].isna().all()
+    assert out["Status"].tolist() == ["A", "A"]
+    assert out["Speed_m_s"].resample is not None  # plain Series API still there

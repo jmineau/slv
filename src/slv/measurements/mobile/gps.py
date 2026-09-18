@@ -28,6 +28,35 @@ from slv.measurements.mobile.network import (
     storage_locations,
 )
 
+#: GPS columns forced to float64 on read. A year read on its own can hand back an all-NA
+#: column (Speed_m_s / Course_deg in the GPGGA-only years) as Arrow strings, which breaks the
+#: per-minute medians in :mod:`slv.measurements.mobile.location`.
+GPS_NUMERIC = (
+    "Latitude_deg",
+    "Longitude_deg",
+    "Altitude_msl",
+    "Speed_m_s",
+    "Course_deg",
+    "N_Sat",
+    "Fix_Quality",
+    "QAQC_Flag",
+    "Battery_Voltage_V",
+    "Logger_T_C",
+    "Ambient_T_C",
+    "Ambient_RH_pct",
+)
+
+
+def _coerce_numeric(df: pd.DataFrame, cols=GPS_NUMERIC) -> pd.DataFrame:
+    """Cast the listed columns (where present) to plain float64, NaN for anything unparsable."""
+    for c in cols:
+        if c in df.columns:
+            df[c] = pd.to_numeric(df[c].astype(object), errors="coerce").to_numpy(
+                dtype=float, na_value=np.nan
+            )
+    return df
+
+
 #: Post-pilot start of the horel logger (5-s GPS with speed and RMC status).
 HOREL_POST_PILOT = pd.Timestamp("2018-11-19T20:04")
 
@@ -69,8 +98,10 @@ def read_horel_cr1000(time_range, site: str = "trx01") -> pd.DataFrame:
     )
     if not len(df):
         return pd.DataFrame()
-    df = df.rename(columns={"N_Satellites": "N_Sat"}).drop(
-        columns=["Instrument_Time"], errors="ignore"
+    df = _coerce_numeric(
+        df.rename(columns={"N_Satellites": "N_Sat"}).drop(
+            columns=["Instrument_Time"], errors="ignore"
+        )
     )
     if "Speed_m_s" not in df.columns:
         df["Speed_m_s"] = np.nan
@@ -93,7 +124,7 @@ def read_lin_gps(time_range, site: str = "trx01", lvl: str = "qaqc") -> pd.DataF
         ]
     except uataq.errors.ReaderError:
         return pd.DataFrame()
-    df = df.rename(columns={"N_Satellites": "N_Sat"})
+    df = _coerce_numeric(df.rename(columns={"N_Satellites": "N_Sat"}))
     if "QAQC_Flag" in df.columns:
         df = df[~df.QAQC_Flag.isin(LIN_GPS_DROP_FLAGS)]
     df.index.name = "Time_UTC"
