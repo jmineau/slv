@@ -101,6 +101,29 @@ def label_trax_location(
 LOW_PRESSURE_BAND: tuple[float, float] = (100.0, 145.0)
 
 
+#: Calibrated rows whose slope ``CH4d_m`` deviates more than this fraction from the day's median
+#: slope are dropped. One bad reference period (a restart with air still in the line, a dying
+#: tank) is interpolated over the next hour by the pipeline's single-tank calibration; the
+#: ±100 ppm tolerances never catch it (measurements/trax/record/outputs/trax_cal_audit.txt).
+SLOPE_TOL: float | None = 0.05
+
+
+def apply_slope_guard(df: pd.DataFrame, tol: float | None = SLOPE_TOL) -> pd.DataFrame:
+    """Set ``CH4`` to NaN where ``CH4d_m`` differs from the same UTC day's median slope by more
+    than ``tol`` (fraction). ``df`` needs ``Time_UTC``, ``CH4`` and ``CH4d_m``; ``tol=None`` is a
+    no-op. Days with fewer than 100 sloped rows are left alone (no robust median)."""
+    if tol is None or "CH4d_m" not in df.columns:
+        return df
+    out = df.copy()
+    m = pd.to_numeric(out["CH4d_m"], errors="coerce")
+    day = pd.to_datetime(out["Time_UTC"]).dt.floor("D")
+    med = m.groupby(day).transform("median")
+    n = m.notna().groupby(day).transform("sum")
+    bad = m.notna() & (n >= 100) & ((m / med - 1).abs() > tol)
+    out.loc[bad, "CH4"] = np.nan
+    return out
+
+
 def _read_lgr(
     site,
     instrument,
@@ -156,7 +179,7 @@ def apply_low_pressure_rule(
 
 
 def _build_chunk(
-    site, t0, t1, num_processes, windows, classify, low_pressure, gps_kwargs
+    site, t0, t1, num_processes, windows, classify, low_pressure, slope_tol, gps_kwargs
 ):
     """One time chunk of :func:`build_trax_obs` (see there); returns a plain DataFrame."""
     from slv.measurements.pollutants import defaults
@@ -168,9 +191,16 @@ def _build_chunk(
     print(f"[{t0:%Y-%m-%d} -> {t1:%Y-%m-%d}] calibrated LGR ...", flush=True)
     try:
         cal = _read_lgr(
-            site, "lgr_ugga", "calibrated", "CH4d_ppm_cal", time_range, num_processes
+            site,
+            "lgr_ugga",
+            "calibrated",
+            "CH4d_ppm_cal",
+            time_range,
+            num_processes,
+            keep=("CH4d_m",),
         )
-        cal = cal[cal.CH4.notna()].assign(cal_source="pipeline")
+        cal = apply_slope_guard(cal, slope_tol)
+        cal = cal[cal.CH4.notna()][["Time_UTC", "CH4"]].assign(cal_source="pipeline")
     except (FileNotFoundError, KeyError, ValueError, uataq.errors.ReaderError):
         cal = empty.assign(cal_source="pipeline")
 
@@ -252,6 +282,7 @@ def build_trax_obs(
     windows: pd.DataFrame | None = None,
     classify: bool = True,
     low_pressure: tuple[float, float] | None = LOW_PRESSURE_BAND,
+    slope_tol: float | None = SLOPE_TOL,
     chunk: str = "YS",
     **gps_kwargs,
 ) -> gpd.GeoDataFrame:
@@ -264,7 +295,9 @@ def build_trax_obs(
     valid range). Manual-cal rows flagged −63 (cavity pressure outside 135–145 torr) are kept
     when the pressure is inside ``low_pressure`` (default :data:`LOW_PRESSURE_BAND`) and
     tagged ``low_pressure=True`` (:func:`apply_low_pressure_rule`); ``low_pressure=None``
-    drops them. Then merged with *every* GPS fix by :func:`merge_with_gps` (no route buffer,
+    drops them. Pipeline-calibrated rows whose slope deviates more than ``slope_tol`` from the
+    day's median slope are dropped (:func:`apply_slope_guard`; one bad reference period
+    otherwise miscalibrates the next hour by 20–100 %). Then merged with *every* GPS fix by :func:`merge_with_gps` (no route buffer,
     no storage-yard removal) and, with ``classify``, labelled per minute by
     :func:`label_trax_location` (``state``, ``indoor``, ``yard_name``) so that the location
     filter is applied at load time (:func:`load_trax_obs`). Pass ``routes`` /
@@ -289,7 +322,15 @@ def build_trax_obs(
     parts = []
     for a, b in zip(edges[:-1], edges[1:], strict=True):
         part = _build_chunk(
-            site, a, b, num_processes, windows, classify, low_pressure, gps_kwargs
+            site,
+            a,
+            b,
+            num_processes,
+            windows,
+            classify,
+            low_pressure,
+            slope_tol,
+            gps_kwargs,
         )
         if len(part):
             parts.append(pd.DataFrame(part))

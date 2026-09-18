@@ -168,3 +168,18 @@ def test_build_chunk_edges_cover_range():
         pd.Timestamp("2016-01-01"),
         t1,
     ]
+
+
+def test_slope_guard_drops_outlier_slope_rows():
+    from slv.measurements.mobile.obs import apply_slope_guard
+
+    t = pd.date_range("2019-06-22", periods=300, freq="min")
+    m = pd.Series(1.0, index=range(300))
+    m.iloc[100:160] = 0.7  # one bad reference period interpolated over an hour
+    df = pd.DataFrame({"Time_UTC": t, "CH4": 2.0, "CH4d_m": m})
+    out = apply_slope_guard(df, 0.05)
+    assert out.CH4.isna().sum() == 60 and out.CH4.iloc[:100].notna().all()
+    # no-op cases: tol=None, missing column, too few rows for a daily median
+    assert apply_slope_guard(df, None).CH4.notna().all()
+    assert apply_slope_guard(df.drop(columns="CH4d_m"), 0.05).CH4.notna().all()
+    assert apply_slope_guard(df.iloc[:50], 0.05).CH4.notna().all()
