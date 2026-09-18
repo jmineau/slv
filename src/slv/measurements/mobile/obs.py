@@ -115,7 +115,13 @@ def apply_slope_guard(df: pd.DataFrame, tol: float | None = SLOPE_TOL) -> pd.Dat
     if tol is None or "CH4d_m" not in df.columns:
         return df
     out = df.copy()
-    m = pd.to_numeric(out["CH4d_m"], errors="coerce")
+    # force plain float64 whatever uataq returned (object / Arrow strings with multiprocess reads)
+    m = pd.Series(
+        pd.to_numeric(out["CH4d_m"].astype(object), errors="coerce").to_numpy(
+            dtype=float, na_value=np.nan
+        ),
+        index=out.index,
+    )
     day = pd.to_datetime(out["Time_UTC"]).dt.floor("D")
     med = m.groupby(day).transform("median")
     n = m.notna().groupby(day).transform("sum")

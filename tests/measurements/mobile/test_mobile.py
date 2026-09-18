@@ -183,3 +183,16 @@ def test_slope_guard_drops_outlier_slope_rows():
     assert apply_slope_guard(df, None).CH4.notna().all()
     assert apply_slope_guard(df.drop(columns="CH4d_m"), 0.05).CH4.notna().all()
     assert apply_slope_guard(df.iloc[:50], 0.05).CH4.notna().all()
+
+
+def test_slope_guard_accepts_string_slopes():
+    """uataq multiprocess reads can hand back the slope column as strings."""
+    from slv.measurements.mobile.obs import apply_slope_guard
+
+    t = pd.date_range("2019-06-22", periods=200, freq="min")
+    m = ["1.0"] * 150 + ["0.7"] * 50
+    df = pd.DataFrame(
+        {"Time_UTC": t, "CH4": 2.0, "CH4d_m": pd.array(m, dtype="string[pyarrow]")}
+    )
+    out = apply_slope_guard(df, 0.05)
+    assert out.CH4.isna().sum() == 50
