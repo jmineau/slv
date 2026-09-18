@@ -20,10 +20,10 @@ jobs:
     env:
       # slv resolves the CHPC data roots at import time; nothing in CI reads
       # them, so point them at throwaway paths so the modules import.
-      LINGROUP_DATA_DIR: ${{ runner.temp }}/slv-data/group
-      SLV_USER_DATA_DIR: ${{ runner.temp }}/slv-data/user
-      SLV_DAQ_DIR: ${{ runner.temp }}/slv-data/daq
-      SLV_SOUNDINGS_DIR: ${{ runner.temp }}/slv-data/soundings
+      LINGROUP_DATA_DIR: /tmp/slv-data/group
+      SLV_USER_DATA_DIR: /tmp/slv-data/user
+      SLV_DAQ_DIR: /tmp/slv-data/daq
+      SLV_SOUNDINGS_DIR: /tmp/slv-data/soundings
 
     steps:
     - uses: actions/checkout@v5
