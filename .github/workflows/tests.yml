@@ -17,6 +17,14 @@ jobs:
       matrix:
         python-version: ["3.11", "3.12"]
 
+    env:
+      # slv resolves the CHPC data roots at import time; nothing in CI reads
+      # them, so point them at throwaway paths so the modules import.
+      LINGROUP_DATA_DIR: ${{ runner.temp }}/slv-data/group
+      SLV_USER_DATA_DIR: ${{ runner.temp }}/slv-data/user
+      SLV_DAQ_DIR: ${{ runner.temp }}/slv-data/daq
+      SLV_SOUNDINGS_DIR: ${{ runner.temp }}/slv-data/soundings
+
     steps:
     - uses: actions/checkout@v5
 
