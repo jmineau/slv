@@ -17,10 +17,16 @@ TO_LONLAT = Transformer.from_crs(UTM12, "EPSG:4326", always_xy=True)
 
 
 def _network(n=120, spacing=50.0, seg_points=40):
-    """n points east-west at y=Y0, `seg_points` per segment."""
+    """n points east-west at y=Y0, `seg_points` per segment. Straight line, so the
+    along-route coordinate is just the distance east of the first point."""
     x = X0 + spacing * np.arange(n)
     return gpd.GeoDataFrame(
-        {"point": np.arange(n), "lines": "R", "segment": np.arange(n) // seg_points},
+        {
+            "point": np.arange(n),
+            "lines": "R",
+            "segment": np.arange(n) // seg_points,
+            "s_R": x - X0,
+        },
         geometry=gpd.points_from_xy(x, np.full(n, Y0)),
         crs=UTM12,
     )
@@ -50,6 +56,8 @@ def test_crossings_split_by_segment_and_gap():
     assert (cr.n_segment_points == 40).all()
     assert (cr.n_points == 40).all()  # 1-s fixes at 10 m/s hit every 50-m point
     assert (cr.span_m.between(1900, 2000)).all()
+    assert (cr.coverage > 0.97).all()
+    assert (cr.segment_extent_m == 1950).all()
     assert (cr.n_fix.between(195, 205)).all()
     assert (cr.t_start <= cr.t_median).all() and (cr.t_median <= cr.t_end).all()
     assert cr.crossing.tolist() == list(range(6))
@@ -61,6 +69,7 @@ def test_ten_second_sampling_keeps_span():
     assert len(cr) == 6
     assert (cr.n_points < 40).all()  # every other point gets a fix
     assert (cr.span_m >= 1800).all()  # but the covered length is unchanged
+    assert (cr.coverage > 0.9).all()
 
 
 def test_off_track_fixes_are_dropped():
@@ -92,6 +101,7 @@ def test_min_span_filters_and_duplicates_collapse():
     pts = _network()
     cr = find_segment_crossings(_fixes(), pts)
     assert build_trax_receptors(cr, pts, min_span_m=5000).empty
+    assert build_trax_receptors(cr, pts, min_coverage=1.01).empty
     cr2 = pd.concat(
         [cr, cr.assign(crossing=cr.crossing + 100)]
     )  # same segment+minute twice
@@ -104,6 +114,10 @@ def _junction_network():
     pts = _network()
     pts["segment"] = 0
     pts["lines"] = ["R"] * 40 + ["RB"] * 40 + ["B"] * 40
+    pts["s_B"] = np.where(
+        pts.lines.str.contains("B"), pts.geometry.x - X0 - 40 * 50.0, np.nan
+    )
+    pts.loc[~pts.lines.str.contains("R"), "s_R"] = np.nan
     return pts
 
 
