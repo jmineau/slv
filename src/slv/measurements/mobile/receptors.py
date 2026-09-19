@@ -392,17 +392,32 @@ def label_dwell_site(
     dwells: pd.DataFrame,
     points: gpd.GeoDataFrame | None = None,
     max_dist: float = 200.0,
-) -> pd.Series:
-    """Nearest 2-km segment of each dwell (NaN beyond ``max_dist``), for grouping yards
-    and termini in diagnostics. Not used to build the receptor, which sits at the dwell's
-    own position."""
+) -> pd.DataFrame:
+    """Where each dwell is: ``yard_name`` (JRRSC / MRSC, from the packaged storage polygons)
+    and ``segment`` (nearest 2-km segment, NaN beyond ``max_dist``).
+
+    Diagnostic only -- the receptor sits at the dwell's own median position. The yard label
+    is the one that matters for screening: a rail service center is a maintenance yard, so
+    those receptors carry hyper-local influence that a 0.01-degree footprint cannot resolve.
+    Note the two labels overlap: the Jordan River yard runs alongside the Green line, so
+    many of its parking spots are also within ``max_dist`` of a network point.
+    """
     if points is None:
         points = load_trax_network_points(meters=True)
+    out = pd.DataFrame(index=dwells.index)
     x, y = _TO_UTM.transform(dwells.longitude.values, dwells.latitude.values)
     d, ip = cKDTree(np.c_[points.geometry.x, points.geometry.y]).query(np.c_[x, y])
     seg = points["segment"].to_numpy()[ip].astype(float)
     seg[d > max_dist] = np.nan
-    return pd.Series(seg, index=dwells.index, name="segment")
+    out["segment"] = seg
+
+    from slv.measurements.mobile.network import load_storage_polygons
+
+    yards = load_storage_polygons(meters=True)
+    pts = gpd.GeoDataFrame(geometry=gpd.points_from_xy(x, y), crs=UTM12)
+    joined = gpd.sjoin(pts, yards[["name", "geometry"]], how="left", predicate="within")
+    out["yard_name"] = joined["name"].to_numpy()[: len(out)]
+    return out
 
 
 def build_dwell_receptors(
