@@ -19,10 +19,24 @@ which periods pass calibration QC, so receptors can be built (and run) before th
 decisions are final; QC later selects which crossings enter the inversion. Crossings are
 found from the GPS positions of the on-track rows of ``obs.parquet``, so periods with no
 LGR data get no receptors.
+
+**Dwells.** Half the record is not a traverse at all: the train sits outdoors at a line
+terminus between runs or parked on a yard track, which is 39 % of the CH4 rows at the yards
+plus 31 % of the crossing time at the termini. Sitting still at a known outdoor position is
+a stationary measurement, so :func:`find_dwells` picks those periods out (the train stays
+within ``radius`` for at least ``min_duration``) and :func:`build_dwell_receptors` turns each
+hour of one into a single :class:`~stilt.PointReceptor` at the dwell's median position.
+Indoor shed air is excluded upstream by loading fixes with ``location="outdoor"``.
+
+Both builders release **when the air was sampled** -- a crossing at its median fix time, a
+dwell hour at the median fix time inside that hour -- rather than on the hour, and both
+accept an ``hours`` window (local time) so a project can start with the afternoon and add
+the rest later without rebuilding what it already has.
 """
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from pathlib import Path
 
 import geopandas as gpd
@@ -287,6 +301,189 @@ def release_points(points: gpd.GeoDataFrame, segment: int, lines: str) -> pd.Ind
     return points.index[sel]
 
 
+def _minute_positions(fixes: pd.DataFrame) -> pd.DataFrame:
+    """Median projected position per minute: index ``minute``, columns ``x``, ``y``, ``n``.
+
+    Dwells are found at 1-minute resolution rather than per fix -- 46 M fixes is too many
+    for a run-detection loop and a dwell lasts tens of minutes, so nothing is lost.
+    """
+    x, y = _TO_UTM.transform(fixes.Longitude_deg.values, fixes.Latitude_deg.values)
+    t = pd.DatetimeIndex(fixes.Time_UTC)
+    if t.tz is not None:
+        t = t.tz_convert("UTC").tz_localize(None)
+    m = pd.DataFrame({"minute": t.floor("min"), "x": x, "y": y})
+    out = m.groupby("minute").agg(x=("x", "median"), y=("y", "median"), n=("x", "size"))
+    return out.sort_index()
+
+
+def find_dwells(
+    fixes: pd.DataFrame,
+    radius: float = 150.0,
+    min_duration: str | pd.Timedelta = "20min",
+    max_gap: str | pd.Timedelta = "10min",
+) -> pd.DataFrame:
+    """Periods where the train stayed put: parked on a yard track or waiting at a terminus.
+
+    Walks the per-minute positions and opens a dwell at each minute, extending it while the
+    train stays within ``radius`` of the first minute of the run and no gap exceeds
+    ``max_gap``. Runs lasting at least ``min_duration`` are returned, one row each:
+    ``dwell``, ``t_start``, ``t_end``, ``longitude``, ``latitude`` (median over the dwell),
+    ``n_minutes``, ``n_fix``, ``spread_m`` (largest distance from the median position).
+
+    Pass fixes loaded with ``location="outdoor"`` so yard-parked minutes are present and
+    indoor shed air is not.
+    """
+    mins = _minute_positions(fixes)
+    if mins.empty:
+        return pd.DataFrame(
+            columns=[
+                "dwell",
+                "t_start",
+                "t_end",
+                "longitude",
+                "latitude",
+                "n_minutes",
+                "n_fix",
+                "spread_m",
+            ]
+        )
+    idx = mins.index.to_numpy()
+    x, y, n = mins.x.to_numpy(), mins.y.to_numpy(), mins.n.to_numpy()
+    gap_min = pd.Timedelta(max_gap) / pd.Timedelta("1min")
+    min_min = pd.Timedelta(min_duration) / pd.Timedelta("1min")
+    step = np.diff(idx) / np.timedelta64(1, "m")
+
+    runs, i, N = [], 0, len(idx)
+    while i < N:
+        j = i
+        while (
+            j + 1 < N
+            and step[j] <= gap_min
+            and np.hypot(x[j + 1] - x[i], y[j + 1] - y[i]) <= radius
+        ):
+            j += 1
+        if (idx[j] - idx[i]) / np.timedelta64(1, "m") + 1 >= min_min:
+            runs.append((i, j))
+            i = j + 1
+        else:
+            i += 1
+
+    rows = []
+    for k, (a, b) in enumerate(runs):
+        sl = slice(a, b + 1)
+        mx, my = float(np.median(x[sl])), float(np.median(y[sl]))
+        lon, lat = _TO_LONLAT.transform(mx, my)
+        rows.append(
+            {
+                "dwell": k,
+                "t_start": pd.Timestamp(idx[a]),
+                "t_end": pd.Timestamp(idx[b]) + pd.Timedelta(minutes=1),
+                "longitude": round(float(lon), 6),
+                "latitude": round(float(lat), 6),
+                "n_minutes": b - a + 1,
+                "n_fix": int(n[sl].sum()),
+                "spread_m": round(float(np.hypot(x[sl] - mx, y[sl] - my).max()), 1),
+            }
+        )
+    return pd.DataFrame(rows)
+
+
+def label_dwell_site(
+    dwells: pd.DataFrame,
+    points: gpd.GeoDataFrame | None = None,
+    max_dist: float = 200.0,
+) -> pd.Series:
+    """Nearest 2-km segment of each dwell (NaN beyond ``max_dist``), for grouping yards
+    and termini in diagnostics. Not used to build the receptor, which sits at the dwell's
+    own position."""
+    if points is None:
+        points = load_trax_network_points(meters=True)
+    x, y = _TO_UTM.transform(dwells.longitude.values, dwells.latitude.values)
+    d, ip = cKDTree(np.c_[points.geometry.x, points.geometry.y]).query(np.c_[x, y])
+    seg = points["segment"].to_numpy()[ip].astype(float)
+    seg[d > max_dist] = np.nan
+    return pd.Series(seg, index=dwells.index, name="segment")
+
+
+def build_dwell_receptors(
+    fixes: pd.DataFrame,
+    dwells: pd.DataFrame,
+    freq: str = "1h",
+    min_minutes: int = 30,
+    altitude: float = 4.0,
+    altitude_ref: str = "agl",
+    hours: Sequence[int] | None = None,
+    utc_offset: int = -7,
+) -> pd.DataFrame:
+    """PYSTILT receptor table (:data:`RECEPTOR_COLUMNS`) for the dwell periods.
+
+    One single-point receptor per ``freq`` bin of each dwell that holds at least
+    ``min_minutes`` *distinct minutes* of data (counting minutes, not fixes, so the rule
+    means the same thing in the 1-s and 10-s sampling eras), at the dwell's median position, released at the median fix time
+    inside the bin (rounded to the minute). A parked train is a stationary site, so the bin
+    is an hour by default, exactly as the towers are treated; the release time follows the
+    data rather than the bin edge because the train may only be there for part of it.
+
+    ``hours`` restricts output to those local-time hours (``utc_offset`` hours from UTC),
+    e.g. ``range(12, 17)`` for the afternoon.
+    """
+    if dwells.empty:
+        return pd.DataFrame(columns=RECEPTOR_COLUMNS)
+    t = pd.DatetimeIndex(fixes.Time_UTC)
+    if t.tz is not None:
+        t = t.tz_convert("UTC").tz_localize(None)
+    order = np.argsort(t.values)
+    ts = t.values[order]
+
+    frames = []
+    for d in dwells.itertuples(index=False):
+        lo, hi = np.searchsorted(ts, [np.datetime64(d.t_start), np.datetime64(d.t_end)])
+        if hi <= lo:
+            continue
+        sub = pd.DatetimeIndex(ts[lo:hi])
+        frame = pd.DataFrame(
+            {"t": sub, "bin": sub.floor(freq), "minute": sub.floor("min")}
+        )
+        # minutes with data, not fixes: the record is 1-s before 2022 and 10-s after
+        agg = frame.groupby("bin").agg(
+            n=("minute", "nunique"), t_median=("t", "median")
+        )
+        agg = agg[agg.n >= min_minutes]
+        if agg.empty:
+            continue
+        frames.append(
+            agg.assign(dwell=d.dwell, longitude=d.longitude, latitude=d.latitude)
+        )
+    if not frames:
+        return pd.DataFrame(columns=RECEPTOR_COLUMNS)
+
+    rec = pd.concat(frames).reset_index(names="bin")
+    time = pd.DatetimeIndex(rec.t_median).round("1min").tz_localize("UTC")
+    rec["time"] = time
+    rec = filter_receptor_hours(rec, hours, utc_offset)
+    rec = rec.drop_duplicates(["longitude", "latitude", "time"]).reset_index(drop=True)
+    rec["r_idx"] = [
+        f"dwell_{int(d)}_{b:%Y%m%d%H}" for d, b in zip(rec.dwell, rec.bin, strict=True)
+    ]
+    rec["altitude"] = float(altitude)
+    rec["altitude_ref"] = altitude_ref
+    return rec[RECEPTOR_COLUMNS]
+
+
+def filter_receptor_hours(
+    rec: pd.DataFrame, hours: Sequence[int] | None, utc_offset: int = -7
+) -> pd.DataFrame:
+    """Keep rows whose ``time`` falls in those local-time hours (``None`` keeps all).
+
+    ``utc_offset`` is a fixed offset, matching ``slv.domain.UTC_OFFSET`` (MST, no DST), so
+    the window means the same clock hours all year.
+    """
+    if hours is None:
+        return rec
+    local = pd.DatetimeIndex(rec["time"]) + pd.Timedelta(hours=utc_offset)
+    return rec[local.hour.isin(list(hours))]
+
+
 def build_trax_receptors(
     crossings: pd.DataFrame,
     points: gpd.GeoDataFrame | None = None,
@@ -296,6 +493,8 @@ def build_trax_receptors(
     altitude: float = 4.0,
     altitude_ref: str = "agl",
     time_round: str = "1min",
+    hours: Sequence[int] | None = None,
+    utc_offset: int = -7,
 ) -> pd.DataFrame:
     """PYSTILT receptor table (:data:`RECEPTOR_COLUMNS`) from a crossings table.
 
@@ -308,7 +507,8 @@ def build_trax_receptors(
     crossings of one segment and line that round to the same minute are kept once.
     ``altitude`` is the roof inlet height in m AGL.
 
-    ``max_duration`` drops passes that are not traverses: at the three line termini the
+    ``hours`` restricts output to those local-time hours (see
+    :func:`filter_receptor_hours`). ``max_duration`` drops passes that are not traverses: at the three line termini the
     train dwells inside one segment between runs, so the pass can read 20 min or more and
     its median fix time is not the time it drove the track. ``None`` keeps them.
     """
@@ -332,6 +532,7 @@ def build_trax_receptors(
     t = pd.DatetimeIndex(c.t_median)
     t = t.tz_localize("UTC") if t.tz is None else t.tz_convert("UTC")
     c["time"] = t.round(time_round)
+    c = filter_receptor_hours(c, hours, utc_offset)
     c = c.drop_duplicates(["segment", "lines", "time"])
     sets = [
         pts.loc[release_points(points, int(segment), str(lines))].assign(lines=lines)
@@ -354,9 +555,13 @@ def build_trax_receptors(
 __all__ = [
     "LINE_LETTERS",
     "RECEPTOR_COLUMNS",
+    "build_dwell_receptors",
     "build_trax_receptors",
+    "filter_receptor_hours",
+    "find_dwells",
     "find_segment_crossings",
     "load_trax_fixes",
+    "label_dwell_site",
     "load_trax_network_points",
     "release_points",
 ]

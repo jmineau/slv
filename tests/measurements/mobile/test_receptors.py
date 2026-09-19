@@ -139,3 +139,83 @@ def test_release_points_follow_the_train_line():
     cr2 = find_segment_crossings(f2, pts)
     assert (cr2.lines == "RB").all()
     assert build_trax_receptors(cr2, pts).groupby("r_idx").size().eq(40).all()
+
+
+def _parked(minutes=90, t0="2024-06-01 18:40:00", jitter=8.0, seed=0):
+    """1-s fixes at one spot for `minutes`, with GPS jitter, then a departure."""
+    rng = np.random.default_rng(seed)
+    t = pd.date_range(t0, periods=minutes * 60, freq="1s")
+    x = X0 + rng.normal(0, jitter, len(t))
+    y = Y0 + rng.normal(0, jitter, len(t))
+    # then drive away east for 10 minutes
+    t2 = t[-1] + pd.to_timedelta(np.arange(1, 601), unit="s")
+    x2, y2 = X0 + 10.0 * np.arange(1, 601), np.full(600, Y0)
+    lon, lat = TO_LONLAT.transform(np.r_[x, x2], np.r_[y, y2])
+    return pd.DataFrame(
+        {"Time_UTC": np.r_[t, t2], "Latitude_deg": lat, "Longitude_deg": lon}
+    )
+
+
+def test_find_dwells_picks_out_the_parked_period():
+    from slv.measurements.mobile.receptors import find_dwells
+
+    d = find_dwells(_parked(), radius=150.0, min_duration="20min")
+    assert len(d) == 1
+    row = d.iloc[0]
+    assert row.n_minutes >= 88  # the parked minutes, not the drive-away
+    assert row.spread_m < 60
+    assert (
+        pd.Timestamp("2024-06-01 18:40")
+        <= row.t_start
+        <= pd.Timestamp("2024-06-01 18:41")
+    )
+    assert row.t_end <= pd.Timestamp("2024-06-01 20:12")
+
+
+def test_short_stop_is_not_a_dwell():
+    from slv.measurements.mobile.receptors import find_dwells
+
+    assert find_dwells(_parked(minutes=8), min_duration="20min").empty
+
+
+def test_dwell_receptors_are_hourly_points_at_the_sampled_time():
+    from slv.measurements.mobile.receptors import build_dwell_receptors, find_dwells
+
+    fixes = _parked()  # 18:40 -> 20:10 UTC
+    d = find_dwells(fixes, min_duration="20min")
+    rec = build_dwell_receptors(fixes, d, min_minutes=30)
+    assert list(rec.columns) == RECEPTOR_COLUMNS
+    # 18:40-19:00 is 20 min (dropped), 19:00-20:00 full, 20:00-20:10 is 10 min (dropped)
+    assert len(rec) == 1
+    assert rec.r_idx.iloc[0].startswith("dwell_0_")
+    t = pd.Timestamp(rec.time.iloc[0])
+    assert (
+        pd.Timestamp("2024-06-01 19:25", tz="UTC")
+        <= t
+        <= pd.Timestamp("2024-06-01 19:35", tz="UTC")
+    )
+    assert rec.groupby("r_idx").size().eq(1).all()  # a point receptor, not multipoint
+    assert build_dwell_receptors(fixes, d, min_minutes=10).shape[0] == 3
+
+
+def test_hours_window_selects_local_afternoon():
+    from slv.measurements.mobile.receptors import build_dwell_receptors, find_dwells
+
+    fixes = _parked(minutes=240, t0="2024-06-01 16:00:00")  # 09:00-13:00 MST
+    d = find_dwells(fixes, min_duration="20min")
+    allh = build_dwell_receptors(fixes, d, min_minutes=30)
+    aft = build_dwell_receptors(fixes, d, min_minutes=30, hours=range(12, 17))
+    local = pd.DatetimeIndex(allh.time) - pd.Timedelta(hours=7)
+    assert set(local.hour) == {9, 10, 11, 12}
+    assert set((pd.DatetimeIndex(aft.time) - pd.Timedelta(hours=7)).hour) == {12}
+    assert len(aft) < len(allh)
+
+
+def test_hours_window_also_applies_to_crossings():
+    pts = _network()
+    cr = find_segment_crossings(_fixes(t0="2024-06-01 18:00:00"), pts)  # 11:00 MST
+    assert build_trax_receptors(cr, pts, hours=range(12, 17)).empty
+    assert not build_trax_receptors(cr, pts, hours=[11]).empty
+    assert len(build_trax_receptors(cr, pts, hours=None)) == len(
+        build_trax_receptors(cr, pts)
+    )
