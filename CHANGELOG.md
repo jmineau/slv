@@ -6,6 +6,12 @@ versions are calendar-based (YYYY.M.PATCH).
 
 ## [Unreleased]
 
+### Changed
+
+- Relocked `lair` (f01c1c7) and `uataq` (a4dbfa6). A fresh install now gets lair's
+  quarterly / biweekly `absolute_emissions`, so `flux_freq="QS"` / `"2W"` totals work
+  outside the conda env, plus lair's soundings / pcaps / noaa / pandas-3 fixes
+
 ### Fixed
 
 - Prior time alignment: `load_epa_prior` / `load_edgar_prior` matched flux times to

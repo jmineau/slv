@@ -1521,8 +1521,8 @@ wheels = [
 
 [[package]]
 name = "lair"
-version = "2026.8.0"
-source = { git = "https://github.com/jmineau/lair#fe608ee5eb83aa39b257b15b8e87bcaedd700ae8" }
+version = "2026.12.2"
+source = { git = "https://github.com/jmineau/lair#f01c1c79f2bc3d4f686ed7cdca54de214dc1a3d6" }
 dependencies = [
     { name = "cf-xarray", version = "0.10.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
     { name = "cf-xarray", version = "0.10.11", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
@@ -4536,7 +4536,7 @@ wheels = [
 [[package]]
 name = "uataq"
 version = "2025.11.0"
-source = { git = "https://github.com/jmineau/uataq#b1bc2a0b41af490a66e78e7a36cc2d5fa835f3ee" }
+source = { git = "https://github.com/jmineau/uataq#a4dbfa672fa5d3a5979b36775571c2cb006284c9" }
 dependencies = [
     { name = "geopandas" },
     { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
@@ -4545,6 +4545,8 @@ dependencies = [
     { name = "pandas", version = "3.0.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
     { name = "tables", version = "3.10.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
     { name = "tables", version = "3.11.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
+    { name = "xarray", version = "2025.6.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
+    { name = "xarray", version = "2026.2.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
 ]
 
 [[package]]
