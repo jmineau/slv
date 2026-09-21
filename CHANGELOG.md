@@ -8,6 +8,15 @@ versions are calendar-based (YYYY.M.PATCH).
 
 ### Changed
 
+- `slv.basemap` rewritten (#5). `SaltLake(bbox, ax=, tiles="terrain")` makes the map
+  and chainable `add_*` methods layer it: `add_population` (ACS 2022 block-group
+  density with a colorbar panel), `add_trax`, `add_sites` (open circles, optional
+  labels), `add_mesowest`, `add_points`, `add_interstates`, `add_borders`,
+  `add_inventory`, `add_legend` (stacked-line TRAX entry), `add_inset`,
+  `add_north_arrow`. Data come from `load_*` functions over the SLV env vars (the old
+  paths had all moved); tiles are Stadia's `stamen_terrain`. The old constructor flags
+  (`TRAX=True`, `UUCON=True`, ...) and the unimplemented stubs are gone
+
 - `slv.inversion.pipelines` is split by concern: `cache` (component cache),
   `mdm` (model-data mismatch), `bias`, `coverage` (state-cell check and coverage
   filter), `report` (totals, summary, plots). `SLVMethaneInversion` combines them as

@@ -1,538 +1,481 @@
 """
-Basemap figure builder for the Salt Lake Valley.
+Salt Lake Valley basemaps.
 
-The :class:`SaltLake` class constructs a cartopy-backed matplotlib figure and
-exposes ``add_*`` methods for layering features (tiler, inventory, borders,
-TRAX, sites, etc.) onto it.
+:class:`SaltLake` makes a cartopy map of the valley and layers features onto it. Every
+``add_*`` method returns the map, so calls chain::
+
+    from slv.basemap import SaltLake
+
+    m = (
+        SaltLake(tiles="terrain")
+        .add_population()
+        .add_trax(lines="RG")
+        .add_sites(["wbb", "ldf", "hdp"], labels={"wbb": "UOU"})
+        .add_mesowest()
+        .add_legend()
+        .add_inset()
+        .add_north_arrow()
+    )
+    m.fig.savefig("slv.png", dpi=300)
+
+The ``load_*`` functions read the layers' data (group data via ``$SLV_SPATIAL_DIR``, slv
+user data via ``$SLV_USER_DATA_DIR``) and return lon/lat GeoDataFrames; the ``add_*``
+methods only plot, so any of them also takes data you pass in.
 """
 
+import os
+
 import cartopy.crs as ccrs
+import cartopy.feature as cfeature
+import cartopy.io.img_tiles as cimgt
 import geopandas as gpd
-import matplotlib.collections as mcol
-import matplotlib.patches as patches
 import matplotlib.patheffects as pe
 import numpy as np
 import pandas as pd
-from lair.geo import add_extent_map, add_latlon_ticks, bbox2extent
+from lair.geo import add_latlon_ticks, bbox2extent
 from matplotlib import pyplot as plt
+from matplotlib.cm import ScalarMappable
+from matplotlib.colors import Normalize
+from matplotlib.legend_handler import HandlerBase
 from matplotlib.lines import Line2D
+from matplotlib.ticker import FuncFormatter
+from shapely.geometry import box
 
 from slv import get_data_dir
 from slv.domain import MAP_BBOX
 
+PC = ccrs.PlateCarree()
+
+#: Colour of each TRAX line, keyed by its ``line`` letter in UTA_TRAX.geojson.
+TRAX_COLORS = {"R": "red", "G": "green", "B": "blue", "S": "gray"}
+
+#: Stadia Maps credit, required wherever its tiles are shown.
+STADIA_ATTRIBUTION = (
+    "© Stadia Maps © Stamen Design © OpenMapTiles © OpenStreetMap contributors"
+)
+
+
+# ----- data -----
+
+
+def load_population(bbox=MAP_BBOX) -> gpd.GeoDataFrame:
+    """Block-group population and density (people km⁻², over land area).
+
+    ACS 2022 5-year population (``$SLV_USER_DATA_DIR/census/raw/acs5_2022_utah_bg.csv``)
+    joined on GEOID to the 2022 cartographic block groups
+    (``$SLV_SPATIAL_DIR/census/block_groups/utah``). Block groups with no land area get a
+    NaN density.
+    """
+    shp = (
+        get_data_dir("SLV_SPATIAL_DIR")
+        / "census/block_groups/utah/cb_2022_49_bg_500k.shp"
+    )
+    csv = get_data_dir("SLV_USER_DATA_DIR") / "census/raw/acs5_2022_utah_bg.csv"
+    bg = gpd.read_file(shp, bbox=bbox)
+    pop = pd.read_csv(csv, dtype={"GEOID": str})
+    bg = bg.merge(pop[["GEOID", "population"]], on="GEOID", how="left")
+    land_km2 = bg["ALAND"].where(bg["ALAND"] > 0) / 1e6
+    bg["density_km2"] = bg["population"] / land_km2
+    return bg.to_crs("EPSG:4326")
+
+
+def load_mesowest(status="ACTIVE", networks=("UUNET",)) -> gpd.GeoDataFrame:
+    """MesoWest stations (``$SLV_USER_DATA_DIR/mesowest``), optionally filtered by
+    ``Status`` and ``Mesonet``; ``None`` keeps all."""
+    csv = (
+        get_data_dir("SLV_USER_DATA_DIR")
+        / "mesowest/MesoWest_Utah_stations_20221017.csv"
+    )
+    df = pd.read_csv(csv)
+    if status is not None:
+        df = df[df["Status"] == status.upper()]
+    if networks is not None:
+        df = df[df["Mesonet"].isin(networks)]
+    return gpd.GeoDataFrame(
+        df, geometry=gpd.points_from_xy(df.Longitude, df.Latitude), crs="EPSG:4326"
+    )
+
+
+def load_interstates(bbox=MAP_BBOX) -> gpd.GeoDataFrame:
+    """Interstates (UGRC road ``CARTOCODE`` "1") from
+    ``$SLV_SPATIAL_DIR/transportation/roads``."""
+    shp = get_data_dir("SLV_SPATIAL_DIR") / "transportation/roads/Roads.shp"
+    roads = gpd.read_file(shp, bbox=bbox, columns=["CARTOCODE"])
+    return roads[roads["CARTOCODE"] == "1"].to_crs("EPSG:4326")
+
+
+def load_borders(level="county", bbox=MAP_BBOX) -> gpd.GeoDataFrame:
+    """2022 Census state or county boundaries from
+    ``$SLV_SPATIAL_DIR/administrative``."""
+    files = {
+        "state": "states/cb_2022_us_state_500k.shp",
+        "county": "counties/cb_2022_us_county_500k.shp",
+    }
+    if level not in files:
+        raise ValueError(f"level={level!r}; expected one of {list(files)}")
+    shp = get_data_dir("SLV_SPATIAL_DIR") / "administrative" / files[level]
+    return gpd.read_file(shp, bbox=bbox).to_crs("EPSG:4326")
+
+
+def stadia_tiles(style="stamen_terrain") -> cimgt.StadiaMapsTiles:
+    """A Stadia Maps tiler (``$STADIA_API_KEY``), cached on disk by cartopy.
+
+    Fetched from tiles.stadiamaps.com when the map is drawn. Their terms ask for
+    :data:`STADIA_ATTRIBUTION` on the map, which :class:`SaltLake` adds by default.
+    """
+    key = os.environ.get("STADIA_API_KEY")
+    if not key:
+        raise OSError("Set $STADIA_API_KEY to use Stadia Maps tiles.")
+    return cimgt.StadiaMapsTiles(apikey=key, style=style, cache=True)
+
+
+# ----- legend -----
+
+
+class _StackedLines:
+    """Legend handle for several lines drawn as one entry (e.g. the TRAX lines)."""
+
+    def __init__(self, colors, linewidth):
+        self.colors = list(colors)
+        self.linewidth = linewidth
+
+
+class _StackedLinesHandler(HandlerBase):
+    """Draws a :class:`_StackedLines` handle as horizontal lines stacked top to bottom."""
+
+    def create_artists(
+        self, legend, orig_handle, xdescent, ydescent, width, height, fontsize, trans
+    ):
+        n = len(orig_handle.colors)
+        ys = np.linspace(height, 0, n + 2)[1:-1] - ydescent
+        return [
+            Line2D(
+                [-xdescent, width - xdescent],
+                [y, y],
+                color=color,
+                linewidth=orig_handle.linewidth,
+                transform=trans,
+            )
+            for color, y in zip(orig_handle.colors, ys, strict=True)
+        ]
+
+
+def _thousands(x, pos=None):
+    return "0" if x == 0 else f"{x / 1000:g}k"
+
+
+# ----- map -----
+
 
 class SaltLake:
-    """
-    Salt Lake Valley map class.
+    """A cartopy map of the Salt Lake Valley.
 
-    Methods
-    -------
-    add_tiler(tiler, tiler_zoom)
-        Add a tiler background to the map.
-    add_Inventory(Inventory, alpha)
-        Add an inventory to the map.
-    add_census(census, alpha)
-        Add census data to the map.
-    add_border(lvl)
-        Add state or county borders to the map.
-    add_interstates()
-        Add interstate highways to the map.
-    add_TRAX(lines)
-        Add TRAX lines to the map.
-    add_UUCON(sites)
-        Add UUCON sites to the map.
-    add_MesoWest(status, networks)
-        Add MesoWest stations to the map.
-    add_north_arrow()
-        Add a north arrow to the map.
-    add_legend(legend_kws, legend_mapper)
-        Add a legend to the map.
-    add_extent_map()
-        Add an extent map to the map.
+    Parameters
+    ----------
+    bbox : tuple
+        (W, S, E, N) of the map in degrees; defaults to :data:`slv.domain.MAP_BBOX`.
+    ax : cartopy GeoAxes, optional
+        Draw on this map axis (e.g. a subplot) instead of a new figure.
+    tiles : "terrain", cartopy tiler or None
+        Background tiles; "terrain" is Stadia's ``stamen_terrain``
+        (:func:`stadia_tiles`). A new figure then uses the tiler's projection.
+    zoom : int
+        Tile zoom level.
+    figsize : tuple
+        Size of a new figure.
+    latlon_ticks : bool
+        Label the axes in degrees.
+    attribution : bool
+        Credit the tile source in the corner of the map.
     """
 
     def __init__(
         self,
-        bounds=MAP_BBOX,
+        bbox=MAP_BBOX,
         ax=None,
-        crs=None,
-        figsize=(6, 6),
-        tiler=None,
-        tiler_zoom=9,
-        Inventory=False,
-        Inventory_cmap=None,
-        census=False,  # options for pop density, income, etc
-        background_alpha=0.3,
-        state_borders=False,
-        county_borders=False,
-        interstates=False,
-        TRAX=False,
-        UUCON=False,
-        MesoWest=False,
-        Meso_status="active",
-        Meso_networks=("UUNET",),
-        radiosonde=False,
-        helicopter=False,
-        DAQ=False,
-        scale_bar=False,
-        north_arrow=False,
-        legend=True,
-        legend_kws=None,
-        legend_mapper=None,  # TODO
-        extent_map=False,  # TODO
-        latlon_ticks=True,
-        more_lon_ticks=1,
-        more_lat_ticks=0,
+        tiles=None,
+        zoom=11,
+        figsize=(6, 7),
+        latlon_ticks=False,
+        attribution=True,
     ):
-        self.features = []
-
-        self._map_background(
-            bounds,
-            ax,
-            crs,
-            figsize,
-            tiler,
-            tiler_zoom,
-            Inventory,
-            census,
-            background_alpha,
-            state_borders,
-            county_borders,
-            latlon_ticks,
-            more_lon_ticks,
-            more_lat_ticks,
-        )
-
-        if interstates:
-            self.add_interstates()
-
-        if TRAX:
-            if TRAX is True:
-                TRAX = ["r", "g"]
-            self.TRAX_lines = TRAX  # save attr for legend
-            self.add_TRAX(TRAX)
-
-        if UUCON:
-            if UUCON is True:
-                UUCON = "active"
-            self.add_UUCON(UUCON)
-
-        if MesoWest:
-            self.add_MesoWest(Meso_status, Meso_networks)
-
-        if radiosonde:
-            self.add_radiosonde()
-
-        if helicopter:
-            self.add_helicopter()
-
-        if DAQ:
-            self.add_DAQ()
-
-        if scale_bar:
-            self.add_scale_bar()
-
-        if north_arrow:
-            self.add_north_arrow()
-
-        if legend:
-            self.add_legend(legend_kws, legend_mapper)
-
-        if extent_map:
-            self.add_extent_map()
-
-    def __repr__(self):  # TODO
-        return f"SaltLakeValley(features={self.features})"
-
-    def collect_feature(add_func):
-        def wrapper(self, *args, **kwargs):
-            feature = add_func(self, *args, **kwargs)
-            self.features.append(feature)
-
-        return wrapper
-
-    def _map_background(
-        self,
-        bounds,
-        ax,
-        crs,
-        figsize,
-        tiler,
-        tiler_zoom,
-        Inventory,
-        census,
-        background_alpha,
-        state_borders,
-        county_borders,
-        latlon_ticks,
-        more_lon_ticks,
-        more_lat_ticks,
-    ):
-        # Matplotlib axes
-        if not ax:  # if an ax is not given
-            if bool(crs) & bool(tiler):
-                # Need to use the tiler's crs
-                raise ValueError("crs & tiler cannot both be supplied!")
-
-            elif not bool(crs):  # if crs is not given
-                # use the tiler's crs if a tiler is given, otherwise PlateCarree (lat/lon)
-                crs = tiler.crs if tiler else ccrs.PlateCarree()
-
-            fig, ax = plt.subplots(subplot_kw={"projection": crs}, figsize=figsize)
-
-        elif bool(ax) & bool(crs):
-            # ax has already been createdd, too late for a crs
-            raise ValueError("ax & crs cannot both be supplied!")
-
-        # Set attributes here so adding methods can use them
+        tiler = stadia_tiles() if tiles == "terrain" else tiles
+        if ax is None:
+            projection = tiler.crs if tiler is not None else PC
+            fig, ax = plt.subplots(
+                figsize=figsize, subplot_kw={"projection": projection}
+            )
         self.ax = ax
-        self.bounds = bounds
-        self.crs = crs
+        self.bbox = tuple(bbox)
+        self.extent = bbox2extent(list(bbox))
+        self._legend: list[tuple[object, str]] = []
 
-        self.extent = bbox2extent(bounds)
-        ax.set_extent(self.extent)
-
-        # Cartopy tiler
-        if tiler:
-            self.add_tiler(tiler, tiler_zoom)
-
-        # Xarray raster basemap
-        if bool(Inventory) & bool(census):
-            raise ValueError("Inventory & census cannot both be supplied!")
-
-        elif Inventory:
-            self.add_Inventory(Inventory, background_alpha)
-            self.Inventory = Inventory
-
-        elif census:
-            self.add_census(census, background_alpha)
-
-        # Geopandas vector boundaries
-        if state_borders:
-            self.add_border("state")
-
-        if county_borders:
-            self.add_border("county")
-
-        # Format lat and lon ticks
+        ax.set_extent(self.extent, crs=PC)
+        if tiler is not None:
+            ax.add_image(tiler, zoom, zorder=0)
+            if attribution and isinstance(tiler, cimgt.StadiaMapsTiles):
+                ax.text(
+                    0.995,
+                    0.003,
+                    STADIA_ATTRIBUTION,
+                    transform=ax.transAxes,
+                    ha="right",
+                    va="bottom",
+                    fontsize=4,
+                    zorder=9,
+                    path_effects=[pe.withStroke(linewidth=1.5, foreground="white")],
+                )
         if latlon_ticks:
-            add_latlon_ticks(
-                ax,
-                self.extent,
-                x_rotation=30,
-                more_lon_ticks=more_lon_ticks,
-                more_lat_ticks=more_lat_ticks,
-            )
-            ax.tick_params(axis="both", which="major", labelsize=15)
+            add_latlon_ticks(ax, self.extent, x_rotation=30)
 
-        return None
+    @property
+    def fig(self):
+        return self.ax.figure
 
-    @collect_feature
-    def add_tiler(self, tiler, tiler_zoom):
-        style_template = "{source}:{style}"
+    def __repr__(self):
+        labels = [label for _, label in self._legend]
+        return f"SaltLake(bbox={self.bbox}, legend={labels})"
 
-        def get_tiler(style):
-            # TODO
-            pass
+    def _add_to_legend(self, handle, label):
+        if label:
+            self._legend.append((handle, label))
 
-        if isinstance(tiler, str):
-            style = tiler
-            tiler = get_tiler(style)
-        else:
-            source = tiler.__class__.__name__
-            style = style_template.format(source=source, style=tiler.style)
+    # ----- layers -----
 
-        self.ax.add_image(tiler, tiler_zoom, zorder=0)
+    def add_population(
+        self,
+        population=None,
+        cmap="pink_r",
+        vmax=4000,
+        min_density=100,
+        alpha=0.6,
+        colorbar=True,
+    ):
+        """Block-group population density (people km⁻²) with a colorbar panel.
 
-        return style
-
-    @collect_feature
-    def add_Inventory(self, Inventory, alpha):
-        # TODO
-        #   Probably should add plot method to Inventory super class
-        Inventory.add2map(ax=self.ax, alpha=alpha, zorder=1)
-
-        return str(Inventory)
-
-    @collect_feature
-    def add_census(self, census, alpha):
-        DATA_DIR = get_data_dir("LINGROUP_DATA_DIR")
-
-        def thous_formatter(x, pos):
-            if x == 0:
-                return str(x)
-            return f"{x}k"
-
-        if census == "population":
-            # http://doi.org/10.18128/D050.V17.0
-
-            file = (
-                DATA_DIR
-                / "spatial"
-                / "census"
-                / "block_groups"
-                / "utah_2020_pop.geojson"
-            )
-            gdf = gpd.read_file(file)
-
-            crs = ccrs.AlbersEqualArea()
-            gdf.to_crs(crs, inplace=True)
-
-            gdf["pop_km2_thous"] = gdf.pop_km2 / 1000
-            gdf[gdf.pop_km2_thous < 0.1] = np.nan
-
-            ax_pos = self.ax.get_position()
-
-            cax = self.ax.get_figure().add_axes(  # pyright: ignore[reportOptionalMemberAccess]
-                [ax_pos.x0 + 0.015, ax_pos.y0 + 0.016, 0.03, 0.3], zorder=1.1
-            )
-
-            cax_frame = patches.Rectangle(
-                (ax_pos.x0 + 0.005, ax_pos.y0 + 0.003),
-                0.13,
-                0.33,
-                edgecolor="black",
-                facecolor="white",
-                zorder=1.05,
-                alpha=1,
-                transform=self.ax.figure.transFigure,
-            )
-            self.ax.add_patch(cax_frame)
-
-            gdf.plot(
-                ax=self.ax,
-                column="pop_km2_thous",
-                transform=crs,
-                cmap="pink_r",
-                alpha=alpha,
-                vmin=0,
-                vmax=4,
-                zorder=1,
-                lw=0.5,
-                edgecolor="None",
-                legend=True,
-                cax=cax,
-                legend_kwds={
-                    "label": "Population km$^{-2}$",
-                    "ticks": [0, 1, 2, 3, 4],
-                    "format": thous_formatter,
-                },
-            )
-
-        else:
-            raise NotImplementedError(f"Census data {census} not implemented!")
-
-        return census
-
-    @collect_feature
-    def add_border(self, lvl):
-        DATA_DIR = get_data_dir("LINGROUP_DATA_DIR")
-        borders_dir = DATA_DIR / "spatial/administrative" / "boundaries"
-        lvl_file = {
-            "state": borders_dir / "Utah.shp",
-            "county": borders_dir / "Counties.shp",
-        }
-
-        border = gpd.read_file(lvl_file[lvl], bbox=self.bounds)
-        # border.set_crs(epsg=4326, inplace=True)
-
-        border.plot(
+        ``population`` defaults to :func:`load_population`; block groups below
+        ``min_density`` are left unshaded.
+        """
+        gdf = load_population(self.bbox) if population is None else population
+        gdf = gdf[gdf["density_km2"] >= min_density]
+        gdf.plot(
             ax=self.ax,
-            transform=ccrs.PlateCarree(),
-            facecolor="none",
-            edgecolor="black",
-            zorder=2,
+            column="density_km2",
+            cmap=cmap,
+            vmin=0,
+            vmax=vmax,
+            alpha=alpha,
+            edgecolor="none",
+            transform=PC,
+            zorder=1,
         )
+        if colorbar:
+            mappable = ScalarMappable(norm=Normalize(0, vmax), cmap=plt.get_cmap(cmap))
+            self._colorbar_panel(mappable, "Population km$^{-2}$")
+        return self
 
-        return f"{lvl} borders"
+    def _colorbar_panel(self, mappable, label, bounds=(0.01, 0.01, 0.22, 0.4)):
+        """A white panel in the lower-left corner holding a vertical colorbar."""
+        panel = self.ax.inset_axes(bounds, zorder=6)
+        panel.set_xticks([])
+        panel.set_yticks([])
+        cax = panel.inset_axes((0.12, 0.05, 0.16, 0.9))
+        cbar = self.fig.colorbar(mappable, cax=cax, format=FuncFormatter(_thousands))
+        cbar.set_label(label)
+        return cbar
 
-    @collect_feature
-    def add_interstates(self):
-        # FIXME interstates not plotting
-        DATA_DIR = get_data_dir("LINGROUP_DATA_DIR")
-        file = DATA_DIR / "spatial" / "transportation" / "Roads.shp"
+    def add_inventory(self, inventory, **kwargs):
+        """A lair inventory (``Inventory.plot``; e.g. ``time=``, ``sector=``, ``alpha=``)."""
+        kwargs.setdefault("zorder", 1)
+        inventory.plot(ax=self.ax, **kwargs)
+        return self
 
-        roads = gpd.read_file(file, bbox=self.bounds)
+    def add_borders(self, level="county", borders=None, **kwargs):
+        """State or county boundaries (:func:`load_borders`)."""
+        gdf = load_borders(level, self.bbox) if borders is None else borders
+        style = {"facecolor": "none", "edgecolor": "black", "linewidth": 0.8}
+        gdf.plot(ax=self.ax, transform=PC, zorder=2, **(style | kwargs))
+        return self
 
-        # Filter out non-major roads
-        major_roads = [1, 2, 3, 4, 5, 6]
-        roads = roads[roads.CARTOCODE.isin(major_roads)]
+    def add_interstates(self, interstates=None, **kwargs):
+        """Interstate highways (:func:`load_interstates`)."""
+        gdf = load_interstates(self.bbox) if interstates is None else interstates
+        style = {"color": "dimgray", "linewidth": 1.5}
+        gdf.plot(ax=self.ax, transform=PC, zorder=2, **(style | kwargs))
+        return self
 
-        roads.plot(ax=self.ax)
-        return "interstates"
+    def add_trax(self, lines="RG", trax=None, colors=None, linewidth=5, label="TRAX"):
+        """TRAX lines by their letters (R, G, B, S), in UTA's line colours.
 
-    @collect_feature
-    def add_TRAX(self, lines):
-        # TODO: requires a read_kml utility — previously from utils.records, needs a new home
-        raise NotImplementedError("add_TRAX is not yet implemented in slv.basemap")
-        return "TRAX"
+        ``trax`` defaults to :func:`slv.measurements.mobile.load_trax_lines`.
+        """
+        if trax is None:
+            from slv.measurements.mobile import load_trax_lines
 
-    @collect_feature
-    def add_UUCON(self, sites):
-        from uataq import uucon
+            trax = load_trax_lines()
+        colors = TRAX_COLORS | (colors or {})
+        used = []
+        for letter in lines:
+            line = trax[trax["line"] == letter]
+            if line.empty:
+                raise ValueError(f"No TRAX line {letter!r}; have {list(trax['line'])}")
+            line.plot(
+                ax=self.ax,
+                color=colors[letter],
+                linewidth=linewidth,
+                transform=PC,
+                zorder=3,
+                capstyle="round",
+            )
+            used.append(colors[letter])
+        self._add_to_legend(_StackedLines(used, linewidth * 0.8), label)
+        return self
 
-        uucon.plot_sites(self.ax, sites, zorder=5, markersize=200, lw=3)
-
-        return "UUCON"
-
-    @collect_feature
-    def add_MesoWest(self, status="active", networks=("UUNET",)):
-        # TODO create MesoWest module
-        DATA_DIR = get_data_dir("LINGROUP_DATA_DIR")
-        file = DATA_DIR / "MesoWest" / "MesoWest_Utah_stations_20221017.csv"
-
-        # Read MesoWest data
-        df = pd.read_csv(file)
-        stations = gpd.GeoDataFrame(
-            df, geometry=gpd.points_from_xy(df.Longitude, df.Latitude)
+    def add_points(
+        self, points, marker="o", size=60, color="black", label=None, **kwargs
+    ):
+        """Point markers from a GeoDataFrame or a frame with longitude / latitude columns."""
+        if isinstance(points, gpd.GeoDataFrame):
+            lon, lat = points.geometry.x, points.geometry.y
+        else:
+            lon, lat = points["longitude"], points["latitude"]
+        self.ax.scatter(
+            lon,
+            lat,
+            s=size,
+            marker=marker,
+            color=color,
+            transform=PC,
+            zorder=5,
+            **kwargs,
         )
-        # stations.set_crs(epsg=4326, inplace=True)  # changes figsize
-
-        # Filter MesoWest data
-        if status is not None:
-            stations = stations[stations.Status == status.upper()]
-
-        if networks is not None:
-            stations = stations[stations.Mesonet.isin(networks)]
-
-        # Add to axis
-        stations.plot(
-            ax=self.ax, transform=ccrs.PlateCarree(), c="black", zorder=6, marker="x"
+        handle = Line2D(
+            [], [], linestyle="none", marker=marker, color=color, markersize=size**0.5
         )
+        self._add_to_legend(handle, label)
+        return self
 
-        return "MesoWest"
+    def add_sites(
+        self,
+        sites,
+        site_config=None,
+        labels=False,
+        label_offset=(10, 10),
+        size=250,
+        label="stationary",
+    ):
+        """Measurement sites (``site_config`` rows) as open circles.
 
-    @collect_feature
-    def add_radiosonde(self):
-        # TODO
-        raise ValueError("radiosonde not implemented!")
-        return "radiosonde"
+        ``labels=True`` writes each site's ID in capitals beside it; a dict maps IDs to
+        the text to write instead (e.g. ``{"wbb": "UOU"}``). ``label_offset`` is in
+        points from the site, one (x, y) for all or a dict of them by site.
+        """
+        if site_config is None:
+            from slv.measurements.sites import load_site_config
 
-    @collect_feature
-    def add_helicopter(self):
-        # TODO
-        raise ValueError("helicopter not implemented!")
-        return "helicopter"
+            site_config = load_site_config()
+        missing = [s for s in sites if s not in site_config.index]
+        if missing:
+            raise ValueError(f"Unknown sites {missing}")
+        rows = site_config.loc[list(sites)]
+        rows = rows[["longitude", "latitude"]].astype(float)
+        self.ax.scatter(
+            rows["longitude"],
+            rows["latitude"],
+            s=size,
+            facecolors="none",
+            edgecolors="black",
+            linewidths=3,
+            transform=PC,
+            zorder=5,
+        )
+        handle = Line2D(
+            [],
+            [],
+            linestyle="none",
+            marker="o",
+            markerfacecolor="none",
+            markeredgecolor="black",
+            markeredgewidth=3,
+            markersize=size**0.5,
+        )
+        self._add_to_legend(handle, label)
+        if labels:
+            names = labels if isinstance(labels, dict) else {}
+            offsets = label_offset if isinstance(label_offset, dict) else {}
+            for site, (lon, lat) in rows.iterrows():
+                self.ax.annotate(
+                    names.get(site, site.upper()),
+                    (lon, lat),
+                    xycoords=PC._as_mpl_transform(self.ax),
+                    xytext=offsets.get(site, (10, 10) if offsets else label_offset),
+                    textcoords="offset points",
+                    fontsize=14,
+                    fontweight="bold",
+                    zorder=7,
+                    path_effects=[pe.withStroke(linewidth=3, foreground="white")],
+                )
+        return self
 
-    @collect_feature
-    def add_DAQ(self):
-        # TODO
-        raise ValueError("DAQ not implemented!")
-        return "DAQ"
+    def add_mesowest(self, stations=None, label="MesoWest", **kwargs):
+        """MesoWest stations as crosses; ``stations`` defaults to active UUNET stations
+        (:func:`load_mesowest`)."""
+        gdf = load_mesowest() if stations is None else stations
+        style = {"marker": "x", "size": 60, "linewidths": 2}
+        return self.add_points(gdf, label=label, **(style | kwargs))
 
-    @collect_feature
-    def add_scale_bar(self):
-        # TODO
-        # Addingg a scale bar with cartopy is difficult (2023-04-13)
-        # Check: https://github.com/SciTools/cartopy/issues/490
+    # ----- furniture -----
 
-        # Otherwise: https://stackoverflow.com/questions/32333870/how-can-i-show-a-km-ruler-on-a-cartopy-matplotlib-plot
-        raise ValueError("scale bar not implemented!")
-        return "scale bar"
+    def add_legend(self, loc="upper left", **kwargs):
+        """A legend of the layers added so far, in the order they were added."""
+        handles = [h for h, _ in self._legend]
+        labels = [label for _, label in self._legend]
+        style = {
+            "loc": loc,
+            "handlelength": 2.5,
+            "handleheight": 2,
+            "labelspacing": 0.6,
+            "handler_map": {_StackedLines: _StackedLinesHandler()},
+        }
+        legend = self.ax.legend(handles, labels, **(style | kwargs))
+        legend.set_zorder(8)
+        return self
 
-    @collect_feature
-    def add_north_arrow(self):
-        # TODO
-        #   add path_effects=buffer
-        north_arrow = "\u25b2\nN"
+    def add_inset(
+        self,
+        extent=(-125, -105, 30, 50),
+        bounds=(0.7, 0.7, 0.29, 0.29),
+        color="red",
+        projection=None,
+    ):
+        """A locator map of the western US with the map's area marked.
 
+        Uses cartopy's Natural Earth 50 m land, ocean and states (cached after the
+        first download).
+        """
+        projection = projection or ccrs.AlbersEqualArea(central_longitude=-111)
+        inset = self.ax.inset_axes(bounds, projection=projection, zorder=8)
+        inset.set_extent(extent, crs=PC)
+        inset.add_feature(cfeature.OCEAN.with_scale("50m"))
+        inset.add_feature(cfeature.LAND.with_scale("50m"))
+        inset.add_feature(cfeature.STATES.with_scale("50m"), linewidth=0.8)
+        inset.add_geometries(
+            [box(*self.bbox)], crs=PC, facecolor=color, edgecolor=color, linewidth=2
+        )
+        self.inset = inset
+        return self
+
+    def add_north_arrow(self, xy=(0.95, 0.07), fontsize=16):
+        """A north arrow (▲ N) in axes coordinates."""
         self.ax.text(
-            0.965,
-            0.06,
-            north_arrow,
+            *xy,
+            "▲\nN",
             transform=self.ax.transAxes,
-            fontsize=16,
+            fontsize=fontsize,
+            fontweight="bold",
             ha="center",
             va="center",
             zorder=8,
             path_effects=[pe.withStroke(linewidth=3, foreground="white")],
         )
-        return "north arrow"
-
-    @collect_feature
-    def add_legend(self, legend_kws, legend_mapper):
-        # TODO: HandlerDashedLines — needs a replacement for utils.plotter.HandlerDashedLines
-
-        def TRAX_legend():
-            line = [[(0, 0)]]
-
-            lc = mcol.LineCollection(
-                len(self.TRAX_lines) * line, colors=self.TRAX_lines, linewidth=4
-            )
-
-            return lc
-
-        def UUCON_legend():
-            handle = Line2D(
-                [0],
-                [0],
-                marker="o",
-                color="black",
-                markersize=13,
-                markerfacecolor="None",
-                linestyle="None",
-                markeredgewidth=2.8,
-            )
-            return handle
-
-        def MesoWest_legend():
-            handle = Line2D(
-                [0],
-                [0],
-                marker="x",
-                color="black",
-                markersize=8,
-                linestyle="None",
-                markeredgewidth=1.5,
-            )
-            return handle
-
-        legend_features = {
-            "TRAX": TRAX_legend,
-            "UUCON": UUCON_legend,
-            "MesoWest": MesoWest_legend,
-        }
-
-        handles, labels = [], []
-        for label in legend_features:
-            if label not in self.features:
-                continue
-
-            handles.append(legend_features[label]())
-
-            # If map is specified for a label, use mapped label,
-            #   otherwise use original label
-            if legend_mapper:
-                label = legend_mapper.get(label, label)
-            labels.append(label)
-
-        self.ax.legend(
-            handles,
-            labels,
-            loc="upper left",
-            handlelength=2.5,
-            handleheight=3,
-            labelspacing=0.1,
-        )
-
-        return "legend"
-
-    @collect_feature
-    def add_extent_map(self):
-        fig = self.ax.get_figure()
-
-        extent_map_extent = [-125, -105, 30, 50]
-        extent_map_proj = ccrs.AlbersEqualArea(central_longitude=-111)
-        extent_map_rect = [0.65, 0.67, 0.2, 0.2]
-
-        add_extent_map(
-            fig,
-            self.extent,
-            ccrs.PlateCarree(),
-            extent_map_rect,
-            extent_map_extent,
-            extent_map_proj,
-            "red",
-            3,
-            zorder=8,
-        )
+        return self
