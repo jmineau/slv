@@ -6,6 +6,61 @@ versions are calendar-based (YYYY.M.PATCH).
 
 ## [Unreleased]
 
+### Fixed
+
+- Prior time alignment: `load_epa_prior` / `load_edgar_prior` matched flux times to
+  inventory times by nearest neighbour, so with an annual inventory Aug-Dec took the
+  *next* year's field (and daily fluxes past mid-month the next month's). Each flux
+  time now takes the inventory period it falls in (`priors.align_to_flux_times`)
+- `InversionConfig.grid` (the prior) and `state_grid` (the Jacobian) enumerated
+  different cells except at 0.05 and 0.1 deg: lair kept partial cells only when
+  their centre fell inside the domain and rounded 0.025-deg centres to 3 decimals,
+  and stilt dropped a whole cell to float error in `(40.93 - 40.45) / 0.01`. fips
+  zero-fills the missing Jacobian columns, silently. `grid` is now built from
+  `state_grid.axes` (unchanged at 0.05 / 0.1 deg), and `get_inputs` raises when the
+  prior's cells and the Jacobian's columns differ (e.g. stale caches)
+- Cache version tag in a venv inside the slv repo (`uv sync`'s `.venv`): `git
+  describe` from fips/pystilt in `site-packages` answered with slv's revision, so
+  every slv commit orphaned the whole cache. Installed copies now use their
+  metadata version; editable checkouts still use `git describe`
+- `prior` / `prior_error` cache keys now include `sites` (the site / site-group
+  bias blocks are indexed by it)
+- The auto-built STILT location -> site map is no longer written into the config
+  on a Jacobian cache miss, which changed the run's sweep `config_id`
+- Multiplicative MDM with `scale_on="prior"` multiplied the Jacobian and the prior
+  by position although their index orders differ; now matched by label
+- Sweep results CSV: success and error rows had different columns and were
+  appended by position, so a mixed CSV failed to read or shifted metrics into
+  `error`. Every row now has the same columns (appends align to the header);
+  `runtime_seconds` is filled
+- `aggregate_obs`: multi-unit `freq` ("15min", "2h") did not bin (only truncated
+  to the base unit); rows without a position crashed the `mobile_points` match; a
+  tuple `by` failed; the caller's frame was modified
+- `load_concentrations`: sites with no instruments (`arc`, `uta`) and
+  `orgs="NOAA GML"` crashed; a pollutant missing from an instrument's data now
+  skips that pollutant instead of failing the call
+- `get_pcap_events` returned the cached events whatever `threshold` /
+  `min_periods`; the cache is now per parameter pair (the defaults keep
+  `pcap_events.csv`). `filter_pcap_events(level=...)` took the time range of the
+  whole MultiIndex; `get_soundings` pointed lair at `$SLV_SOUNDINGS_DIR` instead of
+  its station directory
+- `UATAQCH4` silently ignored unknown key suffixes; it now raises
+- `load_trax_obs(location=...)` never applied the location filter, so the default
+  `"on_track"` returned shed and `unknown` rows too
+- `merge_with_gps` always read trx01's GPS, whatever the site
+- `build_trax_obs`: which source won a duplicated timestamp was not deterministic
+  (unstable sort); rows exactly on a chunk boundary were read twice; an unreadable
+  uncalibrated window aborted its chunk; an empty time range crashed
+- `mobile.receptors`: empty dwell / crossing results crashed the builders;
+  `build_dwell_receptors` refuses `freq` under an hour (its `r_idx` names the hour)
+- `mobile.wyoming.calculate_enhancements`: the default `window=1` was read as 1 ns,
+  so every enhancement was zero; a number is now hours (default `"1h"`)
+
+Caches: the `prior` and `prior_error` keys change once (they now include `sites`).
+Jacobians cached at a resolution other than 0.05 / 0.1 deg were built on the old
+state grid; the new cell check raises on them, and they need
+`cache_overwrite=["prior", "prior_error", "forward_operator", "modeldata_mismatch"]`.
+
 ## [2026.9.1] - 2026-09-17
 
 ### Added
