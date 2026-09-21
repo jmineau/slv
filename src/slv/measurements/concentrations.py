@@ -26,6 +26,7 @@ def load_concentrations(
     filter_pcaps: bool = False,
     num_processes: int = 1,
     mobile_kwargs: dict | None = None,
+    utc_offset: int = UTC_OFFSET,
 ) -> pd.DataFrame:
     if site_config is None:
         site_config = load_site_config()
@@ -226,7 +227,8 @@ def load_concentrations(
 
     # Calculate mountain standard time
     # TODO any easy way to get Local Standard Time offset for each site?
-    obs["Time_MST"] = obs.Time_UTC + pd.Timedelta(hours=UTC_OFFSET)
+    # local standard time (``utc_offset`` hours from UTC; the column keeps its MST name)
+    obs["Time_MST"] = obs.Time_UTC + pd.Timedelta(hours=utc_offset)
 
     if subset_hours is not None:
         # Filter to specified hours of day (MOUNTAIN STANDARD TIME)

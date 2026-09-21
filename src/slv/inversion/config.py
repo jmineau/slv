@@ -18,6 +18,20 @@ DEFAULT_STILT_PROJECT = (
 )
 
 
+#: Supported ``flux_freq`` values and the lair inventory time step each maps to (the
+#: domain totals in ``summarize`` need one).
+FLUX_FREQ_TIME_STEPS = {
+    "YS": "annual",
+    "QS": "quarterly",
+    "MS": "monthly",
+    "2W": "biweekly",
+    "D": "daily",
+}
+BIAS_GROUPINGS = (None, "time", "site", "site_group")
+BACKGROUNDS = ("rolling", "gml", "ct_stilt")
+PRIORS = ("epa", "edgar", "constant")
+
+
 def stilt_project_dir() -> Path:
     """The production PYSTILT project: ``$SLV_STILT_DIR`` if set, else
     :data:`DEFAULT_STILT_PROJECT`. Use this in scripts instead of spelling the path out;
@@ -110,7 +124,9 @@ def build_location_site_map(
     """Build location mapper from STILT location IDs to site names.
 
     Parses location IDs (format: "lon_lat_height") and matches them to sites
-    in the site_config based on coordinate proximity.
+    in the site_config: within 1e-5 deg (~1 m) in lat/lon and 0.5 m in height.
+    (``np.isclose``'s default relative tolerance allowed ~0.0011 deg of longitude,
+    ~95 m.)
 
     Parameters
     ----------
@@ -149,9 +165,9 @@ def build_location_site_map(
             continue
 
         matches = site_config[
-            np.isclose(site_config["latitude"].astype(float), lat)
-            & np.isclose(site_config["longitude"].astype(float), lon)
-            & np.isclose(site_config["height_agl"].astype(float), z)
+            np.isclose(site_config["latitude"].astype(float), lat, rtol=0, atol=1e-5)
+            & np.isclose(site_config["longitude"].astype(float), lon, rtol=0, atol=1e-5)
+            & np.isclose(site_config["height_agl"].astype(float), z, rtol=0, atol=0.5)
         ]
 
         if len(matches) == 1:
@@ -225,9 +241,10 @@ class InversionConfig:
     stilt_project: str | Path = field(
         default_factory=lambda: os.environ.get("SLV_STILT_DIR", DEFAULT_STILT_PROJECT)
     )
-    footprint: str | None = (
-        None  # Named footprint config or hash; None = finest available
-    )
+    # Named footprint config or hash; None = the finest in the project. The cache key sees
+    # only this value, not what None resolved to: set it explicitly if the project may gain
+    # a finer footprint.
+    footprint: str | None = None
     sparse_jacobian: bool = True
 
     # --- Prior Error Covariance (S_0) ---
@@ -238,6 +255,38 @@ class InversionConfig:
 
     # --- Model-Data Mismatch (S_z) ---
     mdm_config: dict = field(default_factory=dict)
+
+    def __post_init__(self):
+        """Reject settings that would otherwise only fail after the Jacobian is built."""
+        if self.flux_freq not in FLUX_FREQ_TIME_STEPS:
+            raise ValueError(
+                f"flux_freq={self.flux_freq!r}; supported: {list(FLUX_FREQ_TIME_STEPS)}"
+            )
+        if self.bias_grouping not in BIAS_GROUPINGS:
+            raise ValueError(
+                f"bias_grouping={self.bias_grouping!r}; expected one of {BIAS_GROUPINGS}"
+            )
+        if self.background not in BACKGROUNDS:
+            raise ValueError(
+                f"background={self.background!r}; expected one of {BACKGROUNDS}"
+            )
+        if str(self.prior).lower() not in PRIORS:
+            raise ValueError(f"prior={self.prior!r}; expected one of {PRIORS}")
+        get_mdm_comp_configs(self.mdm_config)  # raises on unknown component names
+        if not (self.dx > 0 and self.dy > 0):
+            raise ValueError(f"dx and dy must be positive, got {self.dx}, {self.dy}")
+        if not (self.xmin < self.xmax and self.ymin < self.ymax):
+            raise ValueError(f"empty domain: {self.bbox}")
+
+    #: Derived values cached on first access; setting any field drops them, so a config
+    #: changed after use (a sweep, a notebook) never serves a stale grid or MDM list.
+    _DERIVED = ("grid", "state_grid", "grid_coords", "mdm_components", "site_config")
+
+    def __setattr__(self, name, value):
+        super().__setattr__(name, value)
+        if name in self.__dataclass_fields__:
+            for attr in self._DERIVED:
+                self.__dict__.pop(attr, None)
 
     @cached_property
     def mdm_components(self) -> list[dict]:
@@ -264,6 +313,8 @@ class InversionConfig:
 
     # --- Inversion Solver Settings ---
     min_obs_per_interval: int = 60
+    # Read by fips' filter_state_space but not applied: it filters on the obs count only
+    # (counting simulations needs the Jacobian, built after that filter).
     min_sims_per_interval: int = 70
 
     # Regularization parameter: scales observation error by 1/gamma.

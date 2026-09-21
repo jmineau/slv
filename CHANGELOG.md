@@ -25,6 +25,32 @@ versions are calendar-based (YYYY.M.PATCH).
 
 ### Fixed
 
+- Inversion robustness (#4):
+  - the Jacobian coverage filter added the removed cells' contribution to the
+    constant by position (Jacobian rows are simulations, constant rows obs); now by
+    label
+  - the bias Jacobian is rebuilt every run instead of cached with the flux Jacobian,
+    whose key leaves out the obs filters the bias block is indexed by (a stale bias
+    block survived a filter change); the "site" / "site_group" groupings now resolve
+    TRAX receptors to their mobile site instead of giving them no bias column
+  - `InversionConfig` rejects an unsupported `flux_freq`, `bias_grouping`,
+    `background`, `prior` or MDM component, and an empty domain, at construction
+    (they used to fail after the Jacobian build); setting a field drops the cached
+    `grid` / `state_grid` / `mdm_components`
+  - `build_location_site_map` matches within ~1 m (was `np.isclose`'s relative
+    tolerance, ~95 m in longitude); the production project maps identically
+  - the obs hour window follows `config.utc_offset` (`load_concentrations(utc_offset=)`),
+    as the Jacobian's already did
+  - `get_prior_error` treated `bias_std=0.0` as no bias
+  - domain totals are labelled as mass per flux interval (e.g. "Gg per MS interval");
+    they were printed as "Gg/m2/s" and plotted as "g/s"
+  - with `cache=False` the multiplicative MDM rebuilt the prior and the whole Jacobian,
+    and it made a sparse Jacobian dense; it now reuses the run's and stays sparse
+  - `SweepResults.sensitivity()` took the lowest chi^2 as best (now closest to 1, or
+    `target=`); `Sweep.run(n_jobs=0)` returned an unusable results object
+  - duration strings such as `"14d"` are converted to `"14D"` where pandas parses
+    them (lowercase `d` is deprecated); config spellings, and so cache keys and sweep
+    IDs, are unchanged
 - TRAX (mobile) obs through the inversion (#2). With a mobile site in `sites`:
   the default MDM `instr` term looked up each `obs_location`'s organization, but a
   receptor obs is keyed by its PYSTILT location_id (`KeyError`); the rolling

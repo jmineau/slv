@@ -269,3 +269,45 @@ def test_stilt_project_dir_env_override(monkeypatch):
     assert stilt_project_dir() == Path(DEFAULT_STILT_PROJECT)
     monkeypatch.setenv("SLV_STILT_DIR", "/tmp/other_stilt")
     assert stilt_project_dir() == Path("/tmp/other_stilt")
+
+
+# ---------------------------------------------------------------------------
+# InversionConfig — validation and derived values
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    "bad",
+    [
+        {"flux_freq": "W"},
+        {"bias_grouping": "org"},
+        {"background": "ctstilt"},
+        {"prior": "vulcan"},
+        {"mdm_config": {"transport_pbl": {"std": 0.1}}},
+        {"dx": 0.0},
+        {"xmin": -111.0, "xmax": -112.0},
+    ],
+)
+def test_invalid_settings_fail_at_construction(bad):
+    # these used to fail only after the Jacobian build or the solve
+    with pytest.raises(ValueError):
+        InversionConfig(**bad)
+
+
+def test_derived_values_follow_field_changes():
+    config = InversionConfig(dx=0.05, dy=0.05)
+    assert config.grid.sizes["lon"] == 9
+    config.dx = 0.1
+    assert config.grid.sizes["lon"] == 5
+    assert config.state_grid.xres == 0.1
+
+
+def test_location_site_map_matches_within_a_metre():
+    from slv.inversion.config import build_location_site_map
+    from slv.measurements.sites import load_site_config
+
+    site_config = load_site_config()
+    exact = "-111.847672_40.766189_35"
+    off_50m = "-111.848272_40.766189_35"  # 0.0006 deg of longitude
+    mapper = build_location_site_map([exact, off_50m], site_config)
+    assert mapper == {exact: "wbb"}

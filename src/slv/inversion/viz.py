@@ -431,7 +431,9 @@ def plot_removed_contribution(removed_contribution, background):
     return fig, axes
 
 
-def plot_total_fluxes_over_time(*total_fluxes: pd.Series):
+def plot_total_fluxes_over_time(*total_fluxes: pd.Series, units: str | None = None):
+    """Domain-total emissions over time; ``units`` labels the y axis (e.g. "Gg per MS
+    interval", as from ``SLVMethaneInversion.calculate_total_flux``)."""
     fig, ax = plt.subplots()
 
     for flux in total_fluxes:
@@ -440,7 +442,9 @@ def plot_total_fluxes_over_time(*total_fluxes: pd.Series):
     ax.set(
         title="Total Emissions for Inversion Domain",
         xlabel="Time",
-        ylabel="Total CH$_4$ Flux [g/s]",
+        ylabel=f"Total CH$_4$ emissions [{units}]"
+        if units
+        else "Total CH$_4$ emissions",
     )
     fig.autofmt_xdate()
 

@@ -49,9 +49,11 @@ _OBS_DEPS: frozenset[str] = frozenset(
 #: forward_operator key avoids a needless (expensive) Jacobian rebuild when toggled.
 _OBS_FILTER_DEPS: frozenset[str] = frozenset({"filter_spikes", "spike_percentile"})
 #: State-filter deps: filter_state_space drops obs in flux intervals (months) with too
-#: few obs/sims (min_obs_per_interval / min_sims_per_interval). The obs-indexed MDM and
-#: constant are built AFTER that filter, so they must re-key on it -- otherwise a run at
-#: a lower threshold reuses the higher-threshold MDM and back-fills the recovered months
+#: few obs (min_obs_per_interval). fips reads min_sims_per_interval but does not apply
+#: it -- counting simulations needs the Jacobian, built after this filter -- so it only
+#: sits in the key. The obs-indexed MDM and constant are built AFTER that filter, so
+#: they must re-key on it -- otherwise a run at a lower threshold reuses the
+#: higher-threshold MDM and back-fills the recovered months
 #: with ZERO variance, giving a singular S_z. Not on forward_operator (receptor-based,
 #: reindexed) or obs (get_obs returns the full record; the filter is applied downstream).
 _STATE_FILTER_DEPS: frozenset[str] = frozenset(
@@ -224,6 +226,13 @@ def check_state_cells(prior: Vector, forward_operator: ForwardOperator) -> None:
         )
 
 
+def _matrix(block: pd.DataFrame):
+    """A Jacobian block as a matrix without densifying it: scipy CSR if it is sparse."""
+    if len(block.columns) and all(isinstance(t, pd.SparseDtype) for t in block.dtypes):
+        return block.sparse.to_coo().tocsr()
+    return block.to_numpy(dtype=float)
+
+
 def fips_cache(cls, filename):
     """Content-addressed cache decorator for pipeline methods.
 
@@ -374,13 +383,20 @@ class SLVMethaneInversion(FluxInversionPipeline):
             ),
         )
 
-    @fips_cache(Vector, "prior")
     def get_prior(self) -> Vector:
         """Get the prior vector, optionally including bias terms.
 
         Returns a single-block flux prior if bias_std is None, otherwise
-        returns a multi-block [flux, bias] prior.
+        returns a multi-block [flux, bias] prior. Built (or loaded) once per pipeline:
+        the multiplicative MDM asks for it again, which with ``cache=False`` used to
+        rebuild it.
         """
+        if getattr(self, "_prior", None) is None:
+            self._prior = self._build_prior()
+        return self._prior
+
+    @fips_cache(Vector, "prior")
+    def _build_prior(self) -> Vector:
         prior = get_slv_prior(
             prior=self.config.prior,
             out_grid=self.config.grid,
@@ -397,13 +413,30 @@ class SLVMethaneInversion(FluxInversionPipeline):
         bias_blk = Block(self.get_bias(), name="bias")
         return Vector(name="prior", data=[flux_prior.blocks["flux"], bias_blk])
 
-    @fips_cache(ForwardOperator, "forward_operator")
     def get_forward_operator(self, obs: Vector, prior: Vector) -> ForwardOperator:
         """Get the forward operator, optionally including bias Jacobian.
 
         Returns a single-block flux Jacobian if bias_std is None, otherwise
         returns a multi-block [flux_jac | bias_jac] operator.
+
+        Only the flux Jacobian is cached. The bias block is a cheap one-hot map indexed
+        by the obs, which change with the obs filters the cache key leaves out, so it is
+        rebuilt every run (a cached bias block went stale when those filters changed).
         """
+        flux = self._get_flux_jacobian(obs)
+        self._flux_jacobian = flux
+        if self.config.bias_std is None:
+            return flux
+        # a Jacobian cached before the bias block was split out still carries one
+        flux_blk = flux.blocks["concentration", "flux"]
+        bias_blk = MatrixBlock(
+            self.get_bias_jacobian(obs, prior), "concentration", "bias"
+        )
+        return ForwardOperator([flux_blk, bias_blk])
+
+    @fips_cache(ForwardOperator, "forward_operator")
+    def _get_flux_jacobian(self, obs: Vector) -> ForwardOperator:
+        """The flux Jacobian from the PYSTILT footprints (cached as ``forward_operator``)."""
         from stilt import Model, SimID
 
         from slv.inversion.config import build_location_site_map
@@ -461,18 +494,7 @@ class SLVMethaneInversion(FluxInversionPipeline):
             sparse=self.config.sparse_jacobian,
         )
 
-        # Return flux-only operator if no bias
-        if self.config.bias_std is None:
-            return ForwardOperator(jacobian)
-
-        # Add bias Jacobian
-        flux_jac_blk = ForwardOperator(jacobian).blocks["concentration", "flux"]
-        bias_jac_blk = MatrixBlock(
-            self.get_bias_jacobian(obs, prior, location_mapper=location_mapper),
-            "concentration",
-            "bias",
-        )
-        return ForwardOperator([flux_jac_blk, bias_jac_blk])
+        return ForwardOperator(jacobian)
 
     @fips_cache(CovarianceMatrix, "prior_error")
     def get_prior_error(self, prior: Vector) -> CovarianceMatrix:
@@ -483,7 +505,7 @@ class SLVMethaneInversion(FluxInversionPipeline):
         """
         # Build flux error
         flux_prior = Vector(
-            prior.blocks["flux"] if self.config.bias_std else prior.data
+            prior.blocks["flux"] if self.config.bias_std is not None else prior.data
         )
         S_0 = build_prior_error(
             flux_prior,
@@ -524,12 +546,10 @@ class SLVMethaneInversion(FluxInversionPipeline):
         """
         if scale_on == "footprint":
             prior = self.get_prior()
-            flux = self.get_forward_operator(obs, prior)["concentration", "flux"]
+            flux = self._flux_block(obs)
             xref = float(np.mean(prior["flux"].values))
-            s = pd.Series(
-                np.abs(np.asarray(flux, dtype=float)).sum(axis=1) * xref,
-                index=flux.index,
-            )
+            row_abs = np.asarray(abs(_matrix(flux)).sum(axis=1)).ravel()
+            s = pd.Series(row_abs * xref, index=flux.index)
             key = obs.index.droplevel(
                 [n for n in obs.index.names if n not in flux.index.names]
             )
@@ -547,7 +567,7 @@ class SLVMethaneInversion(FluxInversionPipeline):
             )
             return np.abs(np.nan_to_num(obs_s.to_numpy() - bg_a, nan=0.0))
         prior = self.get_prior()
-        flux = self.get_forward_operator(obs, prior)["concentration", "flux"]
+        flux = self._flux_block(obs)
         # Match the prior to the Jacobian columns by label, not position: their level
         # orders differ (the EPA prior is (time, lat, lon), the Jacobian (lon, lat, time)).
         x = (
@@ -555,13 +575,18 @@ class SLVMethaneInversion(FluxInversionPipeline):
             .reorder_levels(flux.columns.names)
             .reindex(flux.columns, fill_value=0.0)
         )
-        e = pd.Series(
-            np.asarray(flux, dtype=float) @ x.to_numpy(dtype=float), index=flux.index
-        )
+        e = pd.Series(_matrix(flux) @ x.to_numpy(dtype=float), index=flux.index)
         key = obs.index.droplevel(
             [n for n in obs.index.names if n not in flux.index.names]
         )
         return np.abs(e.reindex(key).fillna(0.0).to_numpy())
+
+    def _flux_block(self, obs: Vector) -> pd.DataFrame:
+        """The flux Jacobian block (obs x state) this run already built or loaded."""
+        flux = getattr(self, "_flux_jacobian", None)
+        if flux is None:
+            flux = self._flux_jacobian = self._get_flux_jacobian(obs)
+        return flux["concentration", "flux"]
 
     def _per_obs_std(self, obs: Vector, src: str) -> np.ndarray:
         """Per-obs std [ppm] for a data-derived MDM term.
@@ -579,6 +604,7 @@ class SLVMethaneInversion(FluxInversionPipeline):
             subset_hours=self.config.subset_hours,
             filter_pcaps=self.config.filter_pcaps,
             num_processes=self.config.num_processes,
+            utc_offset=self.config.utc_offset,
         )
         key = obs.index.droplevel(
             [n for n in obs.index.names if n not in s.index.names]
@@ -586,12 +612,17 @@ class SLVMethaneInversion(FluxInversionPipeline):
         return s.reindex(key).fillna(0.0).to_numpy()
 
     def obs_sites(self, obs_index: pd.Index) -> pd.Index:
-        """The site of each obs, for site- and organization-keyed MDM terms.
+        """The site of each obs, for site- and organization-keyed MDM and bias terms.
 
         A tower obs is keyed by its site; a mobile obs by its receptor's PYSTILT location_id,
         which belongs to the (single) mobile site in ``config.sites``.
         """
-        locations = obs_index.get_level_values("obs_location")
+        return self._resolve_sites(obs_index.get_level_values("obs_location"))
+
+    def _resolve_sites(self, locations) -> pd.Index:
+        """Sites for obs locations: a site stays itself, anything else is a receptor of
+        the single mobile site in ``config.sites``."""
+        locations = pd.Index(locations)
         known = locations.isin(self.config.site_config.index)
         if known.all():
             return pd.Index(locations)
@@ -735,17 +766,19 @@ class SLVMethaneInversion(FluxInversionPipeline):
         """Converts a flux vector to an inventory format for easier analysis."""
         ds = fluxes.to_xarray().to_dataset()
 
-        time_step = {
-            "YS": "annual",
-            "QS": "quarterly",
-            "MS": "monthly",
-            "2W": "biweekly",
-            "D": "daily",
-        }[self.config.flux_freq]
+        from slv.inversion.config import FLUX_FREQ_TIME_STEPS
+
+        time_step = FLUX_FREQ_TIME_STEPS[self.config.flux_freq]
 
         return inventories.Inventory(
             ds, pollutant="CH4", src_units="umol/m2/s", time_step=time_step
         )
+
+    def _total_units(self) -> str:
+        """Unit of :meth:`calculate_total_flux`: it integrates each flux interval over its
+        cells and its duration, so the mass part of ``output_units`` per interval."""
+        units = self.config.output_units or "umol/m2/s"
+        return f"{units.split('/')[0]} per {self.config.flux_freq} interval"
 
     def calculate_total_flux(self, fluxes: pd.Series, units=None) -> pd.Series:
         inventory = self.fluxes_as_inventory(fluxes)
@@ -828,7 +861,7 @@ class SLVMethaneInversion(FluxInversionPipeline):
             )
             total_post = self.calculate_total_flux(post_flux, units=config.output_units)
 
-        units = config.output_units or "umol/m2/s"
+        units = self._total_units()
 
         print("--------------------------------------------------")
         print(f"DOMAIN TOTAL EMISSIONS [{units}]:")
@@ -853,7 +886,7 @@ class SLVMethaneInversion(FluxInversionPipeline):
                 t_years, total_post.values
             )
             print(
-                f"  Trend:          {slope:+.2f} {units}/yr (R^2={r_value**2:.3f}, p={p_value:.3g})"
+                f"  Trend:          {slope:+.2f} [{units}]/yr (R^2={r_value**2:.3f}, p={p_value:.3g})"
             )
         print("==================================================")
 
@@ -961,7 +994,9 @@ class SLVMethaneInversion(FluxInversionPipeline):
             total_posterior = self.calculate_total_flux(
                 problem.posterior_fluxes, units=config.output_units
             )
-        viz.plot_total_fluxes_over_time(total_prior, total_posterior)
+        viz.plot_total_fluxes_over_time(
+            total_prior, total_posterior, units=self._total_units()
+        )
 
         # --- Plot Concentrations ---
         problem.plot.concentrations()
@@ -1109,8 +1144,13 @@ class SLVMethaneInversion(FluxInversionPipeline):
 
         constant = inputs["constant"]
         constant_data = constant["concentration"]
-        updated_constant_data = constant_data.copy()
-        updated_constant_data[:] = constant_data.values + removed_contribution.values
+        # Jacobian rows are simulations, constant rows are obs: match them by label (they
+        # only line up by position once aggregate_obs_space has aggregated both).
+        removed = removed_contribution
+        if "block" in removed.index.names:
+            removed = removed.droplevel("block")
+        removed = removed.reindex(constant_data.index, fill_value=0.0)
+        updated_constant_data = constant_data + removed.to_numpy()
         updated_constant = Vector(
             name=constant.name,
             data=Block(name="concentration", data=updated_constant_data),
@@ -1285,6 +1325,13 @@ class SLVMethaneInversion(FluxInversionPipeline):
 
         return pd.Series(0.0, index=index, name="bias")
 
+    def _obs_bias_sites(self, obs_index, location_mapper=None) -> pd.Index:
+        """Each obs's site: STILT location IDs through the location map, then receptors
+        to the mobile site (:meth:`obs_sites`)."""
+        mapper = location_mapper or self.config.location_site_map or {}
+        locations = obs_index.get_level_values("obs_location")
+        return self._resolve_sites(locations.map(lambda loc: mapper.get(loc, loc)))
+
     def get_bias_jacobian(
         self, obs: Vector, prior: Vector, location_mapper: dict | None = None
     ) -> pd.DataFrame:
@@ -1314,8 +1361,8 @@ class SLVMethaneInversion(FluxInversionPipeline):
             jac.index = obs_index
 
         elif grouping == "site":
-            # Per-site: match (time, obs_location)
-            obs_sites = obs_index.get_level_values("obs_location")
+            # Per-site: match (time, site); a mobile receptor belongs to its mobile site
+            obs_sites = self._obs_bias_sites(obs_index, location_mapper)
             bias_keys = pd.Series(
                 list(zip(flux_times, obs_sites, strict=True)),
                 index=obs_index,
@@ -1327,11 +1374,8 @@ class SLVMethaneInversion(FluxInversionPipeline):
             )
 
         elif grouping == "site_group":
-            # Per-site-group: match (time, organization)
-            obs_locs = obs_index.get_level_values("obs_location")
-            # Map obs_location to site first, then to organization
-            location_to_site = location_mapper or self.config.location_site_map or {}
-            obs_sites = obs_locs.map(lambda loc: location_to_site.get(loc, loc))
+            # Per-site-group: match (time, organization) of each obs's site
+            obs_sites = self._obs_bias_sites(obs_index, location_mapper)
             obs_site_groups = obs_sites.map(self.get_site_group)
             bias_keys = pd.Series(
                 list(zip(flux_times, obs_site_groups, strict=True)),

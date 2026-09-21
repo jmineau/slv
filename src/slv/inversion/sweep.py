@@ -406,11 +406,7 @@ class Sweep:
 
         if n_jobs == 0:
             print("n_jobs=0: grid written, no runs executed.")
-            return (
-                SweepResults(csv_path)
-                if csv_path.exists()
-                else SweepResults.__new__(SweepResults)
-            )
+            return SweepResults(csv_path)
 
         # Determine which configs still need to run
         done_ids: set[str] = set()
@@ -832,6 +828,9 @@ class SweepResults:
     # ------------------------------------------------------------------
 
     def _reload(self) -> None:
+        if not self.path.exists():  # nothing run yet (e.g. a grid-only n_jobs=0 sweep)
+            self.df = pd.DataFrame()
+            return
         self.df = pd.read_csv(self.path)
         if "chi2_distance" not in self.df.columns and "reduced_chi2" in self.df.columns:
             self.df["chi2_distance"] = (self.df["reduced_chi2"] - 1.0).abs()
@@ -897,17 +896,23 @@ class SweepResults:
             .sort_values(f"{metric}_std")
         )
 
-    def sensitivity(self, metric: str = "reduced_chi2") -> pd.DataFrame:
+    def sensitivity(
+        self, metric: str = "reduced_chi2", target: float | None = None
+    ) -> pd.DataFrame:
         """Rank swept parameters by their effect on *metric*.
 
         Computes the range (max − min) of the group-mean *metric* when
         grouped by each ``cfg_*`` column.  A larger range means the result
-        is more sensitive to that parameter.
+        is more sensitive to that parameter. ``best_value`` is the value whose
+        group-mean *metric* is closest to *target* (1 for ``reduced_chi2``), or
+        the lowest when there is no target.
 
         Returns
         -------
         DataFrame sorted by sensitivity (most influential first).
         """
+        if target is None and metric == "reduced_chi2":
+            target = 1.0
         cfg_cols = [c for c in self.df.columns if c.startswith("cfg_")]
         rows = []
         for col in cfg_cols:
@@ -917,7 +922,11 @@ class SweepResults:
                     {
                         "param": col.removeprefix("cfg_"),
                         "range": float(grp.max() - grp.min()),
-                        "best_value": grp.idxmin(),  # value giving lowest chi²
+                        "best_value": (
+                            (grp - target).abs().idxmin()
+                            if target is not None
+                            else grp.idxmin()
+                        ),
                     }
                 )
             except Exception:

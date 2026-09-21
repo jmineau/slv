@@ -46,3 +46,13 @@ def test_site_season_std_uses_obs_sites():
         "custom", OBS_INDEX, std=std, correlated=False, obs_sites=OBS_SITES
     )
     np.testing.assert_allclose(variances(comp), [0.01, 0.04, 0.09])
+
+
+@pytest.mark.parametrize(
+    ("value", "expected"),
+    [("14d", "14D"), ("32d", "32D"), ("2.8h", "2.8h"), ("7D", "7D"), (None, None)],
+)
+def test_normalize_duration(value, expected):
+    from slv.inversion.covariances import normalize_duration
+
+    assert normalize_duration(value) == expected

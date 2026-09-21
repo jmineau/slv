@@ -180,3 +180,30 @@ def test_subhour_std_does_not_load_mobile_sites(monkeypatch):
     out = data_module.get_slv_subhour_std(["trx01"], site_config, tr)
     assert loaded == []
     assert out.empty
+
+
+def test_obs_hour_window_uses_the_configured_utc_offset(monkeypatch):
+    # the obs filter used the fixed slv.domain offset whatever config.utc_offset said
+    import slv.inversion.data as data_module
+    from slv.measurements.sites import load_site_config
+
+    seen = []
+
+    def fake_load(pollutants, sites, **kwargs):
+        seen.append(kwargs["utc_offset"])
+        return pd.DataFrame(
+            {
+                "Time_UTC": pd.to_datetime(["2024-06-01 20:00"]),
+                "site": ["wbb"],
+                "CH4": [2.0],
+            }
+        )
+
+    monkeypatch.setattr(data_module, "load_concentrations", fake_load)
+    monkeypatch.setattr(data_module, "load_trax_points", lambda: None)
+    monkeypatch.setattr(data_module, "aggregate_obs", lambda obs, **kwargs: obs)
+    site_config = load_site_config()
+    tr = ("2024-06-01", "2024-06-02")
+    data_module.get_slv_observations(["wbb"], site_config, tr, utc_offset=-6)
+    data_module.get_slv_subhour_std(["wbb"], site_config, tr, utc_offset=-6)
+    assert seen == [-6, -6]

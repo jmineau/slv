@@ -141,7 +141,7 @@ def load_epa_prior(
     import xesmf as xe  # pyright: ignore[reportMissingImports]  # conda-forge only; lazy
 
     regridder = xe.Regridder(total, out_grid, method="conservative")
-    inventory: xr.Dataset = regridder(total)
+    inventory = regridder(total)
 
     inventory.name = "flux"  # Rename emissions
     inventory.attrs["units"] = total.attrs["units"]
@@ -192,7 +192,7 @@ def load_edgar_prior(
     import xesmf as xe  # pyright: ignore[reportMissingImports]  # conda-forge only; lazy
 
     regridder = xe.Regridder(total, out_grid, method="conservative")
-    inventory: xr.Dataset = regridder(total)
+    inventory = regridder(total)
 
     inventory.name = "flux"
     inventory.attrs["units"] = total.attrs["units"]

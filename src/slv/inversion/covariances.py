@@ -14,6 +14,15 @@ from fips.kernels import (
 )
 
 
+def normalize_duration(value):
+    """``"14d"`` -> ``"14D"``. pandas deprecates the lowercase day unit (Pandas4Warning).
+    Config strings keep their spelling -- they are hashed into cache keys and sweep IDs --
+    and are converted only where they are parsed."""
+    if isinstance(value, str) and value.endswith("d"):
+        return value[:-1] + "D"
+    return value
+
+
 def build_prior_error(prior, **kwargs) -> pd.DataFrame:
     """
     Builds the S_0 Kronecker covariance matrix for the SLV flux prior.
@@ -21,7 +30,7 @@ def build_prior_error(prior, **kwargs) -> pd.DataFrame:
     # Get configuration parameters for the prior covariance from kwargs, with defaults
     base_std = kwargs.get("base_std", 0.0)
     std_frac = kwargs.get("std_frac", 0.0)
-    time_scale = kwargs.get("time_scale")
+    time_scale = normalize_duration(kwargs.get("time_scale"))
     spatial_scale = kwargs.get("spatial_scale")
 
     # Calculate dynamic variances proportional to the prior flux
@@ -170,7 +179,7 @@ def build_mdm_error(
     if scale is None:
         corr_func = ConstantCorrelation()
     else:
-        corr_func = RaggedTimeDecay(time_dim=time_dim, scale=scale)
+        corr_func = RaggedTimeDecay(time_dim=time_dim, scale=normalize_duration(scale))
 
     # Determine the grouping structure
     # Group by all non-time levels (e.g., 'obs_location')

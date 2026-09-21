@@ -586,9 +586,7 @@ def test_scale_on_prior_matches_by_label(monkeypatch):
     )
     pipeline = make_pipeline(SLVMethaneInversion)
     monkeypatch.setattr(pipeline, "get_prior", lambda: prior)
-    monkeypatch.setattr(
-        pipeline, "get_forward_operator", lambda obs, prior: forward_operator
-    )
+    monkeypatch.setattr(pipeline, "_get_flux_jacobian", lambda obs: forward_operator)
 
     x = prior_s.reorder_levels(H.columns.names).reindex(H.columns)
     expected = np.abs(H.to_numpy() @ x.to_numpy())
@@ -738,3 +736,164 @@ class TestMobileObsInPipeline:
             "multi_aaaaaaaaaa",
         ]
         assert constant.tolist() == [1.95, 1.95]
+
+
+# ---------------------------------------------------------------------------
+# Robustness follow-ups (#4)
+# ---------------------------------------------------------------------------
+
+CELL_LATS = [40.5, 40.6]
+CELL_LONS = [-112.0, -111.9]
+SIM_INDEX = pd.MultiIndex.from_arrays(
+    [
+        ["wbb", "wbb", "wbb"],
+        pd.to_datetime(["2020-01-20", "2020-01-05", "2020-02-05"]),
+    ],
+    names=["obs_location", "obs_time"],
+)
+
+
+def test_coverage_filter_adds_removed_cells_by_label():
+    # Jacobian rows are simulations (here out of order, plus one with no obs); the
+    # constant is indexed by obs. They used to be added by position.
+    prior_s, prior = flux_prior(CELL_LATS, CELL_LONS)
+    columns = pd.MultiIndex.from_product(
+        [CELL_LONS, CELL_LATS, TIMES], names=["lon", "lat", "time"]
+    )
+    H = pd.DataFrame(1.0, index=SIM_INDEX, columns=columns)
+    weak = columns.get_level_values("lon") == -112.0
+    weak &= columns.get_level_values("lat") == 40.5
+    H.loc[:, weak] = 1e-6  # the least-covered cell, removed at the 30th percentile
+    forward_operator = ForwardOperator(
+        MatrixBlock(H, row_block="concentration", col_block="flux")
+    )
+    obs_index = SIM_INDEX[[1, 0]].sort_values()  # 2020-01-05, 2020-01-20
+    constant = Vector(
+        name="background",
+        data=Block(name="concentration", data=pd.Series([2.0, 2.5], index=obs_index)),
+    )
+    pipeline = make_pipeline(
+        SLVMethaneInversion,
+        tstart="2020-01-01",
+        tend="2020-03-01",
+        jacobian_coverage_percentile=30,
+    )
+    inputs = {
+        "prior": prior,
+        "forward_operator": forward_operator,
+        "constant": constant,
+    }
+
+    out = pipeline._apply_jacobian_coverage_filter(inputs)
+
+    x = prior_s.reorder_levels(columns.names).reindex(columns)
+    removed = pd.Series(H.loc[:, weak].to_numpy() @ x[weak].to_numpy(), index=SIM_INDEX)
+    expected = pd.Series([2.0, 2.5], index=obs_index) + removed.reindex(obs_index)
+    got = out["constant"]["concentration"]
+    np.testing.assert_allclose(got.to_numpy(), expected.to_numpy())
+
+
+def test_prior_error_with_zero_bias_std_uses_the_flux_block():
+    pipeline = make_pipeline(
+        SLVMethaneInversion, tstart="2020-01-01", tend="2020-03-01", bias_std=0.0
+    )
+    _, prior = flux_prior(bias=True)
+    S = pipeline.get_prior_error(prior)
+    assert set(S.index.get_level_values("block")) == {"flux", "bias"}
+
+
+class TestBiasBlockPerRun:
+    def _pipeline(self, **kwargs):
+        defaults = {"tstart": "2020-01-01", "tend": "2020-03-01", "bias_std": 0.5}
+        return make_pipeline(SLVMethaneInversion, **(defaults | kwargs))
+
+    def test_stale_cached_bias_block_is_replaced(self, monkeypatch):
+        # a forward_operator cached with a bias block for other obs: only its flux
+        # block is kept, and the bias block is rebuilt for these obs
+        pipeline = self._pipeline(bias_grouping="time", sites=["wbb"])
+        H, _ = jacobian()
+        stale_bias = pd.DataFrame(
+            1.0, index=OBS_INDEX[:1], columns=pd.Index(TIMES[:1], name="time")
+        )
+        cached = ForwardOperator(
+            [
+                MatrixBlock(H, "concentration", "flux"),
+                MatrixBlock(stale_bias, "concentration", "bias"),
+            ]
+        )
+        monkeypatch.setattr(pipeline, "_get_flux_jacobian", lambda obs: cached)
+        obs = Vector(
+            name="obs",
+            data=Block(name="concentration", data=pd.Series(1.0, index=OBS_INDEX)),
+        )
+        prior = Vector(
+            name="prior",
+            data=[
+                Block(flux_prior()[0], name="flux"),
+                Block(pipeline.get_bias(), name="bias"),
+            ],
+        )
+        fo = pipeline.get_forward_operator(obs, prior)
+        bias = fo["concentration", "bias"]
+        assert bias.shape == (len(OBS_INDEX), len(TIMES))
+        assert (bias.sum(axis=1) == 1).all()
+
+    def test_site_bias_maps_receptors_to_the_mobile_site(self):
+        # "site" grouping keyed obs_location; a TRAX receptor matched no bias column
+        pipeline = self._pipeline(
+            bias_grouping="site",
+            sites=["wbb", "trx01"],
+            tstart="2024-06-01",
+            tend="2024-07-01",
+        )
+        prior = make_bias_vector(pipeline.get_bias().index)
+        jac = pipeline.get_bias_jacobian(trax_obs(), prior)
+        june = pd.Timestamp("2024-06-01")
+        assert jac.loc[:, (june, "trx01")].tolist() == [0.0, 1.0]
+        assert jac.loc[:, (june, "wbb")].tolist() == [1.0, 0.0]
+
+
+def test_mdm_scale_reuses_the_runs_prior_and_jacobian(monkeypatch):
+    # with cache=False the multiplicative MDM used to rebuild both
+    pipeline = make_pipeline(SLVMethaneInversion)
+    _, prior = flux_prior()
+    _, forward_operator = jacobian()
+    builds = {"prior": 0, "jacobian": 0}
+
+    def build_prior():
+        builds["prior"] += 1
+        return prior
+
+    def build_jacobian(obs):
+        builds["jacobian"] += 1
+        return forward_operator
+
+    monkeypatch.setattr(pipeline, "_build_prior", build_prior)
+    monkeypatch.setattr(pipeline, "_get_flux_jacobian", build_jacobian)
+    obs = Vector(
+        name="obs",
+        data=Block(name="concentration", data=pd.Series(1.0, index=OBS_INDEX)),
+    )
+    pipeline.get_forward_operator(obs, pipeline.get_prior())  # what get_inputs does
+    for scale_on in ("footprint", "prior"):
+        pipeline._multiplicative_scale(obs, scale_on)
+    assert builds == {"prior": 1, "jacobian": 1}
+
+
+def test_sparse_jacobian_scale_matches_dense():
+    H, _ = jacobian()
+    sparse = H.astype(pd.SparseDtype(float, 0.0))
+    dense_rows = np.abs(H.to_numpy()).sum(axis=1)
+    sparse_rows = np.asarray(abs(pipelines_matrix(sparse)).sum(axis=1)).ravel()
+    np.testing.assert_allclose(sparse_rows, dense_rows)
+
+
+def pipelines_matrix(block):
+    from slv.inversion.pipelines import _matrix
+
+    return _matrix(block)
+
+
+def test_total_units_are_mass_per_interval():
+    pipeline = make_pipeline(SLVMethaneInversion, flux_freq="QS")
+    assert pipeline._total_units() == "Gg per QS interval"

@@ -67,7 +67,7 @@ class TestComponentHash:
     def test_prior_error_hash_stable_for_mdm_change(self):
         """Changing mdm_config must NOT change the prior_error hash."""
         c1 = _cfg(mdm_config={})
-        c2 = _cfg(mdm_config={"transport_pbl": {"std": 0.20}})
+        c2 = _cfg(mdm_config={"bg": {"std": 0.02}})
         fields = DEFAULT_COMPONENT_DEPS["prior_error"]
         assert _component_hash(c1, fields) == _component_hash(c2, fields)
 
@@ -644,3 +644,33 @@ def test_run_sweep_job_rows_read_back(tmp_path, monkeypatch):
     assert results.failed()["error"].tolist() == ["boom"]
     assert set(_RESULT_COLUMNS) <= set(results.df.columns)
     assert results.df["runtime_seconds"].notna().all()
+
+
+def test_grid_only_sweep_returns_empty_results(tmp_path):
+    sweep = Sweep(cache=str(tmp_path / "cache"), prior_base_std=[0.01, 0.02])
+    results = sweep.run(results_dir=tmp_path, n_jobs=0)
+    assert isinstance(results, SweepResults)
+    assert results.df.empty
+    assert results.best().empty
+
+
+def test_sensitivity_best_value_is_closest_to_one(tmp_path):
+    path = tmp_path / "sweep_results.csv"
+    pd.DataFrame(
+        {
+            "config_id": ["a", "b", "c"],
+            "reduced_chi2": [0.3, 1.05, 1.9],
+            "RMSE": [0.05, 0.02, 0.04],
+            "cfg_prior_base_std": [0.01, 0.02, 0.03],
+        }
+    ).to_csv(path, index=False)
+    sens = SweepResults(path).sensitivity()
+    # the lowest chi2 (0.3) used to count as best
+    assert sens.loc[0, "best_value"] == pytest.approx(0.02)
+    # without a target (any metric but reduced_chi2) the lowest is best
+    assert SweepResults(path).sensitivity("RMSE").loc[0, "best_value"] == (
+        pytest.approx(0.02)
+    )
+    assert SweepResults(path).sensitivity("RMSE", target=0.05).loc[0, "best_value"] == (
+        pytest.approx(0.01)
+    )

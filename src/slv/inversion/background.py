@@ -1,6 +1,7 @@
 import pandas as pd
 from lair.background import rolling_baseline
 
+from slv.inversion.covariances import normalize_duration
 from slv.inversion.data import split_sites
 from slv.measurements import aggregate_obs, load_concentrations
 from slv.measurements.background import GMLDiscrete
@@ -87,7 +88,7 @@ def get_rolling_background(
     for site in df.columns:
         bg_dict[site] = rolling_baseline(
             df[site],
-            window=baseline_window,
+            window=normalize_duration(baseline_window),
             min_periods=min_periods,
         )
 

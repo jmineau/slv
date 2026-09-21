@@ -3,6 +3,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
+from slv.domain import UTC_OFFSET
 from slv.measurements import aggregate_obs, load_concentrations
 from slv.measurements.mobile import load_trax_points
 
@@ -55,7 +56,7 @@ def load_mobile_obs(
     time_range: tuple,
     subset_hours: list[int] | None = None,
     filter_pcaps: bool = True,
-    utc_offset: int = -7,
+    utc_offset: int = UTC_OFFSET,
 ) -> pd.DataFrame:
     """Receptor-paired mobile observations, filtered like the stationary ones.
 
@@ -102,7 +103,7 @@ def get_slv_observations(
     spike_percentile: float = 0.90,
     num_processes: int = 1,
     mobile_obs: str | Path | pd.DataFrame | None = None,
-    utc_offset: int = -7,
+    utc_offset: int = UTC_OFFSET,
 ) -> pd.DataFrame:
     """Fetches observations for the pipeline.
 
@@ -131,6 +132,7 @@ def get_slv_observations(
                     filter_spikes=filter_spikes,
                     spike_percentile=spike_percentile,
                     num_processes=num_processes,
+                    utc_offset=utc_offset,
                 )
             )
         parts.append(
@@ -152,6 +154,7 @@ def get_slv_observations(
         subset_hours=subset_hours,
         filter_pcaps=filter_pcaps,
         num_processes=num_processes,
+        utc_offset=utc_offset,
     )
 
     if filter_spikes:
@@ -197,6 +200,7 @@ def get_slv_subhour_std(
     subset_hours: list[int] | None = None,
     filter_pcaps: bool = True,
     num_processes: int = 1,
+    utc_offset: int = UTC_OFFSET,
 ) -> pd.Series:
     """Per-obs within-hour CH4 std -- the temporal representativeness error for the ``subhour``
     MDM component.
@@ -221,6 +225,7 @@ def get_slv_subhour_std(
         subset_hours=subset_hours,
         filter_pcaps=filter_pcaps,
         num_processes=num_processes,
+        utc_offset=utc_offset,
     )
     if obs.empty:
         return _empty_subhour_std()
