@@ -17,11 +17,11 @@ Quick start — single-node sweep
         pipeline_cls=SLVMethaneInversion,
         prior_base_std=[0.01, 0.019, 0.03],
         prior_std_frac=[0.3, 0.5, 0.7],
-        bg_baseline_window=["7d", "14d", "21d"],
+        prior_time_scale=["16d", "32d", "64d"],
         mdm_config=[
             {},  # all defaults
-            {"transport_pbl": {"std": 0.10}},
-            {"transport_pbl": {"std": 0.20}},
+            {"transport": {"fraction": 0.6}},
+            {"transport": {"fraction": 1.0}},
         ],
     )
     # 3 × 3 × 3 × 3 = 81 configs
@@ -63,6 +63,7 @@ import json
 import logging
 import os
 import sys
+import time
 import traceback
 from pathlib import Path
 from typing import Any
@@ -94,6 +95,31 @@ _NON_SCIENTIFIC_FIELDS = frozenset(
 )
 
 
+#: Columns of every results row, success or error, in this order; the ``cfg_*``
+#: columns follow. Rows are appended to the CSV by position, so they must agree.
+_RESULT_COLUMNS = (
+    "config_id",
+    "error",
+    "runtime_seconds",
+    "reduced_chi2",
+    "chi2_distance",
+    "R2",
+    "RMSE",
+    "DOFS",
+    "uncertainty_reduction",
+    "prior_flux_mean",
+    "posterior_flux_mean",
+    "posterior_flux_std",
+    "flux_change_pct",
+    "prior_conc_rmse",
+    "posterior_conc_rmse",
+    "prior_conc_bias",
+    "posterior_conc_bias",
+    "n_obs",
+    "n_state",
+)
+
+
 # ---------------------------------------------------------------------------
 # Serialization helpers
 # ---------------------------------------------------------------------------
@@ -108,6 +134,57 @@ def _to_json(v: Any) -> Any:
     if isinstance(v, dict):
         return {k: _to_json(vv) for k, vv in sorted(v.items())}
     return str(v)
+
+
+def _cfg_columns(config: InversionConfig, swept_params: list[str] | None) -> dict:
+    """Config values as ``cfg_*`` columns (all scientific fields when *swept_params*
+    is None); dicts and lists are JSON-encoded so they survive a CSV round-trip."""
+    if swept_params is None:
+        swept_params = [
+            f.name
+            for f in dataclasses.fields(config)
+            if f.name not in _NON_SCIENTIFIC_FIELDS
+        ]
+    cols = {}
+    for p in swept_params:
+        val = getattr(config, p, None)
+        if isinstance(val, (dict, list)):
+            val = json.dumps(_to_json(val), sort_keys=True)
+        cols[f"cfg_{p}"] = val
+    return cols
+
+
+def _error_row(
+    cid: str, exc: Exception, config: InversionConfig, swept_params: list[str] | None
+) -> dict[str, Any]:
+    """A results row for a failed run: the full column set with empty metrics."""
+    row: dict[str, Any] = dict.fromkeys(_RESULT_COLUMNS)
+    row.update(config_id=cid, error=str(exc))
+    row.update(_cfg_columns(config, swept_params))
+    return row
+
+
+def _append_row(csv_path: Path, row: dict | None) -> None:
+    """Append one row to the results CSV, lined up with the columns already there.
+
+    ``to_csv(mode="a")`` writes by position, so a row whose keys differ from the
+    header would land its values under the wrong columns. A row with a column the
+    file lacks (e.g. a CSV written before the column existed) rewrites the file with
+    the wider header.
+    """
+    if row is None:
+        return
+    new = pd.DataFrame([row])
+    if not csv_path.exists():
+        new.to_csv(csv_path, index=False)
+        return
+    header = pd.read_csv(csv_path, nrows=0).columns.tolist()
+    if set(new.columns) - set(header):
+        pd.concat([pd.read_csv(csv_path), new]).to_csv(csv_path, index=False)
+    else:
+        new.reindex(columns=header).to_csv(
+            csv_path, mode="a", header=False, index=False
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -371,7 +448,7 @@ class Sweep:
             except ImportError:
                 iterator = iter(pending)
             for args in iterator:
-                self._append_row(csv_path, self._run_single(args))
+                _append_row(csv_path, self._run_single(args))
         else:
             print(
                 f"Running sweep in parallel (n_jobs={n_jobs}). "
@@ -388,7 +465,7 @@ class Sweep:
             except ImportError:
                 pass
             for row in rows:
-                self._append_row(csv_path, row)
+                _append_row(csv_path, row)
 
         print(f"Sweep complete. Results at {csv_path}")
         return SweepResults(csv_path)
@@ -409,6 +486,7 @@ class Sweep:
         config.plot_results = False
         config.plot_diagnostics = False
 
+        start = time.perf_counter()
         try:
             # Suppress stdout/stderr when running in parallel
             if suppress_output:
@@ -418,7 +496,9 @@ class Sweep:
             else:
                 pipeline = pipeline_cls(config)
                 problem = pipeline.run()
-            return collect_metrics(problem, config, pipeline, swept_params=swept_params)
+            row = collect_metrics(problem, config, pipeline, swept_params=swept_params)
+            row["runtime_seconds"] = round(time.perf_counter() - start, 1)
+            return row
         except Exception as exc:
             tb = traceback.format_exc()
             # Log to file instead of printing full traceback
@@ -432,54 +512,9 @@ class Sweep:
             if not suppress_output:
                 print(f"[{cid}] Error: {exc}")
 
-            # Return same column structure as collect_metrics, with None values
-            error_row: dict[str, Any] = {
-                "config_id": cid,
-                "error": str(exc),
-                "runtime_seconds": None,
-                "reduced_chi2": None,
-                "chi2_distance": None,
-                "R2": None,
-                "RMSE": None,
-                "DOFS": None,
-                "uncertainty_reduction": None,
-                "prior_flux_mean": None,
-                "posterior_flux_mean": None,
-                "posterior_flux_std": None,
-                "flux_change_pct": None,
-                "prior_conc_rmse": None,
-                "posterior_conc_rmse": None,
-                "prior_conc_bias": None,
-                "posterior_conc_bias": None,
-                "n_obs": None,
-                "n_state": None,
-            }
-
-            # Add swept config params
-            if swept_params is None:
-                swept_params = [
-                    f.name
-                    for f in dataclasses.fields(config)
-                    if f.name not in _NON_SCIENTIFIC_FIELDS
-                ]
-            for p in swept_params:
-                val = getattr(config, p, None)
-                if isinstance(val, (dict, list)):
-                    val = json.dumps(_to_json(val), sort_keys=True)
-                else:
-                    val = _to_json(val)
-                error_row[f"cfg_{p}"] = val
-
-            return error_row
-
-    @staticmethod
-    def _append_row(csv_path: Path, row: dict | None) -> None:
-        """Atomically append one row to the results CSV."""
-        if row is None:
-            return
-        pd.DataFrame([row]).to_csv(
-            csv_path, mode="a", header=not csv_path.exists(), index=False
-        )
+            row = _error_row(cid, exc, config, swept_params)
+            row["runtime_seconds"] = round(time.perf_counter() - start, 1)
+            return row
 
     def _write_grid(self, path: Path) -> None:
         """Write configs to grid JSON for SLURM job arrays."""
@@ -571,7 +606,8 @@ def collect_metrics(
     """
     est = problem.estimator
 
-    metrics: dict[str, Any] = {
+    metrics: dict[str, Any] = dict.fromkeys(_RESULT_COLUMNS)
+    metrics |= {
         "config_id": config_id(config),
         # Primary chi² metric — target ≈ 1.0
         "reduced_chi2": float(est.reduced_chi2),
@@ -623,19 +659,7 @@ def collect_metrics(
         logger.debug("collect_metrics: concentration residuals failed", exc_info=True)
 
     # Capture swept config field values as cfg_* columns
-    if swept_params is None:
-        swept_params = [
-            f.name
-            for f in dataclasses.fields(config)
-            if f.name not in _NON_SCIENTIFIC_FIELDS
-        ]
-    for p in swept_params:
-        val = getattr(config, p, None)
-        # JSON-encode complex types so they survive a CSV round-trip
-        if isinstance(val, (dict, list)):
-            metrics[f"cfg_{p}"] = json.dumps(_to_json(val))
-        else:
-            metrics[f"cfg_{p}"] = val
+    metrics.update(_cfg_columns(config, swept_params))
 
     return metrics
 
@@ -691,7 +715,7 @@ def run_sweep_job(results_dir: str | Path) -> None:
     if not grid_path.exists():
         raise FileNotFoundError(
             f"sweep_grid.json not found at {grid_path}. "
-            "Call run_sweep(..., n_jobs=0) first to generate the grid."
+            "Call Sweep(...).run(results_dir, n_jobs=0) first to generate the grid."
         )
 
     # Resolve index: SLURM env var > --index CLI flag
@@ -735,6 +759,7 @@ def run_sweep_job(results_dir: str | Path) -> None:
     cfg.plot_results = False
     cfg.plot_diagnostics = False
 
+    start = time.perf_counter()
     try:
         pipeline = pipeline_cls(cfg)
         problem = pipeline.run()
@@ -750,11 +775,10 @@ def run_sweep_job(results_dir: str | Path) -> None:
             f.write(f"Error: {exc}\n")
             f.write(tb)
         print(f"[{idx}] {cid} → error: {exc}")
-        row = {"config_id": cid, "error": str(exc)}
+        row = _error_row(cid, exc, cfg, swept_params=None)
+    row["runtime_seconds"] = round(time.perf_counter() - start, 1)
 
-    pd.DataFrame([row]).to_csv(
-        csv_path, mode="a", header=not csv_path.exists(), index=False
-    )
+    _append_row(csv_path, row)
     status = "error" if row.get("error") else "ok"
     print(f"[{idx}] {cid} → {status}")
 

@@ -1,5 +1,6 @@
 """Tests for InversionConfig and MDM component configuration."""
 
+import numpy as np
 import pandas as pd
 import pytest
 
@@ -172,6 +173,72 @@ class TestInversionConfigSpatial:
 
     def test_resolution(self, config):
         assert config.resolution == "0.1x0.05"
+
+
+# ---------------------------------------------------------------------------
+# InversionConfig — grid / state_grid
+# ---------------------------------------------------------------------------
+
+RESOLUTIONS = [0.002, 0.005, 0.01, 0.02, 0.025, 0.03, 0.05, 0.1, 0.15]
+
+
+class TestInversionConfigGrid:
+    """The prior's grid and the Jacobian's state_grid must enumerate the same cells:
+    fips zero-fills Jacobian columns the prior has and the Jacobian lacks."""
+
+    @pytest.mark.parametrize("d", RESOLUTIONS)
+    def test_grid_matches_state_grid(self, d):
+        config = InversionConfig(dx=d, dy=d)
+        x, y = config.state_grid.axes
+        np.testing.assert_array_equal(config.grid["lon"].values, x)
+        np.testing.assert_array_equal(config.grid["lat"].values, y)
+
+    @pytest.mark.parametrize("d", RESOLUTIONS)
+    def test_cells_cover_domain_snapped_outward(self, d):
+        config = InversionConfig(dx=d, dy=d)
+        x, y = config.state_grid.axes
+        for centres, lo, hi in (
+            (x, config.xmin, config.xmax),
+            (y, config.ymin, config.ymax),
+        ):
+            assert centres[0] - d / 2 == pytest.approx(lo)
+            assert centres[-1] + d / 2 >= hi - 1e-9  # the domain is covered
+            assert centres[-1] - d / 2 < hi - 1e-9  # by no more than one extra cell
+
+    @pytest.mark.parametrize("d", [0.05, 0.1])
+    def test_production_resolutions_unchanged(self, d):
+        # The grid used to come from lair.geo.generate_regular_grid; keep those cells.
+        from lair.geo import generate_regular_grid
+
+        config = InversionConfig(dx=d, dy=d)
+        old = generate_regular_grid(
+            config.xmin,
+            config.xmax,
+            d,
+            config.ymin,
+            config.ymax,
+            d,
+            x_label="lon",
+            y_label="lat",
+        )
+        np.testing.assert_array_equal(config.grid["lon"].values, old["lon"].values)
+        np.testing.assert_array_equal(config.grid["lat"].values, old["lat"].values)
+
+    def test_float_error_does_not_drop_last_row(self):
+        # (40.93 - 40.45) / 0.01 = 47.99999999999969: stilt used to count 47 rows.
+        config = InversionConfig(dx=0.01, dy=0.01)
+        assert len(config.state_grid.axes[1]) == 48
+
+    def test_centres_are_not_rounded_off(self):
+        # lair rounded 0.025-deg centres to 3 decimals (40.9125 -> 40.912).
+        lat = InversionConfig(dx=0.025, dy=0.025).grid["lat"].values
+        assert 40.9125 in lat
+        assert lat[-1] == pytest.approx(40.9375)
+
+    def test_grid_crs(self):
+        grid = InversionConfig().grid
+        assert grid.dims == ("lat", "lon")
+        assert grid.rio.crs.to_epsg() == 4326
 
 
 # ---------------------------------------------------------------------------

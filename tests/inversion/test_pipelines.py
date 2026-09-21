@@ -1,14 +1,24 @@
 """Tests for inversion pipeline caching and bias classes."""
 
 import pickle
+import shutil
+import subprocess
+import sys
+from types import SimpleNamespace
 from unittest.mock import MagicMock
 
+import numpy as np
 import pandas as pd
 import pytest
+from fips import Block, ForwardOperator, MatrixBlock, Vector
+from fips.problems.flux import FluxInversionPipeline
 
 from slv.inversion.config import InversionConfig
 from slv.inversion.pipelines import (
     SLVMethaneInversion,
+    _component_hash,
+    _pkg_rev,
+    check_state_cells,
     fips_cache,
 )
 
@@ -447,3 +457,227 @@ class TestBiasIntegration:
         # or same structure but we just verify the method runs
         assert isinstance(bias1, pd.Series)
         assert isinstance(bias2, pd.Series)
+
+
+# ---------------------------------------------------------------------------
+# Cache version tag: _pkg_rev
+# ---------------------------------------------------------------------------
+
+
+def _git(cwd, *args):
+    subprocess.run(
+        ["git", "-C", str(cwd), "-c", "user.name=t", "-c", "user.email=t@t", *args],
+        check=True,
+        capture_output=True,
+    )
+
+
+def _repo_with_package(root, pkg_parent, name, tag):
+    """A git repo at *root* holding package *name* under *pkg_parent*, tagged *tag*."""
+    pkg = pkg_parent / name
+    pkg.mkdir(parents=True)
+    (pkg / "__init__.py").write_text("")
+    _git(root, "init", "-q")
+    _git(root, "add", "-A")
+    _git(root, "commit", "-qm", "init")
+    _git(root, "tag", tag)
+
+
+@pytest.mark.skipif(shutil.which("git") is None, reason="git not available")
+class TestPkgRev:
+    def test_installed_copy_ignores_enclosing_repo(self, tmp_path, monkeypatch):
+        # slv's own .venv sits inside the slv repo: git must not answer for fips there.
+        site = tmp_path / ".venv" / "lib" / "python3.12" / "site-packages"
+        _repo_with_package(tmp_path, site, "slvtest_installed_pkg", "v9.9.9")
+        monkeypatch.syspath_prepend(str(site))
+        try:
+            assert _pkg_rev("slvtest_installed_pkg", "slvtest-installed-pkg") == (
+                "unknown"
+            )
+        finally:
+            sys.modules.pop("slvtest_installed_pkg", None)
+
+    def test_source_checkout_uses_git_describe(self, tmp_path, monkeypatch):
+        src = tmp_path / "src"
+        _repo_with_package(tmp_path, src, "slvtest_checkout_pkg", "v1.2.3")
+        monkeypatch.syspath_prepend(str(src))
+        try:
+            assert _pkg_rev("slvtest_checkout_pkg", "slvtest-checkout-pkg") == "v1.2.3"
+        finally:
+            sys.modules.pop("slvtest_checkout_pkg", None)
+
+
+# ---------------------------------------------------------------------------
+# State cells: prior vs Jacobian columns
+# ---------------------------------------------------------------------------
+
+TIMES = pd.DatetimeIndex(["2020-01-01", "2020-02-01"])
+LATS = [40.5, 40.6]
+LONS = [-112.0, -111.9]
+OBS_INDEX = pd.MultiIndex.from_arrays(
+    [["wbb", "wbb", "wbb"], pd.to_datetime(["2020-01-05", "2020-01-20", "2020-02-05"])],
+    names=["obs_location", "obs_time"],
+)
+
+
+def flux_prior(lats=LATS, lons=LONS, bias=False):
+    """A fips prior ordered (time, lat, lon), like the EPA prior."""
+    index = pd.MultiIndex.from_product(
+        [TIMES, lats, lons], names=["time", "lat", "lon"]
+    )
+    series = pd.Series(np.arange(len(index), dtype=float) + 1.0, index=index)
+    if not bias:
+        return series, Vector(name="prior", data=Block(name="flux", data=series))
+    bias_s = pd.Series(0.0, index=pd.Index(TIMES, name="time"), name="bias")
+    blocks = [Block(series, name="flux"), Block(bias_s, name="bias")]
+    return series, Vector(name="prior", data=blocks)
+
+
+def jacobian(lats=LATS, lons=LONS):
+    """A fips forward operator whose columns are ordered (lon, lat, time), like fips'."""
+    columns = pd.MultiIndex.from_product(
+        [lons, lats, TIMES], names=["lon", "lat", "time"]
+    )
+    rng = np.random.default_rng(0)
+    H = pd.DataFrame(rng.random((len(OBS_INDEX), len(columns))), OBS_INDEX, columns)
+    return H, ForwardOperator(
+        MatrixBlock(H, row_block="concentration", col_block="flux")
+    )
+
+
+class TestCheckStateCells:
+    def test_same_cells_pass(self):
+        check_state_cells(flux_prior()[1], jacobian()[1])
+
+    def test_bias_block_is_ignored(self):
+        check_state_cells(flux_prior(bias=True)[1], jacobian()[1])
+
+    def test_prior_cell_missing_from_jacobian_raises(self):
+        # e.g. a Jacobian cached before the state grid gained its top row
+        with pytest.raises(ValueError, match="2 prior cells have no Jacobian column"):
+            check_state_cells(flux_prior()[1], jacobian(lats=[40.5])[1])
+
+    def test_jacobian_cell_missing_from_prior_raises(self):
+        with pytest.raises(ValueError, match="2 Jacobian cells are not in the prior"):
+            check_state_cells(flux_prior(lats=[40.5])[1], jacobian()[1])
+
+    def test_get_inputs_runs_the_check(self, monkeypatch):
+        inputs = {
+            "prior": flux_prior()[1],
+            "forward_operator": jacobian(lats=[40.5])[1],
+        }
+        monkeypatch.setattr(FluxInversionPipeline, "get_inputs", lambda self: inputs)
+        pipeline = make_pipeline(SLVMethaneInversion)
+        with pytest.raises(ValueError, match="State cells disagree"):
+            pipeline.get_inputs()
+
+
+# ---------------------------------------------------------------------------
+# Multiplicative MDM scale on the prior-modelled enhancement
+# ---------------------------------------------------------------------------
+
+
+def test_scale_on_prior_matches_by_label(monkeypatch):
+    prior_s, prior = flux_prior()
+    H, forward_operator = jacobian()
+    obs = Vector(
+        name="obs",
+        data=Block(name="concentration", data=pd.Series(1.0, index=OBS_INDEX)),
+    )
+    pipeline = make_pipeline(SLVMethaneInversion)
+    monkeypatch.setattr(pipeline, "get_prior", lambda: prior)
+    monkeypatch.setattr(
+        pipeline, "get_forward_operator", lambda obs, prior: forward_operator
+    )
+
+    x = prior_s.reorder_levels(H.columns.names).reindex(H.columns)
+    expected = np.abs(H.to_numpy() @ x.to_numpy())
+    positional = np.abs(H.to_numpy() @ prior_s.to_numpy())
+    assert not np.allclose(expected, positional)  # the orders really differ here
+
+    np.testing.assert_allclose(pipeline._multiplicative_scale(obs, "prior"), expected)
+
+
+# ---------------------------------------------------------------------------
+# get_forward_operator leaves the config alone
+# ---------------------------------------------------------------------------
+
+
+def test_auto_location_map_is_not_written_to_config(monkeypatch):
+    import stilt
+
+    import slv.inversion.config as config_module
+    import slv.inversion.pipelines as pipelines_module
+    from slv.inversion.sweep import config_id
+
+    class FakeModel:
+        def __init__(self, project):
+            self.simulations = ["loc_a"]
+            self.config = SimpleNamespace(
+                footprints={"fine": SimpleNamespace(grid=SimpleNamespace(xres=0.01))}
+            )
+
+    seen = {}
+
+    class FakeBuilder:
+        def __init__(self, model):
+            pass
+
+        def build_from_target(self, target, **kwargs):
+            seen.update(kwargs)
+            return MatrixBlock(
+                jacobian()[0], row_block="concentration", col_block="flux"
+            )
+
+    monkeypatch.setattr(stilt, "Model", FakeModel)
+    monkeypatch.setattr(stilt, "SimID", lambda sid: SimpleNamespace(location=sid))
+    monkeypatch.setattr(pipelines_module, "JacobianBuilder", FakeBuilder)
+    monkeypatch.setattr(
+        config_module,
+        "build_location_site_map",
+        lambda ids, site_config: {"loc_a": "wbb"},
+    )
+
+    pipeline = make_pipeline(
+        SLVMethaneInversion, tstart="2020-01-01", tend="2020-03-01"
+    )
+    obs = Vector(
+        name="obs",
+        data=Block(name="concentration", data=pd.Series(1.0, index=OBS_INDEX)),
+    )
+    before = config_id(pipeline.config)
+    pipeline.get_forward_operator(obs, flux_prior()[1])
+
+    assert seen["location_mapper"] == {"loc_a": "wbb"}
+    assert pipeline.config.location_site_map == {}
+    assert config_id(pipeline.config) == before
+
+
+def test_bias_jacobian_uses_given_location_mapper():
+    pipeline = make_pipeline(
+        SLVMethaneInversion,
+        tstart="2020-01-01",
+        tend="2020-03-01",
+        sites=["wbb"],
+        bias_std=0.5,
+        bias_grouping="site_group",
+    )
+    obs = make_obs_vector(["loc_a"], pd.to_datetime(["2020-01-05"]))
+    prior = make_bias_vector(pipeline.get_bias().index)
+    jac = pipeline.get_bias_jacobian(obs, prior, location_mapper={"loc_a": "wbb"})
+    org = pipeline.get_site_group("wbb")
+    assert jac.loc[:, (pd.Timestamp("2020-01-01"), org)].tolist() == [1.0]
+
+
+# ---------------------------------------------------------------------------
+# Cache keys
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize("component", ["prior", "prior_error"])
+def test_prior_keys_change_with_sites(component):
+    # "site" / "site_group" bias blocks are indexed by config.sites
+    fields = SLVMethaneInversion.COMPONENT_DEPS[component]
+    a = InversionConfig(sites=["wbb"], bias_std=0.5, bias_grouping="site")
+    b = InversionConfig(sites=["wbb", "hw"], bias_std=0.5, bias_grouping="site")
+    assert _component_hash(a, fields) != _component_hash(b, fields)

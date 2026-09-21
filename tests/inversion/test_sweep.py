@@ -16,10 +16,13 @@ from slv.inversion.pipelines import (
     _component_hash,
 )
 from slv.inversion.sweep import (
+    _RESULT_COLUMNS,
     Sweep,
     SweepResults,
+    _append_row,
     collect_metrics,
     config_id,
+    run_sweep_job,
 )
 
 # ---------------------------------------------------------------------------
@@ -521,3 +524,123 @@ class TestSweepResults:
         assert isinstance(cfg, InversionConfig)
         assert cls is SLVMethaneInversion
         assert abs(cfg.prior_base_std - 0.01) < 1e-9
+
+
+# ---------------------------------------------------------------------------
+# 8. Results CSV: one column set for success and error rows
+# ---------------------------------------------------------------------------
+
+
+def _solved_problem():
+    problem, _ = TestCollectMetrics()._mock_problem_and_pipeline()
+    return problem
+
+
+class _FakePipeline:
+    """Returns a solved-problem mock instead of running an inversion."""
+
+    def __init__(self, config):
+        self.config = config
+
+    def run(self):
+        return _solved_problem()
+
+    def calculate_total_flux(self, fluxes, units=None):
+        return pd.Series([float(fluxes.sum())])
+
+
+class _FailingPipeline(_FakePipeline):
+    def run(self):
+        raise RuntimeError("boom")
+
+
+class TestResultRows:
+    @pytest.fixture
+    def sweep(self, tmp_path):
+        return Sweep(cache=str(tmp_path / "cache"), prior_base_std=[0.01, 0.02])
+
+    def _row(self, sweep, cls, tmp_path, i=0):
+        cfg = sweep.configs[i][0]
+        return sweep._run_single((cfg, cls, str(tmp_path), None, False))
+
+    def test_success_and_error_rows_share_columns(self, sweep, tmp_path):
+        ok = self._row(sweep, _FakePipeline, tmp_path)
+        err = self._row(sweep, _FailingPipeline, tmp_path)
+        assert list(ok) == list(err)
+        assert ok["error"] is None and err["error"] == "boom"
+        assert isinstance(ok["runtime_seconds"], float)
+        assert isinstance(err["runtime_seconds"], float)
+
+    @pytest.mark.parametrize("first", ["ok", "error"])
+    def test_mixed_rows_read_back(self, sweep, tmp_path, first):
+        # Rows are appended by position: an error row after a success row used to
+        # make read_csv fail, and one before it shifted the metrics into `error`.
+        rows = {
+            "ok": self._row(sweep, _FakePipeline, tmp_path, 0),
+            "error": self._row(sweep, _FailingPipeline, tmp_path, 1),
+        }
+        csv_path = tmp_path / "sweep_results.csv"
+        for key in (first, "error" if first == "ok" else "ok"):
+            _append_row(csv_path, rows[key])
+
+        results = SweepResults(csv_path)
+        assert len(results.df) == 2
+        assert results.failed()["config_id"].tolist() == [rows["error"]["config_id"]]
+        ok = results.df.set_index("config_id").loc[rows["ok"]["config_id"]]
+        assert ok["reduced_chi2"] == pytest.approx(1.05)
+
+
+class TestAppendRow:
+    def test_aligns_by_column_name(self, tmp_path):
+        csv_path = tmp_path / "r.csv"
+        _append_row(csv_path, {"a": 1, "b": 2, "c": 3})
+        _append_row(csv_path, {"c": 30, "a": 10})
+        df = pd.read_csv(csv_path)
+        assert df["a"].tolist() == [1, 10]
+        assert df["c"].tolist() == [3, 30]
+        assert df["b"].isna().tolist() == [False, True]
+
+    def test_new_column_widens_old_file(self, tmp_path):
+        csv_path = tmp_path / "r.csv"
+        pd.DataFrame([{"config_id": "old", "reduced_chi2": 1.0}]).to_csv(
+            csv_path, index=False
+        )
+        _append_row(
+            csv_path, {"config_id": "new", "error": "boom", "reduced_chi2": None}
+        )
+        df = pd.read_csv(csv_path)
+        assert df["config_id"].tolist() == ["old", "new"]
+        assert df["error"].isna().tolist() == [True, False]
+
+    def test_none_row_is_skipped(self, tmp_path):
+        csv_path = tmp_path / "r.csv"
+        _append_row(csv_path, None)
+        assert not csv_path.exists()
+
+
+def test_run_sweep_job_rows_read_back(tmp_path, monkeypatch):
+    sweep = Sweep(cache=str(tmp_path / "cache"), prior_base_std=[0.01, 0.02])
+    sweep.run(results_dir=tmp_path, n_jobs=0)
+
+    def fail(self):
+        raise RuntimeError("boom")
+
+    monkeypatch.setattr(SLVMethaneInversion, "__init__", lambda self, cfg: None)
+    monkeypatch.setattr(
+        SLVMethaneInversion,
+        "calculate_total_flux",
+        lambda self, fluxes, units=None: pd.Series([float(fluxes.sum())]),
+    )
+
+    monkeypatch.setenv("SLURM_ARRAY_TASK_ID", "0")
+    monkeypatch.setattr(SLVMethaneInversion, "run", lambda self: _solved_problem())
+    run_sweep_job(tmp_path)
+    monkeypatch.setenv("SLURM_ARRAY_TASK_ID", "1")
+    monkeypatch.setattr(SLVMethaneInversion, "run", fail)
+    run_sweep_job(tmp_path)
+
+    results = SweepResults(tmp_path / "sweep_results.csv")
+    assert len(results.df) == 2
+    assert results.failed()["error"].tolist() == ["boom"]
+    assert set(_RESULT_COLUMNS) <= set(results.df.columns)
+    assert results.df["runtime_seconds"].notna().all()

@@ -43,6 +43,22 @@ def get_slv_prior(
         raise ValueError(f"Unsupported prior: {prior}")
 
 
+def align_to_flux_times(inventory: xr.DataArray | xr.Dataset, flux_times):
+    """Give each flux time the inventory period it falls in.
+
+    Inventory times label period starts (lair puts an annual inventory at Jan 1 and a
+    monthly one at the 1st), as do ``flux_times``, so each flux time takes the latest
+    inventory time at or before it -- a forward fill. Nearest-neighbour matching would
+    hand Aug-Dec of an annual inventory the *next* year's field. Flux times before the
+    inventory starts hold its first period; times after it ends hold the last (e.g. EPA
+    2020 for 2021-2023).
+    """
+    times = inventory.indexes["time"]
+    pos = times.get_indexer(pd.DatetimeIndex(flux_times), method="ffill")
+    pos[pos == -1] = 0
+    return inventory.isel(time=pos).assign_coords(time=pd.DatetimeIndex(flux_times))
+
+
 def build_constant_prior(out_grid, flux_times, value=0.0, units=None):
     """Build a spatially and temporally uniform prior.
 
@@ -140,8 +156,8 @@ def load_epa_prior(
             if target_step > inv_step:
                 inventory = inventory.resample(time=flux_freq).mean()
 
-    # Align to exact flux_times (nearest-neighbor fills finer-than-inventory requests)
-    prior = inventory.reindex(time=flux_times, method="nearest").to_series()
+    # Align to exact flux_times (finer-than-inventory requests repeat their period)
+    prior = align_to_flux_times(inventory, flux_times).to_series()
 
     if return_regridder:
         return prior, regridder
@@ -160,8 +176,8 @@ def load_edgar_prior(
     """EDGAR v8 annual CH4 prior -- the sensitivity alternative to the EPA prior.
 
     Mirrors ``load_epa_prior``'s express branch (load -> clip -> convert -> sum sectors ->
-    conservative regrid -> resample/reindex to flux_times). EDGAR v8 annual covers 1970-2022,
-    so 2023 nearest-fills from 2022 (cf. EPA holding 2020 for 2021-2023).
+    conservative regrid -> resample/align to flux_times). EDGAR v8 annual covers 1970-2022,
+    so 2023 holds 2022 (cf. EPA holding 2020 for 2021-2023).
     """
     edgar = inventories.EDGARv8("CH4", time_step="annual")
 
@@ -190,7 +206,7 @@ def load_edgar_prior(
             if target_step > inv_step:
                 inventory = inventory.resample(time=flux_freq).mean()
 
-    prior = inventory.reindex(time=flux_times, method="nearest").to_series()
+    prior = align_to_flux_times(inventory, flux_times).to_series()
 
     if return_regridder:
         return prior, regridder

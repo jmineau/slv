@@ -5,8 +5,9 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+import xarray as xr
 from cartopy.io.img_tiles import GoogleTiles
-from lair.geo import generate_regular_grid, write_rio_crs
+from lair.geo import write_rio_crs
 
 from slv.domain import UTC_OFFSET, XMAX, XMIN, YMAX, YMIN
 from slv.measurements.sites import load_site_config
@@ -319,16 +320,14 @@ class InversionConfig:
 
     @cached_property
     def grid(self):
-        # Create a regular grid with specified bounds and resolution
-        grid = generate_regular_grid(
-            xmin=self.xmin,
-            xmax=self.xmax,
-            dx=self.dx,
-            ymin=self.ymin,
-            ymax=self.ymax,
-            dy=self.dy,
-            x_label="lon",
-            y_label="lat",
+        """The flux cells as a lon/lat ``DataArray`` of zeros: the prior's regrid target.
+
+        Built from :attr:`state_grid`'s axes, so the prior and the Jacobian columns
+        enumerate the same cell centres by construction.
+        """
+        x, y = self.state_grid.axes
+        grid = xr.DataArray(
+            np.zeros((len(y), len(x))), coords={"lat": y, "lon": x}, dims=("lat", "lon")
         )
         grid = grid.rio.set_spatial_dims(x_dim="lon", y_dim="lat")
         grid = write_rio_crs(grid, crs="EPSG:4326")
@@ -337,27 +336,37 @@ class InversionConfig:
     @cached_property
     def state_grid(self):
         """
-        The flux state geometry as a PYSTILT ``Grid`` with the same cells as ``grid``.
+        The flux cells as a PYSTILT ``Grid``: the domain snapped outward to whole cells.
 
-        ``lair.geo.generate_regular_grid`` keeps a partial last row/column when
-        the extent is not a whole number of cells (e.g. ``ymax=40.93`` with
-        ``dy=0.05`` yields a cell centred at 40.925), whereas ``stilt.Grid`` only
-        keeps complete cells.  Snap the extent up to whole cells so both grids
-        enumerate the same centres.
+        This is the one definition of the flux cells -- the Jacobian is built on it and
+        :attr:`grid` (the prior) takes its axes. When the extent is not a whole number of
+        cells the last row/column is still a whole cell, reaching past ``xmax``/``ymax``
+        (``ymax=40.93`` with ``dy=0.05`` gives a top row centred at 40.925, covering
+        40.90-40.95).
         """
         from stilt import Grid
 
         eps = 1e-9
         nx = int(np.ceil((self.xmax - self.xmin) / self.dx - eps))
         ny = int(np.ceil((self.ymax - self.ymin) / self.dy - eps))
-        return Grid(
+        # stilt counts floor((max - min) / res) cells, and the float error of that
+        # subtraction (40.93 - 40.45 = 0.47999999999999687) can drop the last whole cell,
+        # so the upper bounds carry a negligible pad.
+        grid = Grid(
             xmin=self.xmin,
-            xmax=round(self.xmin + nx * self.dx, 10),
+            xmax=round(self.xmin + nx * self.dx, 10) + eps,
             ymin=self.ymin,
-            ymax=round(self.ymin + ny * self.dy, 10),
+            ymax=round(self.ymin + ny * self.dy, 10) + eps,
             xres=self.dx,
             yres=self.dy,
         )
+        x, y = grid.axes
+        if (len(x), len(y)) != (nx, ny):
+            raise ValueError(
+                f"state grid has {len(x)}x{len(y)} cells, expected {nx}x{ny} "
+                f"(dx={self.dx}, dy={self.dy})"
+            )
+        return grid
 
     @cached_property
     def grid_coords(self):

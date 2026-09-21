@@ -139,8 +139,11 @@ def _pkg_rev(import_name: str, dist_name: str) -> str:
     For an editable git checkout (the dev setup), ``git describe`` yields a tag +
     commits-since + short SHA (+ ``-dirty``), so any commit *or* uncommitted edit
     to the package busts the cache automatically -- no reinstall or version bump
-    needed.  Falls back to the installed metadata version for a non-git
-    (distributed) install where there is no source tree to inspect.
+    needed.  Falls back to the installed metadata version for a regular install.
+
+    A regular install lives under ``site-packages``, and git must not be asked about
+    it: a venv inside another repo (slv's own ``.venv``) would answer with *that*
+    repo's revision, so every slv commit would orphan the whole cache.
     """
     src = None
     try:
@@ -149,7 +152,7 @@ def _pkg_rev(import_name: str, dist_name: str) -> str:
             src = Path(mod.__file__).resolve().parent
     except ImportError:
         src = None
-    if src is not None:
+    if src is not None and not {"site-packages", "dist-packages"} & set(src.parts):
         try:
             out = subprocess.run(
                 [
@@ -189,6 +192,36 @@ def _version_tag() -> str:
     rebuild via ``config.cache_overwrite`` rather than relying on the tag.
     """
     return f"fips-{_pkg_rev('fips', 'fips')}_pystilt-{_pkg_rev('stilt', 'pystilt')}"
+
+
+def _flux_cells(index: pd.Index) -> set[tuple[float, float]]:
+    """The (lon, lat) cells of the flux entries of a fips state index."""
+    if "block" in index.names:
+        index = index[index.get_level_values("block") == "flux"]
+    lon = np.round(index.get_level_values("lon").to_numpy(dtype=float), 6)
+    lat = np.round(index.get_level_values("lat").to_numpy(dtype=float), 6)
+    return set(zip(lon, lat, strict=True))
+
+
+def check_state_cells(prior: Vector, forward_operator: ForwardOperator) -> None:
+    """Raise when the prior's flux cells and the Jacobian's flux columns differ.
+
+    fips reindexes the Jacobian onto the prior's index with zero fill, so a cell only
+    in the prior would silently get zero sensitivity, and a cell only in the Jacobian
+    would silently lose its contribution. The usual cause is a cached prior or
+    Jacobian built for a different state grid.
+    """
+    prior_cells = _flux_cells(prior.index)
+    jac_cells = _flux_cells(forward_operator.columns)
+    if prior_cells and prior_cells != jac_cells:
+        raise ValueError(
+            f"State cells disagree: {len(prior_cells - jac_cells)} prior cells have no "
+            f"Jacobian column and {len(jac_cells - prior_cells)} Jacobian cells are not in "
+            "the prior. A cached prior or forward_operator was probably built for a "
+            "different state grid; rebuild with "
+            'cache_overwrite=["prior", "prior_error", "forward_operator", '
+            '"modeldata_mismatch"].'
+        )
 
 
 def fips_cache(cls, filename):
@@ -301,15 +334,24 @@ class SLVMethaneInversion(FluxInversionPipeline):
     grouped by time (default), site, or site organization.
     """
 
-    #: Maps each cache component to the InversionConfig fields it depends on.
+    #: Maps each cache component to the InversionConfig fields it depends on. The bias
+    #: block is indexed by ``sites`` under the "site"/"site_group" groupings, so the
+    #: prior and prior error key on it too.
     COMPONENT_DEPS: dict[str, frozenset[str]] = {
         **DEFAULT_COMPONENT_DEPS,
-        "prior": DEFAULT_COMPONENT_DEPS["prior"] | {"bias_std", "bias_grouping"},
+        "prior": DEFAULT_COMPONENT_DEPS["prior"]
+        | {"bias_std", "bias_grouping", "sites"},
         "forward_operator": DEFAULT_COMPONENT_DEPS["forward_operator"]
         | {"bias_std", "bias_grouping"},
         "prior_error": DEFAULT_COMPONENT_DEPS["prior_error"]
-        | {"bias_std", "bias_grouping"},
+        | {"bias_std", "bias_grouping", "sites"},
     }
+
+    def get_inputs(self) -> dict[str, Any]:
+        """fips' inputs, checked that the prior and the Jacobian share their cells."""
+        inputs = super().get_inputs()
+        check_state_cells(inputs["prior"], inputs["forward_operator"])
+        return inputs
 
     @fips_cache(Vector, "obs")
     def get_obs(self) -> Vector:
@@ -373,6 +415,8 @@ class SLVMethaneInversion(FluxInversionPipeline):
         # Must happen before filtering so stationary sites can be resolved.
         # Mobile location_ids won't appear in the mapper (no site_config entry),
         # so mapper.get(lid, lid) returns the location_id itself for mobile sims.
+        # The auto-built mapper is not written back to the config: it is only built on a
+        # cache miss, and a config changed mid-run would change its sweep config_id.
         location_mapper = self.config.location_site_map
         if not location_mapper:
             all_location_ids = list({SimID(sid).location for sid in model.simulations})
@@ -380,7 +424,6 @@ class SLVMethaneInversion(FluxInversionPipeline):
                 all_location_ids, self.config.site_config
             )
             print(f"Auto-generated location mapper for {len(location_mapper)} sites")
-            self.config.location_site_map = location_mapper
 
         # Filter to simulations relevant for this obs set.
         # For stationary sims: mapper resolves location_id → site name → in obs.
@@ -413,7 +456,7 @@ class SLVMethaneInversion(FluxInversionPipeline):
             footprint=footprint,
             location_ids=relevant_location_ids,
             subset_hours=self.config.subset_hours_utc,
-            location_mapper=self.config.location_site_map,
+            location_mapper=location_mapper,
             num_processes=self.config.num_processes,
             timeout=self.config.timeout,
             sparse=self.config.sparse_jacobian,
@@ -426,7 +469,9 @@ class SLVMethaneInversion(FluxInversionPipeline):
         # Add bias Jacobian
         flux_jac_blk = ForwardOperator(jacobian).blocks["concentration", "flux"]
         bias_jac_blk = MatrixBlock(
-            self.get_bias_jacobian(obs, prior), "concentration", "bias"
+            self.get_bias_jacobian(obs, prior, location_mapper=location_mapper),
+            "concentration",
+            "bias",
         )
         return ForwardOperator([flux_jac_blk, bias_jac_blk])
 
@@ -504,8 +549,15 @@ class SLVMethaneInversion(FluxInversionPipeline):
             return np.abs(np.nan_to_num(obs_s.to_numpy() - bg_a, nan=0.0))
         prior = self.get_prior()
         flux = self.get_forward_operator(obs, prior)["concentration", "flux"]
+        # Match the prior to the Jacobian columns by label, not position: their level
+        # orders differ (the EPA prior is (time, lat, lon), the Jacobian (lon, lat, time)).
+        x = (
+            prior["flux"]
+            .reorder_levels(flux.columns.names)
+            .reindex(flux.columns, fill_value=0.0)
+        )
         e = pd.Series(
-            np.asarray(flux, dtype=float) @ prior["flux"].values, index=flux.index
+            np.asarray(flux, dtype=float) @ x.to_numpy(dtype=float), index=flux.index
         )
         key = obs.index.droplevel(
             [n for n in obs.index.names if n not in flux.index.names]
@@ -1210,13 +1262,18 @@ class SLVMethaneInversion(FluxInversionPipeline):
 
         return pd.Series(0.0, index=index, name="bias")
 
-    def get_bias_jacobian(self, obs: Vector, prior: Vector) -> pd.DataFrame:
+    def get_bias_jacobian(
+        self, obs: Vector, prior: Vector, location_mapper: dict | None = None
+    ) -> pd.DataFrame:
         """Build the obs × bias Jacobian based on config.bias_grouping.
 
         Maps each observation to its corresponding bias term:
           - time: match by time interval only
           - site: match by (time, obs_location)
           - site_group: match by (time, organization)
+
+        ``location_mapper`` (STILT location ID -> site) defaults to
+        ``config.location_site_map``.
         """
         obs_index = obs["concentration"].index
         bias_index = prior["bias"].index
@@ -1250,7 +1307,7 @@ class SLVMethaneInversion(FluxInversionPipeline):
             # Per-site-group: match (time, organization)
             obs_locs = obs_index.get_level_values("obs_location")
             # Map obs_location to site first, then to organization
-            location_to_site = self.config.location_site_map or {}
+            location_to_site = location_mapper or self.config.location_site_map or {}
             obs_sites = obs_locs.map(lambda loc: location_to_site.get(loc, loc))
             obs_site_groups = obs_sites.map(self.get_site_group)
             bias_keys = pd.Series(
