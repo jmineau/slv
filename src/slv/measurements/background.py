@@ -102,23 +102,24 @@ class UTAFlask(GMLDiscrete):
 class UATAQCH4:
     """
     UATAQ Background Data
+
+    Index by site (``"hdp"``) for hourly CH4, or by ``"<site>_base"`` for its
+    rolling baseline.
     """
 
     def __init__(self):
         self._data = {}
 
-    def __getitem__(self, key) -> pd.DataFrame:
+    def __getitem__(self, key) -> pd.Series:
         if key not in self._data:
             self._data[key] = self._get_data(key)
         return self._data[key]
 
     def _get_data(self, key: str) -> pd.Series:
         # Parse key
-        if "_" in key:
-            site, method = key.split("_")
-        else:
-            site = key
-            method = None
+        site, _, method = key.partition("_")
+        if method not in ("", "base"):
+            raise ValueError(f"Unknown method {method!r} in key {key!r}; use 'base'.")
 
         # Get data
         if site in self._data:
@@ -132,7 +133,7 @@ class UATAQCH4:
         data = data.resample("1h").mean()
 
         # Apply method
-        if method and method == "base":
+        if method == "base":
             data = rolling_baseline(data)
 
         return data

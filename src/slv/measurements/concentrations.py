@@ -5,6 +5,7 @@ import uataq
 from uataq.timerange import TimeRange
 
 from slv import get_data_dir
+from slv.domain import UTC_OFFSET
 from slv.measurements import instruments
 from slv.measurements.mobile import merge_with_gps
 from slv.measurements.pollutants import normalize_pollutant
@@ -71,6 +72,9 @@ def load_concentrations(
 
         org = config["organization"]
         site_type = config["type"]
+        if pd.isna(config["instruments"]):
+            print(f"No instruments configured for site {site}. Skipping.")
+            continue
         instrument_list = config["instruments"].split()
 
         inst_dfs: list[pd.DataFrame] = []
@@ -149,16 +153,27 @@ def load_concentrations(
             df["instrument"] = instr_name
 
             # Normalize columns for each supported pollutant
+            loaded_pollutants = []
             for pol in supported_pollutants:
                 pol_range = valid_range.get(pol) if valid_range else None
                 pol_flags = valid_flags.get(pol) if valid_flags else None
                 conc_col = instr_class.pollutants[pol]
                 if conc_col in df.columns:
                     df = df.rename(columns={conc_col: pol})
+                if pol not in df.columns:
+                    print(
+                        f"No {pol} column in {lvl} data for {site} instrument "
+                        f"{instr_name}. Skipping {pol}."
+                    )
+                    continue
                 df[pol] = normalize_pollutant(df, pol, pol_range, pol_flags)
+                loaded_pollutants.append(pol)
+
+            if not loaded_pollutants:
+                continue
 
             # Drop rows where all pollutants are NaN
-            df = df.dropna(subset=supported_pollutants, how="all")
+            df = df.dropna(subset=loaded_pollutants, how="all")
 
             inst_dfs.append(df)
 
@@ -209,8 +224,8 @@ def load_concentrations(
     obs = obs.sort_values(["Time_UTC", "site"]).reset_index(drop=True)
 
     # Calculate mountain standard time
-    # TODO this is hardcoded, any easy way to get Local Standard Time offset for each site?
-    obs["Time_MST"] = obs.Time_UTC - pd.to_timedelta("7h")
+    # TODO any easy way to get Local Standard Time offset for each site?
+    obs["Time_MST"] = obs.Time_UTC + pd.Timedelta(hours=UTC_OFFSET)
 
     if subset_hours is not None:
         # Filter to specified hours of day (MOUNTAIN STANDARD TIME)

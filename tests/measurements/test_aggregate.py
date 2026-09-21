@@ -275,3 +275,120 @@ class TestMixed:
         obs = pd.DataFrame(columns=["Time_UTC", "site", "is_mobile", "CH4"])
         with pytest.raises(ValueError, match="No data to aggregate"):
             aggregate_obs(obs)
+
+
+# ---------------------------------------------------------------------------
+# Time binning
+# ---------------------------------------------------------------------------
+
+
+def make_times(times, site="A"):
+    """Stationary obs at the given times, CH4 counting up from 0."""
+    lat, lon, height = SITE_COORDS[site]
+    return pd.DataFrame(
+        {
+            "Time_UTC": pd.to_datetime(times),
+            "site": site,
+            "instrument": "lgr_ugga",
+            "is_mobile": False,
+            "latitude": lat,
+            "longitude": lon,
+            "height": height,
+            "CH4": np.arange(len(times), dtype=float),
+        }
+    )
+
+
+class TestTimeBinning:
+    def test_multi_minute_freq_bins(self):
+        obs = make_times(["2024-01-01 00:07", "2024-01-01 00:12", "2024-01-01 00:29"])
+        result = aggregate_obs(obs, freq="15min")
+        assert list(result["Time_UTC"]) == [
+            pd.Timestamp("2024-01-01 00:00"),
+            pd.Timestamp("2024-01-01 00:15"),
+        ]
+        assert list(result["CH4"]) == [0.5, 2.0]
+
+    def test_multi_hour_freq_bins(self):
+        obs = make_times(["2024-01-01 00:30", "2024-01-01 01:30", "2024-01-01 02:30"])
+        result = aggregate_obs(obs, freq="2h")
+        assert list(result["Time_UTC"]) == [
+            pd.Timestamp("2024-01-01 00:00"),
+            pd.Timestamp("2024-01-01 02:00"),
+        ]
+
+    @pytest.mark.parametrize("freq", ["h", "1h", "D", "1D"])
+    @pytest.mark.parametrize("tz", [None, "UTC", "America/Denver"])
+    def test_single_unit_freq_matches_to_period(self, freq, tz):
+        # Unit frequencies must bin exactly as the old to_period code did,
+        # including dtype and dropping any timezone.
+        times = pd.Series(
+            pd.to_datetime(
+                ["2024-01-01 00:07:31", "2024-01-01 05:59:00", "2024-01-02 00:00:00"]
+            )
+        )
+        if tz is not None:
+            times = times.dt.tz_localize(tz)
+        obs = make_times(times)
+        result = aggregate_obs(obs, freq=freq)
+        expected = (
+            times.dt.tz_localize(None).dt.to_period(freq).dt.to_timestamp().unique()
+        )
+        pd.testing.assert_series_equal(
+            result["Time_UTC"],
+            pd.Series(expected, name="Time_UTC"),
+        )
+
+    def test_calendar_freq_bins_by_period(self):
+        obs = make_times(["2024-01-03", "2024-01-30", "2024-02-02"])
+        result = aggregate_obs(obs, freq="M")
+        assert list(result["Time_UTC"]) == [
+            pd.Timestamp("2024-01-01"),
+            pd.Timestamp("2024-02-01"),
+        ]
+
+    def test_min_percent_with_calendar_freq_raises(self):
+        obs = make_times(["2024-01-03", "2024-02-02"])
+        with pytest.raises(ValueError, match="fixed-length freq"):
+            aggregate_obs(obs, freq="W", stationary_min_percent=0.5)
+
+    def test_mobile_multi_minute_freq_bins(self):
+        obs = make_mobile(n_per_bin=5, n_bins=3)  # 0 to 2.7 minutes
+        result = aggregate_obs(obs, freq="2min", mobile_grid_res=10.0)
+        assert list(result["Time_UTC"]) == [
+            pd.Timestamp("2024-01-01 00:00"),
+            pd.Timestamp("2024-01-01 00:02"),
+        ]
+
+
+# ---------------------------------------------------------------------------
+# Input handling
+# ---------------------------------------------------------------------------
+
+
+class TestInputs:
+    def test_obs_not_modified(self):
+        obs = make_stationary(n_per_hour=10, hours=1, sites=("A",))
+        obs["Time_UTC"] = obs["Time_UTC"].astype(str)
+        before = obs.copy()
+        aggregate_obs(obs, freq="h")
+        pd.testing.assert_frame_equal(obs, before)
+
+    @pytest.mark.parametrize("by", [("site",), ["site"], "site"])
+    def test_by_accepts_str_list_tuple(self, by):
+        stationary = make_stationary(n_per_hour=10, hours=1, sites=("A", "B"))
+        mobile = make_mobile(n_per_bin=5, n_bins=2)
+        obs = pd.concat([stationary, mobile], ignore_index=True)
+        result = aggregate_obs(obs, by=by, mobile_grid_res=0.1)
+        assert sorted(result["site"]) == ["A", "B", "mobile"]
+
+    def test_mobile_points_skip_rows_without_position(self):
+        obs = make_mobile(n_per_bin=5, n_bins=3)
+        obs.loc[[0, 1], ["latitude", "longitude"]] = np.nan
+        points = gpd.GeoDataFrame(
+            geometry=[Point(-111.9, 40.7), Point(-111.85, 40.8), Point(-111.8, 40.9)],
+            crs="EPSG:4326",
+        )
+        result = aggregate_obs(obs, mobile_points=points)
+        assert len(result) == 3
+        assert result["latitude"].notna().all()

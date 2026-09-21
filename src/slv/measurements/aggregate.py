@@ -8,9 +8,38 @@ from scipy.spatial import cKDTree
 from slv.measurements import instruments
 
 
+def _is_fixed_freq(freq: str) -> bool:
+    """True if ``freq`` has a fixed length (e.g. "15min", "1h", "1D"), False for
+    calendar frequencies such as "W" or "M"."""
+    try:
+        return pd.tseries.frequencies.to_offset(freq).nanos > 0
+    except ValueError:
+        return False
+
+
+def _bin_start(times: pd.Series, freq: str) -> pd.Series:
+    """Start of the ``freq`` bin that each time falls in.
+
+    Fixed frequencies are floored first so that multiples such as "15min" or
+    "2h" bin correctly (``to_period`` alone only truncates to the base unit).
+    Calendar frequencies bin by period. As with ``to_period``, any timezone is
+    dropped and bins are taken in local wall time.
+    """
+    if times.dt.tz is not None:
+        times = times.dt.tz_localize(None)
+    if _is_fixed_freq(freq):
+        times = times.dt.floor(freq)
+    return times.dt.to_period(freq).dt.to_timestamp()
+
+
+def _as_keys(by: str | list[str] | tuple | Callable) -> list:
+    """Normalize a ``by`` argument to a list of group keys."""
+    return list(by) if isinstance(by, (list, tuple)) else [by]
+
+
 def aggregate_obs(
     obs: pd.DataFrame,
-    by: str | list[str] | Callable | None = None,
+    by: str | list[str] | tuple[str, ...] | Callable | None = None,
     freq: str | None = None,
     func: str = "mean",
     mobile_points: gpd.GeoDataFrame | None = None,
@@ -22,9 +51,13 @@ def aggregate_obs(
     Flexible aggregation for both stationary and mobile sites.
     - Stationary: group by site, time, and location columns (constant per site)
     - Mobile: group by spatial point/grid and time (or user grouping)
-    Returns grouped DataFrame with original column names.
+    Returns grouped DataFrame with original column names. ``obs`` is not modified.
+
+    ``freq`` may be a fixed frequency ("15min", "1h", "1D") or a calendar one
+    ("W", "M"); ``stationary_min_percent`` needs a fixed one. Mobile rows without
+    a position are left out of the ``mobile_points`` match.
     """
-    obs["Time_UTC"] = pd.to_datetime(obs["Time_UTC"])
+    obs = obs.assign(Time_UTC=pd.to_datetime(obs["Time_UTC"]))
 
     if "is_mobile" in obs.columns:
         stationary = obs[~obs["is_mobile"]]
@@ -39,12 +72,10 @@ def aggregate_obs(
     if not stationary.empty:
         if by is not None or freq is not None:
             if by is not None:
-                group_keys = by if isinstance(by, (list, tuple)) else [by]
+                group_keys = _as_keys(by)
             else:
                 stationary = stationary.copy()
-                stationary["agg_time"] = (
-                    stationary["Time_UTC"].dt.to_period(freq).dt.to_timestamp()
-                )
+                stationary["agg_time"] = _bin_start(stationary["Time_UTC"], freq)
                 group_keys = ["site", "agg_time"] + [
                     c
                     for c in [
@@ -58,6 +89,11 @@ def aggregate_obs(
                 ]
 
                 if stationary_min_percent is not None:
+                    if not _is_fixed_freq(freq):
+                        raise ValueError(
+                            "stationary_min_percent needs a fixed-length freq "
+                            f"(e.g. '1h', '1D'), got {freq!r}."
+                        )
                     freq_hours = pd.tseries.frequencies.to_offset(freq).nanos / 3.6e12
                     inst_expected = {}
                     for inst_name in stationary["instrument"].unique():
@@ -76,8 +112,9 @@ def aggregate_obs(
                         inst_expected
                     )
                     stationary = stationary.groupby(group_keys).filter(
-                        lambda g: len(g) / g["_expected"].iloc[0]
-                        >= stationary_min_percent
+                        lambda g: (
+                            len(g) / g["_expected"].iloc[0] >= stationary_min_percent
+                        )
                     )
                     stationary = stationary.drop(columns="_expected")
 
@@ -90,14 +127,16 @@ def aggregate_obs(
         else:
             agg_frames.append(stationary)
 
+    if mobile_points is not None and not mobile.empty:
+        # Rows without a position can't be matched to a point
+        mobile = mobile.dropna(subset=["longitude", "latitude"])
+
     # --- Mobile ---
     if not mobile.empty:
         group_keys = ["is_mobile", "height"]
 
         if mobile_points is not None:
-            obs_pts = np.array(
-                list(zip(mobile["longitude"], mobile["latitude"], strict=False))
-            )
+            obs_pts = mobile[["longitude", "latitude"]].to_numpy(dtype=float)
             agg_pts = np.array(
                 list(
                     zip(
@@ -123,11 +162,9 @@ def aggregate_obs(
 
         if by is not None or freq is not None:
             if by is not None:
-                group_keys = by if isinstance(by, (list, tuple)) else [by]
+                group_keys = _as_keys(by)
             else:
-                mobile["agg_time"] = (
-                    mobile["Time_UTC"].dt.to_period(freq).dt.to_timestamp()
-                )
+                mobile["agg_time"] = _bin_start(mobile["Time_UTC"], freq)
                 group_keys.append("agg_time")
 
         if mobile_min_count is not None:

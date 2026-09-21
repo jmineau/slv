@@ -28,7 +28,7 @@ markers = {
 def plot_point_sources(kind, ax, color="black", **kwargs):
     """Plot point sources of a given kind on an axis."""
     points = _load_points()
-    for index, row in points[points["category"] == kind].iterrows():
+    for _, row in points[points["category"] == kind].iterrows():
         ax.scatter(
             row["longitude"],
             row["latitude"],
