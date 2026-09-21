@@ -1,3 +1,6 @@
+from pathlib import Path
+
+import numpy as np
 import pandas as pd
 
 from slv.measurements import aggregate_obs, load_concentrations
@@ -35,6 +38,48 @@ def _drop_spike_days(obs: pd.DataFrame, percentile: float) -> pd.DataFrame:
     return obs[keep]
 
 
+def load_mobile_obs(
+    mobile_obs: str | Path | pd.DataFrame,
+    time_range: tuple,
+    subset_hours: list[int] | None = None,
+    filter_pcaps: bool = True,
+    utc_offset: int = -7,
+) -> pd.DataFrame:
+    """Receptor-paired mobile observations, filtered like the stationary ones.
+
+    ``mobile_obs`` is the output of
+    :func:`slv.measurements.mobile.trax_receptor_observations` (or a parquet of it): indexed
+    ``(obs_location, obs_time)`` with ``obs_location`` the receptor's PYSTILT location_id and
+    ``obs_time`` its naive-UTC release time. Applies the same time range, local-hour window
+    (``subset_hours`` in standard time, ``utc_offset`` from UTC) and PCAP-day exclusion the
+    stationary path applies, and returns just the ``CH4`` column.
+    """
+    df = (
+        pd.read_parquet(mobile_obs)
+        if not isinstance(mobile_obs, pd.DataFrame)
+        else mobile_obs
+    )
+    if list(df.index.names) != ["obs_location", "obs_time"]:
+        df = df.set_index(["obs_location", "obs_time"])
+    t = pd.DatetimeIndex(df.index.get_level_values("obs_time"))
+    if t.tz is not None:
+        t = t.tz_convert("UTC").tz_localize(None)
+    t0, t1 = (pd.Timestamp(x) for x in time_range)
+    t0 = t0.tz_convert("UTC").tz_localize(None) if t0.tz is not None else t0
+    t1 = t1.tz_convert("UTC").tz_localize(None) if t1.tz is not None else t1
+    keep = np.asarray((t >= t0) & (t < t1))
+    if subset_hours is not None:
+        keep &= np.asarray((t + pd.Timedelta(hours=utc_offset)).hour.isin(subset_hours))
+    df = df.iloc[np.flatnonzero(keep)]
+    if filter_pcaps and not df.empty:
+        from slv.meteorology.pcaps import filter_pcap_events
+
+        times = pd.DatetimeIndex(df.index.get_level_values("obs_time"))
+        pos = pd.Series(np.arange(len(df)), index=times)
+        df = df.iloc[np.sort(filter_pcap_events(pos).to_numpy())]
+    return df[["CH4"]]
+
+
 def get_slv_observations(
     sites: list[str],
     site_config: pd.DataFrame,
@@ -44,15 +89,54 @@ def get_slv_observations(
     filter_spikes: bool = False,
     spike_percentile: float = 0.90,
     num_processes: int = 1,
+    mobile_obs: str | Path | pd.DataFrame | None = None,
+    utc_offset: int = -7,
 ) -> pd.DataFrame:
     """Fetches observations for the pipeline.
 
     Returns DataFrame indexed by (obs_location, obs_time) with a CH4 column.
     For stationary sites, obs_location is the site name (e.g. "wbb").
-    For mobile sites, obs_location is the STILT location_id string
-    ("{lon}_{lat}_{zagl}"), which directly matches the simulation location_id
-    so no separate location mapper is needed for mobile sites.
+    For mobile sites, obs_location is the STILT location_id string, which directly
+    matches the simulation location_id so no separate location mapper is needed.
+
+    ``mobile_obs`` (receptor-paired observations, :func:`load_mobile_obs`) supplies the
+    mobile sites' obs when given: each is keyed exactly like the receptor it pairs with
+    (a crossing's multipoint location_id, a dwell's point location_id) at its actual release
+    time. Without it, mobile sites fall back to the old hourly aggregation onto the staged
+    2-km points, whose keys only match point receptors at those points.
     """
+    mobile_sites = [
+        s
+        for s in sites
+        if s in site_config.index and site_config.at[s, "type"] == "mobile"
+    ]
+    if mobile_obs is not None and mobile_sites:
+        stationary = [s for s in sites if s not in mobile_sites]
+        parts = []
+        if stationary:
+            parts.append(
+                get_slv_observations(
+                    stationary,
+                    site_config,
+                    time_range,
+                    subset_hours=subset_hours,
+                    filter_pcaps=filter_pcaps,
+                    filter_spikes=filter_spikes,
+                    spike_percentile=spike_percentile,
+                    num_processes=num_processes,
+                )
+            )
+        parts.append(
+            load_mobile_obs(
+                mobile_obs,
+                time_range,
+                subset_hours=subset_hours,
+                filter_pcaps=filter_pcaps,
+                utc_offset=utc_offset,
+            )
+        )
+        return pd.concat(parts).sort_index()
+
     obs = load_concentrations(
         pollutants=["CH4"],
         sites=sites,

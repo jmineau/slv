@@ -39,6 +39,8 @@ _OBS_DEPS: frozenset[str] = frozenset(
         "filter_pcaps",
         "subset_hours",
         "utc_offset",
+        # fingerprint, not the raw path: a mobile_obs file rebuilt in place must re-key
+        "mobile_obs_key",
     }
 )
 #: Obs-filter deps: change WHICH obs survive (and so the obs-indexed MDM/constant),
@@ -325,6 +327,8 @@ class SLVMethaneInversion(FluxInversionPipeline):
                     filter_spikes=self.config.filter_spikes,
                     spike_percentile=self.config.spike_percentile,
                     num_processes=self.config.num_processes,
+                    mobile_obs=self.config.mobile_obs,
+                    utc_offset=self.config.utc_offset,
                 ),
             ),
         )

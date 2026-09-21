@@ -13,7 +13,9 @@ Submodules, one concern each:
   with both tag sets and a load-time ``location`` filter.
 * :mod:`.transects` — the archived transect matrices.
 * :mod:`.receptors` — STILT receptors: 50-m network points, 2-km segment crossings,
-  one PYSTILT multipoint receptor per crossing.
+  one PYSTILT multipoint receptor per crossing, and dwell (parked-train) receptors.
+* :mod:`.receptor_obs` — the CH4 observation for each of those receptors, keyed
+  ``(obs_location, obs_time)`` exactly as the inversion joins them to the footprints.
 * :mod:`.wyoming` — the Wyoming mobile lab (Aeris + met readers, enhancement
   ratios, wind-barb map); not re-exported, import from the module.
 
@@ -58,6 +60,12 @@ from .obs import (
     label_trax_location,
     load_trax_obs,
 )
+from .receptor_obs import (
+    CROSSING_STATES,
+    DWELL_STATES,
+    inlet_lag_seconds,
+    trax_receptor_observations,
+)
 from .receptors import (
     RECEPTOR_COLUMNS,
     build_dwell_receptors,
@@ -73,6 +81,8 @@ from .transects import TRANSECT_LINES, load_transects
 
 __all__ = [
     "CAL_SOURCES",
+    "CROSSING_STATES",
+    "DWELL_STATES",
     "HOREL_POST_PILOT",
     "LOCATION_SETS",
     "RECEPTOR_COLUMNS",
@@ -90,6 +100,7 @@ __all__ = [
     "find_dwells",
     "find_segment_crossings",
     "get_geodf",
+    "inlet_lag_seconds",
     "label_dwell_site",
     "label_observations",
     "label_trax_location",
@@ -110,4 +121,5 @@ __all__ = [
     "select_uncalibrated",
     "state_intervals",
     "storage_locations",
+    "trax_receptor_observations",
 ]

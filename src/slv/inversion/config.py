@@ -188,6 +188,12 @@ class InversionConfig:
 
     # --- Obs & Background ---
     sites: list[str] = field(default_factory=lambda: ["wbb"])
+    # Prebuilt receptor-paired observations for the mobile sites (a parquet indexed
+    # (obs_location, obs_time) with a CH4 column, from
+    # slv.measurements.mobile.trax_receptor_observations). When set, mobile sites take
+    # their obs from here instead of the hourly point aggregation, so each obs is keyed
+    # exactly like the TRAX receptor it pairs with. None keeps the old mobile path.
+    mobile_obs: str | Path | None = None
     filter_pcaps: bool = True
 
     # Drop days with anomalously high within-hour CH4 variance: passing plumes /
@@ -362,6 +368,22 @@ class InversionConfig:
     @property
     def time_range(self) -> tuple[pd.Timestamp, pd.Timestamp]:
         return (pd.Timestamp(self.tstart), pd.Timestamp(self.tend))
+
+    @property
+    def mobile_obs_key(self) -> str | None:
+        """Cache fingerprint of ``mobile_obs``: its path plus size and mtime.
+
+        Hashing the path alone would miss a file rebuilt in place -- e.g. regenerated with a
+        revised inlet lag -- and silently reuse obs, Jacobian and MDM built from the old
+        one. Size+mtime change whenever the file is rewritten.
+        """
+        if self.mobile_obs is None:
+            return None
+        path = Path(self.mobile_obs)
+        if not path.exists():
+            return f"{path}|missing"
+        st = path.stat()
+        return f"{path.resolve()}|{st.st_size}|{st.st_mtime_ns}"
 
     @property
     def flux_time_bins(self):
