@@ -8,6 +8,15 @@ versions are calendar-based (YYYY.M.PATCH).
 
 ### Changed
 
+- `slv.inversion.pipelines` is split by concern: `cache` (component cache),
+  `mdm` (model-data mismatch), `bias`, `coverage` (state-cell check and coverage
+  filter), `report` (totals, summary, plots). `SLVMethaneInversion` combines them as
+  mixins, keeps every method name, and is imported as before; the cache helpers are
+  still importable from `pipelines`
+- Component cache keys include the release versions of lair and uataq: obs, prior,
+  prior error, model-data mismatch and constant rebuild after a new lair / uataq
+  release (a checkout's latest tag or static pyproject version, else the installed
+  version), the Jacobian does not. These components rebuild once on upgrading
 - Python >= 3.11 (was 3.10): pandas 3 and current xarray need 3.11, and CI only
   ever tested 3.11 / 3.12
 - `slv.measurements.mobile.network` resolves `$LINGROUP_DATA_DIR` /

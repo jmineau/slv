@@ -897,3 +897,88 @@ def pipelines_matrix(block):
 def test_total_units_are_mass_per_interval():
     pipeline = make_pipeline(SLVMethaneInversion, flux_freq="QS")
     assert pipeline._total_units() == "Gg per QS interval"
+
+
+# ---------------------------------------------------------------------------
+# Package releases in the component cache keys
+# ---------------------------------------------------------------------------
+
+
+def _checkout(root, name, pyproject):
+    """An editable-style checkout: <root>/pyproject.toml and <root>/src/<name>/."""
+    (root / "src" / name).mkdir(parents=True)
+    (root / "src" / name / "__init__.py").write_text("")
+    (root / "pyproject.toml").write_text(pyproject)
+    return root / "src"
+
+
+class TestPkgVersion:
+    def test_static_pyproject_version(self, tmp_path, monkeypatch):
+        from slv.inversion.cache import _pkg_version
+
+        src = _checkout(
+            tmp_path, "slvtest_static_pkg", '[project]\nname = "x"\nversion = "1.2.3"\n'
+        )
+        monkeypatch.syspath_prepend(str(src))
+        try:
+            assert _pkg_version("slvtest_static_pkg", "x") == "1.2.3"
+        finally:
+            sys.modules.pop("slvtest_static_pkg", None)
+
+    @pytest.mark.skipif(shutil.which("git") is None, reason="git not available")
+    def test_scm_version_is_the_latest_tag(self, tmp_path, monkeypatch):
+        # a setuptools-scm checkout: the release is the latest tag, not the commit
+        from slv.inversion.cache import _pkg_version
+
+        src = _checkout(
+            tmp_path,
+            "slvtest_scm_pkg",
+            '[project]\nname = "x"\ndynamic = ["version"]\n',
+        )
+        _git(tmp_path, "init", "-q")
+        _git(tmp_path, "add", "-A")
+        _git(tmp_path, "commit", "-qm", "init")
+        _git(tmp_path, "tag", "v2026.12.3")
+        (tmp_path / "later.txt").write_text("after the release")
+        _git(tmp_path, "add", "-A")
+        _git(tmp_path, "commit", "-qm", "work after the release")
+        monkeypatch.syspath_prepend(str(src))
+        try:
+            assert _pkg_version("slvtest_scm_pkg", "x") == "2026.12.3"
+        finally:
+            sys.modules.pop("slvtest_scm_pkg", None)
+
+
+def test_package_release_rekeys_obs_but_not_the_jacobian(tmp_path, monkeypatch):
+    import slv.inversion.cache as cache
+
+    class Fake:
+        def to_file(self, path):
+            path.write_text("x")
+
+        @classmethod
+        def from_file(cls, path):
+            return cls()
+
+    class FakePipeline:
+        config = InversionConfig(cache=str(tmp_path))
+
+        @fips_cache(Fake, "obs")
+        def get_obs(self):
+            return Fake()
+
+        @fips_cache(Fake, "forward_operator")
+        def get_fo(self):
+            return Fake()
+
+    def files(component):
+        return sorted((tmp_path / ".fips").glob(f"*/{component}/*.pkl"))
+
+    monkeypatch.setattr(cache, "_release", lambda p: "2026.12.2")
+    FakePipeline().get_obs()
+    FakePipeline().get_fo()
+    monkeypatch.setattr(cache, "_release", lambda p: "2026.12.3")  # a new lair release
+    FakePipeline().get_obs()
+    FakePipeline().get_fo()
+    assert len(files("obs")) == 2
+    assert len(files("forward_operator")) == 1

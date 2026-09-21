@@ -10,6 +10,7 @@ import hashlib
 import importlib
 import json
 import subprocess
+import tomllib
 from importlib.metadata import PackageNotFoundError
 from importlib.metadata import version as _dist_version
 from pathlib import Path
@@ -106,6 +107,19 @@ DEFAULT_COMPONENT_DEPS: dict[str, frozenset[str]] = {
 }
 
 
+#: Packages whose *release* each component also keys on, beyond fips + pystilt (which are in
+#: the version tag). lair builds the prior and the backgrounds and uataq reads the obs; the
+#: prior error and the MDM are built from those. Not the forward_operator: the Jacobian is
+#: fips + pystilt only, and re-keying it would mean a full rebuild.
+DEFAULT_COMPONENT_PACKAGES: dict[str, tuple[str, ...]] = {
+    "obs": ("lair", "uataq"),
+    "prior": ("lair",),
+    "prior_error": ("lair",),
+    "modeldata_mismatch": ("lair", "uataq"),
+    "constant": ("lair", "uataq"),
+}
+
+
 def _json_default(v):
     """Fallback JSON serializer: converts non-primitive types to strings."""
     if isinstance(v, (list, tuple)):
@@ -117,11 +131,84 @@ def _json_default(v):
     return str(v)
 
 
-def _component_hash(config, fields: frozenset[str]) -> str:
-    """Return the first 12 hex chars of sha256 over the given config fields."""
+def _component_hash(
+    config, fields: frozenset[str], packages: tuple[str, ...] = ()
+) -> str:
+    """Return the first 12 hex chars of sha256 over the given config fields, plus the
+    release versions of ``packages`` (see :func:`_release`)."""
     data = {f: _json_default(getattr(config, f)) for f in sorted(fields)}
+    if packages:
+        data["__packages__"] = {p: _release(p) for p in sorted(packages)}
     serialized = json.dumps(data, sort_keys=True)
     return hashlib.sha256(serialized.encode()).hexdigest()[:12]
+
+
+def _source_dir(import_name: str) -> Path | None:
+    """The directory a package is imported from, or None if it can't be imported."""
+    try:
+        mod = importlib.import_module(import_name)
+    except ImportError:
+        return None
+    return Path(mod.__file__).resolve().parent if mod.__file__ else None
+
+
+def _is_installed(src: Path) -> bool:
+    """A regular install (under site-packages), as opposed to an editable checkout."""
+    return bool({"site-packages", "dist-packages"} & set(src.parts))
+
+
+def _pkg_version(import_name: str, dist_name: str) -> str:
+    """Release version of a package, for cache keying -- coarser than :func:`_pkg_rev`.
+
+    An installed copy reports its metadata version. An editable checkout's metadata is
+    frozen at install time, so the source is read instead: the static
+    ``[project].version`` of its pyproject.toml, or for a setuptools-scm package, its
+    latest git tag. Either changes on a release, not on every commit or edit.
+    """
+    src = _source_dir(import_name)
+    if src is not None and not _is_installed(src):
+        pyproject = next(
+            (
+                d / "pyproject.toml"
+                for d in [src, *src.parents][:4]
+                if (d / "pyproject.toml").exists()
+            ),
+            None,
+        )
+        if pyproject is not None:
+            project = tomllib.loads(pyproject.read_text()).get("project", {})
+            if "version" in project:
+                return str(project["version"])
+            if "version" in project.get("dynamic", []):
+                try:
+                    out = subprocess.run(
+                        [
+                            "git",
+                            "-C",
+                            str(pyproject.parent),
+                            "describe",
+                            "--tags",
+                            "--abbrev=0",
+                        ],
+                        capture_output=True,
+                        text=True,
+                        timeout=5,
+                    )
+                    if out.returncode == 0 and out.stdout.strip():
+                        return out.stdout.strip().removeprefix("v")
+                except (OSError, subprocess.SubprocessError):
+                    pass
+    try:
+        return _dist_version(dist_name)
+    except PackageNotFoundError:
+        return "unknown"
+
+
+@functools.cache
+def _release(package: str) -> str:
+    """:func:`_pkg_version` of ``package`` (import and distribution names match), once
+    per process."""
+    return _pkg_version(package, package)
 
 
 def _pkg_rev(import_name: str, dist_name: str) -> str:
@@ -136,14 +223,8 @@ def _pkg_rev(import_name: str, dist_name: str) -> str:
     it: a venv inside another repo (slv's own ``.venv``) would answer with *that*
     repo's revision, so every slv commit would orphan the whole cache.
     """
-    src = None
-    try:
-        mod = importlib.import_module(import_name)
-        if mod.__file__:
-            src = Path(mod.__file__).resolve().parent
-    except ImportError:
-        src = None
-    if src is not None and not {"site-packages", "dist-packages"} & set(src.parts):
+    src = _source_dir(import_name)
+    if src is not None and not _is_installed(src):
         try:
             out = subprocess.run(
                 [
@@ -202,7 +283,9 @@ def fips_cache(cls, filename):
     ``version_tag`` pins the running fips/pystilt source revision (``git describe``
     of the editable checkout, else installed metadata; see ``_version_tag``) and
     ``hash`` is derived only from the config fields that actually affect that
-    component (see ``COMPONENT_DEPS``).  Committing/bumping a package therefore
+    component (see ``COMPONENT_DEPS``), plus the release versions of the packages it
+    is built with (lair / uataq, see ``COMPONENT_PACKAGES``; a new lair release rebuilds
+    the obs and prior, not the Jacobian).  Committing/bumping a package therefore
     lands in a fresh tree rather than silently reusing a stale component.  This
     means:
 
@@ -248,9 +331,14 @@ def fips_cache(cls, filename):
 
             # --- Content-addressed path ---
             component_deps = getattr(self, "COMPONENT_DEPS", DEFAULT_COMPONENT_DEPS)
+            component_packages = getattr(
+                self, "COMPONENT_PACKAGES", DEFAULT_COMPONENT_PACKAGES
+            )
             fields = component_deps.get(filename)
             if fields:
-                h = _component_hash(self.config, fields)
+                h = _component_hash(
+                    self.config, fields, component_packages.get(filename, ())
+                )
                 component_dir = fips_dir / filename
                 path = component_dir / f"{h}.pkl"
             else:
