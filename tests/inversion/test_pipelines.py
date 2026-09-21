@@ -889,7 +889,7 @@ def test_sparse_jacobian_scale_matches_dense():
 
 
 def pipelines_matrix(block):
-    from slv.inversion.pipelines import _matrix
+    from slv.inversion.mdm import _matrix
 
     return _matrix(block)
 
