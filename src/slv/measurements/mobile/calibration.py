@@ -13,8 +13,9 @@ CAL_SOURCES = ("pipeline", "manual_cal", "uncalibrated")
 """Provenance tag carried by every TRAX observation in ``cal_source``:
 
 - ``pipeline``: pipeline-calibrated value (``CH4d_ppm_cal`` from the ``calibrated`` level).
-- ``manual_cal``: the ``lgr_ugga_manual_cal`` instrument (no on-board tank since Nov 2023);
-  the pipeline applies no calibration, so this is the analyzer's raw ``CH4d_ppm``.
+- ``manual_cal``: the ``lgr_ugga_manual_cal`` instrument (installed 2023-11-18, when the
+  on-board tank was removed; a tank ran again in 2024 and the last pipeline calibration is
+  2024-08-20); the pipeline applies no calibration, so this is the analyzer's raw ``CH4d_ppm``.
 - ``uncalibrated``: raw ``CH4d_ppm`` from the ``lgr_ugga`` qaqc level inside a window listed in
   ``trax_uncalibrated_windows.csv`` (tank empty, no valid reference). Same treatment as
   ``manual_cal``; the LGR's gain was within 0.5% of unity on either side of every window.
@@ -72,7 +73,8 @@ def filter_cal_source(
 ) -> pd.DataFrame:
     """Drop the ``uncalibrated`` rows when ``include_uncalibrated`` is False.
 
-    ``manual_cal`` rows are always kept: they are the only post-Nov-2023 data.
+    ``manual_cal`` rows are always kept: after the last pipeline calibration (2024-08-20)
+    they are the only data.
     """
     if include_uncalibrated or "cal_source" not in df.columns:
         return df

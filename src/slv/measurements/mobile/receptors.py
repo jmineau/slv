@@ -46,6 +46,7 @@ import shapely
 from pyproj import Transformer
 from scipy.spatial import cKDTree
 
+from slv.domain import UTC_OFFSET
 from slv.measurements.mobile.network import (
     USER_DIR,
     UTM12,
@@ -64,6 +65,16 @@ RECEPTOR_COLUMNS = [
     "latitude",
     "altitude",
     "altitude_ref",
+]
+_DWELL_COLUMNS = [
+    "dwell",
+    "t_start",
+    "t_end",
+    "longitude",
+    "latitude",
+    "n_minutes",
+    "n_fix",
+    "spread_m",
 ]
 
 _TO_UTM = Transformer.from_crs("EPSG:4326", UTM12, always_xy=True)
@@ -171,7 +182,8 @@ def find_segment_crossings(
     fixes on one segment with no gap longer than ``max_gap``. One row per crossing:
 
     ``crossing``, ``segment``, ``lines`` (letters common to every point hit — the line the
-    train was on; ``"BGR"`` when only shared trunk points were hit), ``t_start``, ``t_end``,
+    train was on, in ``LINE_LETTERS`` order; ``"RGB"`` when only shared trunk points were
+    hit), ``t_start``, ``t_end``,
     ``t_median``, ``n_fix``, ``n_points`` (distinct 50-m points hit), ``n_segment_points``
     (points the segment has on that line), ``span_m``, ``segment_extent_m`` and
     ``coverage``.
@@ -253,6 +265,7 @@ def find_segment_crossings(
             "span_m": (g.s.max() - g.s.min()).round(1),
         }
     )
+    out["lines"] = out["lines"].astype(str)  # an empty list would come out float64
     # release-geometry extent, once per (segment, lines) pair
     extent, n_rel = {}, {}
     for segment, lines in (
@@ -270,7 +283,7 @@ def find_segment_crossings(
         n_rel[(segment, lines)] = len(rel)
     key = list(zip(out.segment, out.lines, strict=True))
     out["segment_extent_m"] = [extent[k] for k in key]
-    out["n_segment_points"] = [n_rel[k] for k in key]
+    out["n_segment_points"] = np.array([n_rel[k] for k in key], dtype=np.int64)
     out["coverage"] = (out.span_m / out.segment_extent_m).round(3)
     return out.reset_index()
 
@@ -335,18 +348,7 @@ def find_dwells(
     """
     mins = _minute_positions(fixes)
     if mins.empty:
-        return pd.DataFrame(
-            columns=[
-                "dwell",
-                "t_start",
-                "t_end",
-                "longitude",
-                "latitude",
-                "n_minutes",
-                "n_fix",
-                "spread_m",
-            ]
-        )
+        return pd.DataFrame(columns=_DWELL_COLUMNS)
     idx = mins.index.to_numpy()
     x, y, n = mins.x.to_numpy(), mins.y.to_numpy(), mins.n.to_numpy()
     gap_min = pd.Timedelta(max_gap) / pd.Timedelta("1min")
@@ -385,7 +387,7 @@ def find_dwells(
                 "spread_m": round(float(np.hypot(x[sl] - mx, y[sl] - my).max()), 1),
             }
         )
-    return pd.DataFrame(rows)
+    return pd.DataFrame(rows, columns=_DWELL_COLUMNS)
 
 
 def label_dwell_site(
@@ -428,7 +430,7 @@ def build_dwell_receptors(
     altitude: float = 4.0,
     altitude_ref: str = "agl",
     hours: Sequence[int] | None = None,
-    utc_offset: int = -7,
+    utc_offset: int = UTC_OFFSET,
 ) -> pd.DataFrame:
     """PYSTILT receptor table (:data:`RECEPTOR_COLUMNS`) for the dwell periods.
 
@@ -439,9 +441,18 @@ def build_dwell_receptors(
     is an hour by default, exactly as the towers are treated; the release time follows the
     data rather than the bin edge because the train may only be there for part of it.
 
-    ``hours`` restricts output to those local-time hours (``utc_offset`` hours from UTC),
-    e.g. ``range(12, 17)`` for the afternoon.
+    ``r_idx`` is ``dwell_<dwell>_<YYYYMMDDHH of the bin>``, which
+    :mod:`.receptor_obs` parses back into the sample window, so ``freq`` must be at least
+    an hour (a shorter bin would give two receptors one ``r_idx``).
+
+    ``hours`` restricts output to those local-time hours (see
+    :func:`filter_receptor_hours`), e.g. ``range(12, 17)`` for the afternoon.
     """
+    step = pd.date_range("2000-01-01", periods=2, freq=freq)
+    if step[1] - step[0] < pd.Timedelta(hours=1):
+        raise ValueError(
+            f"freq={freq!r} is shorter than an hour; dwell r_idx names the bin by its hour."
+        )
     if dwells.empty:
         return pd.DataFrame(columns=RECEPTOR_COLUMNS)
     t = pd.DatetimeIndex(fixes.Time_UTC)
@@ -486,12 +497,13 @@ def build_dwell_receptors(
 
 
 def filter_receptor_hours(
-    rec: pd.DataFrame, hours: Sequence[int] | None, utc_offset: int = -7
+    rec: pd.DataFrame, hours: Sequence[int] | None, utc_offset: int = UTC_OFFSET
 ) -> pd.DataFrame:
     """Keep rows whose ``time`` falls in those local-time hours (``None`` keeps all).
 
-    ``utc_offset`` is a fixed offset, matching ``slv.domain.UTC_OFFSET`` (MST, no DST), so
-    the window means the same clock hours all year.
+    ``utc_offset`` is a fixed offset, by default ``slv.domain.UTC_OFFSET`` (MST, no DST), so
+    the window is the same standard-time hours all year; in summer the wall clock (MDT)
+    reads one hour later.
     """
     if hours is None:
         return rec
@@ -509,7 +521,7 @@ def build_trax_receptors(
     altitude_ref: str = "agl",
     time_round: str = "1min",
     hours: Sequence[int] | None = None,
-    utc_offset: int = -7,
+    utc_offset: int = UTC_OFFSET,
 ) -> pd.DataFrame:
     """PYSTILT receptor table (:data:`RECEPTOR_COLUMNS`) from a crossings table.
 
@@ -523,7 +535,7 @@ def build_trax_receptors(
     ``altitude`` is the roof inlet height in m AGL.
 
     ``hours`` restricts output to those local-time hours (see
-    :func:`filter_receptor_hours`). ``max_duration`` drops passes that are not traverses: at the three line termini the
+    :func:`filter_receptor_hours`). ``max_duration`` drops passes that are not traverses: at the five line termini the
     train dwells inside one segment between runs, so the pass can read 20 min or more and
     its median fix time is not the time it drove the track. ``None`` keeps them.
     """
@@ -549,6 +561,8 @@ def build_trax_receptors(
     c["time"] = t.round(time_round)
     c = filter_receptor_hours(c, hours, utc_offset)
     c = c.drop_duplicates(["segment", "lines", "time"])
+    if c.empty:
+        return pd.DataFrame(columns=RECEPTOR_COLUMNS)
     sets = [
         pts.loc[release_points(points, int(segment), str(lines))].assign(lines=lines)
         for segment, lines in c[["segment", "lines"]]

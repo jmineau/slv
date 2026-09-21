@@ -219,3 +219,43 @@ def test_hours_window_also_applies_to_crossings():
     assert len(build_trax_receptors(cr, pts, hours=None)) == len(
         build_trax_receptors(cr, pts)
     )
+
+
+def test_dwell_r_idx_is_hourly_and_sub_hourly_freq_is_refused():
+    import pytest
+
+    from slv.measurements.mobile.receptors import build_dwell_receptors, find_dwells
+
+    fixes = _parked()  # 18:40 -> 20:10 UTC
+    d = find_dwells(fixes, min_duration="20min")
+    # the r_idx format existing STILT footprints and receptor_obs are keyed on
+    assert build_dwell_receptors(fixes, d).r_idx.tolist() == ["dwell_0_2024060119"]
+    two = build_dwell_receptors(fixes, d, freq="2h")
+    assert two.r_idx.tolist() == ["dwell_0_2024060118"]
+    with pytest.raises(ValueError, match="shorter than an hour"):
+        build_dwell_receptors(fixes, d, freq="30min", min_minutes=10)
+
+
+def test_empty_results_pass_through_without_crashing():
+    from slv.measurements.mobile.receptors import (
+        build_dwell_receptors,
+        find_dwells,
+        label_dwell_site,
+    )
+
+    pts = _network()
+    fixes = _parked(minutes=8)  # data, but too short to be a dwell
+    d = find_dwells(fixes, min_duration="20min")
+    assert d.empty and "longitude" in d.columns and "t_start" in d.columns
+    lab = label_dwell_site(d, pts)
+    assert lab.empty and list(lab.columns) == ["segment", "yard_name"]
+    assert list(build_dwell_receptors(fixes, d).columns) == RECEPTOR_COLUMNS
+
+    far = _fixes()
+    far["Latitude_deg"] += 0.05  # ~5 km off the track: no fix snaps to a point
+    cr = find_segment_crossings(far, pts)
+    assert cr.empty
+    assert pd.api.types.is_string_dtype(cr.lines)
+    assert cr.n_segment_points.dtype == np.int64
+    rec = build_trax_receptors(cr, pts)
+    assert rec.empty and list(rec.columns) == RECEPTOR_COLUMNS

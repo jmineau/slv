@@ -135,7 +135,16 @@ def merge_aeris_met(aeris, met):
     return data
 
 
-def calculate_enhancements(data, window=1):
+def calculate_enhancements(data, window="1h"):
+    """Add ``CH4_base``/``C2H6_base`` (:func:`lair.background.rolling_baseline`) and the
+    enhancements over them, ``CH4_ex``/``C2H6_ex``.
+
+    ``window`` is the baseline window: anything ``pd.Timedelta`` takes, or a number of hours
+    (rolling_baseline's old integer-hours convention; a bare number would otherwise be read
+    as nanoseconds and make every enhancement zero).
+    """
+    if isinstance(window, (int, float)):
+        window = pd.Timedelta(hours=window)
     data["CH4_base"] = rolling_baseline(data["CH4 (ppb)"], window=window)
     data["C2H6_base"] = rolling_baseline(data["C2H6 (ppb)"], window=window)
 

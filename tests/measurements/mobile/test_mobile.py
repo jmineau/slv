@@ -212,3 +212,132 @@ def test_gps_numeric_coercion_handles_all_na_string_columns():
     assert out["Speed_m_s"].dtype == float and out["Speed_m_s"].isna().all()
     assert out["Status"].tolist() == ["A", "A"]
     assert out["Speed_m_s"].resample is not None  # plain Series API still there
+
+
+# --------------------------------------------------------------------------- load / build
+
+
+def test_load_trax_obs_applies_the_location_filter(tmp_path):
+    from slv.measurements.mobile.obs import load_trax_obs
+
+    states = ["route", "line", "stopped", "yard", "depot", "unknown"]
+    pd.DataFrame(
+        {
+            "Time_UTC": pd.date_range("2024-01-01", periods=6, freq="min"),
+            "CH4_ppm": 2.0,
+            "Latitude_deg": 40.7,
+            "Longitude_deg": -111.9,
+            "cal_source": "pipeline",
+            "low_pressure": False,
+            "state": states,
+        }
+    ).to_parquet(tmp_path / "obs.parquet")
+    cache = tmp_path / "obs.parquet"
+    assert load_trax_obs(cache).state.tolist() == ["route", "line", "stopped"]
+    assert load_trax_obs(cache, location="outdoor").state.tolist() == states[:4]
+    assert load_trax_obs(cache, location="all").state.tolist() == states
+
+
+def _fake_read_lgr(tables):
+    """Stand-in for ``obs._read_lgr``: ``tables[(instrument, lvl)]`` is a ``Time_UTC``/``CH4``
+    frame, cut to ``time_range`` including both ends as uataq does; a missing entry raises
+    ReaderError like a level with no files."""
+    import uataq
+
+    def read(site, instrument, lvl, value_col, time_range, num_processes, **kwargs):
+        if (instrument, lvl) not in tables:
+            raise uataq.errors.ReaderError(f"no {instrument} {lvl} files")
+        t = tables[(instrument, lvl)]
+        t0, t1 = (pd.Timestamp(x) for x in time_range)
+        return t[(t.Time_UTC >= t0) & (t.Time_UTC <= t1)].reset_index(drop=True)
+
+    return read
+
+
+def _fake_merge_with_gps(site, org, obs, **kwargs):
+    return obs.assign(Latitude_deg=40.7, Longitude_deg=-111.9)
+
+
+def _build(monkeypatch, tables, time_range, windows=None, **kwargs):
+    from slv.measurements.mobile import obs as obs_mod
+
+    monkeypatch.setattr(obs_mod, "_read_lgr", _fake_read_lgr(tables))
+    monkeypatch.setattr(obs_mod, "merge_with_gps", _fake_merge_with_gps)
+    if windows is None:
+        windows = pd.DataFrame({"start": pd.to_datetime([]), "end": pd.to_datetime([])})
+    return obs_mod.build_trax_obs(
+        time_range=time_range, windows=windows, classify=False, **kwargs
+    )
+
+
+def test_build_keeps_pipeline_over_manual_cal_over_uncalibrated(monkeypatch):
+    t = pd.date_range("2024-08-21", periods=3000, freq="s")
+    tables = {
+        ("lgr_ugga", "calibrated"): pd.DataFrame({"Time_UTC": t[:1000], "CH4": 2.0}),
+        ("lgr_ugga_manual_cal", "qaqc"): pd.DataFrame(
+            {"Time_UTC": t[:2000], "CH4": 2.1}
+        ),
+        ("lgr_ugga", "qaqc"): pd.DataFrame({"Time_UTC": t, "CH4": 2.2}),
+    }
+    windows = pd.DataFrame({"start": [t[0]], "end": [t[-1] + pd.Timedelta("1s")]})
+    out = _build(monkeypatch, tables, (t[0], t[-1]), windows)
+    assert out.cal_source.tolist() == (
+        ["pipeline"] * 1000 + ["manual_cal"] * 1000 + ["uncalibrated"] * 1000
+    )
+
+
+def test_build_skips_an_unreadable_uncalibrated_window(monkeypatch):
+    t = pd.date_range("2016-01-10", periods=10, freq="10s")
+    tables = {("lgr_ugga", "calibrated"): pd.DataFrame({"Time_UTC": t, "CH4": 2.0})}
+    windows = pd.DataFrame({"start": [t[0]], "end": [t[-1]]})
+    out = _build(monkeypatch, tables, (t[0], t[-1]), windows)
+    assert len(out) == 10 and (out.cal_source == "pipeline").all()
+
+
+def test_build_with_no_data_returns_empty_frame_with_columns(monkeypatch):
+    import geopandas as gpd
+
+    out = _build(monkeypatch, {}, ("2016-01-01", "2016-02-01"))
+    assert isinstance(out, gpd.GeoDataFrame) and out.empty
+    assert {"Time_UTC", "CH4_ppm", "cal_source", "low_pressure"} <= set(out.columns)
+    assert str(out.crs) == "EPSG:4326"
+
+
+def test_build_chunks_do_not_duplicate_a_row_on_the_edge(monkeypatch):
+    t = pd.to_datetime(
+        ["2015-12-31 23:59:50", "2016-01-01 00:00:00", "2016-01-01 00:00:10"]
+    )
+    tables = {("lgr_ugga", "calibrated"): pd.DataFrame({"Time_UTC": t, "CH4": 2.0})}
+    out = _build(monkeypatch, tables, ("2015-12-01", "2016-02-01"))
+    assert out.Time_UTC.tolist() == list(t)
+
+
+def test_merge_with_gps_reads_the_requested_site(monkeypatch):
+    import numpy as np
+    import pytest
+    import uataq
+
+    from slv.measurements.mobile.gps import merge_with_gps
+
+    t = pd.date_range("2024-06-01", periods=100, freq="s")
+    gps = pd.DataFrame(
+        {
+            "Pi_Time": t,
+            "Latitude_deg": 40.7,
+            "Longitude_deg": np.linspace(-111.95, -111.90, 100),
+            "Altitude_msl": np.linspace(1280.0, 1300.0, 100),
+        },
+        index=pd.Index(t, name="Time_UTC"),
+    )
+    seen = []
+
+    def fake_read(SID, **kwargs):
+        seen.append(SID)
+        return {"gps": gps}
+
+    monkeypatch.setattr(uataq, "read_data", fake_read)
+    obs = pd.DataFrame({"Time_UTC": t, "CH4": 2.0})
+    out = merge_with_gps("trx02", "UATAQ", obs, routes=False, storage_polygon=False)
+    assert seen == ["trx02"] and len(out) and "Latitude_deg" in out
+    with pytest.raises(ValueError, match="not supported"):
+        merge_with_gps("trx02", "horel", obs, routes=False, storage_polygon=False)

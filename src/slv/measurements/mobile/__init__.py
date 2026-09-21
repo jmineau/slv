@@ -19,8 +19,9 @@ Submodules, one concern each:
 * :mod:`.wyoming` — the Wyoming mobile lab (Aeris + met readers, enhancement
   ratios, wind-barb map); not re-exported, import from the module.
 
-Everything public is re-exported here, so ``from slv.measurements.mobile import X``
-works for all of it.
+Every public function and table is re-exported here, so
+``from slv.measurements.mobile import X`` works for all of them; the classifier thresholds
+(:mod:`.location`) and GPS column/flag constants (:mod:`.gps`) stay in their modules.
 """
 
 from .calibration import (
@@ -55,6 +56,10 @@ from .network import (
 )
 from .obs import (
     LOCATION_SETS,
+    LOW_PRESSURE_BAND,
+    SLOPE_TOL,
+    apply_low_pressure_rule,
+    apply_slope_guard,
     build_trax_obs,
     filter_location,
     label_trax_location,
@@ -67,6 +72,7 @@ from .receptor_obs import (
     trax_receptor_observations,
 )
 from .receptors import (
+    LINE_LETTERS,
     RECEPTOR_COLUMNS,
     build_dwell_receptors,
     build_trax_receptors,
@@ -76,6 +82,7 @@ from .receptors import (
     label_dwell_site,
     load_trax_fixes,
     load_trax_network_points,
+    release_points,
 )
 from .transects import TRANSECT_LINES, load_transects
 
@@ -84,11 +91,16 @@ __all__ = [
     "CROSSING_STATES",
     "DWELL_STATES",
     "HOREL_POST_PILOT",
+    "LINE_LETTERS",
     "LOCATION_SETS",
+    "LOW_PRESSURE_BAND",
     "RECEPTOR_COLUMNS",
+    "SLOPE_TOL",
     "STATES",
     "TRANSECT_LINES",
     "UTM12",
+    "apply_low_pressure_rule",
+    "apply_slope_guard",
     "build_dwell_receptors",
     "build_trax_obs",
     "build_trax_receptors",
@@ -118,6 +130,7 @@ __all__ = [
     "read_horel_cr1000",
     "read_lin_gps",
     "read_trax_gps",
+    "release_points",
     "select_uncalibrated",
     "state_intervals",
     "storage_locations",

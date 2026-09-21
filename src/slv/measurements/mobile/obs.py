@@ -185,9 +185,22 @@ def apply_low_pressure_rule(
 
 
 def _build_chunk(
-    site, t0, t1, num_processes, windows, classify, low_pressure, slope_tol, gps_kwargs
+    site,
+    t0,
+    t1,
+    num_processes,
+    windows,
+    classify,
+    low_pressure,
+    slope_tol,
+    gps_kwargs,
+    last=True,
 ):
-    """One time chunk of :func:`build_trax_obs` (see there); returns a plain DataFrame."""
+    """One time chunk of :func:`build_trax_obs` (see there); returns a plain DataFrame.
+
+    uataq time ranges include both ends, so unless this is the ``last`` chunk, LGR rows at
+    exactly ``t1`` are left to the next chunk.
+    """
     from slv.measurements.pollutants import defaults
 
     time_range = (t0, t1)
@@ -250,12 +263,17 @@ def _build_chunk(
             f"[{t0:%Y-%m-%d} -> {t1:%Y-%m-%d}] uncalibrated window {ws.date()} -> {we.date()} ...",
             flush=True,
         )
-        q = _read_lgr(site, "lgr_ugga", "qaqc", "CH4d_ppm", (ws, we), num_processes)
+        try:
+            q = _read_lgr(site, "lgr_ugga", "qaqc", "CH4d_ppm", (ws, we), num_processes)
+        except (FileNotFoundError, KeyError, ValueError, uataq.errors.ReaderError):
+            continue
         parts.append(
             select_uncalibrated(q, windows.iloc[[i]], exclude_times=cal.Time_UTC)
         )
 
-    obs = pd.concat(parts, ignore_index=True).sort_values("Time_UTC")
+    # stable sort: of rows sharing a time the first kept is the higher-priority source, in
+    # the order of ``parts`` (pipeline > manual_cal > uncalibrated)
+    obs = pd.concat(parts, ignore_index=True).sort_values("Time_UTC", kind="stable")
     obs = obs.drop_duplicates("Time_UTC", keep="first").rename(
         columns={"CH4": "CH4_ppm"}
     )
@@ -263,6 +281,8 @@ def _build_chunk(
         obs["low_pressure"] = obs["low_pressure"].fillna(False).astype(bool)
     else:
         obs["low_pressure"] = False
+    if not last:
+        obs = obs[obs["Time_UTC"] < t1]
     del parts, cal, man
     if obs.empty:
         return obs
@@ -337,17 +357,31 @@ def build_trax_obs(
             low_pressure,
             slope_tol,
             gps_kwargs,
+            last=b == edges[-1],
         )
         if len(part):
             parts.append(pd.DataFrame(part))
-    data = pd.concat(parts, ignore_index=True) if parts else pd.DataFrame()
+    data = pd.concat(parts, ignore_index=True) if parts else _empty_obs(classify)
     return gpd.GeoDataFrame(
         data,
-        geometry=gpd.points_from_xy(data.Longitude_deg, data.Latitude_deg)
-        if len(data)
-        else None,
+        geometry=gpd.points_from_xy(data.Longitude_deg, data.Latitude_deg),
         crs="EPSG:4326",
     )
+
+
+def _empty_obs(classify: bool) -> pd.DataFrame:
+    """The columns :func:`build_trax_obs` always returns, with no rows."""
+    cols = {
+        "Time_UTC": "datetime64[ns]",
+        "CH4_ppm": float,
+        "cal_source": object,
+        "low_pressure": bool,
+        "Latitude_deg": float,
+        "Longitude_deg": float,
+    }
+    if classify:
+        cols |= {"state": object, "indoor": "boolean", "yard_name": object}
+    return pd.DataFrame({c: pd.Series(dtype=t) for c, t in cols.items()})
 
 
 def load_trax_obs(
@@ -389,4 +423,5 @@ def load_trax_obs(
     data = filter_cal_source(data, include_uncalibrated)
     if not include_low_pressure and "low_pressure" in data.columns:
         data = data[~data["low_pressure"].astype(bool)]
+    data = filter_location(data, location)
     return gpd.GeoDataFrame(data)

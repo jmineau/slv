@@ -172,7 +172,7 @@ def merge_with_gps(
 
     if org == "UATAQ":
         gps = uataq.read_data(
-            "trx01",
+            site,
             instruments="gps",
             lvl="final",
             time_range=time_range,
