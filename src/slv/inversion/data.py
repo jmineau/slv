@@ -7,6 +7,18 @@ from slv.measurements import aggregate_obs, load_concentrations
 from slv.measurements.mobile import load_trax_points
 
 
+def split_sites(
+    sites: list[str], site_config: pd.DataFrame
+) -> tuple[list[str], list[str]]:
+    """Split ``sites`` into (stationary, mobile) by their ``site_config`` type."""
+    mobile = [
+        s
+        for s in sites
+        if s in site_config.index and site_config.at[s, "type"] == "mobile"
+    ]
+    return [s for s in sites if s not in mobile], mobile
+
+
 def _drop_spike_days(obs: pd.DataFrame, percentile: float) -> pd.DataFrame:
     """Drop (site, day) obs whose within-hour CH4 variance is anomalously high.
 
@@ -105,13 +117,8 @@ def get_slv_observations(
     time. Without it, mobile sites fall back to the old hourly aggregation onto the staged
     2-km points, whose keys only match point receptors at those points.
     """
-    mobile_sites = [
-        s
-        for s in sites
-        if s in site_config.index and site_config.at[s, "type"] == "mobile"
-    ]
+    stationary, mobile_sites = split_sites(sites, site_config)
     if mobile_obs is not None and mobile_sites:
-        stationary = [s for s in sites if s not in mobile_sites]
         parts = []
         if stationary:
             parts.append(
@@ -178,6 +185,11 @@ def get_slv_observations(
     return obs.set_index(["obs_location", "obs_time"])["CH4"].to_frame()
 
 
+def _empty_subhour_std() -> pd.Series:
+    index = pd.MultiIndex.from_arrays([[], []], names=["obs_location", "obs_time"])
+    return pd.Series(dtype=float, index=index, name="subhour_std")
+
+
 def get_slv_subhour_std(
     sites: list[str],
     site_config: pd.DataFrame,
@@ -195,8 +207,12 @@ def get_slv_subhour_std(
     to drop the top decile). Indexed (obs_location, obs_time) to match ``get_slv_observations``;
     hours with a single native point (std undefined) are NaN, so the caller can fill 0 (no
     representativeness penalty). Stationary sites only (obs_location == site); mobile obs return
-    no rows and get 0 downstream.
+    no rows and get 0 downstream, so mobile sites are not loaded at all (their record would go
+    through the full GPS merge only to be discarded).
     """
+    sites, _ = split_sites(sites, site_config)
+    if not sites:
+        return _empty_subhour_std()
     obs = load_concentrations(
         pollutants=["CH4"],
         sites=sites,
@@ -207,9 +223,7 @@ def get_slv_subhour_std(
         num_processes=num_processes,
     )
     if obs.empty:
-        return pd.Series(dtype=float, name="subhour_std").rename_axis(
-            ["obs_location", "obs_time"]
-        )
+        return _empty_subhour_std()
     t = pd.to_datetime(obs["Time_UTC"])
     tmp = pd.DataFrame(
         {

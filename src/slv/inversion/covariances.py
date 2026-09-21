@@ -53,6 +53,7 @@ def build_mdm_error(
     interday=False,
     time_dim="obs_time",
     site_config=None,
+    obs_sites=None,
     **kwargs,
 ) -> ErrorComponent:
     """
@@ -78,13 +79,21 @@ def build_mdm_error(
         Name of the time dimension
     site_config : pd.DataFrame, optional
         Site configuration with 'organization' column, required for organization-based std
+    obs_sites : sequence of str, optional
+        The site of each observation, aligned with ``obs_index``, for site- or
+        organization-keyed ``std``. Defaults to the ``obs_location`` level, which is the
+        site for a tower but a PYSTILT location_id for a mobile receptor.
     **kwargs
         Additional unused parameters (for compatibility)
     """
     # Check if std is a dict (site/season-specific or organization-specific) or scalar
     if isinstance(std, dict):
         times = obs_index.get_level_values(time_dim)
-        locations = obs_index.get_level_values("obs_location")
+        locations = (
+            pd.Index(obs_sites)
+            if obs_sites is not None
+            else obs_index.get_level_values("obs_location")
+        )
 
         # Detect if this is a nested dict (site/season) or flat dict (organization)
         first_value = next(iter(std.values()))

@@ -14,6 +14,18 @@ versions are calendar-based (YYYY.M.PATCH).
 
 ### Fixed
 
+- TRAX (mobile) obs through the inversion (#2). With a mobile site in `sites`:
+  the default MDM `instr` term looked up each `obs_location`'s organization, but a
+  receptor obs is keyed by its PYSTILT location_id (`KeyError`); the rolling
+  background loaded the train and crashed unstacking its per-grid-point rows; the
+  hourly background was joined on exact `obs_time`, so a receptor released at 20:13
+  found none and was silently dropped; and the `subhour` MDM term loaded (and
+  GPS-merged) the whole TRAX record only to discard it. MDM terms now look up each
+  obs's site (`SLVMethaneInversion.obs_sites`: receptors belong to the mobile site),
+  the rolling baseline comes from the stationary sites (`background_sites` in
+  `background_kwargs` to choose them), each obs takes the background of its hour,
+  and `subhour` loads stationary sites only. `get_slv_subhour_std` also crashed
+  building its empty result
 - Prior time alignment: `load_epa_prior` / `load_edgar_prior` matched flux times to
   inventory times by nearest neighbour, so with an annual inventory Aug-Dec took the
   *next* year's field (and daily fluxes past mid-month the next month's). Each flux

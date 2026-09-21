@@ -22,7 +22,7 @@ from lair import inventories
 from slv.inversion import viz
 from slv.inversion.background import get_slv_background
 from slv.inversion.covariances import build_mdm_error, build_prior_error
-from slv.inversion.data import get_slv_observations, get_slv_subhour_std
+from slv.inversion.data import get_slv_observations, get_slv_subhour_std, split_sites
 from slv.inversion.priors import get_slv_prior
 
 # ---------------------------------------------------------------------------
@@ -586,8 +586,28 @@ class SLVMethaneInversion(FluxInversionPipeline):
         )
         return s.reindex(key).fillna(0.0).to_numpy()
 
+    def obs_sites(self, obs_index: pd.Index) -> pd.Index:
+        """The site of each obs, for site- and organization-keyed MDM terms.
+
+        A tower obs is keyed by its site; a mobile obs by its receptor's PYSTILT location_id,
+        which belongs to the (single) mobile site in ``config.sites``.
+        """
+        locations = obs_index.get_level_values("obs_location")
+        known = locations.isin(self.config.site_config.index)
+        if known.all():
+            return pd.Index(locations)
+        _, mobile = split_sites(self.config.sites, self.config.site_config)
+        if len(mobile) != 1:
+            raise ValueError(
+                f"{int((~known).sum())} obs are keyed by a location that is not a site, and "
+                f"config.sites has {len(mobile)} mobile sites ({mobile}) to assign them to; "
+                "exactly one is supported."
+            )
+        return pd.Index(np.where(known, locations, mobile[0]))
+
     @fips_cache(CovarianceMatrix, "modeldata_mismatch")
     def get_modeldata_mismatch(self, obs: Vector) -> CovarianceMatrix:
+        obs_sites = self.obs_sites(obs.index)
         components = []
         for comp in self.config.mdm_components:
             c = dict(comp)
@@ -599,7 +619,10 @@ class SLVMethaneInversion(FluxInversionPipeline):
                 c["std"] = c.pop("fraction", 1.0) * self._per_obs_std(obs, src)
             components.append(
                 build_mdm_error(
-                    obs_index=obs.index, site_config=self.config.site_config, **c
+                    obs_index=obs.index,
+                    site_config=self.config.site_config,
+                    obs_sites=obs_sites,
+                    **c,
                 )
             )
 

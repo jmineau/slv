@@ -1,6 +1,7 @@
 import pandas as pd
 from lair.background import rolling_baseline
 
+from slv.inversion.data import split_sites
 from slv.measurements import aggregate_obs, load_concentrations
 from slv.measurements.background import GMLDiscrete
 
@@ -17,10 +18,12 @@ def get_slv_background(
 ) -> pd.Series:
     """Dispatch background calculation by type.
 
-    Returns Series with obs_time index and background concentration.
+    Returns Series with obs_time index and background concentration. The hourly rolling
+    baseline is looked up for the hour each obs time falls in, so a mobile receptor released
+    at 20:13 gets the 20:00 background (an exact-time join would leave it NaN and drop it).
     """
     if background == "rolling":
-        return get_rolling_background(
+        hourly = get_rolling_background(
             sites=sites,
             site_config=site_config,
             time_range=time_range,
@@ -28,6 +31,14 @@ def get_slv_background(
             filter_pcaps=filter_pcaps,
             **kwargs,
         )
+        obs_times = pd.DatetimeIndex(obs_times)
+        background = pd.Series(
+            hourly.reindex(obs_times.floor("h")).to_numpy(),
+            index=obs_times,
+            name="concentration",
+        )
+        background.index.name = "obs_time"
+        return background
     elif background == "gml":
         return get_gml_background(obs_times=obs_times, **kwargs)
     elif background == "ct_stilt":
@@ -44,23 +55,31 @@ def get_rolling_background(
     filter_pcaps: bool = True,
     baseline_window: str = "14d",
     min_periods: int = int(24 * 3.5),
+    background_sites: list[str] | None = None,
 ) -> pd.Series:
-    """Rolling 1st-percentile baseline applied to in-situ observations."""
+    """Hourly rolling 1st-percentile baseline, averaged over the stationary sites.
+
+    The baseline comes from the towers: mobile sites in ``sites`` are left out (a train
+    sampling the urban core is not a background site, and its per-grid-point rows do not
+    form one hourly series). ``background_sites`` picks the sites explicitly instead, e.g.
+    towers for a TRAX-only inversion (``background_kwargs={"background_sites": [...]}``).
+    """
+    if background_sites is None:
+        background_sites, _ = split_sites(sites, site_config)
+        if not background_sites:
+            raise ValueError(
+                f"No stationary sites in {sites} for the rolling background; set "
+                'background_kwargs={"background_sites": [...]} to choose baseline sites.'
+            )
     data = load_concentrations(
         pollutants=["CH4"],
-        sites=sites,
+        sites=list(background_sites),
         site_config=site_config,
         time_range=time_range,
         num_processes=num_processes,
         filter_pcaps=filter_pcaps,
     )
-    data = aggregate_obs(
-        data,
-        freq="1h",
-        mobile_grid_res=0.02,
-        stationary_min_percent=0.75,
-        mobile_min_count=10,
-    )
+    data = aggregate_obs(data, freq="1h", stationary_min_percent=0.75)
     data = data.rename(columns={"Time_UTC": "obs_time"})
     df = data.set_index(["obs_time", "site"])["CH4"].unstack(fill_value=None)
 

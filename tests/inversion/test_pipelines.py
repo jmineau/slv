@@ -681,3 +681,60 @@ def test_prior_keys_change_with_sites(component):
     a = InversionConfig(sites=["wbb"], bias_std=0.5, bias_grouping="site")
     b = InversionConfig(sites=["wbb", "hw"], bias_std=0.5, bias_grouping="site")
     assert _component_hash(a, fields) != _component_hash(b, fields)
+
+
+# ---------------------------------------------------------------------------
+# Mobile (TRAX) obs through the MDM and the background
+# ---------------------------------------------------------------------------
+
+TRAX_OBS_INDEX = pd.MultiIndex.from_arrays(
+    [
+        ["wbb", "multi_aaaaaaaaaa"],
+        pd.to_datetime(["2024-06-02 20:00", "2024-06-02 20:13"]),
+    ],
+    names=["obs_location", "obs_time"],
+)
+
+
+def trax_obs():
+    """A tower obs and a TRAX receptor obs (keyed by its PYSTILT location_id)."""
+    data = pd.Series([2.0, 2.1], index=TRAX_OBS_INDEX)
+    return Vector(name="obs", data=Block(name="concentration", data=data))
+
+
+class TestMobileObsInPipeline:
+    def test_obs_sites_resolves_receptors_to_the_mobile_site(self):
+        pipeline = make_pipeline(SLVMethaneInversion, sites=["wbb", "trx01"])
+        assert pipeline.obs_sites(trax_obs().index).tolist() == ["wbb", "trx01"]
+
+    def test_obs_sites_without_a_mobile_site_raises(self):
+        pipeline = make_pipeline(SLVMethaneInversion, sites=["wbb"])
+        with pytest.raises(ValueError, match="0 mobile sites"):
+            pipeline.obs_sites(trax_obs().index)
+
+    def test_default_mdm_builds_with_mobile_obs(self, monkeypatch):
+        # the default `instr` term looked up each obs_location's organization: KeyError
+        pipeline = make_pipeline(SLVMethaneInversion, sites=["wbb", "trx01"])
+        zeros = lambda obs, _: np.zeros(len(obs.index))  # noqa: E731
+        monkeypatch.setattr(pipeline, "_multiplicative_scale", zeros)
+        monkeypatch.setattr(pipeline, "_per_obs_std", zeros)
+        mdm = pipeline.get_modeldata_mismatch(trax_obs())
+        diag = np.diag(np.asarray(mdm.values, dtype=float))
+        assert len(diag) == 2
+        assert (diag > 0).all()
+
+    def test_constant_keeps_mobile_obs(self, monkeypatch):
+        # hourly background joined on exact obs_time left the 20:13 receptor NaN -> dropped
+        from slv.inversion import background as bg
+
+        hourly = pd.Series(
+            [1.90, 1.95], index=pd.to_datetime(["2024-06-02 19:00", "2024-06-02 20:00"])
+        )
+        monkeypatch.setattr(bg, "get_rolling_background", lambda **kwargs: hourly)
+        pipeline = make_pipeline(SLVMethaneInversion, sites=["wbb", "trx01"])
+        constant = pipeline.get_constant(trax_obs())["concentration"]
+        assert constant.index.get_level_values("obs_location").tolist() == [
+            "wbb",
+            "multi_aaaaaaaaaa",
+        ]
+        assert constant.tolist() == [1.95, 1.95]

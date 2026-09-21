@@ -140,3 +140,43 @@ def test_mobile_obs_key_is_a_forward_operator_dependency():
 
     for comp in ("obs", "forward_operator", "modeldata_mismatch", "constant"):
         assert "mobile_obs_key" in DEFAULT_COMPONENT_DEPS[comp], comp
+
+
+def test_split_sites():
+    from slv.inversion.data import split_sites
+    from slv.measurements.sites import load_site_config
+
+    stationary, mobile = split_sites(["wbb", "trx01", "hw"], load_site_config())
+    assert stationary == ["wbb", "hw"]
+    assert mobile == ["trx01"]
+
+
+def test_subhour_std_does_not_load_mobile_sites(monkeypatch):
+    # mobile obs get 0 anyway; loading trx01 ran the full TRAX GPS merge for nothing
+    import slv.inversion.data as data_module
+    from slv.measurements.sites import load_site_config
+
+    loaded = []
+
+    def fake_load(pollutants, sites, **kwargs):
+        loaded.append(list(sites))
+        return pd.DataFrame(
+            {
+                "Time_UTC": pd.to_datetime(["2024-06-01 20:00", "2024-06-01 20:30"]),
+                "site": "wbb",
+                "CH4": [2.0, 2.2],
+            }
+        )
+
+    monkeypatch.setattr(data_module, "load_concentrations", fake_load)
+    site_config = load_site_config()
+    tr = ("2024-06-01", "2024-06-02")
+
+    out = data_module.get_slv_subhour_std(["wbb", "trx01"], site_config, tr)
+    assert loaded == [["wbb"]]
+    assert out.loc[("wbb", pd.Timestamp("2024-06-01 20:00"))] > 0
+
+    loaded.clear()
+    out = data_module.get_slv_subhour_std(["trx01"], site_config, tr)
+    assert loaded == []
+    assert out.empty
