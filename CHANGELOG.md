@@ -8,6 +8,17 @@ versions are calendar-based (YYYY.M.PATCH).
 
 ### Changed
 
+- Python >= 3.11 (was 3.10): pandas 3 and current xarray need 3.11, and CI only
+  ever tested 3.11 / 3.12
+- `slv.measurements.mobile.network` resolves `$LINGROUP_DATA_DIR` /
+  `$SLV_USER_DATA_DIR` when used (`group_dir()`, `user_dir()`) instead of at import,
+  so slv imports without the CHPC data roots set. `GROUP_DIR` / `USER_DIR` are still
+  importable and resolve on access
+- CI (#3): the location-features test no longer reads the TRAX lines from group data;
+  the docs workflow calls `sphinx-build` directly (its conda env has no `uv`); pyright
+  reports the pandas-annotation rules as warnings and fails on the rest (0 errors);
+  docstring coverage fails below 63 %; the workflows no longer need placeholder data
+  roots. Ruff is clean, `basemap.py` included
 - Relocked `lair` (f01c1c7) and `uataq` (a4dbfa6). A fresh install now gets lair's
   quarterly / biweekly `absolute_emissions`, so `flux_freq="QS"` / `"2W"` totals work
   outside the conda env, plus lair's soundings / pcaps / noaa / pandas-3 fixes

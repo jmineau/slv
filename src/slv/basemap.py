@@ -70,7 +70,7 @@ class SaltLake:
         UUCON=False,
         MesoWest=False,
         Meso_status="active",
-        Meso_networks=["UUNET"],
+        Meso_networks=("UUNET",),
         radiosonde=False,
         helicopter=False,
         DAQ=False,
@@ -142,7 +142,6 @@ class SaltLake:
             self.add_extent_map()
 
     def __repr__(self):  # TODO
-        background = {"crs": self.crs}
         return f"SaltLakeValley(features={self.features})"
 
     def collect_feature(add_func):
@@ -176,11 +175,8 @@ class SaltLake:
                 raise ValueError("crs & tiler cannot both be supplied!")
 
             elif not bool(crs):  # if crs is not given
-                if tiler:  # use tiler crs if tiler is given
-                    crs = tiler.crs
-
-                else:  # otherwise use PlateCaree (lat/lon)
-                    crs = ccrs.PlateCarree()
+                # use the tiler's crs if a tiler is given, otherwise PlateCarree (lat/lon)
+                crs = tiler.crs if tiler else ccrs.PlateCarree()
 
             fig, ax = plt.subplots(subplot_kw={"projection": crs}, figsize=figsize)
 
@@ -270,7 +266,13 @@ class SaltLake:
         if census == "population":
             # http://doi.org/10.18128/D050.V17.0
 
-            file = DATA_DIR / "spatial" / "census" / "block_groups" / "utah_2020_pop.geojson"
+            file = (
+                DATA_DIR
+                / "spatial"
+                / "census"
+                / "block_groups"
+                / "utah_2020_pop.geojson"
+            )
             gdf = gpd.read_file(file)
 
             crs = ccrs.AlbersEqualArea()
@@ -281,7 +283,7 @@ class SaltLake:
 
             ax_pos = self.ax.get_position()
 
-            cax = self.ax.get_figure().add_axes(
+            cax = self.ax.get_figure().add_axes(  # pyright: ignore[reportOptionalMemberAccess]
                 [ax_pos.x0 + 0.015, ax_pos.y0 + 0.016, 0.03, 0.3], zorder=1.1
             )
 
@@ -374,7 +376,7 @@ class SaltLake:
         return "UUCON"
 
     @collect_feature
-    def add_MesoWest(self, status="active", networks=["UUNET"]):
+    def add_MesoWest(self, status="active", networks=("UUNET",)):
         # TODO create MesoWest module
         DATA_DIR = get_data_dir("LINGROUP_DATA_DIR")
         file = DATA_DIR / "MesoWest" / "MesoWest_Utah_stations_20221017.csv"
@@ -492,7 +494,7 @@ class SaltLake:
         }
 
         handles, labels = [], []
-        for label, handle in legend_features.items():
+        for label in legend_features:
             if label not in self.features:
                 continue
 
@@ -523,7 +525,7 @@ class SaltLake:
         extent_map_proj = ccrs.AlbersEqualArea(central_longitude=-111)
         extent_map_rect = [0.65, 0.67, 0.2, 0.2]
 
-        extent_map_ax = add_extent_map(
+        add_extent_map(
             fig,
             self.extent,
             ccrs.PlateCarree(),

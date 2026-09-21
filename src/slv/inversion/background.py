@@ -32,13 +32,13 @@ def get_slv_background(
             **kwargs,
         )
         obs_times = pd.DatetimeIndex(obs_times)
-        background = pd.Series(
+        at_obs = pd.Series(
             hourly.reindex(obs_times.floor("h")).to_numpy(),
             index=obs_times,
             name="concentration",
         )
-        background.index.name = "obs_time"
-        return background
+        at_obs.index.name = "obs_time"
+        return at_obs
     elif background == "gml":
         return get_gml_background(obs_times=obs_times, **kwargs)
     elif background == "ct_stilt":

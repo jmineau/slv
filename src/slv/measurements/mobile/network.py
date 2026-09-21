@@ -22,8 +22,28 @@ from shapely import Point
 
 from slv import get_data_dir
 
-GROUP_DIR = Path(get_data_dir("LINGROUP_DATA_DIR"))
-USER_DIR = Path(get_data_dir("SLV_USER_DATA_DIR"))
+
+def group_dir() -> Path:
+    """``$LINGROUP_DATA_DIR``, the lin-group data library."""
+    return Path(get_data_dir("LINGROUP_DATA_DIR"))
+
+
+def user_dir() -> Path:
+    """``$SLV_USER_DATA_DIR``, where slv keeps derived data and caches."""
+    return Path(get_data_dir("SLV_USER_DATA_DIR"))
+
+
+def __getattr__(name: str) -> Path:
+    # GROUP_DIR / USER_DIR resolve when first used, not at import, so the package
+    # imports without the CHPC data roots set (CI, docs builds); scripts that
+    # `from slv.measurements.mobile.network import USER_DIR` keep working.
+    if name == "GROUP_DIR":
+        return group_dir()
+    if name == "USER_DIR":
+        return user_dir()
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+
+
 #: UTM zone 12 N, the metric CRS used for distances and buffers.
 UTM12 = "EPSG:32612"
 
@@ -44,11 +64,11 @@ def get_geodf(
         return obj
     elif isinstance(obj, (str, Path)):
         return gpd.read_file(obj)
+    elif obj is False or obj is None:
+        return None
     elif hasattr(obj, "open"):  # importlib.resources Traversable (packaged file)
         with obj.open("r") as f:
             return gpd.read_file(f)
-    elif obj is False or obj is None:
-        return None
     elif obj is True:
         raise ValueError(
             "Boolean value True is not a valid geodataframe input. Please provide a file path, GeoDataFrame, or set to False/None."
@@ -59,7 +79,7 @@ def get_geodf(
 
 def load_trax_lines(meters=False) -> gpd.GeoDataFrame:
     lines = gpd.read_file(
-        GROUP_DIR / "spatial/transportation/light_rail/UTA_TRAX.geojson"
+        group_dir() / "spatial/transportation/light_rail/UTA_TRAX.geojson"
     )
     if meters:
         # Convert to UTM zone 12 for meter units
@@ -70,7 +90,7 @@ def load_trax_lines(meters=False) -> gpd.GeoDataFrame:
 def load_trax_points(
     spacing=2000, meters=False, resolution_factor=None
 ) -> gpd.GeoDataFrame:
-    points_geojson = USER_DIR / f"trax/points_{spacing}m.geojson"
+    points_geojson = user_dir() / f"trax/points_{spacing}m.geojson"
 
     if points_geojson.exists():
         print(f"Loading cached TRAX points from {points_geojson}")
@@ -142,7 +162,7 @@ def load_storage_polygons(meters: bool = False) -> gpd.GeoDataFrame:
     """All storage yards in :data:`storage_locations`, one row each with a ``name``."""
     rows = []
     for name, src in storage_locations.items():
-        g = get_geodf(src).to_crs(UTM12)
+        g = get_geodf(src).to_crs(UTM12)  # pyright: ignore[reportOptionalMemberAccess]
         rows.append(
             gpd.GeoDataFrame(
                 {"name": [name]}, geometry=[g.geometry.union_all()], crs=UTM12

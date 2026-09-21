@@ -18,7 +18,7 @@ from slv.measurements.mobile.calibration import (
     select_uncalibrated,
 )
 from slv.measurements.mobile.gps import merge_with_gps
-from slv.measurements.mobile.network import USER_DIR
+from slv.measurements.mobile.network import user_dir
 
 #: Named sets of location states kept by :func:`load_trax_obs`.
 #: ``on_track`` reproduces the old route-buffer behaviour (minus shed multipath ejecta,
@@ -403,7 +403,7 @@ def load_trax_obs(
     drops the manual-cal rows kept under the low-cavity-pressure rule (``low_pressure`` column,
     see :func:`build_trax_obs`).
     """
-    cache = USER_DIR / "trax" / "obs.parquet" if cache is None else Path(cache)
+    cache = user_dir() / "trax" / "obs.parquet" if cache is None else Path(cache)
     if cache.exists() and not rebuild:
         data = pd.read_parquet(cache)
         if any(c not in data.columns for c in ("cal_source", "state", "low_pressure")):

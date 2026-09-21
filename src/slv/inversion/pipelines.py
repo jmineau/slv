@@ -294,13 +294,12 @@ def fips_cache(cls, filename):
                 path = component_dir / f"{h}.pkl"
             else:
                 # Fallback: flat file for components not listed in COMPONENT_DEPS
+                h = "flat"
                 component_dir = fips_dir
                 path = fips_dir / f"{filename}.pkl"
 
             if path.exists() and not should_overwrite:
-                print(
-                    f"Loading cached {filename} [{h if fields else 'flat'}] from {path}"
-                )
+                print(f"Loading cached {filename} [{h}] from {path}")
                 return cls.from_file(path)
 
             if should_overwrite and fields and component_dir.exists():
@@ -316,7 +315,7 @@ def fips_cache(cls, filename):
             result = method(self, *args, **kwargs)
 
             component_dir.mkdir(parents=True, exist_ok=True)
-            print(f"Saving {filename} [{h if fields else 'flat'}] to {path}")
+            print(f"Saving {filename} [{h}] to {path}")
             result.to_file(path)
 
             return result
@@ -727,7 +726,7 @@ class SLVMethaneInversion(FluxInversionPipeline):
             aggregator = ObsAggregator(
                 level="obs_time", freq=self.config.aggregate_obs, blocks="concentration"
             )
-            obs, forward_operator, modeldata_mismatch, constant = aggregator.apply(
+            obs, forward_operator, modeldata_mismatch, constant = aggregator.apply(  # pyright: ignore[reportAssignmentType]
                 obs, forward_operator, modeldata_mismatch, constant
             )
         return obs, forward_operator, modeldata_mismatch, constant
@@ -928,6 +927,7 @@ class SLVMethaneInversion(FluxInversionPipeline):
         )
 
         # --- Plot Reconstructed Posterior (full domain) ---
+        reconstructed = None
         if self._retained_cells is not None:
             reconstructed = self.reconstruct_posterior()
             reconstructed_xr = reconstructed.to_xarray()
@@ -945,7 +945,7 @@ class SLVMethaneInversion(FluxInversionPipeline):
             )
 
         # --- Total Emissions (use full reconstructed domain) ---
-        if self._retained_cells is not None:
+        if reconstructed is not None:
             full_prior = self._full_prior["flux"]
             full_prior.name = problem.prior_fluxes.name
             total_prior = self.calculate_total_flux(
@@ -995,7 +995,7 @@ class SLVMethaneInversion(FluxInversionPipeline):
         )
 
         # --- Plot Unconstrained Cells Contribution ---
-        if hasattr(self, "_removed_contribution"):
+        if hasattr(self, "_removed_contribution") and problem.constant is not None:
             viz.plot_removed_contribution(
                 self._removed_contribution,
                 problem.constant["concentration"],

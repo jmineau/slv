@@ -6,7 +6,7 @@ from pathlib import Path
 
 import numpy as np
 
-from slv.measurements.mobile.network import USER_DIR
+from slv.measurements.mobile.network import user_dir
 
 TRANSECT_LINES = {"r": "Red", "g": "Green", "b": "Blue"}
 
@@ -22,7 +22,7 @@ def load_transects(line: str, months=None, transects_dir: str | Path | None = No
     import xarray as xr
 
     d = (
-        USER_DIR / "trax" / "transects"
+        user_dir() / "trax" / "transects"
         if transects_dir is None
         else Path(transects_dir)
     )

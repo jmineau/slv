@@ -17,7 +17,7 @@ Thank you for considering contributing to Salt Lakey Valley py! We welcome contr
    source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 
    # OR using conda:
-   conda create -n myenv python=3.10 -y
+   conda create -n myenv python=3.12 -y
    conda activate myenv
 
    # Install development dependencies:

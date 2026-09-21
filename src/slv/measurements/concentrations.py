@@ -40,7 +40,8 @@ def load_concentrations(
         if orgs is None:
             raise ValueError("Must provide at least one of orgs or sites.")
         else:
-            sites = site_config[site_config["organization"].isin(orgs)].index.tolist()
+            in_orgs = site_config["organization"].isin(orgs)
+            sites = [str(s) for s in site_config.index[in_orgs]]
     else:
         if isinstance(sites, str):
             sites = [sites]

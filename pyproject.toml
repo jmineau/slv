@@ -7,7 +7,7 @@ name = "slv"
 version = "2026.9.1"
 description = "Salt Lake Valley python modules"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 license = {text = "MIT"}
 authors = [
     {name = "James Mineau", email = "James.Mineau@utah.edu"}
@@ -17,7 +17,6 @@ classifiers = [
     "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
 ]
@@ -90,12 +89,22 @@ include = ["src"]
 exclude = ["**/__pycache__", "**/.venv"]
 venvPath = "."
 venv = ".venv"
+# pandas' partial annotations type most indexing as `DataFrame | Series` (and many
+# returns as unions), so these rules flood with false positives on ordinary pandas
+# code (~340 of them). They stay visible as warnings; every other rule -- unbound
+# names, missing imports, None access, ... -- still fails the check.
+reportAttributeAccessIssue = "warning"
+reportArgumentType = "warning"
+reportIndexIssue = "warning"
+reportCallIssue = "warning"
+reportReturnType = "warning"
+reportOperatorIssue = "warning"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 
 [tool.ruff]
-target-version = "py310"
+target-version = "py311"
 
 [tool.ruff.format]
 docstring-code-format = true

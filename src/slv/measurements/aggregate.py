@@ -85,7 +85,7 @@ def aggregate_obs(
                         "altitude",
                         "is_mobile",
                     ]
-                    if c in stationary.columns and stationary[c].notna().any()
+                    if c in stationary.columns and bool(stationary[c].notna().any())
                 ]
 
                 if stationary_min_percent is not None:
@@ -94,7 +94,7 @@ def aggregate_obs(
                             "stationary_min_percent needs a fixed-length freq "
                             f"(e.g. '1h', '1D'), got {freq!r}."
                         )
-                    freq_hours = pd.tseries.frequencies.to_offset(freq).nanos / 3.6e12
+                    freq_hours = pd.tseries.frequencies.to_offset(freq).nanos / 3.6e12  # pyright: ignore[reportOptionalMemberAccess]
                     inst_expected = {}
                     for inst_name in stationary["instrument"].unique():
                         inst_cls = instruments.REGISTRY[inst_name]

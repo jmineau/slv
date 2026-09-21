@@ -28,4 +28,4 @@ For development, install with the development dependencies:
 Requirements
 ------------
 
-- Python 3.10 or higher
+- Python 3.11 or higher

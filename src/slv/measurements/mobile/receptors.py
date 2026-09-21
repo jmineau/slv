@@ -48,10 +48,10 @@ from scipy.spatial import cKDTree
 
 from slv.domain import UTC_OFFSET
 from slv.measurements.mobile.network import (
-    USER_DIR,
     UTM12,
     load_trax_lines,
     load_trax_points,
+    user_dir,
 )
 from slv.measurements.mobile.obs import LOCATION_SETS
 
@@ -103,7 +103,7 @@ def load_trax_network_points(
     points, 2026-09-17) — do it on a compute node; afterwards ``load_trax_points`` reads its
     own cache in seconds.
     """
-    cache = USER_DIR / "trax" / f"points_{spacing}m_network.geojson"
+    cache = user_dir() / "trax" / f"points_{spacing}m_network.geojson"
     if cache.exists() and not rebuild:
         pts = gpd.read_file(cache)
     else:
@@ -150,7 +150,7 @@ def load_trax_fixes(
     """
     import pyarrow.parquet as pq
 
-    cache = USER_DIR / "trax" / "obs.parquet" if cache is None else Path(cache)
+    cache = user_dir() / "trax" / "obs.parquet" if cache is None else Path(cache)
     states = LOCATION_SETS[location] if isinstance(location, str) else location
     filters = None if states is None else [("state", "in", list(states))]
     t = pq.read_table(

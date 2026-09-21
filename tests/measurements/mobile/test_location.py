@@ -139,8 +139,22 @@ def test_speed_est_fallback_when_no_speed_recorded():
     assert (classify_location(f, smooth_min=1).state == "yard").all()
 
 
-def test_location_features_without_speed_column():
+def test_location_features_without_speed_column(monkeypatch):
+    import geopandas as gpd
+    from shapely import LineString
+
+    import slv.measurements.mobile.location as location
     from slv.measurements.mobile.location import location_features
+
+    # A stand-in track through the fixes, instead of UTA_TRAX.geojson from group data
+    # (the yard polygons are packaged).
+    track = gpd.GeoDataFrame(
+        geometry=[LineString([(-111.921, 40.7234), (-111.917, 40.7237)])],
+        crs="EPSG:4326",
+    )
+    monkeypatch.setattr(
+        location, "load_trax_lines", lambda meters=False: track.to_crs("EPSG:32612")
+    )
 
     idx = pd.date_range("2025-03-01", periods=180, freq="1s")
     gps = pd.DataFrame(
