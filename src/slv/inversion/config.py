@@ -230,9 +230,11 @@ class InversionConfig:
         :func:`~slv.inversion.priors.get_slv_prior`.
     prior_kwargs : dict
         Passed to the prior loader (e.g. ``{"express": True}``).
-    stilt_project : str or Path
-        PYSTILT project holding the footprints (``$SLV_STILT_DIR``, else
-        :data:`DEFAULT_STILT_PROJECT`).
+    stilt_project : str, Path, or list of str or Path
+        PYSTILT project(s) holding the footprints (``$SLV_STILT_DIR``, else
+        :data:`DEFAULT_STILT_PROJECT`). A list builds one Jacobian from several projects,
+        e.g. the production project (UOU, DAQ) and the TRAX project: each contributes the
+        rows for the obs it has footprints for (:attr:`stilt_projects`).
     footprint : str, optional
         Footprint config name or hash; ``None`` takes the finest in the project. The cache
         key sees this value, not what ``None`` resolved to, so set it explicitly.
