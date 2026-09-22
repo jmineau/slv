@@ -3,6 +3,7 @@ Background module for the SLV
 """
 
 import datetime as dt
+import os
 from functools import cached_property
 from pathlib import Path
 
@@ -44,12 +45,19 @@ def user_gml_dir() -> Path:
     return get_data_dir("SLV_USER_DATA_DIR") / "gml"
 
 
+def lair_gml_dir() -> Path | None:
+    """lair's NOAA GML directory (the shared group copy): ``$LAIR_GML_DIR``, or the
+    built-in ``lair.noaa.GML_DIR`` of lair releases that still have one."""
+    d = os.environ.get("LAIR_GML_DIR") or getattr(noaa, "GML_DIR", None)
+    return Path(d) if d else None
+
+
 class GMLDiscrete(noaa.GMLData):
     """
     NOAA GML discrete sample data with QC filtering and Thoning curve support.
 
     The file is read from :func:`user_gml_dir` if it is there, else from lair's group copy
-    (``lair.noaa.GML_DIR``); if neither has it (or ``refresh``) it is downloaded over FTP
+    (:func:`lair_gml_dir`); if neither has it (or ``refresh``) it is downloaded over FTP
     into :func:`user_gml_dir`, never into the shared group directory. Compute nodes have
     no outbound network, so fetch a new file once on a login node
     (``GMLDiscrete("ch4", "mbo", sample_type="pfp", refresh=True)``). ``gml_dir`` pins
@@ -98,7 +106,7 @@ class GMLDiscrete(noaa.GMLData):
             user = user_gml_dir()
         except OSError:
             user = None
-        dirs = [d for d in (user, Path(noaa.GML_DIR)) if d is not None]
+        dirs = [d for d in (user, lair_gml_dir()) if d is not None]
         if not refresh:
             for d in dirs:
                 probe = noaa.GMLData(specie=specie, site=site, gml_dir=d, **kwargs)
@@ -106,7 +114,7 @@ class GMLDiscrete(noaa.GMLData):
                     return d
         if user is None:
             raise OSError(
-                f"No NOAA GML file for {specie} at {site} in {noaa.GML_DIR}; set "
+                f"No NOAA GML file for {specie} at {site} in {lair_gml_dir()}; set "
                 "SLV_USER_DATA_DIR so it can be downloaded there."
             )
         return user

@@ -55,7 +55,8 @@ def write_gml(gml_dir, value):
 def gml_dirs(tmp_path, monkeypatch):
     """A group copy and a user cache, and a download that writes into its target."""
     group, user = tmp_path / "group_gml", tmp_path / "user"
-    monkeypatch.setattr(background.noaa, "GML_DIR", group)
+    monkeypatch.setenv("LAIR_GML_DIR", str(group))  # lair main has no GML_DIR
+    monkeypatch.delattr(background.noaa, "GML_DIR", raising=False)
     monkeypatch.setenv("SLV_USER_DATA_DIR", str(user))
     downloads = []
 
@@ -102,6 +103,14 @@ def test_gml_download_failure_says_to_fetch_on_a_login_node(gml_dirs, monkeypatc
     monkeypatch.setattr(background.noaa.GMLData, "download", offline)
     with pytest.raises(RuntimeError, match="login node"):
         gml()
+
+
+def test_lair_gml_dir_falls_back_to_the_old_built_in(monkeypatch, tmp_path):
+    monkeypatch.delenv("LAIR_GML_DIR", raising=False)
+    monkeypatch.setattr(background.noaa, "GML_DIR", tmp_path, raising=False)
+    assert background.lair_gml_dir() == tmp_path
+    monkeypatch.delattr(background.noaa, "GML_DIR")
+    assert background.lair_gml_dir() is None
 
 
 def test_gml_without_a_user_dir_and_no_group_copy(gml_dirs, monkeypatch):

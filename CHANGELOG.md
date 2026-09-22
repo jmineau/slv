@@ -50,7 +50,8 @@ versions are calendar-based (YYYY.M.PATCH).
   - `load_trax_points(resolution_factor=...)` caches to its own file
     (`points_<spacing>m_rf<factor>.geojson`); it returned the default points. The
     default file name is unchanged
-  - `GMLDiscrete` reads `$SLV_USER_DATA_DIR/gml`, then lair's group copy, and downloads
+  - `GMLDiscrete` reads `$SLV_USER_DATA_DIR/gml`, then lair's group copy
+    (`$LAIR_GML_DIR`; lair main dropped `lair.noaa.GML_DIR`), and downloads
     into `$SLV_USER_DATA_DIR/gml` only when neither has the file (`refresh=True` to
     re-fetch), never into the shared group directory; a failed download says to fetch
     on a login node (compute nodes have no outbound network)
