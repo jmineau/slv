@@ -6,6 +6,7 @@ in their own modules (:mod:`.mdm`, :mod:`.bias`, :mod:`.coverage`, :mod:`.report
 """
 
 import time
+from pathlib import Path
 from typing import Any
 
 import numpy as np
@@ -31,6 +32,44 @@ from slv.inversion.data import get_slv_observations, split_sites
 from slv.inversion.mdm import ModelDataMismatchMixin
 from slv.inversion.priors import get_slv_prior
 from slv.inversion.report import ReportingMixin
+
+
+def stack_jacobians(
+    parts: list[tuple[Path, MatrixBlock]], sparse: bool = True
+) -> MatrixBlock:
+    """Row-stack the per-project flux Jacobians into one.
+
+    ``parts`` pairs each STILT project with the Jacobian built from it. Every project is
+    aggregated onto the same state grid and flux time bins, so the columns agree; they are
+    still aligned on their union (missing cells are zero sensitivity) rather than assumed.
+
+    A row -- an ``(obs_location, obs_time)`` -- appearing in two projects is an error: it
+    means the same receptor was simulated in both, and there is no principled way to pick
+    one footprint. Remove it from one project's receptors, or drop that project.
+    """
+    frames = [H.data for _, H in parts]
+    rows = frames[0].index.append([f.index for f in frames[1:]])
+    dup = rows.duplicated(keep=False)
+    if dup.any():
+        owners = [str(p) for (p, H) in parts for _ in range(len(H.data))]
+        clash = pd.Series(owners, index=rows)[dup]
+        example = clash.index[0]
+        raise ValueError(
+            f"{int(dup.sum() // 2)} obs have footprints in more than one STILT project, e.g. "
+            f"{example} in {sorted(set(clash.loc[[example]]))}. Each obs must come from "
+            "exactly one project."
+        )
+    cols = frames[0].columns
+    for f in frames[1:]:
+        cols = cols.union(f.columns, sort=False)
+    aligned = [f.reindex(columns=cols, fill_value=0.0) for f in frames]
+    return MatrixBlock(
+        pd.concat(aligned, axis=0),
+        name="jacobian",
+        row_block="concentration",
+        col_block="flux",
+        sparse=sparse,
+    )
 
 
 class SLVMethaneInversion(
@@ -141,12 +180,42 @@ class SLVMethaneInversion(
 
     @fips_cache(ForwardOperator, "forward_operator")
     def _get_flux_jacobian(self, obs: Vector) -> ForwardOperator:
-        """The flux Jacobian from the PYSTILT footprints (cached as ``forward_operator``)."""
+        """The flux Jacobian from the PYSTILT footprints (cached as ``forward_operator``).
+
+        ``config.stilt_project`` may name several projects (``config.stilt_projects``): the
+        UOU and DAQ footprints live in the production project and the TRAX ones in their own.
+        Each project contributes the rows for the obs it has footprints for, and the rows are
+        stacked into one Jacobian. All projects are aggregated onto the same state grid and
+        flux time bins, so their columns line up.
+        """
+        obs_locations = set(obs.index.get_level_values("obs_location"))
+        parts: list[tuple[Path, MatrixBlock]] = []
+        for project in self.config.stilt_projects:
+            H = self._project_jacobian(project, obs_locations)
+            if H is not None:
+                parts.append((project, H))
+        if not parts:
+            raise ValueError(
+                f"None of the STILT projects {[str(p) for p in self.config.stilt_projects]} "
+                "has simulations matching the obs."
+            )
+        if len(parts) == 1:
+            return ForwardOperator(parts[0][1])
+        return ForwardOperator(
+            stack_jacobians(parts, sparse=self.config.sparse_jacobian)
+        )
+
+    def _project_jacobian(
+        self, project: Path, obs_locations: set
+    ) -> MatrixBlock | None:
+        """One project's Jacobian rows for the obs in ``obs_locations``, or None if it has
+        no simulation matching any of them."""
         from stilt import Model, SimID
 
         from slv.inversion.config import build_location_site_map
 
-        model = Model(self.config.stilt_project)
+        model = Model(project)
+        sim_locations = {SimID(sid).location for sid in model.simulations}
 
         # Build location mapper from all simulations in the project.
         # Must happen before filtering so stationary sites can be resolved.
@@ -156,38 +225,30 @@ class SLVMethaneInversion(
         # cache miss, and a config changed mid-run would change its sweep config_id.
         location_mapper = self.config.location_site_map
         if not location_mapper:
-            all_location_ids = list({SimID(sid).location for sid in model.simulations})
             location_mapper = build_location_site_map(
-                all_location_ids, self.config.site_config
+                list(sim_locations), self.config.site_config
             )
-            print(f"Auto-generated location mapper for {len(location_mapper)} sites")
+            print(
+                f"  {project.name}: auto-generated location mapper for "
+                f"{len(location_mapper)} sites"
+            )
 
         # Filter to simulations relevant for this obs set.
         # For stationary sims: mapper resolves location_id → site name → in obs.
         # For mobile sims: location_id not in mapper → falls back to location_id
         #   itself, which IS the obs_location for mobile sites.
-        obs_locations = set(obs.index.get_level_values("obs_location"))
         relevant_location_ids = {
             lid
-            for lid in {SimID(sid).location for sid in model.simulations}
+            for lid in sim_locations
             if location_mapper.get(lid, lid) in obs_locations
         }
+        if not relevant_location_ids:
+            print(f"  {project.name}: no simulations match the obs; skipped")
+            return None
 
-        # Resolve footprint name: None → finest (smallest xres) in project config
-        footprint = self.config.footprint
-        if footprint is None:
-            foot_configs = model.config.footprints
-            if not foot_configs:
-                raise ValueError(
-                    "No footprints configured in the STILT project. "
-                    "Set InversionConfig.footprint explicitly."
-                )
-            footprint = min(foot_configs, key=lambda n: foot_configs[n].grid.xres)
-            print(f"  Auto-selected finest footprint: '{footprint}'")
-
-        # Build flux Jacobian
+        footprint = self._resolve_footprint(model, project)
         jacobian_builder = JacobianBuilder(model)
-        jacobian = jacobian_builder.build_from_target(
+        return jacobian_builder.build_from_target(
             self.config.state_grid,
             flux_times=self.config.flux_time_bins,
             footprint=footprint,
@@ -199,7 +260,27 @@ class SLVMethaneInversion(
             sparse=self.config.sparse_jacobian,
         )
 
-        return ForwardOperator(jacobian)
+    def _resolve_footprint(self, model, project: Path) -> str:
+        """``config.footprint`` if set (it must exist in this project), else the project's
+        finest (smallest xres) footprint."""
+        foot_configs = model.config.footprints
+        if not foot_configs:
+            raise ValueError(
+                f"No footprints configured in the STILT project {project}. "
+                "Set InversionConfig.footprint explicitly."
+            )
+        footprint = self.config.footprint
+        if footprint is not None:
+            if footprint not in foot_configs:
+                raise ValueError(
+                    f"Footprint {footprint!r} is not in the STILT project {project} "
+                    f"(it has {sorted(foot_configs)}). With several projects, "
+                    "config.footprint must name a footprint every project has, or be None."
+                )
+            return footprint
+        footprint = min(foot_configs, key=lambda n: foot_configs[n].grid.xres)
+        print(f"  {project.name}: auto-selected finest footprint {footprint!r}")
+        return footprint
 
     @fips_cache(CovarianceMatrix, "prior_error")
     def get_prior_error(self, prior: Vector) -> CovarianceMatrix:

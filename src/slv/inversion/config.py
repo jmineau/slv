@@ -334,9 +334,12 @@ class InversionConfig:
     prior_kwargs: dict = field(default_factory=dict)
 
     # --- Jacobian ---
-    # Production PYSTILT project. Override per-machine with the SLV_STILT_DIR env var
-    # (set in ~/.env alongside the other SLV_*_DIR vars) rather than editing this.
-    stilt_project: str | Path = field(
+    # PYSTILT project(s) holding the footprints. Default: the production project; override
+    # per-machine with the SLV_STILT_DIR env var (set in ~/.env alongside the other
+    # SLV_*_DIR vars) rather than editing this. A list combines projects -- e.g. the
+    # production project (UOU, DAQ) and the TRAX project -- into one Jacobian: each project
+    # contributes the rows for the obs it has footprints for (see ``stilt_projects``).
+    stilt_project: str | Path | list[str | Path] = field(
         default_factory=lambda: os.environ.get("SLV_STILT_DIR", DEFAULT_STILT_PROJECT)
     )
     # Named footprint config or hash; None = the finest in the project. The cache key sees
@@ -531,6 +534,21 @@ class InversionConfig:
     def time_range(self) -> tuple[pd.Timestamp, pd.Timestamp]:
         """``(tstart, tend)`` as timestamps."""
         return (pd.Timestamp(self.tstart), pd.Timestamp(self.tend))
+
+    @property
+    def stilt_projects(self) -> list[Path]:
+        """``stilt_project`` as a list of paths, whether one project or several was given.
+
+        ``stilt_project`` itself is left as given, so a single-project config keeps the same
+        cache key it always had; only code that opens the projects normalises it.
+        """
+        p = self.stilt_project
+        items = p if isinstance(p, (list, tuple)) else [p]
+        if not items:
+            raise ValueError(
+                "stilt_project is an empty list; give at least one project."
+            )
+        return [Path(x) for x in items]
 
     @property
     def mobile_obs_key(self) -> str | None:
