@@ -58,6 +58,9 @@ versions are calendar-based (YYYY.M.PATCH).
     (tri-down, beside CNG's tri-up)
   - `load_concentrations` says the Wyoming mobile lab (`wyo`) is read by
     `slv.measurements.mobile.wyoming` instead of "Unknown org/instrument combo"
+  - `build_dwell_receptors` accepts only a 1-hour `freq`: `receptor_obs` averages each
+    dwell obs over the hour its `r_idx` names, so a 2-hour receptor (released at the
+    bin's median) was paired with the first hour's obs only
 - The 50-m TRAX network points come from `load_trax_points(50)`, like the 2-km points,
   so shared track has one set of points; a crossing's receptor releases only from the
   segment points on the line it drove, not every arm of a junction segment

@@ -454,16 +454,19 @@ def build_dwell_receptors(
     data rather than the bin edge because the train may only be there for part of it.
 
     ``r_idx`` is ``dwell_<dwell>_<YYYYMMDDHH of the bin>``, which
-    :mod:`.receptor_obs` parses back into the sample window, so ``freq`` must be at least
-    an hour (a shorter bin would give two receptors one ``r_idx``).
+    :mod:`.receptor_obs` parses back into a one-hour sample window, so ``freq`` must be
+    exactly an hour: a shorter bin would give two receptors one ``r_idx``, and a longer
+    one would release the footprint at the median of the whole bin while the obs
+    averages only its first hour.
 
     ``hours`` restricts output to those local-time hours (see
     :func:`filter_receptor_hours`), e.g. ``range(12, 17)`` for the afternoon.
     """
     step = pd.date_range("2000-01-01", periods=2, freq=freq)
-    if step[1] - step[0] < pd.Timedelta(hours=1):
+    if step[1] - step[0] != pd.Timedelta(hours=1):
         raise ValueError(
-            f"freq={freq!r} is shorter than an hour; dwell r_idx names the bin by its hour."
+            f"freq={freq!r}: dwell receptors are hourly (the r_idx names the hour, and "
+            "receptor_obs averages the obs over that hour)."
         )
     if dwells.empty:
         return pd.DataFrame(columns=RECEPTOR_COLUMNS)

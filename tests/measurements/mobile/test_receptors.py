@@ -228,7 +228,7 @@ def test_hours_window_also_applies_to_crossings():
     )
 
 
-def test_dwell_r_idx_is_hourly_and_sub_hourly_freq_is_refused():
+def test_dwell_receptors_are_hourly_only():
     import pytest
 
     from slv.measurements.mobile.receptors import build_dwell_receptors, find_dwells
@@ -237,10 +237,12 @@ def test_dwell_r_idx_is_hourly_and_sub_hourly_freq_is_refused():
     d = find_dwells(fixes, min_duration="20min")
     # the r_idx format existing STILT footprints and receptor_obs are keyed on
     assert build_dwell_receptors(fixes, d).r_idx.tolist() == ["dwell_0_2024060119"]
-    two = build_dwell_receptors(fixes, d, freq="2h")
-    assert two.r_idx.tolist() == ["dwell_0_2024060118"]
-    with pytest.raises(ValueError, match="shorter than an hour"):
-        build_dwell_receptors(fixes, d, freq="30min", min_minutes=10)
+    same = build_dwell_receptors(fixes, d, freq="60min")
+    assert same.r_idx.tolist() == ["dwell_0_2024060119"]
+    # receptor_obs averages each dwell obs over the one hour its r_idx names
+    for freq, kwargs in (("30min", {"min_minutes": 10}), ("2h", {})):
+        with pytest.raises(ValueError, match="hourly"):
+            build_dwell_receptors(fixes, d, freq=freq, **kwargs)
 
 
 def test_empty_results_pass_through_without_crashing():
