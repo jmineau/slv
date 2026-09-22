@@ -17,6 +17,9 @@ dependencies:
   - pandas
   - siphon>=0.10.0
   - xarray
+  # inversion extra (fips comes from pip below)
+  - joblib>=1.5.3
+  - seaborn
 
   # test / dev / docs / quality deps
   - pytest>=7.0.0

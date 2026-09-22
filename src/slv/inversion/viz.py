@@ -415,7 +415,7 @@ def plot_fluxes_by_timestep(
             cmap="coolwarm",
         )
     )
-    for ax in facet.axes.flatten():
+    for ax in facet.axs.flatten():
         ax.set_extent(extent, crs=PC)
         ax.add_image(tiler, zoom)
         if add_point_sources:
@@ -582,7 +582,9 @@ def plot_desroziers(
         y="ratio",
         ax=ax2,
         showfliers=False,
+        hue="obs_location",
         palette="Set2",
+        legend=False,
     )
     ax2.set_ylim(top=max(upper * 1.1, 1.5))
     ax2.axhline(1.0, color="black", linestyle="--", linewidth=1)
@@ -612,8 +614,8 @@ def plot_desroziers(
 
 def plot_residuals(
     problem,
-    rolling_window="30d",
-    gap_threshold="7d",
+    rolling_window="30D",
+    gap_threshold="7D",
     show_raw=True,
     location_dim="obs_location",
 ):
@@ -623,9 +625,9 @@ def plot_residuals(
     ----------
     problem : FluxProblem
         Solved inversion problem.
-    rolling_window : str or int, default '30d'
+    rolling_window : str or int, default '30D'
         Rolling window for smoothed lines.
-    gap_threshold : str, default '7d'
+    gap_threshold : str, default '7D'
         Minimum gap duration to highlight as missing data.
     show_raw : bool, default True
         Whether to show raw residual points behind the smoothed lines.
