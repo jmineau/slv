@@ -74,10 +74,17 @@ def test_ten_second_sampling_keeps_span():
 
 def test_off_track_fixes_are_dropped():
     pts = _network()
+    clean = find_segment_crossings(_fixes(), pts)
     f = _fixes()
-    f.loc[:9, "Latitude_deg"] += 0.01  # ~1 km north of the track
+    f.loc[:9, "Latitude_deg"] += 0.01  # the first 10 fixes ~1 km north of the track
     cr = find_segment_crossings(f, pts)
-    assert cr.n_fix.iloc[0] == cr.n_fix.iloc[1] - 10 or cr.n_fix.iloc[0] < 200
+    # the first crossing loses exactly those 10 fixes (1 s apart) and nothing else changes
+    assert cr.n_fix.iloc[0] == clean.n_fix.iloc[0] - 10
+    assert cr.t_start.iloc[0] == clean.t_start.iloc[0] + pd.Timedelta(seconds=10)
+    pd.testing.assert_series_equal(cr.n_fix.iloc[1:], clean.n_fix.iloc[1:])
+    # with the distance cut off, they would be kept (snapped to the nearest point)
+    kept = find_segment_crossings(f, pts, max_point_dist=5000.0)
+    assert kept.n_fix.iloc[0] == clean.n_fix.iloc[0]
 
 
 def test_receptors_one_multipoint_per_crossing():

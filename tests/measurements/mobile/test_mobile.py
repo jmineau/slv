@@ -1,5 +1,6 @@
 """Tests for slv.measurements.mobile: calibration windows, obs location filter, route buffer."""
 
+import numpy as np
 import pandas as pd
 
 from slv.measurements.mobile.calibration import (
@@ -209,9 +210,12 @@ def test_gps_numeric_coercion_handles_all_na_string_columns():
         }
     )
     out = _coerce_numeric(df)
-    assert out["Speed_m_s"].dtype == float and out["Speed_m_s"].isna().all()
-    assert out["Status"].tolist() == ["A", "A"]
-    assert out["Speed_m_s"].resample is not None  # plain Series API still there
+    assert out["Speed_m_s"].dtype == np.float64 and out["Speed_m_s"].isna().all()
+    assert out["Latitude_deg"].dtype == np.float64
+    assert out["Latitude_deg"].tolist() == [40.7, 40.8]
+    assert out["Status"].tolist() == ["A", "A"]  # non-GPS columns untouched
+    # a plain float column takes a numeric reduction (the Arrow string one raised)
+    assert np.isnan(out["Speed_m_s"].median())
 
 
 # --------------------------------------------------------------------------- load / build
