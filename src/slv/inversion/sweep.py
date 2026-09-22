@@ -859,7 +859,8 @@ class SweepResults:
         if "reduced_chi2" not in self.df.columns:
             return self.df.iloc[:0]
         dist = (self.df["reduced_chi2"] - target).abs()
-        return self.df[dist < tol].copy().reset_index(drop=True)
+        order = dist[dist < tol].sort_values(kind="stable").index
+        return self.df.loc[order].reset_index(drop=True)
 
     def failed(self) -> pd.DataFrame:
         """Return rows that errored during the sweep."""

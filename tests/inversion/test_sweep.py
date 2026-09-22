@@ -501,6 +501,12 @@ class TestSweepResults:
         assert set(best["config_id"]) == {"a", "c"}
         assert "b" not in best["config_id"].values
 
+    def test_best_orders_by_distance_to_target(self, tmp_path):
+        # df is sorted by distance to 1 (a, c, b); for target 1.5, b is the best
+        r = SweepResults(self._make_csv(tmp_path))
+        best = r.best(target=1.5, tol=0.6)  # a (0.95) is 0.55 away
+        assert list(best["config_id"]) == ["b", "c", "a"]
+
     def test_best_empty_when_none_match(self, tmp_path):
         r = SweepResults(self._make_csv(tmp_path))
         best = r.best(tol=0.01)
