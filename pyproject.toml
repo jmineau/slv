@@ -23,7 +23,7 @@ classifiers = [
 dependencies = [
     "cartopy",
     "geopandas",
-    "lair[science,geo] @ git+https://github.com/jmineau/lair",  # geo: lair.geo (rasterio/rioxarray/shapely)
+    "lair[science,geo] @ git+https://github.com/jmineau/lair@v2026.12.4",  # geo: lair.geo (rasterio/rioxarray/shapely)
     "matplotlib",
     "pandas",
     "siphon>=0.10.0",
