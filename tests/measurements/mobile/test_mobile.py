@@ -2,6 +2,7 @@
 
 import numpy as np
 import pandas as pd
+import pytest
 
 from slv.measurements.mobile.calibration import (
     CAL_SOURCES,
@@ -267,6 +268,20 @@ def _build(monkeypatch, tables, time_range, windows=None, **kwargs):
 
     monkeypatch.setattr(obs_mod, "_read_lgr", _fake_read_lgr(tables))
     monkeypatch.setattr(obs_mod, "merge_with_gps", _fake_merge_with_gps)
+    # the qaqc support read (dropouts, cavity pressure) must not reach the archive in tests
+    support = tables.get(
+        "support",
+        pd.DataFrame(
+            {
+                "Time_UTC": pd.to_datetime([]),
+                "CH4_raw": pd.Series(dtype=float),
+                "QAQC_Flag": pd.Series(dtype=float),
+                "Cavity_P_torr": pd.Series(dtype=float),
+                "ID_CH4": pd.Series(dtype=float),
+            }
+        ),
+    )
+    monkeypatch.setattr(obs_mod, "_read_support", lambda *a, **k: support)
     if windows is None:
         windows = pd.DataFrame({"start": pd.to_datetime([]), "end": pd.to_datetime([])})
     return obs_mod.build_trax_obs(
@@ -345,3 +360,105 @@ def test_merge_with_gps_reads_the_requested_site(monkeypatch):
     assert seen == ["trx02"] and len(out) and "Latitude_deg" in out
     with pytest.raises(ValueError, match="not supported"):
         merge_with_gps("trx02", "horel", obs, routes=False, storage_polygon=False)
+
+
+# --- 2026-09-22 audit rules -------------------------------------------------------------
+
+
+def test_dropout_rule_removes_the_window_around_a_laser_dropout():
+    from slv.measurements.mobile.obs import apply_dropout_rule, dropout_times
+
+    t = pd.date_range("2025-06-14", periods=40, freq="min")
+    support = pd.DataFrame({"Time_UTC": [t[20]], "CH4_raw": [1.2], "ID_CH4": [-10.0]})
+    drops = dropout_times(support)
+    assert len(drops) == 1
+    obs = pd.DataFrame({"Time_UTC": t, "CH4": 2.0, "cal_source": "manual_cal"})
+    kept = apply_dropout_rule(obs, drops, window_min=8)
+    # minutes 12..28 inclusive are dropped
+    assert len(kept) == 40 - 17
+    assert not ((kept.Time_UTC >= t[12]) & (kept.Time_UTC <= t[28])).any()
+
+
+def test_dropout_rule_ignores_reference_rows():
+    from slv.measurements.mobile.obs import dropout_times
+
+    t = pd.date_range("2025-06-14", periods=2, freq="min")
+    # a reference row (ID_CH4 = the tank value) below the threshold is tank gas, not a dropout
+    support = pd.DataFrame(
+        {"Time_UTC": t, "CH4_raw": [1.2, 1.2], "ID_CH4": [1.45, -10.0]}
+    )
+    assert len(dropout_times(support)) == 1
+
+
+def test_pressure_rule_drops_pipeline_rows_outside_the_band_only():
+    from slv.measurements.mobile.obs import apply_pressure_rule
+
+    t = pd.date_range("2016-12-30", periods=4, freq="min")
+    pressure = pd.Series([120.0, 140.0, 150.0, np.nan], index=t)
+    obs = pd.DataFrame({"Time_UTC": t, "CH4_ppm": 2.0, "cal_source": "pipeline"})
+    kept = apply_pressure_rule(obs, pressure)
+    # 120 and 150 torr go; 140 and the row with no reading stay
+    assert kept.Time_UTC.tolist() == [t[1], t[3]]
+    # manual_cal rows are governed by the low-pressure rule instead
+    manual = obs.assign(cal_source="manual_cal")
+    assert len(apply_pressure_rule(manual, pressure)) == 4
+
+
+def test_recover_hot_rows_divides_by_the_fitted_slope():
+    from slv.measurements.mobile.obs import recover_hot_rows
+
+    t = pd.date_range("2020-08-15T20:00", periods=3, freq="min")
+    cal = pd.DataFrame(
+        {
+            "Time_UTC": t,
+            "CH4": [np.nan, np.nan, 2.1],  # first two blanked by flag -64
+            "CH4d_m": [0.98, 0.98, 0.98],
+            "QAQC_Flag": [-64, -64, 0],
+        }
+    )
+    support = pd.DataFrame(
+        {"Time_UTC": t, "CH4_raw": [1.96, 0.5, 2.06], "ID_CH4": -10.0}
+    )
+    out = recover_hot_rows(cal, support)
+    # the valid -64 row is recovered; the 0.5 ppm one falls outside the valid range
+    assert out.Time_UTC.tolist() == [t[0]]
+    assert out.CH4.iloc[0] == pytest.approx(1.96 / 0.98)
+
+
+def test_epoch_offset_is_stored_and_reversible():
+    from slv.measurements.mobile.calibration import (
+        apply_epoch_offset,
+        epoch_offset_column,
+        load_trax_epoch_offsets,
+    )
+
+    offsets = load_trax_epoch_offsets()
+    assert (offsets.end > offsets.start).all()
+    assert offsets.offset_ppm.abs().max() < 0.1  # ppm, a gain error not a blunder
+    t = pd.to_datetime(
+        ["2026-08-01", "2019-06-01"]
+    )  # manual-cal era, then a tank epoch
+    col = epoch_offset_column(t)
+    assert col.iloc[0] == -0.024 and col.iloc[1] == 0.0
+    df = pd.DataFrame(
+        {"Time_UTC": t, "CH4_ppm": [2.0, 2.0], "epoch_offset_ppm": col.to_numpy()}
+    )
+    assert apply_epoch_offset(df).CH4_ppm.tolist() == pytest.approx([2.024, 2.0])
+    assert apply_epoch_offset(df, apply=False).CH4_ppm.tolist() == [2.0, 2.0]
+
+
+def test_clock_checked_days_uses_neighbours_for_a_day_without_lin_gps():
+    from slv.measurements.mobile.gps import clock_checked_days
+
+    offsets = pd.Series([0.3, 0.3], index=pd.to_datetime(["2019-06-12", "2019-06-14"]))
+    days = pd.to_datetime(["2019-06-13", "2019-07-20"])
+    ok = clock_checked_days(offsets, days)
+    assert pd.Timestamp("2019-06-13") in ok  # bracketed by good days
+    assert pd.Timestamp("2019-07-20") not in ok  # no nearby lin GPS at all
+
+
+def test_clock_checked_days_rejects_a_drifting_clock():
+    from slv.measurements.mobile.gps import clock_checked_days
+
+    offsets = pd.Series([3600.0], index=pd.to_datetime(["2018-08-14"]))
+    assert clock_checked_days(offsets, pd.to_datetime(["2018-08-14"])) == set()

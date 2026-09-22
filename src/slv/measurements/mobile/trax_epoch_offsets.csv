@@ -1,0 +1,8 @@
+start,end,analyzer,offset_ppm,n_hours,enabled,note
+2023-11-17,2024-03-25,15-0109,-0.002,149,true,"manual-cal era: no tank on board, no calibration applied by the pipeline"
+2024-09-19,2025-01-06,15-0109,-0.015,99,true,"tank 240111_69 removed 2024-09-19; step of -0.015 ppm at the swap"
+2025-01-06,2025-03-31,13-0221,-0.022,107,true,"13-0221 running at 131-134 torr (pressure low, pulled 2025-03-31)"
+2025-03-31,2025-08-28,15-0109,-0.016,105,true,"manual-cal era"
+2025-09-02,2026-01-26,13-0221,-0.008,120,true,"manual-cal era (15-0077, 2025-08-28 to 09-02, is dropped by the pipeline bad file)"
+2026-01-26,2026-07-01,15-0109,-0.003,202,true,"manual-cal era"
+2026-07-01,2026-12-31,13-0221,-0.024,110,true,"13-0221 running at 102-110 torr; step of -0.021 ppm at the 2026-07-01 swap"

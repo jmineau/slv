@@ -13,6 +13,8 @@ import pandas as pd
 import uataq
 
 from slv.measurements.mobile.calibration import (
+    apply_epoch_offset,
+    epoch_offset_column,
     filter_cal_source,
     load_trax_uncalibrated_windows,
     select_uncalibrated,
@@ -101,6 +103,21 @@ def label_trax_location(
 LOW_PRESSURE_BAND: tuple[float, float] = (100.0, 145.0)
 
 
+#: Cavity-pressure band (torr) the LGR is specified for; the pipeline's own ``-63`` flag uses the
+#: same bounds. It has to be re-checked in the loader because ``lgr_ugga_qaqc.r`` assigns flags in
+#: sequence, so ``-64`` (cavity T out of range) OVERWRITES ``-63`` on a row that fails both — and
+#: ``-64`` is an accepted flag. 360 on-track minutes at 100-135 torr reached obs.parquet that way
+#: (2016-12-30/31 and 2017-01-08, the sample line starving; low tail -0.10 ppm).
+PRESSURE_BAND: tuple[float, float] = (135.0, 145.0)
+
+#: An atmosphere row below this (ppm) is a CH4 laser dropout, not air: the global background is
+#: ~1.85-2.0 ppm and the pipeline's valid range starts at 1.70, so the shoulder of a dropout passes
+#: QC. Measured bias of the surviving rows: -0.29 ppm one minute out, -0.22 within 8 min, gone by 15.
+DROPOUT_CH4_PPM: float = 1.70
+
+#: Minutes either side of a dropout row that are dropped with it (:func:`apply_dropout_rule`).
+DROPOUT_WINDOW_MIN: int = 8
+
 #: Calibrated rows whose slope ``CH4d_m`` deviates more than this fraction from the day's median
 #: slope are dropped. One bad reference period (a restart with air still in the line, a dying
 #: tank) is interpolated over the next hour by the pipeline's single-tank calibration; the
@@ -128,6 +145,149 @@ def apply_slope_guard(df: pd.DataFrame, tol: float | None = SLOPE_TOL) -> pd.Dat
     bad = m.notna() & (n >= 100) & ((m / med - 1).abs() > tol)
     out.loc[bad, "CH4"] = np.nan
     return out
+
+
+def dropout_times(
+    support: pd.DataFrame, threshold: float = DROPOUT_CH4_PPM
+) -> pd.Series:
+    """Times of atmosphere rows whose *unvalidated* CH4 is below ``threshold`` — laser dropouts.
+
+    ``support`` is a :func:`_read_support` frame (``Time_UTC``, ``CH4_raw``, ``ID_CH4``).
+    Rows at or above the pipeline's 1.70 ppm valid minimum are the ones that survive QC, so the
+    dropouts themselves have to be found before validation and used to mask their neighbours
+    (:func:`apply_dropout_rule`).
+    """
+    if support.empty:
+        return pd.Series(dtype="datetime64[ns]")
+    atm = support["ID_CH4"].isna() | (support["ID_CH4"] == -10)
+    bad = atm & support["CH4_raw"].lt(threshold)
+    return pd.Series(pd.to_datetime(support.loc[bad, "Time_UTC"]).to_numpy())
+
+
+def apply_dropout_rule(
+    df: pd.DataFrame, dropouts: pd.Series, window_min: int = DROPOUT_WINDOW_MIN
+) -> pd.DataFrame:
+    """Drop rows within ``window_min`` minutes of a CH4 laser dropout.
+
+    The analyzer does not fail cleanly: on the way into (and out of) a dropout it reads a few
+    per cent to 25 % low for minutes to hours, and everything it reports above 1.70 ppm passes
+    QC. ``dropouts`` comes from :func:`dropout_times`.
+    """
+    if df.empty or dropouts is None or len(dropouts) == 0:
+        return df
+    t = pd.to_datetime(df["Time_UTC"]).to_numpy("datetime64[m]").astype("int64")
+    d = np.unique(pd.to_datetime(dropouts).to_numpy("datetime64[m]").astype("int64"))
+    i = np.searchsorted(d, t)
+    prev = np.abs(t - d[np.clip(i - 1, 0, len(d) - 1)])
+    nxt = np.abs(d[np.clip(i, 0, len(d) - 1)] - t)
+    return pd.DataFrame(df.loc[np.minimum(prev, nxt) > window_min])
+
+
+def apply_pressure_rule(
+    df: pd.DataFrame,
+    pressure: pd.Series,
+    band: tuple[float, float] | None = PRESSURE_BAND,
+    sources: tuple[str, ...] = ("pipeline", "uncalibrated"),
+) -> pd.DataFrame:
+    """Drop ``sources`` rows whose cavity pressure is outside ``band`` (see :data:`PRESSURE_BAND`).
+
+    ``pressure`` is indexed by ``Time_UTC``. Rows with no pressure reading are kept. The
+    ``manual_cal`` rows are left alone by default: they are governed by
+    :func:`apply_low_pressure_rule`, which deliberately keeps 100-135 torr for the analyzers that
+    ran there (validated against UOU).
+    """
+    if band is None or df.empty or pressure is None or len(pressure) == 0:
+        return df
+    p = pressure[~pressure.index.duplicated()]
+    val = pd.to_numeric(
+        p.reindex(pd.to_datetime(df["Time_UTC"])), errors="coerce"
+    ).to_numpy()
+    in_band = np.isnan(val) | ((val >= band[0]) & (val <= band[1]))
+    keep = in_band | ~df["cal_source"].isin(sources).to_numpy()
+    return pd.DataFrame(df.loc[keep])
+
+
+def recover_hot_rows(
+    cal: pd.DataFrame, support: pd.DataFrame, flag: int = -64
+) -> pd.DataFrame:
+    """Calibrate the rows the pipeline flagged ``-64`` (cavity T outside 5-45 C) itself.
+
+    ``lgr_ugga_calibrate`` fits the slope for these rows (``CH4d_m`` is there) but blanks
+    ``CH4d_ppm_cal``, so ~645 on-track hours of summer afternoons — the best-mixed hours of the
+    record — never reach obs.parquet. The value is simply the qaqc reading over the fitted slope.
+    Hot-cavity CH4 is unbiased: on the same days, the 10th percentile above 45 C differs from
+    below by -0.002 ppm (IQR -0.008..+0.010, 65 days; measurements/trax/audit).
+
+    Returns the recovered rows (``Time_UTC``, ``CH4``), which the caller appends to the
+    calibrated ones.
+    """
+    need = {"Time_UTC", "CH4d_m", "QAQC_Flag"}
+    if cal.empty or support.empty or not need.issubset(cal.columns):
+        return pd.DataFrame(
+            {"Time_UTC": pd.to_datetime([]), "CH4": pd.Series(dtype=float)}
+        )
+    hot = cal[(cal["QAQC_Flag"] == flag) & cal["CH4"].isna()]
+    if hot.empty:
+        return pd.DataFrame(
+            {"Time_UTC": pd.to_datetime([]), "CH4": pd.Series(dtype=float)}
+        )
+    m = pd.to_numeric(
+        pd.Series(hot["CH4d_m"].to_numpy(), dtype=object), errors="coerce"
+    )
+    raw = support.drop_duplicates("Time_UTC").set_index("Time_UTC")["CH4_raw"]
+    val = pd.to_numeric(raw.reindex(pd.to_datetime(hot["Time_UTC"])), errors="coerce")
+    out = pd.DataFrame(
+        {
+            "Time_UTC": pd.to_datetime(hot["Time_UTC"]).to_numpy(),
+            "CH4": val.to_numpy() / m.to_numpy(),
+        }
+    )
+    return out[out["CH4"].between(1.7, 300)].reset_index(drop=True)
+
+
+def _read_support(site, instrument, time_range, num_processes) -> pd.DataFrame:
+    """Unvalidated qaqc columns the rules need: CH4 as reported, flag, cavity pressure, ID.
+
+    Deliberately skips :func:`~slv.measurements.pollutants.normalize_pollutant`: the dropout rule
+    has to see the sub-1.70 ppm rows that validation removes, and the pressure rule has to see
+    rows whose ``-63`` was overwritten by ``-64``.
+    """
+    try:
+        df = uataq.read_data(
+            site,
+            instruments=instrument,
+            lvl="qaqc",
+            time_range=time_range,
+            num_processes=num_processes,
+        )[instrument]
+    except (FileNotFoundError, KeyError, ValueError, uataq.errors.ReaderError):
+        return pd.DataFrame(
+            {
+                "Time_UTC": pd.to_datetime([]),
+                "CH4_raw": pd.Series(dtype=float),
+                "QAQC_Flag": pd.Series(dtype=float),
+                "Cavity_P_torr": pd.Series(dtype=float),
+                "ID_CH4": pd.Series(dtype=float),
+            }
+        )
+    if "Time_UTC" not in df.columns:
+        df = df.reset_index()
+    df = df.rename(columns={"Internal_P_torr": "Cavity_P_torr", "CH4d_ppm": "CH4_raw"})
+    for c in ("CH4_raw", "QAQC_Flag", "Cavity_P_torr", "ID_CH4"):
+        df[c] = pd.to_numeric(df[c], errors="coerce") if c in df.columns else np.nan
+    return pd.DataFrame(
+        df[["Time_UTC", "CH4_raw", "QAQC_Flag", "Cavity_P_torr", "ID_CH4"]]
+    ).reset_index(drop=True)
+
+
+def _pressure_series(support: pd.DataFrame) -> pd.Series:
+    """Cavity pressure indexed by ``Time_UTC`` (for :func:`apply_pressure_rule`)."""
+    if support.empty:
+        return pd.Series(dtype=float)
+    s = support.dropna(subset=["Cavity_P_torr"]).drop_duplicates("Time_UTC")
+    return pd.Series(
+        s["Cavity_P_torr"].to_numpy(), index=pd.to_datetime(s["Time_UTC"]).to_numpy()
+    )
 
 
 def _read_lgr(
@@ -195,6 +355,9 @@ def _build_chunk(
     slope_tol,
     gps_kwargs,
     last=True,
+    pressure_band=PRESSURE_BAND,
+    dropout_window=DROPOUT_WINDOW_MIN,
+    recover_hot=True,
 ):
     """One time chunk of :func:`build_trax_obs` (see there); returns a plain DataFrame.
 
@@ -207,6 +370,19 @@ def _build_chunk(
     empty = pd.DataFrame(
         {"Time_UTC": pd.to_datetime([]), "CH4": pd.Series(dtype=float)}
     )
+    print(
+        f"[{t0:%Y-%m-%d} -> {t1:%Y-%m-%d}] qaqc support (dropouts, pressure) ...",
+        flush=True,
+    )
+    support = pd.concat(
+        [
+            _read_support(site, "lgr_ugga", time_range, num_processes),
+            _read_support(site, "lgr_ugga_manual_cal", time_range, num_processes),
+        ],
+        ignore_index=True,
+    )
+    drops = dropout_times(support) if dropout_window is not None else None
+
     print(f"[{t0:%Y-%m-%d} -> {t1:%Y-%m-%d}] calibrated LGR ...", flush=True)
     try:
         cal = _read_lgr(
@@ -216,10 +392,16 @@ def _build_chunk(
             "CH4d_ppm_cal",
             time_range,
             num_processes,
-            keep=("CH4d_m",),
+            keep=("CH4d_m", "QAQC_Flag"),
         )
         cal = apply_slope_guard(cal, slope_tol)
-        cal = cal[cal.CH4.notna()][["Time_UTC", "CH4"]].assign(cal_source="pipeline")
+        hot = recover_hot_rows(cal, support) if recover_hot else empty
+        cal = pd.concat(
+            [cal[cal.CH4.notna()][["Time_UTC", "CH4"]], hot[["Time_UTC", "CH4"]]],
+            ignore_index=True,
+        ).assign(cal_source="pipeline")
+        if len(hot):
+            print(f"  recovered {len(hot):,} flag -64 rows (hot cavity)", flush=True)
     except (FileNotFoundError, KeyError, ValueError, uataq.errors.ReaderError):
         cal = empty.assign(cal_source="pipeline")
 
@@ -283,7 +465,19 @@ def _build_chunk(
         obs["low_pressure"] = False
     if not last:
         obs = obs[obs["Time_UTC"] < t1]
-    del parts, cal, man
+
+    n0 = len(obs)
+    obs = apply_pressure_rule(obs, _pressure_series(support), pressure_band)
+    n1 = len(obs)
+    if dropout_window is not None:
+        obs = apply_dropout_rule(obs, drops, dropout_window)
+    if n0:
+        print(
+            f"  pressure rule dropped {n0 - n1:,}; dropout rule dropped {n1 - len(obs):,}",
+            flush=True,
+        )
+    obs["epoch_offset_ppm"] = epoch_offset_column(obs["Time_UTC"]).to_numpy()
+    del parts, cal, man, support
     if obs.empty:
         return obs
 
@@ -309,6 +503,9 @@ def build_trax_obs(
     classify: bool = True,
     low_pressure: tuple[float, float] | None = LOW_PRESSURE_BAND,
     slope_tol: float | None = SLOPE_TOL,
+    pressure_band: tuple[float, float] | None = PRESSURE_BAND,
+    dropout_window: int | None = DROPOUT_WINDOW_MIN,
+    recover_hot: bool = True,
     chunk: str = "YS",
     **gps_kwargs,
 ) -> gpd.GeoDataFrame:
@@ -358,6 +555,9 @@ def build_trax_obs(
             slope_tol,
             gps_kwargs,
             last=b == edges[-1],
+            pressure_band=pressure_band,
+            dropout_window=dropout_window,
+            recover_hot=recover_hot,
         )
         if len(part):
             parts.append(pd.DataFrame(part))
@@ -376,6 +576,7 @@ def _empty_obs(classify: bool) -> pd.DataFrame:
         "CH4_ppm": float,
         "cal_source": object,
         "low_pressure": bool,
+        "epoch_offset_ppm": float,
         "Latitude_deg": float,
         "Longitude_deg": float,
     }
@@ -388,6 +589,7 @@ def load_trax_obs(
     cache: str | Path | None = None,
     include_uncalibrated: bool = True,
     include_low_pressure: bool = True,
+    epoch_offset: bool = True,
     location: str | tuple[str, ...] | None = "on_track",
     rebuild: bool = False,
     **build_kwargs,
@@ -420,6 +622,7 @@ def load_trax_obs(
         cache.parent.mkdir(parents=True, exist_ok=True)
         print(f"Caching TRAX obs to {cache}")
         pd.DataFrame(data.drop(columns="geometry")).to_parquet(cache)
+    data = apply_epoch_offset(data, epoch_offset)
     data = filter_cal_source(data, include_uncalibrated)
     if not include_low_pressure and "low_pressure" in data.columns:
         data = data[~data["low_pressure"].astype(bool)]

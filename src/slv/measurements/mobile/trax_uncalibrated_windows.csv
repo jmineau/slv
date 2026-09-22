@@ -12,3 +12,12 @@ start,end,reason,enabled
 2019-03-01T00:00,2019-03-02T00:00,"tank-swap day: reference ID flagged (old 5.09 tank gas under the new 1.973 value); raw fine",true
 2019-10-01T00:00,2019-10-02T00:00,"tank-swap day: reference ID flagged (old 2.85 tank gas under the new 1.84 value); raw fine",true
 2020-09-22T00:00,2020-09-23T03:00,"tank-swap day plus a first-reference-after-restart that measured air; reference flagged; raw fine (slope 0.99-1.0)",true
+2016-04-18T18:00,2016-04-19T03:00,"pipeline calibration flag -5 (reference measurements too far apart) with a healthy analyzer; tank 160219_01, monthly slope 1.002. Audit 2026-09-22 (R4)",true
+2017-11-09T00:00,2017-11-14T00:00,"Clippard valve replacement period: the site notes say data are uncalibrated until it was replaced; pipeline flag -5. Slope 1.009 (Nov 2017) / 0.992 (Dec 2017)",true
+2018-02-14T22:00,2018-02-21T00:00,"pipeline calibration flag -5 with a healthy analyzer; monthly slope 0.990. Audit 2026-09-22 (R4)",true
+2020-07-30T22:00,2020-08-25T00:00,"pipeline calibration flag -5 after the 2020-08-07 Clippard valve replacement; monthly slope 0.995 (Jul) / 0.997 (Aug). Audit 2026-09-22 (R4)",true
+2022-03-11T02:00,2022-03-11T18:00,"pipeline calibration flag -5 with a healthy analyzer; monthly slope 1.005. Audit 2026-09-22 (R4)",true
+2024-06-05T14:00,2024-06-06T03:00,"pipeline calibration flag -5 (13-0222 laser dropouts interrupting the reference cycle); slope 0.998. Audit 2026-09-22 (R4)",true
+2024-06-28T16:00,2024-06-30T06:00,"pipeline calibration flag -5; slope 0.998. Audit 2026-09-22 (R4)",true
+2024-07-18T13:00,2024-07-19T03:00,"pipeline calibration flag -5; slope 0.997. Audit 2026-09-22 (R4)",true
+2024-07-29T02:00,2024-08-08T02:00,"pipeline calibration flag -5; includes the 2024-08-02..04 closed tank valve (bad file flags the reference ID). Slope 0.997 (Jul) / 0.996 (Aug)",true

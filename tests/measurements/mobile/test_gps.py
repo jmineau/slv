@@ -112,7 +112,7 @@ def era_calls(monkeypatch):
 
 def test_trax_gps_spanning_the_switch_reads_both(era_calls):
     start, end = pd.Timestamp("2018-11-01"), pd.Timestamp("2018-12-01")
-    out = gps.read_trax_gps((start, end))
+    out = gps.read_trax_gps((start, end), fill_gaps=False)
     assert era_calls == [
         ("lin", start, HOREL_POST_PILOT),
         ("horel", HOREL_POST_PILOT, end),
@@ -125,8 +125,34 @@ def test_trax_gps_spanning_the_switch_reads_both(era_calls):
     [(("2017-01-01", "2017-02-01"), "lin"), (("2020-01-01", "2020-02-01"), "horel")],
 )
 def test_trax_gps_one_era(era_calls, time_range, source):
-    gps.read_trax_gps(time_range)
+    gps.read_trax_gps(time_range, fill_gaps=False)
     assert [c[0] for c in era_calls] == [source]
+
+
+def test_trax_gps_fills_horel_gaps_from_lin(monkeypatch):
+    """The horel logger goes down for days; those minutes come from the lin GPS instead."""
+    horel_t = pd.date_range("2025-01-01", periods=2, freq="min")
+    lin_t = pd.date_range("2025-01-01", periods=4, freq="min")  # two extra minutes
+
+    monkeypatch.setattr(
+        gps,
+        "read_horel_cr1000",
+        lambda time_range, site="trx01": _frame(horel_t, source=["horel"] * 2),
+    )
+    monkeypatch.setattr(
+        gps,
+        "read_lin_gps",
+        lambda time_range, site="trx01": _frame(lin_t, source=["lin"] * 4),
+    )
+    out = gps.read_trax_gps(("2025-01-01", "2025-01-02"))
+    assert out.source.tolist() == ["horel", "horel", "lin", "lin"]
+    # and without the fallback only the horel rows survive
+    assert gps.read_trax_gps(
+        ("2025-01-01", "2025-01-02"), fill_gaps=False
+    ).source.tolist() == [
+        "horel",
+        "horel",
+    ]
 
 
 # --------------------------------------------------------------------------- merge

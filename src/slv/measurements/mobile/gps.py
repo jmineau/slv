@@ -137,17 +137,162 @@ def read_lin_gps(time_range, site: str = "trx01", lvl: str = "qaqc") -> pd.DataF
     return df.sort_index()
 
 
-def read_trax_gps(time_range, site: str = "trx01") -> pd.DataFrame:
+def read_trax_gps(
+    time_range, site: str = "trx01", fill_gaps: bool = True
+) -> pd.DataFrame:
     """Best GPS source for classifying, by era: lin-group GPS before
-    :data:`HOREL_POST_PILOT`, horel logger (with battery/T/RH) after."""
+    :data:`HOREL_POST_PILOT`, horel logger (with battery/T/RH) after.
+
+    With ``fill_gaps`` (default), minutes the horel logger did not record are filled from the
+    lin GPS. The horel logger goes down for days at a time (its battery drained 2024-07-23 to
+    08-02; the logger was offline around 2025-09-02) and without this the classifier calls every
+    such minute ``unknown`` — ~235 on-track hours of a normally running train, mostly Jul 2024,
+    Jan 2025, Sep 2025 and Jul 2026. Filled rows carry no ``Battery_Voltage_V``, so the
+    depot/yard rules fall back to their GPS-only form.
+    """
     start, end = (pd.Timestamp(t) for t in time_range)
     parts = []
     if start < HOREL_POST_PILOT:
         parts.append(read_lin_gps((start, min(end, HOREL_POST_PILOT)), site))
     if end >= HOREL_POST_PILOT:
-        parts.append(read_horel_cr1000((max(start, HOREL_POST_PILOT), end), site))
+        post = (max(start, HOREL_POST_PILOT), end)
+        horel = read_horel_cr1000(post, site)
+        parts.append(horel)
+        if fill_gaps:
+            lin = read_lin_gps(post, site)
+            if len(lin):
+                covered = (
+                    pd.DatetimeIndex(horel.index).floor("min").unique()
+                    if len(horel)
+                    else pd.DatetimeIndex([])
+                )
+                gap = lin[~pd.DatetimeIndex(lin.index).floor("min").isin(covered)]
+                if len(gap):
+                    print(f"Filling {len(gap):,} lin-GPS rows into horel gaps")
+                    parts.append(gap)
     parts = [p for p in parts if len(p)]
-    return pd.concat(parts).sort_index() if parts else pd.DataFrame()
+    if not parts:
+        return pd.DataFrame()
+    out = pd.concat(parts).sort_index()
+    return out[~out.index.duplicated(keep="first")]
+
+
+def lin_clock_offset_by_day(gps: pd.DataFrame) -> pd.Series:
+    """Median GPS-minus-Pi clock offset (s) per UTC day, from a lin GPS frame.
+
+    The Pi had no working real-time clock for most of the record, so its time can be hours to
+    days off. A horel fix can only georeference an LGR row (which carries Pi time) while the two
+    clocks agree, which this measures: see :func:`fill_gps_gaps_with_horel`.
+    """
+    if not len(gps) or "Pi_Time" not in gps.columns:
+        return pd.Series(dtype=float)
+    t = pd.to_datetime(
+        gps["Time_UTC"] if "Time_UTC" in gps.columns else gps.index, errors="coerce"
+    )
+    off = (t - pd.to_datetime(gps["Pi_Time"], errors="coerce")).dt.total_seconds()
+    return off.groupby(pd.DatetimeIndex(t).floor("D")).median().dropna()
+
+
+def clock_checked_days(
+    offsets: pd.Series,
+    days,
+    max_clock_offset_s: float = 3.0,
+    neighbour_days: int = 3,
+) -> set:
+    """Days whose Pi clock can be trusted to ``max_clock_offset_s``.
+
+    A day with its own lin-GPS offset is judged on that; a day with no lin GPS at all is
+    judged on the nearest days within ``neighbour_days`` on each side (the Pi clock drifts
+    over days, not minutes, so a bracketed gap is safe — and Aug-Oct 2018, when the clock was
+    days off, fails this test).
+    """
+    ok = set()
+    for d in pd.DatetimeIndex(days):
+        if d in offsets.index:
+            if abs(offsets[d]) <= max_clock_offset_s:
+                ok.add(d)
+            continue
+        near = offsets[
+            (offsets.index >= d - pd.Timedelta(days=neighbour_days))
+            & (offsets.index <= d + pd.Timedelta(days=neighbour_days))
+        ]
+        if len(near) and near.abs().max() <= max_clock_offset_s:
+            ok.add(d)
+    return ok
+
+
+def fill_gps_gaps_with_horel(
+    data: pd.DataFrame,
+    site: str,
+    lin_gps: pd.DataFrame,
+    max_clock_offset_s: float = 3.0,
+    tolerance: str = "15s",
+) -> pd.DataFrame:
+    """Georeference the rows the lin GPS could not, using the horel logger's 5-s fixes.
+
+    136 days have LGR data but no lin GPS file at all (it was never archived) and many more have
+    partial outages — ~754 on-track hours, most of it 2019-2023. The horel CR1000 logger recorded
+    position throughout, in true UTC, so it can stand in wherever the Pi clock is trustworthy
+    (:func:`clock_checked_days`). Adds ``gps_source`` (``"lin"`` / ``"horel"``) so the filled rows
+    can be dropped or compared at load time.
+    """
+    if "gps_source" not in data.columns:
+        data = data.copy()
+        data["gps_source"] = np.where(data["Latitude_deg"].notna(), "lin", None)
+    missing = data["Latitude_deg"].isna()
+    if not missing.any():
+        return data
+    t = pd.to_datetime(data.loc[missing, "Time_UTC"])
+    horel = read_horel_cr1000(
+        (t.min() - pd.Timedelta("1h"), t.max() + pd.Timedelta("1h")), site
+    )
+    if not len(horel) or "Latitude_deg" not in horel.columns:
+        return data
+
+    ok_days = clock_checked_days(
+        lin_clock_offset_by_day(lin_gps),
+        pd.DatetimeIndex(t).floor("D").unique(),
+        max_clock_offset_s,
+    )
+    if not ok_days:
+        return data
+    day = pd.DatetimeIndex(pd.to_datetime(data["Time_UTC"])).floor("D")
+    use = missing & day.isin(list(ok_days))
+    if not use.any():
+        return data
+
+    cols = [
+        c
+        for c in (
+            "Latitude_deg",
+            "Longitude_deg",
+            "Altitude_msl",
+            "Speed_m_s",
+            "Course_deg",
+        )
+        if c in horel.columns
+    ]
+    h = horel[cols].dropna(subset=["Latitude_deg"]).sort_index()
+    h.index = pd.DatetimeIndex(h.index).as_unit("ns")
+    h.index.name = "Time_UTC"
+    left = data.loc[use, ["Time_UTC"]].sort_values("Time_UTC")
+    # the two records can carry different datetime resolutions (us from parquet, s from the
+    # logger h5); merge_asof requires them to match exactly
+    left["Time_UTC"] = pd.DatetimeIndex(pd.to_datetime(left["Time_UTC"])).as_unit("ns")
+    filled = pd.merge_asof(
+        left,
+        h.reset_index(),
+        on="Time_UTC",
+        direction="nearest",
+        tolerance=pd.Timedelta(tolerance),
+    )
+    filled.index = left.index
+    got = filled["Latitude_deg"].notna()
+    for c in cols:
+        data.loc[filled.index[got], c] = filled.loc[got, c].to_numpy()
+    data.loc[filled.index[got], "gps_source"] = "horel"
+    print(f"Georeferenced {int(got.sum()):,} rows from the horel logger")
+    return data
 
 
 def merge_with_gps(
@@ -160,6 +305,7 @@ def merge_with_gps(
     route_buffer=None,
     storage_polygon=None,
     altitude_range=ALTITUDE_RANGE_MSL,
+    horel_fallback=True,
 ):
     """Attach GPS positions to a mobile site's concentration records.
 
@@ -187,6 +333,9 @@ def merge_with_gps(
         Metres, in the routes' CRS.
     altitude_range : (float, float), optional
         Plausible altitudes, default :data:`ALTITUDE_RANGE_MSL`.
+    horel_fallback : bool
+        Georeference the rows the lin GPS never covered from the horel logger, where the Pi
+        clock checks out (:func:`fill_gps_gaps_with_horel`). Every row is tagged ``gps_source``.
 
     Returns
     -------
@@ -267,6 +416,33 @@ def merge_with_gps(
         on = "Time_UTC"
 
     data = uataq.sites.MobileSite.merge_gps(obs, gps, on=on).reset_index()
+    data["gps_source"] = "lin"
+
+    # The merge is an inner join, so rows the lin GPS never covered are gone. Offer them to the
+    # horel logger, which recorded position through those outages (see fill_gps_gaps_with_horel).
+    if horel_fallback and site.startswith("trx") and on == "Pi_Time":
+        matched = (
+            set(pd.to_datetime(data["Pi_Time"]).to_numpy())
+            if "Pi_Time" in data
+            else set()
+        )
+        pi = pd.DatetimeIndex(obs.index).floor("s")
+        gap = obs.loc[~pi.isin(matched)]
+        if len(gap):
+            gap = gap.reset_index().rename(columns={"Pi_Time": "Time_UTC"})
+            for c in (
+                "Latitude_deg",
+                "Longitude_deg",
+                "Altitude_msl",
+                "Speed_m_s",
+                "Course_deg",
+            ):
+                if c not in gap.columns:
+                    gap[c] = np.nan
+            gap = fill_gps_gaps_with_horel(gap, site, gps)
+            gap = gap[gap["Latitude_deg"].notna()]
+            if len(gap):
+                data = pd.concat([data, gap], ignore_index=True).sort_values("Time_UTC")
 
     if "Pi_Time" in data.columns:
         data = data.drop(columns=["Pi_Time"])
