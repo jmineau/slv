@@ -27,6 +27,13 @@ versions are calendar-based (YYYY.M.PATCH).
   straight-line span from the first fix, which under-scored bent segments
 - Docstrings for the public API (docstring coverage 95 %, CI floor 90 %); the usage
   guide covers the map, measurements, an inversion, sweeps and TRAX receptors (#6)
+- Tests (#6): line coverage 69 -> 89 % (326 -> 422 tests). New: the coverage filter and
+  `reconstruct_posterior`, Desroziers, domain totals and the summary, `run` and the plot
+  hooks, obs-space filtering and aggregation, every viz plot, the inversion obs /
+  background / prior paths, the TRAX network and GPS readers (a synthetic two-line
+  network through the real `line_locate_point` path), transects and the Wyoming lab.
+  Two weak tests fixed (the off-track drop test passed without the drop; an always-true
+  assertion)
 
 ### Changed
 
