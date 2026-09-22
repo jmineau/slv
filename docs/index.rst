@@ -29,6 +29,10 @@ Salt Lake Valley py
    :target: https://opensource.org/licenses/MIT
    :alt: License
 
+.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.22258471.svg
+   :target: https://doi.org/10.5281/zenodo.22258471
+   :alt: DOI
+
 .. image:: https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json
    :target: https://github.com/astral-sh/ruff
    :alt: Ruff

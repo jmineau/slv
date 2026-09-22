@@ -5,6 +5,13 @@ title: "slv"
 abstract: "Salt Lake Valley methane analysis and inversion workflows: measurements, inventories, domain definitions, and the flux-inversion pipeline built on fips and pystilt."
 version: 2026.9.1
 date-released: "2026-09-17"
+# Concept DOI (always resolves to the latest release) — same convention as
+# pandas/astropy/xarray. `doi` is the shorthand GitHub's "Cite this
+# repository" popup actually renders in APA/BibTeX (it ignores
+# `identifiers`, per citation-file-format/ruby-cff's formatters);
+# `identifiers` is kept too for tools that prefer that form. Deliberately
+# not tracking the per-version DOI here — none of the above do either.
+doi: "10.5281/zenodo.22258471"
 authors:
   - family-names: Mineau
     given-names: James K.
@@ -13,6 +20,10 @@ authors:
     orcid: "https://orcid.org/0000-0002-2289-2252"
 license: MIT
 repository-code: "https://github.com/jmineau/slv"
+identifiers:
+  - type: doi
+    value: "10.5281/zenodo.22258471"
+    description: "The concept DOI for all versions of slv."
 keywords:
   - methane
   - urban-emissions
