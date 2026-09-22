@@ -16,6 +16,20 @@ def _load_points() -> pd.DataFrame:
         return pd.read_csv(f)
 
 
+def load_point_sources() -> pd.DataFrame:
+    """The packaged SLV CH4 point sources.
+
+    Returns a copy of ``ch4_point_sources.csv`` with ``category``, ``name``,
+    ``longitude`` and ``latitude``. Categories match the keys of
+    :data:`markers`: landfill, refinery, wastewater, powerplant, industrial,
+    cng, lpg, unknown.
+
+    The frame is copied on every call so a caller can add columns without
+    disturbing the cached original.
+    """
+    return _load_points().copy()
+
+
 markers = {
     "cng": "2",
     "lpg": "1",  # tri-down, the pair of CNG's tri-up: both are filling stations
