@@ -172,7 +172,49 @@ def test_merge_with_gps_filters_before_merging(monkeypatch):
     )
 
     kept = merged["gps"].index.tolist()
-    # 1% / 99% altitude quantiles drop the two extremes; #9 off track; #4, #5 in the yard
+    # #0 / #1 outside the plausible altitudes; #9 off track; #4, #5 in the yard
     assert kept == [t[i] for i in (2, 3, 6, 7, 8)]
     assert "geometry" not in merged["gps"]
     assert merged["on"] == "Pi_Time" and merged["obs"].index.name == "Pi_Time"
+
+
+def test_altitude_range_keeps_mountains_and_missing_altitudes(monkeypatch):
+    t = pd.date_range("2024-06-01 12:00", periods=6, freq="s")
+    # valley floor, a canyon road, Guardsman Pass, no altitude, then two junk fixes
+    alt = [1300.0, 2600.0, 2980.0, np.nan, 0.0, 12000.0]
+    fixes = _frame(
+        t, Pi_Time=t, Latitude_deg=40.6, Longitude_deg=-111.6, Altitude_msl=alt
+    )
+    monkeypatch.setattr(uataq, "read_data", lambda site, **kw: {"gps": fixes})
+    seen = {}
+    monkeypatch.setattr(
+        uataq.sites.MobileSite,
+        "merge_gps",
+        staticmethod(lambda obs, g, on: seen.setdefault("gps", g)),
+    )
+    obs = pd.DataFrame({"Time_UTC": t, "CH4": 2.0})
+    no_filters = {"routes": False, "storage_polygon": False}
+
+    gps.merge_with_gps("trx01", "UATAQ", obs, **no_filters)
+    assert seen.pop("gps").index.tolist() == list(t[:4])
+
+    gps.merge_with_gps("trx01", "UATAQ", obs, altitude_range=None, **no_filters)
+    assert len(seen.pop("gps")) == 6
+
+
+def test_constant_altitude_keeps_every_fix(monkeypatch):
+    # the old 1st-99th percentile cut dropped every fix when the altitude never changed
+    t = pd.date_range("2024-06-01 12:00", periods=5, freq="s")
+    fixes = _frame(
+        t, Pi_Time=t, Latitude_deg=40.6, Longitude_deg=-111.9, Altitude_msl=1300.0
+    )
+    monkeypatch.setattr(uataq, "read_data", lambda site, **kw: {"gps": fixes})
+    seen = {}
+    monkeypatch.setattr(
+        uataq.sites.MobileSite,
+        "merge_gps",
+        staticmethod(lambda obs, g, on: seen.setdefault("gps", g)),
+    )
+    obs = pd.DataFrame({"Time_UTC": t, "CH4": 2.0})
+    gps.merge_with_gps("trx01", "UATAQ", obs, routes=False, storage_polygon=False)
+    assert len(seen["gps"]) == 5

@@ -18,6 +18,7 @@ def _load_points() -> pd.DataFrame:
 
 markers = {
     "cng": "2",
+    "lpg": "1",  # tri-down, the pair of CNG's tri-up: both are filling stations
     "industrial": "X",
     "landfill": "s",
     "powerplant": "D",

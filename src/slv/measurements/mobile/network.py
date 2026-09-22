@@ -96,13 +96,15 @@ def load_trax_points(
 ) -> gpd.GeoDataFrame:
     """Points every ``spacing`` m along the TRAX lines, with the lines they serve.
 
-    Cached at ``$SLV_USER_DATA_DIR/trax/points_{spacing}m.geojson``; built from
+    Cached at ``$SLV_USER_DATA_DIR/trax/points_{spacing}m.geojson`` (``..._rf{factor}``
+    when ``resolution_factor`` is given, so each setting has its own file); built from
     :func:`load_trax_lines` on first use. Shared track yields one set of points, and
     ``lines`` holds the sorted letters of every line within ``spacing / 2``
     (e.g. ``"BGR"``). Coordinates are whole metres in UTM 12N with ``meters=True``,
     else lon/lat rounded to 5 decimals.
     """
-    points_geojson = user_dir() / f"trax/points_{spacing}m.geojson"
+    rf = "" if resolution_factor is None else f"_rf{resolution_factor}"
+    points_geojson = user_dir() / f"trax/points_{spacing}m{rf}.geojson"
 
     if points_geojson.exists():
         print(f"Loading cached TRAX points from {points_geojson}")

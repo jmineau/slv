@@ -394,9 +394,14 @@ def label_dwell_site(
     dwells: pd.DataFrame,
     points: gpd.GeoDataFrame | None = None,
     max_dist: float = 200.0,
+    yard_buffer: float | None = None,
 ) -> pd.DataFrame:
     """Where each dwell is: ``yard_name`` (JRRSC / MRSC, from the packaged storage polygons)
     and ``segment`` (nearest 2-km segment, NaN beyond ``max_dist``).
+
+    A dwell is in a yard within ``yard_buffer`` m of its polygon (default the location
+    classifier's :data:`~slv.measurements.mobile.location.YARD_BUFFER`, so a train parked
+    just outside the drawn edge is labelled the same way by both).
 
     Diagnostic only -- the receptor sits at the dwell's own median position. The yard label
     is the one that matters for screening: a rail service center is a maintenance yard, so
@@ -413,12 +418,19 @@ def label_dwell_site(
     seg[d > max_dist] = np.nan
     out["segment"] = seg
 
+    from slv.measurements.mobile.location import YARD_BUFFER
     from slv.measurements.mobile.network import load_storage_polygons
 
+    buffer = YARD_BUFFER if yard_buffer is None else yard_buffer
     yards = load_storage_polygons(meters=True)
-    pts = gpd.GeoDataFrame(geometry=gpd.points_from_xy(x, y), crs=UTM12)
-    joined = gpd.sjoin(pts, yards[["name", "geometry"]], how="left", predicate="within")
-    out["yard_name"] = joined["name"].to_numpy()[: len(out)]
+    pts = gpd.GeoSeries(gpd.points_from_xy(x, y), crs=UTM12)
+    names = np.full(len(out), np.nan, dtype=object)
+    best = np.full(len(out), np.inf)
+    for name, geom in zip(yards["name"], yards.geometry, strict=True):
+        d = pts.distance(geom).to_numpy()  # 0 inside
+        hit = (d <= buffer) & (d < best)
+        names[hit], best[hit] = name, d[hit]
+    out["yard_name"] = names
     return out
 
 

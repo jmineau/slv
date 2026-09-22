@@ -57,3 +57,9 @@ def test_time_mst_uses_domain_offset(fake_uataq):
     assert UTC_OFFSET == -7
     expected = obs["Time_UTC"] - pd.Timedelta(hours=7)
     pd.testing.assert_series_equal(obs["Time_MST"], expected, check_names=False)
+
+
+def test_wyoming_lab_points_to_its_own_reader(fake_uataq, capsys):
+    with pytest.raises(ValueError, match="No data loaded"):
+        load_concentrations("CH4", sites="wyo")
+    assert "slv.measurements.mobile.wyoming" in capsys.readouterr().out

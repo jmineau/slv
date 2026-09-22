@@ -266,3 +266,28 @@ def test_empty_results_pass_through_without_crashing():
     assert cr.n_segment_points.dtype == np.int64
     rec = build_trax_receptors(cr, pts)
     assert rec.empty and list(rec.columns) == RECEPTOR_COLUMNS
+
+
+def test_dwell_yard_label_uses_the_classifier_buffer():
+    from shapely.geometry import Point
+
+    from slv.measurements.mobile.location import YARD_BUFFER
+    from slv.measurements.mobile.network import load_storage_polygons
+    from slv.measurements.mobile.receptors import label_dwell_site
+
+    jrrsc = load_storage_polygons(meters=True).set_index("name").geometry["JRRSC"]
+    east = max(jrrsc.exterior.coords, key=lambda c: c[0])  # nothing lies further east
+    spots = [
+        jrrsc.representative_point(),
+        Point(east[0] + 20, east[1]),  # 20 m outside the drawn edge
+        Point(east[0] + YARD_BUFFER + 20, east[1]),  # beyond the buffer
+    ]
+    assert [round(jrrsc.distance(p)) for p in spots] == [0, 20, 50]
+    lon, lat = TO_LONLAT.transform([p.x for p in spots], [p.y for p in spots])
+    dwells = pd.DataFrame({"longitude": lon, "latitude": lat})
+
+    lab = label_dwell_site(dwells, _network())
+    assert lab.yard_name.iloc[:2].tolist() == ["JRRSC", "JRRSC"]
+    assert pd.isna(lab.yard_name.iloc[2])
+    strict = label_dwell_site(dwells, _network(), yard_buffer=0)
+    assert strict.yard_name.iloc[0] == "JRRSC" and pd.isna(strict.yard_name.iloc[1])

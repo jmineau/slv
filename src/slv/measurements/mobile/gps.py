@@ -57,6 +57,12 @@ def _coerce_numeric(df: pd.DataFrame, cols=GPS_NUMERIC) -> pd.DataFrame:
     return df
 
 
+#: Plausible GPS altitude (m MSL) for mobile platforms around Salt Lake: the Great Salt
+#: Lake shore is ~1280 m and the highest paved roads in reach (the Uinta passes on the
+#: Mirror Lake Highway, ~3290 m; Guardsman Pass ~2980 m) stay under the top. Fixes outside
+#: are GPS junk.
+ALTITUDE_RANGE_MSL = (1000.0, 3500.0)
+
 #: Post-pilot start of the horel logger (5-s GPS with speed and RMC status).
 HOREL_POST_PILOT = pd.Timestamp("2018-11-19T20:04")
 
@@ -153,11 +159,13 @@ def merge_with_gps(
     routes=None,
     route_buffer=None,
     storage_polygon=None,
+    altitude_range=ALTITUDE_RANGE_MSL,
 ):
     """Attach GPS positions to a mobile site's concentration records.
 
     Reads the site's final-level GPS through uataq (UATAQ sites only), drops the
-    altitude outliers (outside the 1st-99th percentile), the fixes farther than
+    fixes with an altitude outside ``altitude_range`` (m MSL; fixes without one are kept,
+    ``None`` keeps all), the fixes farther than
     ``route_buffer`` m from ``routes`` and those inside ``storage_polygon``, then joins
     on the GPS clock (the Pi clock of the lin loggers is not trusted). For ``trx*``
     sites the defaults are the TRAX lines, 50 m and the JRRSC yard; pass ``False`` to
@@ -177,6 +185,8 @@ def merge_with_gps(
         See :func:`~slv.measurements.mobile.network.get_geodf`.
     route_buffer : float, optional
         Metres, in the routes' CRS.
+    altitude_range : (float, float), optional
+        Plausible altitudes, default :data:`ALTITUDE_RANGE_MSL`.
 
     Returns
     -------
@@ -216,11 +226,12 @@ def merge_with_gps(
     else:
         raise ValueError(f"Organization {org} not supported for GPS loading.")
 
-    # Trim altitude outliers
-    gps = gps[
-        (gps.Altitude_msl > gps.Altitude_msl.quantile(0.01))
-        & (gps.Altitude_msl < gps.Altitude_msl.quantile(0.99))
-    ]
+    # Drop GPS junk by altitude. A fixed range, not per-chunk quantiles: those dropped 2 %
+    # of every chunk (the high end of a line along with it) and every fix when the altitude
+    # was constant or missing.
+    if altitude_range is not None:
+        alt = pd.to_numeric(gps.Altitude_msl, errors="coerce")
+        gps = gps[alt.isna() | alt.between(*altitude_range)]
 
     # Filter to locations within buffer of routes
     routes = get_geodf(routes)

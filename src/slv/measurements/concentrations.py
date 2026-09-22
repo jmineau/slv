@@ -195,6 +195,13 @@ def load_concentrations(
                 )
                 df["ID_H2CO"] = df["ID_CH4"]
 
+            elif org == "UWY":
+                print(
+                    f"{site}: the Wyoming mobile lab is not loaded here; read its files "
+                    "with slv.measurements.mobile.wyoming. Skipping."
+                )
+                continue
+
             else:
                 print(
                     f"Unknown org/instrument combo for site {site}: {org}/{instr_name}"

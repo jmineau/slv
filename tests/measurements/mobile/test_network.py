@@ -107,6 +107,19 @@ def test_trax_points_read_their_cache(env, monkeypatch):
     assert len(network.load_trax_points(2000)) == 4
 
 
+def test_trax_points_cache_per_resolution_factor(env, monkeypatch):
+    from shapely.geometry import Point
+
+    monkeypatch.setattr(
+        network, "points_along_line", lambda *a, **k: [Point(X0, Y0), Point(X0, Y0)]
+    )
+    assert len(network.load_trax_points(2000, resolution_factor=5)) == 2
+    assert (env / "user/trax/points_2000m_rf5.geojson").exists()
+    monkeypatch.setattr(network, "points_along_line", _no_rebuild)
+    assert len(network.load_trax_points(2000)) == 4  # the default cache is its own file
+    assert len(network.load_trax_points(2000, resolution_factor=5)) == 2
+
+
 def test_trax_points_lonlat_rounded(env):
     pts = network.load_trax_points(2000)
     assert pts.crs.to_epsg() == 4326

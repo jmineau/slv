@@ -37,6 +37,27 @@ versions are calendar-based (YYYY.M.PATCH).
 
 ### Changed
 
+- Decisions from #7:
+  - `merge_with_gps` drops fixes by a fixed plausible altitude range for the Salt Lake
+    area, `ALTITUDE_RANGE_MSL` = 1000-3500 m (canyon roads and the Uinta passes fit;
+    `altitude_range=None` keeps all), instead of the 1st-99th percentile of each chunk.
+    That cut dropped 2 % of every chunk, the high end of a line included, and every fix
+    when the altitude was constant or missing; fixes without an altitude are now kept.
+    `obs.parquet` gains those fixes when it is next rebuilt
+  - `label_dwell_site` counts a dwell as in a yard within the location classifier's
+    `YARD_BUFFER` (30 m) of its polygon (`yard_buffer=`); it had to be strictly inside,
+    so a train parked 20 m past JRRSC's drawn edge was not labelled
+  - `load_trax_points(resolution_factor=...)` caches to its own file
+    (`points_<spacing>m_rf<factor>.geojson`); it returned the default points. The
+    default file name is unchanged
+  - `GMLDiscrete` reads `$SLV_USER_DATA_DIR/gml`, then lair's group copy, and downloads
+    into `$SLV_USER_DATA_DIR/gml` only when neither has the file (`refresh=True` to
+    re-fetch), never into the shared group directory; a failed download says to fetch
+    on a login node (compute nodes have no outbound network)
+  - point sources: "Northrop Grumman" spelled right; LPG stations have their own marker
+    (tri-down, beside CNG's tri-up)
+  - `load_concentrations` says the Wyoming mobile lab (`wyo`) is read by
+    `slv.measurements.mobile.wyoming` instead of "Unknown org/instrument combo"
 - The 50-m TRAX network points come from `load_trax_points(50)`, like the 2-km points,
   so shared track has one set of points; a crossing's receptor releases only from the
   segment points on the line it drove, not every arm of a junction segment
