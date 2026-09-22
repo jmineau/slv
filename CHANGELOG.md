@@ -74,6 +74,11 @@ versions are calendar-based (YYYY.M.PATCH).
 
 - `SweepResults.best(target=...)` returned the matches ordered by distance to 1, not to
   `target`, so `best().iloc[0]` was not the closest match for `target != 1`
+- `merge_with_gps` joined the GPS fixes (lon/lat) with `storage_polygon` in the
+  polygon's own CRS, so a yard given in UTM matched nothing and the parked fixes were
+  kept (the packaged yards are lon/lat, so the default was right)
+- `load_trax_points` failed writing its cache when `$SLV_USER_DATA_DIR/trax` did not
+  exist yet
 - GPS readers cast the numeric GPS columns to float64, and the slope guard its slope
   column: per-year reads of the GPGGA-only years (Dec 2015 - Jan 2018) and uataq's
   multiprocess reads returned Arrow strings, which broke the per-minute medians

@@ -127,6 +127,7 @@ def load_trax_points(
         points_df["lines"] = joined.groupby(joined.index)["line"].apply(
             lambda x: "".join(sorted(x))
         )
+        points_geojson.parent.mkdir(parents=True, exist_ok=True)
         points_df.to_file(points_geojson, index=False)
 
     if meters:

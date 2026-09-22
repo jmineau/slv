@@ -232,6 +232,7 @@ def merge_with_gps(
     storage_polygon = get_geodf(storage_polygon)
     if storage_polygon is not None:
         print("Removing GPS points within storage polygon...")
+        storage_polygon = storage_polygon.to_crs(gps.crs)  # a UTM yard matched nothing
         gps = gpd.sjoin(gps, storage_polygon, how="left", predicate="within")
         gps = gps[gps.index_right.isnull()].drop(columns=["index_right"])
 
