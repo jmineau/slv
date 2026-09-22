@@ -37,5 +37,5 @@ dependencies:
       # git-only deps not on conda-forge
       - fips[flux] @ git+https://github.com/jmineau/fips
       # geo extra: lair.geo, imported by slv.inversion.config
-      - lair[science,geo] @ git+https://github.com/jmineau/lair
+      - lair[science,geo] @ git+https://github.com/jmineau/lair@v2026.12.4
       - uataq @ git+https://github.com/jmineau/uataq
