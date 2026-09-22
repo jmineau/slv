@@ -77,7 +77,31 @@ def read_met(file):
         minute=met["UTC hhmmss"].str.slice(2, 4),
         second=met["UTC hhmmss"].str.slice(4, None),
     )
-    met["Time_UTC"] = pd.to_datetime(met_time, errors="coerce")
+    # A garbled line survives on_bad_lines="skip" with the right field count but
+    # nonsense values (a year of 3258, a second of 61). pandas assembles the
+    # components before errors="coerce" can act, so out-of-range ones raise
+    # instead of coercing -- one bad row otherwise loses the whole drive. Blank
+    # out anything outside its calendar range first.
+    limits = {
+        "year": (1990, 2100),
+        "month": (1, 12),
+        "day": (1, 31),
+        "hour": (0, 23),
+        "minute": (0, 59),
+        "second": (0, 60),
+    }
+    met_time = {k: pd.to_numeric(v, errors="coerce") for k, v in met_time.items()}
+    valid = pd.Series(True, index=met.index)
+    for name, (low, high) in limits.items():
+        valid &= met_time[name].between(low, high)
+    # Assemble only the good rows: passing NaN components through to_datetime
+    # works but makes pandas warn on every cast.
+    times = pd.Series(pd.NaT, index=met.index, dtype="datetime64[ns]")
+    if valid.any():
+        times[valid] = pd.to_datetime(
+            {k: v[valid] for k, v in met_time.items()}, errors="coerce"
+        )
+    met["Time_UTC"] = times
     met = met.dropna(subset="Time_UTC").set_index("Time_UTC").sort_index()
     met = met[
         [
