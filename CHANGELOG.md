@@ -77,6 +77,9 @@ versions are calendar-based (YYYY.M.PATCH).
 - `merge_with_gps` joined the GPS fixes (lon/lat) with `storage_polygon` in the
   polygon's own CRS, so a yard given in UTM matched nothing and the parked fixes were
   kept (the packaged yards are lon/lat, so the default was right)
+- `get_slv_observations` loaded the TRAX route points for every run, so a tower-only
+  inversion needed `$SLV_USER_DATA_DIR` and the TRAX point cache; they are loaded only
+  when a mobile site is in `sites` (the aggregation only uses them for mobile rows)
 - `load_trax_points` failed writing its cache when `$SLV_USER_DATA_DIR/trax` did not
   exist yet
 - GPS readers cast the numeric GPS columns to float64, and the slope guard its slope

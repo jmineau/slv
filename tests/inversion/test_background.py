@@ -71,3 +71,64 @@ class TestBackgroundAtObsTimes:
         assert out.tolist() == [expected, expected]
         pd.testing.assert_index_equal(out.index, obs_times, check_names=False)
         assert out.index.name == "obs_time"
+
+
+def test_ct_stilt_background_is_joined_by_utc_date(tmp_path):
+    csv = tmp_path / "ct.csv"
+    pd.DataFrame(
+        {
+            "obs_time": ["2024-06-01 00:00:00+00:00", "2024-06-02 00:00:00+00:00"],
+            "ct_ch4_ppm": [1.95, 1.97],
+        }
+    ).to_csv(csv, index=False)
+    obs_times = pd.DatetimeIndex(
+        ["2024-06-01 19:00", "2024-06-01 21:30", "2024-06-02 20:00", "2024-06-03 20:00"]
+    )
+    out = bg.get_slv_background(
+        "ct_stilt",
+        obs_times=obs_times,
+        sites=["wbb"],
+        site_config=SITE_CONFIG,
+        time_range=(obs_times[0], obs_times[-1]),
+        csv_path=csv,
+    )
+    assert out.index.name == "obs_time" and out.name == "concentration"
+    np.testing.assert_allclose(out.iloc[:3], [1.95, 1.95, 1.97])
+    assert np.isnan(out.iloc[3])  # a date outside the product
+
+
+class _FakeGML:
+    made = []
+
+    def __init__(self, specie, site, sample_type):
+        _FakeGML.made.append((site, sample_type))
+
+    def thoning_curve(self, smooth_time, **kwargs):
+        return pd.Series(1900.0, index=pd.DatetimeIndex(smooth_time))  # ppb
+
+
+@pytest.mark.parametrize(
+    ("kwargs", "expected"),
+    [
+        ({}, ("mbo", "pfp")),
+        ({"site": "uta"}, ("uta", "flask")),
+        ({"site": "uta", "sample_type": "pfp"}, ("uta", "pfp")),
+    ],
+)
+def test_gml_background_in_ppm(monkeypatch, kwargs, expected):
+    _FakeGML.made.clear()
+    monkeypatch.setattr(bg, "GMLDiscrete", _FakeGML)
+    obs_times = pd.DatetimeIndex(["2024-06-01 20:00"])
+    out = bg.get_gml_background(obs_times=obs_times, **kwargs)
+    assert _FakeGML.made == [expected]
+    assert out.tolist() == [1.9] and out.index.name == "obs_time"
+
+
+def test_unsupported_backgrounds_raise(monkeypatch):
+    monkeypatch.setattr(bg, "GMLDiscrete", _FakeGML)
+    with pytest.raises(ValueError, match="GML background"):
+        bg.get_gml_background(obs_times=[], site="brw")
+    with pytest.raises(ValueError, match="Unsupported background"):
+        bg.get_slv_background(
+            "odiac", [], sites=["wbb"], site_config=SITE_CONFIG, time_range=None
+        )

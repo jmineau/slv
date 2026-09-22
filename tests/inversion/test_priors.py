@@ -112,3 +112,88 @@ class TestLoadersAlignByPeriod:
             out_grid=None, flux_times=self.flux_times, flux_freq="MS"
         )
         assert monthly_values(prior) == self.expected
+
+
+class TestGetSlvPrior:
+    @pytest.fixture
+    def calls(self, monkeypatch):
+        seen = {}
+        for name in ("load_epa_prior", "load_edgar_prior", "build_constant_prior"):
+            monkeypatch.setattr(
+                priors, name, lambda _n=name, **kw: seen.setdefault(_n, kw) and _n
+            )
+        return seen
+
+    def test_epa_in_jacobian_units(self, calls):
+        assert priors.get_slv_prior("EPA", None, [], express=True) == "load_epa_prior"
+        assert calls["load_epa_prior"]["units"] == "umol/m2/s"
+        assert calls["load_epa_prior"]["express"] is True
+
+    def test_edgar_drops_the_epa_only_kwarg(self, calls):
+        priors.get_slv_prior("edgar", None, [], express=True)
+        assert "express" not in calls["load_edgar_prior"]
+
+    def test_constant(self, calls):
+        priors.get_slv_prior("constant", None, [], value=0.5)
+        assert calls["build_constant_prior"]["value"] == 0.5
+
+    def test_unknown_prior_raises(self):
+        with pytest.raises(ValueError, match="Unsupported prior"):
+            priors.get_slv_prior("odiac", None, [])
+
+
+def test_constant_prior_fills_every_cell_and_time():
+    grid = xr.DataArray(
+        np.zeros((2, 3)), coords={"lat": [40.5, 40.6], "lon": [-112.0, -111.9, -111.8]}
+    )
+    times = pd.date_range("2020-01-01", periods=2, freq="MS")
+    prior = priors.build_constant_prior(grid, times, value=0.25, units="umol/m2/s")
+    assert len(prior) == 2 * 2 * 3 and (prior == 0.25).all()
+    assert prior.name == "flux" and prior.index.names == ["time", "lon", "lat"]
+
+
+def _sectors(times, **values):
+    ds = xr.Dataset(
+        {
+            name: (("time", "lat", "lon"), np.asarray(v, float).reshape(-1, 1, 1))
+            for name, v in values.items()
+        },
+        coords={"time": pd.DatetimeIndex(times), "lat": [40.5], "lon": [-112.0]},
+    )
+    return ds
+
+
+def test_epa_monthly_merges_annual_only_sectors(monkeypatch, identity_regrid):
+    months = pd.date_range("2016-01-01", periods=12, freq="MS")
+    annual_ds = _sectors(["2016-01-01"], landfill=[10.0], gas=[99.0])
+    monthly_ds = _sectors(months, gas=np.arange(12.0))  # gas is scaled by month
+
+    def fake_epa(scale_by_month=False, **kwargs):
+        return _FakeInventory(monthly_ds if scale_by_month else annual_ds)
+
+    def fake_sum(ds):
+        total = ds.to_array("sector").sum("sector")
+        total.attrs["units"] = "umol/m2/s"
+        return total
+
+    monkeypatch.setattr(priors.inventories, "EPAv2", fake_epa)
+    monkeypatch.setattr(priors.inventories, "sum_sectors", fake_sum)
+    prior, regridder = priors.load_epa_prior(
+        out_grid=None, flux_times=months, express=False, return_regridder=True
+    )
+    # landfill (annual only) repeated every month + the monthly gas; annual gas unused
+    assert monthly_values(prior) == (10.0 + np.arange(12.0)).tolist()
+    assert callable(regridder)
+
+
+def test_coarser_flux_freq_averages_the_inventory(monkeypatch, identity_regrid):
+    months = pd.date_range("2016-01-01", periods=12, freq="MS")
+    inv = inventory(months, values=np.arange(1.0, 13.0))
+    monkeypatch.setattr(
+        priors.inventories, "EPAv2", lambda **kwargs: _FakeInventory(inv)
+    )
+    quarters = pd.date_range("2016-01-01", periods=4, freq="QS")
+    prior = priors.load_epa_prior(
+        out_grid=None, flux_times=quarters, flux_freq="QS", express=True
+    )
+    assert monthly_values(prior) == [2.0, 5.0, 8.0, 11.0]

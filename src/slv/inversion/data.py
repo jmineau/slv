@@ -165,7 +165,8 @@ def get_slv_observations(
     obs = aggregate_obs(
         obs,
         freq="1h",
-        mobile_points=load_trax_points(),  # snap to fixed TRAX route points
+        # snap to the fixed TRAX route points; a tower-only run needs no TRAX data
+        mobile_points=load_trax_points() if mobile_sites else None,
         stationary_min_percent=0.75,
         mobile_min_count=10,
     )
