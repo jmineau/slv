@@ -154,6 +154,36 @@ def merge_with_gps(
     route_buffer=None,
     storage_polygon=None,
 ):
+    """Attach GPS positions to a mobile site's concentration records.
+
+    Reads the site's final-level GPS through uataq (UATAQ sites only), drops the
+    altitude outliers (outside the 1st-99th percentile), the fixes farther than
+    ``route_buffer`` m from ``routes`` and those inside ``storage_polygon``, then joins
+    on the GPS clock (the Pi clock of the lin loggers is not trusted). For ``trx*``
+    sites the defaults are the TRAX lines, 50 m and the JRRSC yard; pass ``False`` to
+    skip a filter.
+
+    Parameters
+    ----------
+    site, org : str
+        Site name and its organization (only ``"UATAQ"`` is supported).
+    obs : pd.DataFrame
+        Records with a ``Time_UTC`` column.
+    time_range : optional
+        Passed to ``uataq.read_data``.
+    num_processes : int
+        Passed to ``uataq.read_data``.
+    routes, storage_polygon : GeoDataFrame, str or False, optional
+        See :func:`~slv.measurements.mobile.network.get_geodf`.
+    route_buffer : float, optional
+        Metres, in the routes' CRS.
+
+    Returns
+    -------
+    pd.DataFrame
+        ``obs`` with the GPS columns (``Latitude_deg``, ``Longitude_deg``,
+        ``Altitude_msl``, ...).
+    """
     # Get routes and storage polygon defaults if not provided
     # Can be set to False to skip these filters, or provide custom geodataframes/paths
     if routes is None:  # noqa: SIM102

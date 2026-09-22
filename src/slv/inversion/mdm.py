@@ -111,6 +111,15 @@ class ModelDataMismatchMixin:
 
     @fips_cache(CovarianceMatrix, "modeldata_mismatch")
     def get_modeldata_mismatch(self, obs: Vector) -> CovarianceMatrix:
+        """Model-data mismatch covariance: the sum of ``config.mdm_components``.
+
+        Each component is built by :func:`~slv.inversion.covariances.build_mdm_error`
+        over the obs index, with site-keyed terms resolved through :meth:`obs_sites`
+        (TRAX receptors belong to their mobile site). A ``multiplicative`` component's
+        std is ``fraction`` times the per-obs enhancement scale (``scale_on``); a
+        ``per_obs`` component's is ``fraction`` times a per-obs std (e.g. the within-hour
+        std for ``subhour``).
+        """
         obs_sites = self.obs_sites(obs.index)
         components = []
         for comp in self.config.mdm_components:

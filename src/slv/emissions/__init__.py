@@ -1,3 +1,5 @@
+"""Emission sources in the Salt Lake Valley."""
+
 from .point_sources import plot_point_sources
 
 __all__ = [

@@ -1,3 +1,5 @@
+"""Persistent cold-air pool (PCAP) events from SLC soundings, and filtering obs by them."""
+
 from pathlib import Path
 
 import lair.pcaps

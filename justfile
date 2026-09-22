@@ -1,4 +1,4 @@
-# Justfile for Salt Lakey Valley py
+# Justfile for Salt Lake Valley py
 
 # Show available commands
 list:

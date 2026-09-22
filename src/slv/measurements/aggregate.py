@@ -1,3 +1,5 @@
+"""Aggregate observations in time (and space, for mobile platforms)."""
+
 from collections.abc import Callable
 
 import geopandas as gpd

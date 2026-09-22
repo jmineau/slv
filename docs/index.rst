@@ -1,5 +1,5 @@
-Salt Lakey Valley py
-====================
+Salt Lake Valley py
+===================
 
 .. image:: https://github.com/jmineau/slv/actions/workflows/tests.yml/badge.svg
    :target: https://github.com/jmineau/slv/actions/workflows/tests.yml
@@ -37,7 +37,11 @@ Salt Lakey Valley py
    :target: https://github.com/microsoft/pyright
    :alt: Pyright
 
-Salt Lake Valley python modules
+``slv`` ties together `lair <https://github.com/jmineau/lair>`_,
+`uataq <https://github.com/jmineau/uataq>`_, `fips <https://github.com/jmineau/fips>`_
+and `PYSTILT <https://github.com/jmineau/PYSTILT>`_ for trace-gas emission estimates in
+the Salt Lake Valley: the SLV domain and basemap, tower and TRAX light-rail
+measurements, and the Bayesian CH4 flux inversion.
 
 .. toctree::
    :maxdepth: 2
@@ -47,17 +51,6 @@ Salt Lake Valley python modules
    usage
    api
    contributing
-
-.. include:: installation.rst
-
-.. include:: usage.rst
-
-.. include:: api.rst
-
-Contributing
-============
-
-See the `CONTRIBUTING.md <https://github.com/jmineau/slv/blob/main/CONTRIBUTING.md>`_ file for guidelines on how to contribute to this project.
 
 Indices and tables
 ==================

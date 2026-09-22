@@ -36,4 +36,4 @@ jobs:
     - name: Check docstring coverage
       if: ${{ !cancelled() }}
       # Fails below the current coverage; raise --fail-under as docstrings are added.
-      run: docstr-coverage src/slv --skip-magic --skip-init --fail-under 63
+      run: docstr-coverage src/slv --skip-magic --skip-init --fail-under 90

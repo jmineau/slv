@@ -1,3 +1,5 @@
+"""The packaged SLV site config (``site_config.csv``) and coordinate lookup."""
+
 from importlib.resources import files
 
 import pandas as pd

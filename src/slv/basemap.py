@@ -230,6 +230,7 @@ class SaltLake:
 
     @property
     def fig(self):
+        """The figure holding the map."""
         return self.ax.figure
 
     def __repr__(self):

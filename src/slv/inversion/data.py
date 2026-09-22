@@ -1,3 +1,5 @@
+"""Observations for the inversion: tower and TRAX CH4, and the per-obs within-hour std."""
+
 from pathlib import Path
 
 import numpy as np

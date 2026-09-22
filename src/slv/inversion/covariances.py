@@ -1,3 +1,5 @@
+"""Prior error and model-data mismatch covariances for the SLV inversion."""
+
 import numpy as np
 import pandas as pd
 from fips.covariance import (

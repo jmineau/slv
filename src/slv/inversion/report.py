@@ -35,6 +35,24 @@ class ReportingMixin:
         return f"{units.split('/')[0]} per {self.config.flux_freq} interval"
 
     def calculate_total_flux(self, fluxes: pd.Series, units=None) -> pd.Series:
+        """Domain-total emission per flux interval.
+
+        The flux field is integrated over its cells' areas and each interval's duration
+        (lair ``absolute_emissions``), so the result is a mass per interval, e.g. Gg per
+        ``MS`` interval for ``units="Gg/m2/s"``.
+
+        Parameters
+        ----------
+        fluxes : pd.Series
+            Flux in umol/m2/s indexed by (time, lat, lon); its ``name`` must be set.
+        units : str, optional
+            Convert to these flux units before integrating (e.g. ``"Gg/m2/s"``).
+
+        Returns
+        -------
+        pd.Series
+            Total per flux time.
+        """
         inventory = self.fluxes_as_inventory(fluxes)
         if units:
             inventory = inventory.convert_units(units)
@@ -89,6 +107,13 @@ class ReportingMixin:
         return result
 
     def summarize(self) -> None:
+        """Print fips' summary, then prior and posterior domain totals.
+
+        Totals are per flux interval (:meth:`calculate_total_flux`) in
+        ``config.output_units``. With the coverage filter on, the removed cells are put
+        back at their prior (:meth:`reconstruct_posterior`) so both totals cover the full
+        domain. With more than two intervals a linear trend of the posterior is printed.
+        """
         from scipy import stats
 
         super().summarize()
@@ -145,6 +170,7 @@ class ReportingMixin:
         print("==================================================")
 
     def plot_inputs(self, problem: FluxProblem):
+        """Plot the grid and sites, the obs time series and the prior fluxes."""
         config = self.config
 
         # --- Plot Grid ---
@@ -184,6 +210,9 @@ class ReportingMixin:
         plt.show()
 
     def plot_results(self, problem: FluxProblem):
+        """Plot the posterior fluxes, the reconstructed full-domain posterior (with the
+        coverage filter on), domain totals over time, modelled vs observed
+        concentrations, residuals, and background and bias."""
         config = self.config
 
         # --- Plot Fluxes (inversion domain only) ---
@@ -247,6 +276,8 @@ class ReportingMixin:
         plt.show()
 
     def plot_diagnostics(self, problem: FluxProblem):
+        """Plot fluxes per time step, the Desroziers diagnostics and, with the coverage
+        filter on, the removed cells' contribution to the obs."""
         config = self.config
         # --- Plot Fluxes by Timestep ---
         viz.plot_fluxes_by_timestep(

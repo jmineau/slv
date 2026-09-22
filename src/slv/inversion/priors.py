@@ -1,3 +1,5 @@
+"""Prior flux fields for the SLV inversion (EPA, EDGAR or constant) on the state grid."""
+
 import pandas as pd
 import xarray as xr
 from lair import inventories
@@ -6,6 +8,31 @@ from lair import inventories
 def get_slv_prior(
     prior: str, out_grid, flux_times, flux_freq=None, bbox=None, extent=None, **kwargs
 ):
+    """Build the prior flux for ``InversionConfig.prior``.
+
+    Parameters
+    ----------
+    prior : str
+        ``"epa"`` (:func:`load_epa_prior`), ``"edgar"`` (:func:`load_edgar_prior`) or
+        ``"constant"`` (:func:`build_constant_prior`); case-insensitive.
+    out_grid : xr.DataArray
+        Target lon/lat grid (``InversionConfig.grid``).
+    flux_times : pd.DatetimeIndex
+        Start of each flux interval.
+    flux_freq : str, optional
+        Flux interval (e.g. ``"MS"``); a coarser interval than the inventory's is
+        averaged to.
+    bbox, extent : tuple, optional
+        Clip the inventory before regridding.
+    **kwargs
+        Passed to the loader (e.g. ``express=True`` for EPA, ``value=`` for constant).
+
+    Returns
+    -------
+    pd.Series
+        Flux in umol/m2/s (the Jacobian's units), indexed by (time, lat, lon) or
+        (time, lon, lat).
+    """
     units = "umol/m2/s"  # Must match jacobian (STILT)
     if prior.lower() == "epa":
         return load_epa_prior(
@@ -93,6 +120,37 @@ def load_epa_prior(
     express=False,
     return_regridder=False,
 ):
+    """EPA gridded CH4 inventory (v2) regridded to ``out_grid`` and aligned to ``flux_times``.
+
+    Sectors are summed and regridded conservatively (needs ``xesmf``). With
+    ``express=False`` the monthly-scaled sectors are used where lair has them and the
+    annual-only sectors are repeated each month; ``express=True`` loads lair's
+    pre-summed annual product (faster, no monthly scaling). A flux time after the
+    inventory ends takes its last year (EPA 2020 for 2021-2023), see
+    :func:`align_to_flux_times`.
+
+    Parameters
+    ----------
+    out_grid : xr.DataArray
+        Target lon/lat grid.
+    flux_times : pd.DatetimeIndex
+        Start of each flux interval.
+    flux_freq : str, optional
+        Flux interval; the inventory is averaged to it when coarser than the inventory.
+    bbox, extent : tuple, optional
+        Clip the inventory before regridding.
+    units : str, optional
+        Convert to these units (e.g. ``"umol/m2/s"``).
+    express : bool
+        Use the annual express product.
+    return_regridder : bool
+        Also return the ``xesmf.Regridder``.
+
+    Returns
+    -------
+    pd.Series or (pd.Series, xesmf.Regridder)
+        The prior flux named ``"flux"``.
+    """
     if not express:
         # Load inventories
         annual = inventories.EPAv2()

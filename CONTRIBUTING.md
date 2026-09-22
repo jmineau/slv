@@ -1,6 +1,6 @@
-# Contributing to Salt Lakey Valley py
+# Contributing to Salt Lake Valley py
 
-Thank you for considering contributing to Salt Lakey Valley py! We welcome contributions from the community.
+Thank you for considering contributing to Salt Lake Valley py! We welcome contributions from the community.
 
 ## Getting Started
 
@@ -10,18 +10,15 @@ Thank you for considering contributing to Salt Lakey Valley py! We welcome contr
    git clone https://github.com/YOUR_USERNAME/slv.git
    cd slv
    ```
-3. Create a python environment and install development dependencies:
+3. Install the package with the development dependencies (Python 3.11 or higher):
    ```bash
-   # Using venv:
-   python -m venv .venv
-   source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+   # Using uv (installs the `dev` dependency group, which includes the inversion extra):
+   uv sync
 
-   # OR using conda:
-   conda create -n myenv python=3.12 -y
-   conda activate myenv
-
-   # Install development dependencies:
-   pip install -e ".[dev]"
+   # OR using conda (needed for xesmf, i.e. the EPA / EDGAR priors):
+   conda env create -f ci/environment.yml
+   conda activate slv
+   pip install --no-deps -e .
    ```
 
 4. Install pre-commit hooks:

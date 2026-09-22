@@ -20,12 +20,15 @@ class CarbonTrackerCH4(noaa.CarbonTrackerCH4):
     """
 
     def get_Utah_molefractions(self) -> xr.Dataset:
+        """CarbonTracker-CH4 mole fractions over Utah (``UT_BBOX``)."""
         return self.molefractions.sel(
             longitude=slice(UT_BBOX[0], UT_BBOX[2]),
             latitude=slice(UT_BBOX[1], UT_BBOX[3]),
         )
 
     def get_SLV_molefractions(self, calc_pressure=False) -> xr.Dataset:
+        """CarbonTracker-CH4 mole fractions in the grid column over the SLV; with
+        ``calc_pressure``, adds the pressure of each level."""
         mf = self.molefractions.sel(longitude=SLV_LON, latitude=SLV_LAT)
 
         if calc_pressure:
@@ -63,10 +66,12 @@ class GMLDiscrete(noaa.GMLData):
 
     @cached_property
     def latitude(self) -> float:
+        """Latitude of the sampling site."""
         return self._raw.latitude.values[0]
 
     @cached_property
     def longitude(self) -> float:
+        """Longitude of the sampling site."""
         return self._raw.longitude.values[0]
 
     def thoning_curve(

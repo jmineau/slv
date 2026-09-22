@@ -1,3 +1,5 @@
+"""Configuration for an SLV methane inversion (:class:`InversionConfig`)."""
+
 import os
 from dataclasses import dataclass, field
 from functools import cached_property
@@ -178,6 +180,102 @@ def build_location_site_map(
 
 @dataclass
 class InversionConfig:
+    """Settings for one :class:`~slv.inversion.pipelines.SLVMethaneInversion` run.
+
+    Invalid choices (``flux_freq``, ``background``, ``prior``, ``bias_grouping``, MDM
+    component names, an empty domain) raise ``ValueError`` at construction. Cached
+    components are keyed on the fields each one depends on (see
+    :mod:`slv.inversion.cache`), so changing a field's default spelling forces a rebuild.
+
+    Parameters
+    ----------
+    tstart, tend : str or pd.Timestamp
+        Inversion period; flux intervals start at ``tstart`` and the last one ends at
+        ``tend``.
+    flux_freq : str
+        Flux interval: ``"YS"``, ``"QS"``, ``"MS"``, ``"2W"`` or ``"D"``.
+    utc_offset : int
+        Hours from UTC to local standard time, for ``subset_hours``.
+    subset_hours : list of int
+        Local hours of obs to keep (default 12-16, a well-mixed afternoon boundary layer).
+    xmin, xmax, ymin, ymax : float
+        Domain in degrees (default :mod:`slv.domain`). Snapped outward to whole cells,
+        see :attr:`state_grid`.
+    dx, dy : float
+        Cell size in degrees.
+    sites : list of str
+        Sites from the site config. A mobile site (e.g. ``"trx01"``) takes its obs per
+        TRAX receptor.
+    mobile_obs : str or Path, optional
+        Receptor-paired obs for the mobile sites (parquet indexed
+        ``(obs_location, obs_time)``, from
+        :func:`~slv.measurements.mobile.trax_receptor_observations`).
+    filter_pcaps : bool
+        Drop obs during persistent cold-air pool events.
+    filter_spikes : bool
+        Drop days whose within-hour CH4 std is above ``spike_percentile``. Superseded by
+        the ``subhour`` MDM term, which keeps those days and down-weights them.
+    spike_percentile : float
+        Percentile threshold for ``filter_spikes``.
+    background : str
+        ``"rolling"`` (baseline from the stationary sites), ``"gml"`` or ``"ct_stilt"``.
+    background_kwargs : dict
+        Passed to the background loader (e.g. ``csv_path`` for ``ct_stilt``).
+    aggregate_obs : bool or str
+        ``False``, or a frequency (e.g. ``"1D"``) to average obs and Jacobian rows to.
+    location_site_map : dict
+        STILT location id -> site. Empty: matched from the site config coordinates.
+    prior : str
+        ``"epa"``, ``"edgar"`` or ``"constant"``, see
+        :func:`~slv.inversion.priors.get_slv_prior`.
+    prior_kwargs : dict
+        Passed to the prior loader (e.g. ``{"express": True}``).
+    stilt_project : str or Path
+        PYSTILT project holding the footprints (``$SLV_STILT_DIR``, else
+        :data:`DEFAULT_STILT_PROJECT`).
+    footprint : str, optional
+        Footprint config name or hash; ``None`` takes the finest in the project. The cache
+        key sees this value, not what ``None`` resolved to, so set it explicitly.
+    sparse_jacobian : bool
+        Keep the Jacobian sparse.
+    prior_base_std, prior_std_frac : float
+        Prior error std per cell, ``prior_base_std + prior_std_frac * prior`` (umol/m2/s).
+    prior_time_scale : str
+        e-folding time of the prior error correlation (e.g. ``"32d"``).
+    prior_spatial_scale : float
+        e-folding distance of the prior error correlation, km.
+    mdm_config : dict
+        Overrides of :data:`DEFAULT_MDM_CONFIG`, by component name.
+    bias_std : float, optional
+        Prior std of the bias states (ppm); ``None`` leaves the bias block out.
+    bias_grouping : str, optional
+        ``None`` / ``"time"`` (one bias per interval), ``"site"`` or ``"site_group"``
+        (per interval and site or organization).
+    jacobian_coverage_percentile : float, optional
+        Hold the least-constrained cells (below this percentile of mean Jacobian
+        sensitivity) at the prior. ``None`` keeps every cell.
+    min_obs_per_interval : int
+        Drop flux intervals with fewer obs.
+    min_sims_per_interval : int
+        Read by fips but not applied.
+    gamma : float, optional
+        Divides the obs error (``> 1`` fits the data more closely).
+    cache : bool, str or Path
+        ``False``: no cache; ``True``: the working directory; else that directory.
+    cache_overwrite : str or list of str
+        Components to rebuild (e.g. ``["obs"]``), or ``"all"``.
+    num_processes : int
+        Workers for obs loading and the Jacobian build.
+    timeout : int
+        Per-task timeout, s, of the parallel Jacobian build.
+    plot_inputs, plot_results, plot_diagnostics : bool
+        Which plots :meth:`~slv.inversion.pipelines.SLVMethaneInversion.run` draws.
+    output_units : str
+        Flux units for domain totals (e.g. ``"Gg/m2/s"`` gives Gg per interval).
+    tiler, tiler_zoom
+        Map tiles for the plots.
+    """
+
     # --- Space & Time ---
     tstart: pd.Timestamp | str = "2015-06-01"
     tend: pd.Timestamp | str = "2025-02-01"
@@ -348,15 +446,17 @@ class InversionConfig:
 
     @property
     def bbox(self):
+        """``(xmin, ymin, xmax, ymax)``."""
         return (self.xmin, self.ymin, self.xmax, self.ymax)
 
     @property
     def extent(self):
+        """``(xmin, xmax, ymin, ymax)``, cartopy's order."""
         return (self.xmin, self.xmax, self.ymin, self.ymax)
 
     @property
     def map_extent(self):
-        # Add a buffer around the bbox for better visualization
+        """:attr:`extent` padded by 0.05 degrees, for maps."""
         buffer = 0.05
         return (
             self.xmin - buffer,
@@ -367,6 +467,7 @@ class InversionConfig:
 
     @property
     def resolution(self) -> str:
+        """Cell size as ``"{dx}x{dy}"``."""
         return f"{self.dx}x{self.dy}"
 
     @cached_property
@@ -421,12 +522,14 @@ class InversionConfig:
 
     @cached_property
     def grid_coords(self):
+        """Every cell centre as a ``(lon, lat)`` tuple."""
         return pd.MultiIndex.from_product(
             [self.grid["lon"].values, self.grid["lat"].values]
         ).to_list()
 
     @property
     def time_range(self) -> tuple[pd.Timestamp, pd.Timestamp]:
+        """``(tstart, tend)`` as timestamps."""
         return (pd.Timestamp(self.tstart), pd.Timestamp(self.tend))
 
     @property
@@ -463,4 +566,5 @@ class InversionConfig:
 
     @cached_property
     def site_config(self):
+        """The packaged site config (:func:`~slv.measurements.sites.load_site_config`)."""
         return load_site_config()

@@ -276,8 +276,8 @@ def fips_cache(cls, filename):
     filename :
         Stage name / cache stem (e.g. ``"obs"``, ``"prior_error"``).
 
-    Cache layout
-    ------------
+    Notes
+    -----
     Files are stored under
     ``{cache_dir}/.fips/{version_tag}/{component}/{hash}.pkl`` where
     ``version_tag`` pins the running fips/pystilt source revision (``git describe``

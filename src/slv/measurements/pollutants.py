@@ -1,3 +1,5 @@
+"""Per-pollutant QC: valid ranges and flags, applied by :func:`normalize_pollutant`."""
+
 import numpy as np
 import pandas as pd
 

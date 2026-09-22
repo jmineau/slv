@@ -1,4 +1,6 @@
-# SLV CH4 Point Sources
+"""CH4 point sources in the SLV (landfills, refineries, ...), packaged as
+``ch4_point_sources.csv``."""
+
 from functools import lru_cache
 from importlib.resources import files
 

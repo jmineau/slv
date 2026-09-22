@@ -1,3 +1,5 @@
+"""Load trace-gas concentrations for SLV sites (UATAQ via uataq, DAQ from files)."""
+
 from pathlib import Path
 
 import pandas as pd
@@ -28,6 +30,58 @@ def load_concentrations(
     mobile_kwargs: dict | None = None,
     utc_offset: int = UTC_OFFSET,
 ) -> pd.DataFrame:
+    """Concentrations for the requested sites in one long table.
+
+    Each site's instruments (``site_config["instruments"]``) are read at the calibrated
+    level (qaqc for instruments flagged uncalibrated): UATAQ sites through
+    ``uataq.read_data``, DAQ Picarro G2307 sites from the files under
+    ``$SLV_DAQ_DIR``. Concentration columns are renamed to the pollutant name and
+    cleaned (:func:`~slv.measurements.pollutants.normalize_pollutant`). Mobile sites are
+    merged with their GPS (:func:`~slv.measurements.mobile.merge_with_gps`). Sites or
+    instruments that fail to load are skipped with a message.
+
+    Parameters
+    ----------
+    pollutants : str or list of str
+        E.g. ``"CH4"``.
+    orgs : str or list of str, optional
+        Take every site of these organizations when ``sites`` is not given.
+    sites : str or list of str, optional
+        Site names (case-insensitive).
+    time_range : TimeRange or tuple, optional
+        Period to read.
+    site_config : pd.DataFrame, optional
+        Default :func:`~slv.measurements.sites.load_site_config`.
+    include_location : bool
+        Add ``latitude``, ``longitude`` and ``height``; forced on when a site is mobile,
+        which also adds ``is_mobile``.
+    valid_range : dict, optional
+        Pollutant -> ``(min, max)``; values outside become NaN.
+    valid_flags : dict, optional
+        Pollutant -> QC flag values to keep.
+    subset_hours : list of int, optional
+        Keep these local standard-time hours.
+    filter_pcaps : bool
+        Drop obs during persistent cold-air pool events.
+    num_processes : int
+        Passed to the uataq reads.
+    mobile_kwargs : dict, optional
+        Passed to :func:`~slv.measurements.mobile.merge_with_gps`.
+    utc_offset : int
+        Hours from UTC to local standard time (the ``Time_MST`` column).
+
+    Returns
+    -------
+    pd.DataFrame
+        One row per record: ``Time_UTC``, ``Time_MST``, ``site``, ``org``,
+        ``instrument``, one column per pollutant, and the location columns when
+        requested. Sorted by time and site.
+
+    Raises
+    ------
+    ValueError
+        Neither ``sites`` nor ``orgs`` is given, or nothing loaded.
+    """
     if site_config is None:
         site_config = load_site_config()
 
@@ -269,6 +323,9 @@ def generate_stilt_receptors(
     obs: pd.DataFrame,
     out_csv: str | Path | None = None,
 ):
+    """STILT receptor table (``site``, ``time``, ``lati``, ``long``, ``zagl``,
+    ``sim_id``) from :func:`load_concentrations` output with locations; written to
+    ``out_csv`` when given."""
     # Rename columns to match expected output
     obs = obs.rename(
         columns={

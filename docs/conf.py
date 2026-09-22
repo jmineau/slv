@@ -5,16 +5,22 @@
 
 import os
 import sys
+from importlib.metadata import PackageNotFoundError
+from importlib.metadata import version as package_version
 
 sys.path.insert(0, os.path.abspath("../src"))
 
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-project = "Salt Lakey Valley py"
+project = "Salt Lake Valley py"
 copyright = "2026, James Mineau"
 author = "James Mineau"
-release = "2026.2.0"
+try:
+    release = package_version("slv")
+except PackageNotFoundError:  # building from a checkout that is not installed
+    release = "unknown"
+version = release
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
@@ -31,11 +37,14 @@ extensions = [
 templates_path = ["_templates"]
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
+# fips and matplotlib annotate with names they import only for type checking; those
+# forward references cannot be resolved and are not ours to fix.
+suppress_warnings = ["sphinx_autodoc_typehints.forward_reference"]
+
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
 html_theme = "pydata_sphinx_theme"
-html_static_path = ["_static"]
 
 html_theme_options = {
     "github_url": "https://github.com/jmineau/slv",

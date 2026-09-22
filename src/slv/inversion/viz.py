@@ -1,3 +1,6 @@
+"""Plots for :class:`~slv.inversion.pipelines.SLVMethaneInversion`: the domain,
+inputs, fluxes, domain totals and error diagnostics."""
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -7,6 +10,8 @@ from slv.emissions.point_sources import plot_point_sources
 
 
 def plot_sites(ax, sites, site_config, color="black"):
+    """Mark ``sites`` on a map axes: circles for stationary, triangles for mobile
+    (``site_config["type"]``). Returns one legend handle and label per kind."""
     # Plot all mobile and stationary sites, but only return one handle/label for each type
     mobile_marker = "^"
     stationary_marker = "o"
@@ -71,6 +76,11 @@ def plot_grid(
     add_point_sources=None,
     subplot_kwargs=None,
 ):
+    """Map the state grid's cells over tiles, with the sites and CH4 point sources.
+
+    ``add_point_sources`` maps point-source kind to colour (default: every kind, in the
+    Okabe-Ito palette); a falsy value leaves them off. Returns ``(fig, ax)``.
+    """
     if add_point_sources is None:
         # Okabe-Ito colorblind-friendly palette
         add_point_sources = {
@@ -185,6 +195,8 @@ def plot_grid(
 
 
 def plot_concentrations(obs):
+    """Time series of the obs (a Series indexed by ``obs_location`` and ``obs_time``),
+    one line per location. Returns ``(fig, ax)``."""
     fig, ax = plt.subplots()
 
     obs.unstack(level="obs_location").plot(ax=ax, alpha=0.7)
@@ -200,6 +212,8 @@ def plot_concentrations(obs):
 
 
 def plot_inventory(inventory, extent, tiler, zoom, subplot_kwargs=None):
+    """Map the time-mean of a flux field (umol/m2/s, with a ``time`` dim) over tiles.
+    Returns ``(fig, ax)``."""
     if subplot_kwargs is None:
         subplot_kwargs = {"figsize": (6, 6)}
     fig, ax = plt.subplots(subplot_kw={"projection": tiler.crs}, **subplot_kwargs)
@@ -358,6 +372,8 @@ def plot_fluxes(
     site_color="black",
     add_point_sources=None,
 ):
+    """fips' prior / posterior flux maps, with sites and point sources (default:
+    landfills and refineries) added to every panel."""
     fig, axes = problem.plot.fluxes(tiler=tiler, tiler_zoom=zoom)
 
     if add_point_sources is None:
@@ -385,6 +401,8 @@ def plot_fluxes_by_timestep(
     site_color="black",
     add_point_sources=None,
 ):
+    """One posterior flux map per flux time (8 per row). Returns the xarray
+    ``FacetGrid``."""
     facet = (
         problem.posterior_fluxes.to_xarray()
         .astype(float)

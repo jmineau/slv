@@ -60,6 +60,8 @@ storage_locations = {
 def get_geodf(
     obj: str | Path | gpd.GeoDataFrame | bool | None,
 ) -> gpd.GeoDataFrame | None:
+    """Resolve a geometry argument: a GeoDataFrame, a path or packaged file to read, or
+    ``False`` / ``None`` for no geometry (returns ``None``). ``True`` raises."""
     if isinstance(obj, gpd.GeoDataFrame):
         return obj
     elif isinstance(obj, (str, Path)):
@@ -78,6 +80,8 @@ def get_geodf(
 
 
 def load_trax_lines(meters=False) -> gpd.GeoDataFrame:
+    """The TRAX lines (``UTA_TRAX.geojson`` under ``$LINGROUP_DATA_DIR``), one row per
+    line with its letter in ``line``. ``meters=True`` returns them in UTM 12N."""
     lines = gpd.read_file(
         group_dir() / "spatial/transportation/light_rail/UTA_TRAX.geojson"
     )
@@ -90,6 +94,14 @@ def load_trax_lines(meters=False) -> gpd.GeoDataFrame:
 def load_trax_points(
     spacing=2000, meters=False, resolution_factor=None
 ) -> gpd.GeoDataFrame:
+    """Points every ``spacing`` m along the TRAX lines, with the lines they serve.
+
+    Cached at ``$SLV_USER_DATA_DIR/trax/points_{spacing}m.geojson``; built from
+    :func:`load_trax_lines` on first use. Shared track yields one set of points, and
+    ``lines`` holds the sorted letters of every line within ``spacing / 2``
+    (e.g. ``"BGR"``). Coordinates are whole metres in UTM 12N with ``meters=True``,
+    else lon/lat rounded to 5 decimals.
+    """
     points_geojson = user_dir() / f"trax/points_{spacing}m.geojson"
 
     if points_geojson.exists():

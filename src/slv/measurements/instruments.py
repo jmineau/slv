@@ -1,7 +1,13 @@
+"""Analyzers at SLV sites: sample rate and the concentration column of each pollutant."""
+
 from abc import ABC
 
 
 class Instrument(ABC):
+    """An analyzer: its uataq ``name``, sample rate, and the column holding each
+    pollutant (``pollutants``). ``calibrated = False`` reads the qaqc level instead of
+    calibrated; ``samples_per_hour`` is the expected count of valid samples."""
+
     name: str
     display_name: str
     sample_rate: str
@@ -9,6 +15,8 @@ class Instrument(ABC):
 
 
 class LGR_UGGA(Instrument):
+    """Los Gatos Research Ultraportable Greenhouse Gas Analyzer (CH4, CO2, H2O)."""
+
     name = "lgr_ugga"
     display_name = "LGR UGGA"
     sample_rate = "10s"
@@ -21,6 +29,8 @@ class LGR_UGGA(Instrument):
 
 
 class LGR_UGGA_Manual_Cal(LGR_UGGA):
+    """An LGR UGGA without a calibrated product: read at qaqc level, uncalibrated columns."""
+
     name = "lgr_ugga_manual_cal"
     calibrated = False
     pollutants = {
@@ -31,6 +41,8 @@ class LGR_UGGA_Manual_Cal(LGR_UGGA):
 
 
 class Picarro_G2307(Instrument):
+    """Picarro G2307 (CH4, H2CO), run by Utah DAQ."""
+
     name = "picarro_g2307"
     display_name = "Picarro G2307"
     sample_rate = "1min"
@@ -42,6 +54,8 @@ class Picarro_G2307(Instrument):
 
 
 class Picarro_G2401(Instrument):
+    """Picarro G2401 (CH4, CO2, CO, H2O)."""
+
     name = "picarro_g2401"
     display_name = "Picarro G2401"
     sample_rate = "2s"

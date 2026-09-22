@@ -1,3 +1,5 @@
+"""Background (upwind) CH4 for the inversion: rolling baseline, NOAA GML or CT-STILT."""
+
 import pandas as pd
 from lair.background import rolling_baseline
 

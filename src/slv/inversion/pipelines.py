@@ -262,6 +262,12 @@ class SLVMethaneInversion(
 
     @fips_cache(Vector, "constant")
     def get_constant(self, obs: Vector) -> Vector:
+        """Background concentration for each obs (``config.background``).
+
+        Obs whose background is missing (outside the ct_stilt product, rolling-baseline
+        gaps) are dropped here rather than filled: fips vectors reject NaN, and
+        ``aggregate_obs_space`` reduces the obs to match.
+        """
         obs_times = obs.data.index.get_level_values("obs_time").unique()
         data = get_slv_background(
             background=self.config.background,
@@ -353,6 +359,24 @@ class SLVMethaneInversion(
         return obs, forward_operator, modeldata_mismatch, constant
 
     def run(self, estimator_kwargs: dict | None = None, **kwargs) -> FluxProblem:
+        """Build the inputs, solve, summarize and plot.
+
+        Steps: :meth:`get_inputs` (cached components), the Jacobian coverage filter when
+        ``config.jacobian_coverage_percentile`` is set, the solve (``config.gamma`` scales
+        the obs error), :meth:`summarize`, then the ``plot_*`` methods the config turns on.
+
+        Parameters
+        ----------
+        estimator_kwargs : dict, optional
+            Passed to ``FluxProblem.solve``; overrides ``gamma`` from the config.
+        **kwargs
+            Passed to the ``FluxProblem`` constructor.
+
+        Returns
+        -------
+        FluxProblem
+            The solved problem (also kept as ``self.problem``).
+        """
         total_start = time.perf_counter()
         print("Getting problem inputs...")
         inputs = self.get_inputs()

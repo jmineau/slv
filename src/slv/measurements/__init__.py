@@ -1,3 +1,5 @@
+"""Measurements at SLV sites: concentrations, site metadata and aggregation."""
+
 from .aggregate import aggregate_obs
 from .concentrations import load_concentrations
 from .sites import get_site_coordinates, load_site_config

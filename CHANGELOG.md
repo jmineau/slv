@@ -6,7 +6,36 @@ versions are calendar-based (YYYY.M.PATCH).
 
 ## [Unreleased]
 
+### Added
+
+- TRAX dwell receptors: `find_dwells` picks out the periods a train sits parked at one
+  outdoor spot (a yard track, a terminus platform) and `build_dwell_receptors` turns
+  each hour of one into a PYSTILT point receptor at the dwell's median position.
+  `label_dwell_site` names the service yard a dwell is in (`yard_name`). Both receptor
+  builders take a local-time `hours` window (`filter_receptor_hours`)
+- Receptor-paired TRAX observations: `trax_receptor_observations` gives one CH4
+  observation per receptor (mean over a crossing's pass or a dwell's hour, shifted by
+  the inlet lag, `inlet_lag_seconds`), keyed like the footprints;
+  `InversionConfig.mobile_obs` points the inversion at that table
+- `build_trax_obs` slope guard (`apply_slope_guard`): pipeline-calibrated rows whose
+  slope is more than 5 % off the day's median are dropped, which removes the hours
+  after a bad reference period
+- Crossing coverage along the route: network points carry `s_<line>`, their distance
+  along each line, and `build_trax_receptors` keeps crossings that drove at least
+  `min_coverage` (default 0.5) of their release geometry and lasted at most
+  `max_duration` (default 15 min; terminus dwells are not traverses). It was a
+  straight-line span from the first fix, which under-scored bent segments
+- Docstrings for the public API (docstring coverage 95 %, CI floor 90 %); the usage
+  guide covers the map, measurements, an inversion, sweeps and TRAX receptors (#6)
+
 ### Changed
+
+- The 50-m TRAX network points come from `load_trax_points(50)`, like the 2-km points,
+  so shared track has one set of points; a crossing's receptor releases only from the
+  segment points on the line it drove, not every arm of a junction segment
+- Docs: `release` is read from the installed package; the install pages name the
+  real install paths (`uv sync` installs the `dev` group; there is no `dev` or `docs`
+  extra) and the data environment variables; the docs build has no warnings
 
 - `slv.basemap` rewritten (#5). `SaltLake(bbox, ax=, tiles="terrain")` makes the map
   and chainable `add_*` methods layer it: `add_population` (ACS 2022 block-group
@@ -43,6 +72,11 @@ versions are calendar-based (YYYY.M.PATCH).
 
 ### Fixed
 
+- `SweepResults.best(target=...)` returned the matches ordered by distance to 1, not to
+  `target`, so `best().iloc[0]` was not the closest match for `target != 1`
+- GPS readers cast the numeric GPS columns to float64, and the slope guard its slope
+  column: per-year reads of the GPGGA-only years (Dec 2015 - Jan 2018) and uataq's
+  multiprocess reads returned Arrow strings, which broke the per-minute medians
 - Inversion robustness (#4):
   - the Jacobian coverage filter added the removed cells' contribution to the
     constant by position (Jacobian rows are simulations, constant rows obs); now by
@@ -150,10 +184,11 @@ state grid; the new cell check raises on them, and they need
   on-track GPS fixes of `obs.parquet` (same segment, gap <= 10 min) and must
   cover at least 1 km of track.
 
-- `measurements.trax_location`: per-minute TRAX location classifier (depot / yard /
+- `measurements.mobile.location`: per-minute TRAX location classifier (depot / yard /
   green-line pass-by / route / stopped) from GPS scatter and satellite count, with a
-  `powered` flag from the CR1000 battery voltage; `read_horel_cr1000`,
-  `state_intervals`, `label_observations`; packaged `jrrsc_depot.geojson`.
+  `powered` flag from the CR1000 battery voltage; `state_intervals`,
+  `label_observations`; `mobile.gps.read_horel_cr1000`; packaged shed footprints
+  `trax_depots.geojson`.
   Works without a recorded speed (GPGGA-only eras) via a position-derived
   `speed_est`; `read_lin_gps` / `read_trax_gps` pick the GPS source by era.
   Untrusted positions (> 100 m off any track, or near a yard but neither on

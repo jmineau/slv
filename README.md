@@ -29,10 +29,13 @@ To include the inversion module:
 uv sync --extra inversion  # or: pip install -e ".[inversion]"
 ```
 
-### With `xesmf` (inversion + regridding)
+`uv sync` also installs the `dev` group (tests, linting, docs), which includes the
+inversion extra.
 
-`xesmf` requires a pre-built ESMF library and must be installed via conda-forge
-alongside the rest of the environment:
+### With `xesmf` (EPA / EDGAR priors)
+
+The EPA and EDGAR priors are regridded with `xesmf`, which needs a compiled ESMF
+library from conda-forge, so install into the conda environment instead:
 
 ```bash
 git clone https://github.com/jmineau/slv.git
@@ -44,11 +47,32 @@ pip install --no-deps -e .
 
 ## Usage
 
-```python
-import slv
+A map of the valley:
 
-# Add usage example here
+```python
+from slv.basemap import SaltLake
+
+m = (SaltLake(tiles="terrain")          # Stadia stamen_terrain; needs $STADIA_API_KEY
+     .add_population()
+     .add_trax(lines="RG")
+     .add_sites(["wbb", "ldf", "hdp"], labels={"wbb": "UOU"})
+     .add_mesowest()
+     .add_legend().add_inset().add_north_arrow())
+m.fig.savefig("slv.png", dpi=300)
 ```
+
+A methane inversion (builds the Jacobian from the PYSTILT footprints; run it through SLURM):
+
+```python
+from slv.inversion import InversionConfig, SLVMethaneInversion
+
+config = InversionConfig(tstart="2016-01-01", tend="2024-01-01", flux_freq="MS",
+                         sites=["wbb"], footprint="0.01", cache="./cache")
+problem = SLVMethaneInversion(config).run()
+```
+
+The [usage guide](https://jmineau.github.io/slv/usage.html) also covers loading
+measurements, hyperparameter sweeps and building TRAX receptors.
 
 ## Documentation
 
