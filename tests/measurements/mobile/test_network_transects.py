@@ -131,6 +131,36 @@ def test_build_network_transects_two_lines(tmp_path):
     assert red.n.values[:, 99].max() <= 32
     assert (ds.frac_uncalibrated.values == 0).all()
     assert ds.attrs["n_off_network"] == 0
+    # full end-to-end runs cover (close to) all of their line's known extent
+    assert np.allclose(red.coverage.values, 1.0)
+    assert green.coverage.values[0] == pytest.approx(1.0)
+
+
+def test_coverage_flags_a_short_turn():
+    """A short out-and-back over the first third of Red should read well under full
+    coverage, distinguishing it from an end-to-end run on the same line."""
+    pts = _network()
+    r = pts[pts.s_R.notna()].sort_values("s_R")
+    short = r[r.s_R <= r.s_R.max() / 3]
+    x = np.r_[short.geometry.x.to_numpy(), short.geometry.x.to_numpy()[::-1]]
+    y = np.r_[short.geometry.y.to_numpy(), short.geometry.y.to_numpy()[::-1]]
+    t = np.arange(len(x), dtype=float)
+    lon, lat = TO_LONLAT.transform(x, y)
+    obs = pd.DataFrame(
+        {
+            "Time_UTC": pd.Timestamp("2024-06-01 12:00:00")
+            + pd.to_timedelta(t, unit="s"),
+            "Longitude_deg": lon,
+            "Latitude_deg": lat,
+            "CH4_ppm": 2.0,
+            "cal_source": "pipeline",
+            "low_pressure": False,
+        }
+    )
+    ds = build_network_transects(obs, pts, lag=None)
+    red = ds.sel(transect=ds.line == "R")
+    assert len(red.transect) == 2  # out and back
+    assert (red.coverage.values < 0.4).all()
 
 
 def test_lag_moves_the_source_back_along_the_track():

@@ -28,6 +28,17 @@ The builder is Mitchell et al. (2018)'s algorithm on the generic pieces in
 5. that line's along-route coordinate is cut into one-way transits at reversals of travel
    and at gaps (:func:`lair.transects.split_transits`), and the samples are averaged onto
    ``[transit, point]`` with terminus dwells trimmed (:func:`lair.transects.transect_matrix`).
+
+**Coverage and short transits.** Unlike the archived per-line matrices -- built by chasing
+terminus polygons, so every row was (close to) a full end-to-end run -- this builder keeps
+any one-way run of at least ``min_span_m``, including short turns that never reach the
+line's ends (a car shuttling Salt Lake Central <-> a few km out, real UTA service, ~15% of
+Red and ~29% of Green transits by span in the 2014-2026 record) and partial runs cut short
+by a mid-route reversal. Each transit's ``coverage`` coordinate is its span over that line's
+full known extent; a persistence metric that baselines a transit against its own low
+percentile (:func:`lair.transects.enhancement`) should filter on ``coverage`` first; a short
+loop that sits in a plume the whole way reads as background against itself. See
+``sources/persistence/`` for the filter in use.
 """
 
 from __future__ import annotations
@@ -99,13 +110,14 @@ def assign_lines(
     ``hit`` whether the sample snapped to a point at all. Each sample is given the line,
     **among the letters of its own point**, with the most *exclusive* hits (samples on
     single-line points) within ``window_s`` before and after it. A sample on Red-only track
-    is Red; a sample on the Red/Blue shared stretch is Red when the train was on Red-only
-    track within the window and Blue when it was on Blue-only track (a deadhead from the
-    Midvale yard). The candidate restriction matters: a train that leaves the yard on Green
-    track and turns onto the Red/Blue stretch must not carry ``G`` there, which a plain
-    forward-fill did. Samples with no eligible vote (a point with no line tag, or half an
-    hour on shared track with no exclusive point either side) come back ``""`` and are left
-    out of every line's transits.
+    is Red; a sample on the Red/Blue shared stretch is Red when the train was recently on
+    Red-only track and Blue when it was recently on Blue-only track (e.g. a car in Blue
+    service that just left the Blue-only stub at Salt Lake Central). The candidate
+    restriction matters: a train that arrives from Green-only track and turns onto a
+    Red/Blue-shared stretch must not carry ``G`` there, which a plain forward-fill did.
+    Samples with no eligible vote (a point with no line tag, or half an hour on shared
+    track with no exclusive point either side) come back ``""`` and are left out of every
+    line's transits.
     """
     n = len(point_lines)
     tags = np.asarray(point_lines, dtype=str)
@@ -195,7 +207,9 @@ def build_network_transects(
         ``lon``, ``lat``, ``lines``, ``segment``, ``s_<line>``; transect coords ``line``,
         ``direction`` (+1 with increasing ``s``), ``heading`` (compass letter of travel),
         ``t_start``, ``t_end``, ``s_min``, ``s_max``, ``n_fix``, ``n_points`` (points with
-        data), ``lag_s``, ``lag_source``, and ``frac_uncalibrated`` / ``frac_low_pressure``
+        data), ``coverage`` (``(s_max - s_min)`` over that line's full known extent -- a
+        short turn or a partial run reads well below 1; see the module docstring),
+        ``lag_s``, ``lag_source``, and ``frac_uncalibrated`` / ``frac_low_pressure``
         when the tags are present. Attributes record every parameter.
     """
     import xarray as xr
@@ -231,6 +245,14 @@ def build_network_transects(
 
     # 3. transits per line, on that line's along-route coordinate
     S = {c: pts[f"s_{c}"].to_numpy(float) for c in letters}
+    # full known extent of each line, from every network point on it (not just those hit) --
+    # what a transit's own span is measured against to catch short turns and partial runs
+    line_extent_m = {
+        c: float(np.nanmax(S[c]) - np.nanmin(S[c]))
+        if np.isfinite(S[c]).any()
+        else np.nan
+        for c in letters
+    }
     transit = np.full(len(obs), -1, dtype=int)
     tables = []
     for c in letters:
@@ -306,6 +328,18 @@ def build_network_transects(
         "t_end": ("transect", pd.to_datetime(table["t_end"], unit="s").to_numpy()),
         "s_min": ("transect", table["s_min"].to_numpy(float)),
         "s_max": ("transect", table["s_max"].to_numpy(float)),
+        "coverage": (
+            "transect",
+            np.array(
+                [
+                    (smax - smin) / line_extent_m[ln]
+                    for smin, smax, ln in zip(
+                        table["s_min"], table["s_max"], table["line"], strict=True
+                    )
+                ],
+                dtype=float,
+            ),
+        ),
         "n_fix": ("transect", table["n"].to_numpy(dtype=np.int64)),
         "n_points": ("transect", np.isfinite(m_obs).sum(axis=1)),
         "lag_s": ("transect", per["lag_s"].to_numpy(float)),
