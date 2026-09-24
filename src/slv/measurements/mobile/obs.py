@@ -592,6 +592,7 @@ def load_trax_obs(
     epoch_offset: bool = True,
     location: str | tuple[str, ...] | None = "on_track",
     rebuild: bool = False,
+    time_range: tuple | None = None,
     **build_kwargs,
 ) -> gpd.GeoDataFrame:
     """Load the cached TRAX CH4 record (``$SLV_USER_DATA_DIR/trax/obs.parquet``), building it if needed.
@@ -603,11 +604,17 @@ def load_trax_obs(
     everything (indoor shed air and untrusted positions included); the ``state``,
     ``indoor`` and ``yard_name`` columns are always present. ``include_low_pressure=False``
     drops the manual-cal rows kept under the low-cavity-pressure rule (``low_pressure`` column,
-    see :func:`build_trax_obs`).
+    see :func:`build_trax_obs`). ``time_range=(start, end)`` reads only ``start <= Time_UTC <
+    end`` from the cache (a parquet row-group filter: the file is time-ordered, so one year
+    of the 92 M rows costs a few seconds and a few GB rather than the whole record).
     """
     cache = user_dir() / "trax" / "obs.parquet" if cache is None else Path(cache)
     if cache.exists() and not rebuild:
-        data = pd.read_parquet(cache)
+        filters = None
+        if time_range is not None:
+            t0, t1 = (pd.Timestamp(t) for t in time_range)
+            filters = [("Time_UTC", ">=", t0), ("Time_UTC", "<", t1)]
+        data = pd.read_parquet(cache, filters=filters)
         if any(c not in data.columns for c in ("cal_source", "state", "low_pressure")):
             raise ValueError(
                 f"{cache} predates cal_source / location / low_pressure tagging; call with rebuild=True"
@@ -622,6 +629,9 @@ def load_trax_obs(
         cache.parent.mkdir(parents=True, exist_ok=True)
         print(f"Caching TRAX obs to {cache}")
         pd.DataFrame(data.drop(columns="geometry")).to_parquet(cache)
+        if time_range is not None:
+            t0, t1 = (pd.Timestamp(t) for t in time_range)
+            data = data[(data.Time_UTC >= t0) & (data.Time_UTC < t1)]
     data = apply_epoch_offset(data, epoch_offset)
     data = filter_cal_source(data, include_uncalibrated)
     if not include_low_pressure and "low_pressure" in data.columns:

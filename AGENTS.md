@@ -90,7 +90,17 @@ src/slv/
                      atmosphere row < 1.70 ppm: a laser dropout reads low for minutes to
                      hours and its shoulder passes QC), recover_hot_rows (flag -64 rows
                      have a fitted CH4d_m but a blanked CH4d_ppm_cal: qaqc value / slope)
-      transects.py   load_transects (archived transect x point matrices)
+      transects.py   transect matrices obs[transect, point]: build_network_transects
+                     (one matrix over the 50-m network points for all lines: per-epoch
+                     inlet lag -> snap 60 m -> line by windowed vote among the point's
+                     own letters (assign_lines) -> transits per line via
+                     lair.transects.split_transits -> cell means with terminus dwells
+                     trimmed), build_trax_transects (one NetCDF per year under
+                     $SLV_USER_DATA_DIR/trax/transects/network/), load_network_transects;
+                     load_transects reads the archived per-line matrices (to 2023-04,
+                     provenance only). load_trax_obs(time_range=) reads one year of
+                     obs.parquet via a row-group filter; apply_epoch_offset computes the
+                     offset column when a parquet predates it
       receptors.py   STILT receptors for paper 2: load_trax_network_points (the 50-m
                      points from load_trax_points(50) — same points_along_line generator
                      as the 2-km points, so shared track is one row of points — each

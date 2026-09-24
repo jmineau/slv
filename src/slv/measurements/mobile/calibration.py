@@ -95,14 +95,18 @@ def epoch_offset_column(times, offsets: pd.DataFrame | None = None) -> pd.Series
 def apply_epoch_offset(df: pd.DataFrame, apply: bool = True) -> pd.DataFrame:
     """Subtract the analyzer-epoch offset from ``CH4_ppm`` (no-op when ``apply`` is False).
 
-    Needs the ``epoch_offset_ppm`` column written by :func:`build_trax_obs`; frames built
-    before it existed are returned unchanged. The uncorrected value is recoverable as
-    ``CH4_ppm + epoch_offset_ppm``, so ``load_trax_obs(epoch_offset=False)`` and
-    ``True`` differ only by this step — test the effect without rebuilding.
+    Uses the ``epoch_offset_ppm`` column written by :func:`build_trax_obs`; a frame built
+    before that column existed (``obs.parquet`` of 2026-09-21 and earlier) gets it computed
+    here from the packaged table (:func:`epoch_offset_column`), so the correction is applied
+    either way. The uncorrected value is recoverable as ``CH4_ppm + epoch_offset_ppm``, so
+    ``load_trax_obs(epoch_offset=False)`` and ``True`` differ only by this step — test the
+    effect without rebuilding.
     """
-    if not apply or "epoch_offset_ppm" not in df.columns:
+    if not apply:
         return df
     out = df.copy()
+    if "epoch_offset_ppm" not in out.columns:
+        out["epoch_offset_ppm"] = epoch_offset_column(out["Time_UTC"]).to_numpy()
     out["CH4_ppm"] = out["CH4_ppm"] - pd.to_numeric(
         out["epoch_offset_ppm"], errors="coerce"
     ).fillna(0.0)

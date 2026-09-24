@@ -11,7 +11,9 @@ Submodules, one concern each:
 * :mod:`.calibration` — ``cal_source`` provenance and the uncalibrated windows.
 * :mod:`.obs` — :func:`build_trax_obs` / :func:`load_trax_obs`, the cached CH4 record
   with both tag sets and a load-time ``location`` filter.
-* :mod:`.transects` — the archived transect matrices.
+* :mod:`.transects` — transect matrices ``obs[transect, point]``: the network builder
+  (:func:`build_network_transects` / :func:`build_trax_transects` /
+  :func:`load_network_transects`) and the archived per-line matrices (:func:`load_transects`).
 * :mod:`.receptors` — STILT receptors: 50-m network points, 2-km segment crossings,
   one PYSTILT multipoint receptor per crossing, and dwell (parked-train) receptors.
 * :mod:`.receptor_obs` — the CH4 observation for each of those receptors, keyed
@@ -97,7 +99,14 @@ from .receptors import (
     load_trax_network_points,
     release_points,
 )
-from .transects import TRANSECT_LINES, load_transects
+from .transects import (
+    TRANSECT_LINES,
+    assign_lines,
+    build_network_transects,
+    build_trax_transects,
+    load_network_transects,
+    load_transects,
+)
 
 __all__ = [
     "apply_dropout_rule",
@@ -105,9 +114,12 @@ __all__ = [
     "apply_low_pressure_rule",
     "apply_pressure_rule",
     "apply_slope_guard",
+    "assign_lines",
     "build_dwell_receptors",
     "build_trax_obs",
     "build_trax_receptors",
+    "build_network_transects",
+    "build_trax_transects",
     "CAL_SOURCES",
     "classify_location",
     "clock_checked_days",
@@ -134,6 +146,7 @@ __all__ = [
     "LINE_LETTERS",
     "load_depot_footprint",
     "load_storage_polygons",
+    "load_network_transects",
     "load_transects",
     "load_trax_epoch_offsets",
     "load_trax_fixes",
