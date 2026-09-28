@@ -5,4 +5,4 @@ start,end,analyzer,offset_ppm,n_hours,enabled,note
 2025-03-31,2025-08-28,15-0109,-0.016,105,true,"manual-cal era"
 2025-09-02,2026-01-26,13-0221,-0.008,120,true,"manual-cal era (15-0077, 2025-08-28 to 09-02, is dropped by the pipeline bad file)"
 2026-01-26,2026-07-01,15-0109,-0.003,202,true,"manual-cal era"
-2026-07-01,2026-12-31,13-0221,-0.024,110,true,"13-0221 running at 102-110 torr; step of -0.021 ppm at the 2026-07-01 swap"
+2026-07-01,2026-09-28T17:30:00,13-0221,-0.024,110,true,"13-0221 running at 102-110 torr; step of -0.021 ppm at the 2026-07-01 swap; ends at the 2026-09-28 swap to 15-0109 (last 13-0221 row 17:10:59 UTC)"
