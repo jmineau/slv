@@ -37,6 +37,14 @@ versions are calendar-based (YYYY.M.PATCH).
 
 ### Changed
 
+- **PYSTILT variants** (breaking; needs the PYSTILT release that introduced variants and
+  the matching fips). A PYSTILT project is now receptors crossed with named variants, each
+  with at most one footprint, so `InversionConfig.footprint` (a footprint name, `"0.01"`)
+  is now `InversionConfig.variant` (`"hrrr"`). Left as `None`, each project's one variant
+  with a footprint is used (`hrrr`; the wind-error run `hrrr-err` has none); a project
+  with several raises and asks for `variant`. Receptor locations come from the project's
+  receptors instead of parsing simulation ids, and the forward-operator and
+  model-data-mismatch cache keys see `variant`.
 - Decisions from #7:
   - `merge_with_gps` drops fixes by a fixed plausible altitude range for the Salt Lake
     area, `ALTITUDE_RANGE_MSL` = 1000-3500 m (canyon roads and the Uinta passes fit;

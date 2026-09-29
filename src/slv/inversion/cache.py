@@ -74,7 +74,7 @@ DEFAULT_COMPONENT_DEPS: dict[str, frozenset[str]] = {
     | {
         "stilt_project",
         "sparse_jacobian",
-        "footprint",
+        "variant",
         # num_processes and timeout intentionally excluded: they are
         # computational knobs that do not change the Jacobian result.
     },
@@ -96,7 +96,7 @@ DEFAULT_COMPONENT_DEPS: dict[str, frozenset[str]] = {
         "mdm_components",
         "stilt_project",
         "sparse_jacobian",
-        "footprint",
+        "variant",
         "background",
         "background_kwargs",
     },

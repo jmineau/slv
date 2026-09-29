@@ -235,9 +235,11 @@ class InversionConfig:
         :data:`DEFAULT_STILT_PROJECT`). A list builds one Jacobian from several projects,
         e.g. the production project (UOU, DAQ) and the TRAX project: each contributes the
         rows for the obs it has footprints for (:attr:`stilt_projects`).
-    footprint : str, optional
-        Footprint config name or hash; ``None`` takes the finest in the project. The cache
-        key sees this value, not what ``None`` resolved to, so set it explicitly.
+    variant : str, optional
+        PYSTILT variant whose footprints make the Jacobian (``"hrrr"``); every project in
+        ``stilt_project`` must define it. ``None`` takes each project's one variant with a
+        footprint. The cache key sees this value, not what ``None`` resolved to, so set it
+        explicitly.
     sparse_jacobian : bool
         Keep the Jacobian sparse.
     prior_base_std, prior_std_frac : float
@@ -344,10 +346,10 @@ class InversionConfig:
     stilt_project: str | Path | list[str | Path] = field(
         default_factory=lambda: os.environ.get("SLV_STILT_DIR", DEFAULT_STILT_PROJECT)
     )
-    # Named footprint config or hash; None = the finest in the project. The cache key sees
-    # only this value, not what None resolved to: set it explicitly if the project may gain
-    # a finer footprint.
-    footprint: str | None = None
+    # PYSTILT variant whose footprints make the Jacobian; None = the project's one variant
+    # with a footprint. The cache key sees only this value, not what None resolved to: set
+    # it explicitly if a project may gain a second variant with a footprint.
+    variant: str | None = None
     sparse_jacobian: bool = True
 
     # --- Prior Error Covariance (S_0) ---

@@ -59,7 +59,7 @@ second run that changes only, say, ``prior_base_std`` reuses the obs and the Jac
        aggregate_obs="1D",
        background="rolling",
        prior="epa",
-       footprint="0.01",
+       variant="hrrr",
        cache="./cache",
        num_processes=30,
    )

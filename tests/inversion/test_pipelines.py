@@ -610,10 +610,8 @@ def test_auto_location_map_is_not_written_to_config(monkeypatch):
 
     class FakeModel:
         def __init__(self, project):
-            self.simulations = ["loc_a"]
-            self.config = SimpleNamespace(
-                footprints={"fine": SimpleNamespace(grid=SimpleNamespace(xres=0.01))}
-            )
+            self.receptors = [SimpleNamespace(location_id="loc_a")]
+            self.variants = {"hrrr": SimpleNamespace(group="hrrr", footprint=object())}
 
     seen = {}
 
@@ -628,7 +626,6 @@ def test_auto_location_map_is_not_written_to_config(monkeypatch):
             )
 
     monkeypatch.setattr(stilt, "Model", FakeModel)
-    monkeypatch.setattr(stilt, "SimID", lambda sid: SimpleNamespace(location=sid))
     monkeypatch.setattr(pipelines_module, "JacobianBuilder", FakeBuilder)
     monkeypatch.setattr(
         config_module,

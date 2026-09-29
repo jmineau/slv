@@ -210,12 +210,12 @@ class SLVMethaneInversion(
     ) -> MatrixBlock | None:
         """One project's Jacobian rows for the obs in ``obs_locations``, or None if it has
         no simulation matching any of them."""
-        from stilt import Model, SimID
+        from stilt import Model
 
         from slv.inversion.config import build_location_site_map
 
         model = Model(project)
-        sim_locations = {SimID(sid).location for sid in model.simulations}
+        sim_locations = {str(r.location_id) for r in model.receptors}
 
         # Build location mapper from all simulations in the project.
         # Must happen before filtering so stationary sites can be resolved.
@@ -246,12 +246,12 @@ class SLVMethaneInversion(
             print(f"  {project.name}: no simulations match the obs; skipped")
             return None
 
-        footprint = self._resolve_footprint(model, project)
+        variant = self._resolve_variant(model, project)
         jacobian_builder = JacobianBuilder(model)
         return jacobian_builder.build_from_target(
             self.config.state_grid,
             flux_times=self.config.flux_time_bins,
-            footprint=footprint,
+            variant=variant,
             location_ids=relevant_location_ids,
             subset_hours=self.config.subset_hours_utc,
             location_mapper=location_mapper,
@@ -260,27 +260,28 @@ class SLVMethaneInversion(
             sparse=self.config.sparse_jacobian,
         )
 
-    def _resolve_footprint(self, model, project: Path) -> str:
-        """``config.footprint`` if set (it must exist in this project), else the project's
-        finest (smallest xres) footprint."""
-        foot_configs = model.config.footprints
-        if not foot_configs:
-            raise ValueError(
-                f"No footprints configured in the STILT project {project}. "
-                "Set InversionConfig.footprint explicitly."
-            )
-        footprint = self.config.footprint
-        if footprint is not None:
-            if footprint not in foot_configs:
+    def _resolve_variant(self, model, project: Path) -> str:
+        """``config.variant`` if set (this project must define it), else the project's one
+        variant with a footprint."""
+        variants = model.variants
+        variant = self.config.variant
+        if variant is not None:
+            names = set(variants) | {v.group for v in variants.values()}
+            if variant not in names:
                 raise ValueError(
-                    f"Footprint {footprint!r} is not in the STILT project {project} "
-                    f"(it has {sorted(foot_configs)}). With several projects, "
-                    "config.footprint must name a footprint every project has, or be None."
+                    f"Variant {variant!r} is not in the STILT project {project} "
+                    f"(it has {sorted(names)}). With several projects, config.variant must "
+                    "name a variant every project has, or be None."
                 )
-            return footprint
-        footprint = min(foot_configs, key=lambda n: foot_configs[n].grid.xres)
-        print(f"  {project.name}: auto-selected finest footprint {footprint!r}")
-        return footprint
+            return variant
+        with_footprint = [n for n, v in variants.items() if v.footprint is not None]
+        if len(with_footprint) != 1:
+            raise ValueError(
+                f"The STILT project {project} has {len(with_footprint)} variants with a "
+                f"footprint ({with_footprint}); set InversionConfig.variant to pick one."
+            )
+        print(f"  {project.name}: using variant {with_footprint[0]!r}")
+        return with_footprint[0]
 
     @fips_cache(CovarianceMatrix, "prior_error")
     def get_prior_error(self, prior: Vector) -> CovarianceMatrix:

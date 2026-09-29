@@ -67,7 +67,7 @@ A methane inversion (builds the Jacobian from the PYSTILT footprints; run it thr
 from slv.inversion import InversionConfig, SLVMethaneInversion
 
 config = InversionConfig(tstart="2016-01-01", tend="2024-01-01", flux_freq="MS",
-                         sites=["wbb"], footprint="0.01", cache="./cache")
+                         sites=["wbb"], variant="hrrr", cache="./cache")
 problem = SLVMethaneInversion(config).run()
 ```
 

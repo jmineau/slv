@@ -185,20 +185,18 @@ class _FakeBuilder:
 
 
 def _fake_stilt(monkeypatch, projects):
-    """``projects``: path -> (sim ids, footprint xres by name)."""
+    """``projects``: path -> (receptor location ids, {variant: has a footprint})."""
     import stilt
 
     def model(path):
-        sims, feet = projects[Path(path)]
+        locations, variants = projects[Path(path)]
         return SimpleNamespace(
             path=Path(path),
-            simulations=sims,
-            config=SimpleNamespace(
-                footprints={
-                    n: SimpleNamespace(grid=SimpleNamespace(xres=x))
-                    for n, x in feet.items()
-                }
-            ),
+            receptors=[SimpleNamespace(location_id=lid) for lid in locations],
+            variants={
+                n: SimpleNamespace(group=n, footprint=object() if has else None)
+                for n, has in variants.items()
+            },
         )
 
     monkeypatch.setattr(stilt, "Model", model)
@@ -211,11 +209,8 @@ def test_project_jacobian_keeps_only_sims_matching_the_obs(monkeypatch):
         monkeypatch,
         {
             Path("/trax"): (
-                [
-                    "hrrr_202406012000_multi_aaaaaaaaaa",
-                    "hrrr_202406012100_multi_bbbbbbbbbb",
-                ],
-                {"0.01": 0.01},
+                ["multi_aaaaaaaaaa", "multi_bbbbbbbbbb"],
+                {"hrrr": True},
             ),
         },
     )
@@ -228,33 +223,38 @@ def test_project_jacobian_keeps_only_sims_matching_the_obs(monkeypatch):
 def test_project_with_no_matching_sims_returns_none(monkeypatch):
     _fake_stilt(
         monkeypatch,
-        {Path("/prod"): (["hrrr_202406012000_multi_cccccccccc"], {"0.01": 0.01})},
+        {Path("/prod"): (["multi_cccccccccc"], {"hrrr": True})},
     )
     p = _pipeline(stilt_project="/prod", location_site_map={"x": "y"})
     assert p._project_jacobian(Path("/prod"), {"wbb"}) is None
     assert _FakeBuilder.calls == []
 
 
-def test_footprint_none_picks_each_projects_finest(monkeypatch):
+def test_variant_none_picks_the_one_variant_with_a_footprint(monkeypatch):
+    # the production project after migration: the base run and a particles-only error run
     _fake_stilt(
         monkeypatch,
-        {
-            Path("/prod"): (
-                ["hrrr_202406012000_multi_aaaaaaaaaa"],
-                {"0.1": 0.1, "0.01": 0.01, "0.05": 0.05},
-            ),
-        },
+        {Path("/prod"): (["multi_aaaaaaaaaa"], {"hrrr": True, "hrrr-err": False})},
     )
     p = _pipeline(stilt_project="/prod", location_site_map={"x": "y"})
     p._project_jacobian(Path("/prod"), {"multi_aaaaaaaaaa"})
-    assert _FakeBuilder.calls[0]["footprint"] == "0.01"
+    assert _FakeBuilder.calls[0]["variant"] == "hrrr"
 
 
-def test_named_footprint_missing_from_a_project_raises(monkeypatch):
+def test_variant_none_with_several_footprint_variants_raises(monkeypatch):
     _fake_stilt(
         monkeypatch,
-        {Path("/trax"): (["hrrr_202406012000_multi_aaaaaaaaaa"], {"0.01": 0.01})},
+        {Path("/prod"): (["multi_aaaaaaaaaa"], {"hrrr": True, "hrrr-zi08": True})},
     )
-    p = _pipeline(stilt_project="/trax", footprint="0.05", location_site_map={"x": "y"})
+    p = _pipeline(stilt_project="/prod", location_site_map={"x": "y"})
+    with pytest.raises(ValueError, match="set InversionConfig.variant"):
+        p._project_jacobian(Path("/prod"), {"multi_aaaaaaaaaa"})
+
+
+def test_named_variant_missing_from_a_project_raises(monkeypatch):
+    _fake_stilt(monkeypatch, {Path("/trax"): (["multi_aaaaaaaaaa"], {"hrrr": True})})
+    p = _pipeline(
+        stilt_project="/trax", variant="hrrr-zi08", location_site_map={"x": "y"}
+    )
     with pytest.raises(ValueError, match="not in the STILT project"):
         p._project_jacobian(Path("/trax"), {"multi_aaaaaaaaaa"})
