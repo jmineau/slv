@@ -33,8 +33,8 @@ dependencies = [
 
 [project.optional-dependencies]
 inversion = [
-    "fips[flux]>=0.1.0b7",  # JacobianBuilder.build_from_target
-    "pystilt>=0.1.0a9",  # spatial geometries (Grid.index for the state grid)
+    "fips[flux]>=0.1.0b8",  # JacobianBuilder.build_from_target(variant=...)
+    "pystilt>=0.1.0a21",  # variants: one footprint per simulation
     "joblib>=1.5.3",
     "seaborn",
     # "xesmf",
