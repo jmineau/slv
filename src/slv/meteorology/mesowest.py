@@ -1,18 +1,23 @@
 """MesoWest surface observations for the SLV sites.
 
-Reads the hourly station archive staged under ``$SLV_USER_DATA_DIR/mesowest``
-(a link to the meteorology workspace's ``john_data`` pull). Each station is one
-parquet file of hourly values with a ``Time`` column in UTC; the columns vary by
-station, but wind speed, wind direction and air temperature are near-universal.
+Reads the hourly station archives staged under ``$SLV_USER_DATA_DIR/mesowest``:
 
-The archive is a fixed pull, not a live feed -- see :func:`station_hourly` for
-the span it covers.
+- ``synoptic/``: our own Synoptic API pull (9 stations near the TRAX sources, Dec 2014 ->
+  present; ``meteorology/data/mesowest/synoptic_pull``). Used whenever it has the station.
+- ``hourly/``: the fixed ``john_data`` pull (96 stations, 2015-01 -> 2025-09-30).
+
+Each station is one parquet file of hourly values with a ``Time`` column in UTC; the
+columns vary by station, but wind speed, wind direction and air temperature are
+near-universal. Wind direction is always returned as the direction of the hourly
+vector-mean wind (from ``Uwind``/``Vwind``): the ``john_data`` files store an arithmetic
+mean of degrees, which is wrong whenever an hour straddles north.
 """
 
 from __future__ import annotations
 
 import numpy as np
 import pandas as pd
+from lair.air import wind_direction as _uv_direction
 
 from slv import get_data_dir
 
@@ -29,9 +34,25 @@ _RENAME = {
 }
 
 
+#: Hourly archive subdirectories of :func:`mesowest_dir`, in order of preference.
+_ARCHIVES = ("synoptic", "hourly")
+
+
 def mesowest_dir():
     """The staged MesoWest directory, ``$SLV_USER_DATA_DIR/mesowest``."""
     return get_data_dir("SLV_USER_DATA_DIR") / "mesowest"
+
+
+def _hourly_path(station_code: str):
+    """The station's hourly file from the first archive in ``_ARCHIVES`` that has it."""
+    for sub in _ARCHIVES:
+        path = mesowest_dir() / sub / f"{station_code}_hourly.parquet"
+        if path.exists():
+            return path
+    raise FileNotFoundError(
+        f"No hourly archive for station {station_code!r} under "
+        f"{mesowest_dir()} ({', '.join(_ARCHIVES)})"
+    )
 
 
 def load_station_metadata() -> pd.DataFrame:
@@ -50,7 +71,8 @@ def load_station_metadata() -> pd.DataFrame:
     )
     available = {
         p.name.replace("_hourly.parquet", "")
-        for p in (mesowest_dir() / "hourly").glob("*_hourly.parquet")
+        for sub in _ARCHIVES
+        for p in (mesowest_dir() / sub).glob("*_hourly.parquet")
     }
     meta = meta[meta["station_code"].isin(available)]
     return meta.set_index("station_code").sort_index()
@@ -82,16 +104,20 @@ def station_hourly(
     Columns are renamed out of MesoWest's ``_set_1`` convention where a standard
     name exists (see ``_RENAME``); anything else keeps its archive name. ``columns``
     selects a subset by the *renamed* name, dropping any the station does not carry.
-    Wind direction of exactly 0 with zero speed is left alone -- calms are a real
-    state, and callers that bin by direction should drop them explicitly.
+    Reads our Synoptic pull when it has the station, else the fixed pull (module
+    docstring). ``wind_direction`` is recomputed from ``Uwind``/``Vwind`` (the hourly
+    vector mean) wherever both exist; a dead-calm hour (U = V = 0) gets NaN, since it
+    has no direction. Callers that bin by direction should still drop light winds.
     """
-    path = mesowest_dir() / "hourly" / f"{station_code}_hourly.parquet"
-    if not path.exists():
-        raise FileNotFoundError(
-            f"No hourly archive for station {station_code!r} at {path}"
-        )
-
-    df = pd.read_parquet(path).rename(columns=_RENAME)
+    df = pd.read_parquet(_hourly_path(station_code)).rename(columns=_RENAME)
+    if {"Uwind", "Vwind"}.issubset(df.columns):
+        u, v = df["Uwind"], df["Vwind"]
+        uv = _uv_direction(u, v).where(~((u == 0) & (v == 0)))
+        have_uv = u.notna() & v.notna()
+        if "wind_direction" in df.columns:
+            df["wind_direction"] = uv.where(have_uv, df["wind_direction"])
+        else:
+            df["wind_direction"] = uv
     df["Time_UTC"] = pd.to_datetime(df.pop("Time"), utc=True).dt.tz_localize(None)
     df = df.set_index("Time_UTC").sort_index()
 
