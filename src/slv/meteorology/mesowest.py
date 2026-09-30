@@ -2,9 +2,11 @@
 
 Reads the hourly station archives staged under ``$SLV_USER_DATA_DIR/mesowest``:
 
-- ``synoptic/``: our own Synoptic API pull (9 stations near the TRAX sources, Dec 2014 ->
-  present; ``meteorology/data/mesowest/synoptic_pull``). Used whenever it has the station.
-- ``hourly/``: the fixed ``john_data`` pull (96 stations, 2015-01 -> 2025-09-30).
+- ``synoptic/``: our own Synoptic API pull (``lair.synoptic``; stations near the TRAX
+  sources, Dec 2014 -> present; ``meteorology/data/mesowest/synoptic_pull``), with
+  ``hourly/`` files and a ``stations.csv``. Used whenever it has the station.
+- ``hourly/``: the fixed ``john_data`` pull (96 stations, 2015-01 -> 2025-09-30), with
+  ``stations_metadata.csv``.
 
 Each station is one parquet file of hourly values with a ``Time`` column in UTC; the
 columns vary by station, but wind speed, wind direction and air temperature are
@@ -35,7 +37,7 @@ _RENAME = {
 
 
 #: Hourly archive subdirectories of :func:`mesowest_dir`, in order of preference.
-_ARCHIVES = ("synoptic", "hourly")
+_ARCHIVES = ("synoptic/hourly", "hourly")
 
 
 def mesowest_dir():
@@ -69,6 +71,12 @@ def load_station_metadata() -> pd.DataFrame:
             "ELEVATION.ft": "elevation_ft",
         }
     )
+    ours = mesowest_dir() / "synoptic" / "stations.csv"
+    if ours.exists():  # stations the fixed pull never had; ours wins where both do
+        extra = pd.read_csv(ours).rename(
+            columns={"stid": "station_code", "name": "station_name"}
+        )[["station_code", "station_name", "latitude", "longitude", "elevation_ft"]]
+        meta = pd.concat([extra, meta]).drop_duplicates("station_code")
     available = {
         p.name.replace("_hourly.parquet", "")
         for sub in _ARCHIVES
@@ -106,13 +114,13 @@ def station_hourly(
     selects a subset by the *renamed* name, dropping any the station does not carry.
     Reads our Synoptic pull when it has the station, else the fixed pull (module
     docstring). ``wind_direction`` is recomputed from ``Uwind``/``Vwind`` (the hourly
-    vector mean) wherever both exist; a dead-calm hour (U = V = 0) gets NaN, since it
-    has no direction. Callers that bin by direction should still drop light winds.
+    vector mean) wherever both exist; ``lair.air.wind_direction`` gives a dead-calm
+    hour (U = V = 0) NaN. Callers that bin by direction should still drop light winds.
     """
     df = pd.read_parquet(_hourly_path(station_code)).rename(columns=_RENAME)
     if {"Uwind", "Vwind"}.issubset(df.columns):
         u, v = df["Uwind"], df["Vwind"]
-        uv = _uv_direction(u, v).where(~((u == 0) & (v == 0)))
+        uv = _uv_direction(u, v)
         have_uv = u.notna() & v.notna()
         if "wind_direction" in df.columns:
             df["wind_direction"] = uv.where(have_uv, df["wind_direction"])

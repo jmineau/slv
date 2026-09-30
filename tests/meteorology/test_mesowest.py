@@ -29,7 +29,7 @@ def archive(monkeypatch, tmp_path):
     monkeypatch.setenv("SLV_USER_DATA_DIR", str(tmp_path))
     root = tmp_path / "mesowest"
     (root / "hourly").mkdir(parents=True)
-    (root / "synoptic").mkdir()
+    (root / "synoptic" / "hourly").mkdir(parents=True)
     # Northerly hour mixing 350 and 10 deg: the vector mean is 0/360, but the fixed
     # pull stored the arithmetic mean of the degrees (180). Last hour is dead calm.
     u = np.array([0.0, 5.0, 0.0, 0.0])
@@ -42,7 +42,18 @@ def archive(monkeypatch, tmp_path):
     )
     ours = _hourly(u, v, [0.0, 270.0, 180.0, np.nan])
     ours["air_temp_set_1"] = 99.0  # marks which archive was read
-    ours.to_parquet(root / "synoptic" / "BOTH_hourly.parquet")
+    ours.to_parquet(root / "synoptic" / "hourly" / "BOTH_hourly.parquet")
+    ours.to_parquet(root / "synoptic" / "hourly" / "NEW_hourly.parquet")
+    pd.DataFrame(
+        {
+            "stid": ["BOTH", "NEW"],
+            "name": ["b (synoptic)", "n"],
+            "latitude": [40.61, 40.8],
+            "longitude": [-112.01, -111.8],
+            "elevation_ft": [4300.0, 4500.0],
+            "network_id": ["9", "153"],
+        }
+    ).to_csv(root / "synoptic" / "stations.csv", index=False)
     pd.DataFrame(
         {
             "station_code": ["FIX1", "BOTH", "NOFILE"],
@@ -74,7 +85,9 @@ def test_our_pull_is_preferred(archive):
 
 def test_metadata_lists_stations_from_both_archives(archive):
     meta = mesowest.load_station_metadata()
-    assert set(meta.index) == {"FIX1", "BOTH"}
+    assert set(meta.index) == {"FIX1", "BOTH", "NEW"}
+    assert meta.loc["NEW", "latitude"] == pytest.approx(40.8)  # only in our pull
+    assert meta.loc["BOTH", "station_name"] == "b (synoptic)"  # ours wins
 
 
 def test_missing_station_raises(archive):
