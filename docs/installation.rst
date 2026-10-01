@@ -54,6 +54,6 @@ used; a missing one raises ``OSError`` naming it.
    * - ``SLV_SOUNDINGS_DIR``
      - SLC soundings, for PCAP events (:mod:`slv.meteorology.pcaps`)
    * - ``SLV_STILT_DIR``
-     - the PYSTILT project with the footprints (default: the CHPC production project)
+     - the PYSTILT project with the footprints (default: the CHPC paper-1 project)
    * - ``STADIA_API_KEY``
      - Stadia map tiles (``SaltLake(tiles="terrain")``)

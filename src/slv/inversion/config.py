@@ -14,9 +14,11 @@ from lair.geo import write_rio_crs
 from slv.domain import UTC_OFFSET, XMAX, XMIN, YMAX, YMIN
 from slv.measurements.sites import load_site_config
 
-# CHPC location of the production PYSTILT project (fallback when SLV_STILT_DIR is unset).
+# CHPC location of the paper-1 PYSTILT project (fallback when SLV_STILT_DIR is unset). It is
+# frozen in PYSTILT's old layout (simulations/by-id/); paper 2 writes to a shared output
+# directory ($STILT_OUTPUT_DIR) that this module does not read yet.
 DEFAULT_STILT_PROJECT = (
-    "/uufs/chpc.utah.edu/common/home/lin-group27/jkm/stilt/simulations/stilt"
+    "/uufs/chpc.utah.edu/common/home/lin-group27/jkm/stilt/projects/paper1_wbb"
 )
 
 
@@ -35,7 +37,7 @@ PRIORS = ("epa", "edgar", "constant")
 
 
 def stilt_project_dir() -> Path:
-    """The production PYSTILT project: ``$SLV_STILT_DIR`` if set, else
+    """The paper-1 PYSTILT project: ``$SLV_STILT_DIR`` if set, else
     :data:`DEFAULT_STILT_PROJECT`. Use this in scripts instead of spelling the path out;
     ``stilt_project_dir() / "simulations" / "by-id"`` is the per-receptor tree."""
     return Path(os.environ.get("SLV_STILT_DIR", DEFAULT_STILT_PROJECT))
@@ -233,7 +235,7 @@ class InversionConfig:
     stilt_project : str, Path, or list of str or Path
         PYSTILT project(s) holding the footprints (``$SLV_STILT_DIR``, else
         :data:`DEFAULT_STILT_PROJECT`). A list builds one Jacobian from several projects,
-        e.g. the production project (UOU, DAQ) and the TRAX project: each contributes the
+        e.g. the paper-1 project (UOU, DAQ) and the TRAX project: each contributes the
         rows for the obs it has footprints for (:attr:`stilt_projects`).
     variant : str, optional
         PYSTILT variant whose footprints make the Jacobian (``"hrrr"``); every project in
@@ -338,10 +340,10 @@ class InversionConfig:
     prior_kwargs: dict = field(default_factory=dict)
 
     # --- Jacobian ---
-    # PYSTILT project(s) holding the footprints. Default: the production project; override
+    # PYSTILT project(s) holding the footprints. Default: the paper-1 project; override
     # per-machine with the SLV_STILT_DIR env var (set in ~/.env alongside the other
     # SLV_*_DIR vars) rather than editing this. A list combines projects -- e.g. the
-    # production project (UOU, DAQ) and the TRAX project -- into one Jacobian: each project
+    # paper-1 project (UOU, DAQ) and the TRAX project -- into one Jacobian: each project
     # contributes the rows for the obs it has footprints for (see ``stilt_projects``).
     stilt_project: str | Path | list[str | Path] = field(
         default_factory=lambda: os.environ.get("SLV_STILT_DIR", DEFAULT_STILT_PROJECT)

@@ -183,7 +183,7 @@ class SLVMethaneInversion(
         """The flux Jacobian from the PYSTILT footprints (cached as ``forward_operator``).
 
         ``config.stilt_project`` may name several projects (``config.stilt_projects``): the
-        UOU and DAQ footprints live in the production project and the TRAX ones in their own.
+        UOU and DAQ footprints live in the paper-1 project and the TRAX ones in their own.
         Each project contributes the rows for the obs it has footprints for, and the rows are
         stacked into one Jacobian. All projects are aggregated onto the same state grid and
         flux time bins, so their columns line up.

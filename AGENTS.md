@@ -181,7 +181,7 @@ DAQ_DIR = get_data_dir("SLV_DAQ_DIR")
 ```
 
 One exception: `InversionConfig.stilt_project` defaults to `SLV_STILT_DIR` if set,
-else `DEFAULT_STILT_PROJECT` (the CHPC production PYSTILT project), so the config
+else `DEFAULT_STILT_PROJECT` (the CHPC paper-1 PYSTILT project, frozen), so the config
 stays usable without the env var.
 
 Raises `OSError` with a clear message if `env_var` is unset — don't paper
@@ -356,7 +356,7 @@ results = run_sweep_job(sweep)
   parse site instead (`covariances.normalize_duration`).
 - Tests: `tests/conftest.py` points `SLV_STILT_DIR` at an empty tmp dir, so a test that
   reaches the Jacobian build without stubbing `_get_flux_jacobian` fails fast instead
-  of scanning the production project. Pipeline methods are tested on
+  of scanning the paper-1 project. Pipeline methods are tested on
   `object.__new__(SLVMethaneInversion)` with only `config` set (no fips `__init__`, no
   data); viz tests stub `GeoAxes.add_image` so no tiles are fetched; the TRAX loaders run
   on a synthetic two-line network (`tests/measurements/mobile/test_network.py`). Tests
