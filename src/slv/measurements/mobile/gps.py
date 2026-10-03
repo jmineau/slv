@@ -271,7 +271,7 @@ def fill_gps_gaps_with_horel(
         data = data.copy()
         data["gps_source"] = np.where(data["Latitude_deg"].notna(), "lin", None)
     missing = data["Latitude_deg"].isna()
-    if not missing.any():
+    if not bool(missing.any()):
         return data
     t = pd.to_datetime(data.loc[missing, "Time_UTC"])
     horel = read_horel_cr1000(
