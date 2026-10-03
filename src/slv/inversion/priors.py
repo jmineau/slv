@@ -123,9 +123,9 @@ def load_epa_prior(
     """EPA gridded CH4 inventory (v2) regridded to ``out_grid`` and aligned to ``flux_times``.
 
     Sectors are summed and regridded conservatively (needs ``xesmf``). With
-    ``express=False`` the monthly-scaled sectors are used where lair has them and the
-    annual-only sectors are repeated each month; ``express=True`` loads lair's
-    pre-summed annual product (faster, no monthly scaling). A flux time after the
+    ``express=False`` lair's monthly-scaled inventory is used: sectors with monthly
+    scale factors vary by month, the rest hold their annual rate. ``express=True``
+    loads lair's pre-summed annual product (faster, no monthly scaling). A flux time after the
     inventory ends takes its last year (EPA 2020 for 2021-2023), see
     :func:`align_to_flux_times`.
 
@@ -152,35 +152,20 @@ def load_epa_prior(
         The prior flux named ``"flux"``.
     """
     if not express:
-        # Load inventories
-        annual = inventories.EPAv2()
+        # lair keeps every sector when scaling by month: those without monthly scale
+        # factors hold their annual rate in each month (lair >= v2026.12.6)
         monthly = inventories.EPAv2(scale_by_month=True)
 
         # Clip to the bounding box or extent
         if any([bbox, extent]):
-            annual = annual.clip(bbox=bbox, extent=extent)
             monthly = monthly.clip(bbox=bbox, extent=extent)
 
         # Convert units
         if units:
-            annual = annual.convert_units(units)
             monthly = monthly.convert_units(units)
 
-        # Get annual only variables
-        annual_vars = set(annual.data.data_vars)
-        monthly_vars = set(monthly.data.data_vars)
-        annual_only_vars = annual_vars - monthly_vars
-
-        # Repeat annual data to monthly freq
-        repeated_annual = annual.data[annual_only_vars].reindex(
-            time=monthly.data.time, method="ffill"
-        )
-
-        # Merge annual and monthly data
-        merged = xr.merge([repeated_annual, monthly.data])
-
         # Sum sectors
-        total = inventories.sum_sectors(merged)
+        total = inventories.sum_sectors(monthly.data)
     else:
         express = inventories.EPAv2(express=True)  # dont scale by month
 

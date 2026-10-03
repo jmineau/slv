@@ -37,6 +37,10 @@ versions are calendar-based (YYYY.M.PATCH).
 
 ### Changed
 
+- `load_epa_prior` (non-express) uses lair's monthly EPAv2 alone. lair v2026.12.6
+  keeps every sector in `EPAv2(scale_by_month=True)`, holding those without monthly
+  scale factors at their annual rate, so slv no longer loads the annual inventory to
+  merge them back in; the prior is unchanged. lair is pinned to v2026.12.6
 - **PYSTILT variants** (breaking; needs the PYSTILT release that introduced variants and
   the matching fips). A PYSTILT project is now receptors crossed with named variants, each
   with at most one footprint, so `InversionConfig.footprint` (a footprint name, `"0.01"`)

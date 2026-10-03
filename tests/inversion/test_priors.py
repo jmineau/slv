@@ -163,13 +163,15 @@ def _sectors(times, **values):
     return ds
 
 
-def test_epa_monthly_merges_annual_only_sectors(monkeypatch, identity_regrid):
+def test_epa_monthly_uses_the_monthly_inventory_alone(monkeypatch, identity_regrid):
+    # lair >= v2026.12.6: EPAv2(scale_by_month=True) keeps every sector, holding the
+    # annual-only ones (landfill) at their annual rate in every month
     months = pd.date_range("2016-01-01", periods=12, freq="MS")
-    annual_ds = _sectors(["2016-01-01"], landfill=[10.0], gas=[99.0])
-    monthly_ds = _sectors(months, gas=np.arange(12.0))  # gas is scaled by month
+    monthly_ds = _sectors(months, landfill=[10.0] * 12, gas=np.arange(12.0))
 
     def fake_epa(scale_by_month=False, **kwargs):
-        return _FakeInventory(monthly_ds if scale_by_month else annual_ds)
+        assert scale_by_month, "the annual inventory is no longer needed"
+        return _FakeInventory(monthly_ds)
 
     def fake_sum(ds):
         total = ds.to_array("sector").sum("sector")
@@ -181,9 +183,61 @@ def test_epa_monthly_merges_annual_only_sectors(monkeypatch, identity_regrid):
     prior, regridder = priors.load_epa_prior(
         out_grid=None, flux_times=months, express=False, return_regridder=True
     )
-    # landfill (annual only) repeated every month + the monthly gas; annual gas unused
     assert monthly_values(prior) == (10.0 + np.arange(12.0)).tolist()
     assert callable(regridder)
+
+
+@pytest.fixture
+def epa_v2_dir(tmp_path, monkeypatch):
+    """A tiny EPA v2 archive (as in lair's tests): one annual file per year with
+    ``emi_ch4_<code>_<name>`` variables, and monthly scale factors for only the first
+    two sectors. Points ``$LAIR_INVENTORY_DIR`` at it."""
+    lat, lon = np.array([40.05, 40.15]), np.array([-111.95, -111.85])
+    d = tmp_path / "EPA" / "v2"
+    (d / "monthly_scale_factors").mkdir(parents=True)
+    names = ["1A_Combustion_Stationary", "3B_Manure_Management"]
+    names += ["3A_Enteric_Fermentation", "5A1_Landfills_MSW"]
+    for year in [2017, 2018]:
+        ds = xr.Dataset(
+            {
+                f"emi_ch4_{n}": (("time", "lat", "lon"), np.full((1, 2, 2), i + 1.0))
+                for i, n in enumerate(names)
+            },
+            coords={"time": [pd.Timestamp(f"{year}-01-01")], "lat": lat, "lon": lon},
+        )
+        ds["grid_cell_area"] = (("time", "lat", "lon"), np.ones((1, 2, 2)))
+        ds.to_netcdf(d / f"Gridded_GHGI_Methane_v2_{year}.nc")
+        months = pd.date_range(f"{year}-01-01", periods=12, freq="MS")
+        sf = xr.Dataset(
+            {
+                f"monthly_scale_factor_{n}": (
+                    ("time", "lat", "lon"),
+                    np.ones((12, 2, 2)) * (months.month.values[:, None, None] / 6.5),
+                )
+                for n in names[:2]
+            },
+            coords={"time": months, "lat": lat, "lon": lon},
+        )
+        sf.to_netcdf(
+            d
+            / "monthly_scale_factors"
+            / f"Gridded_GHGI_Methane_v2_Monthly_Scale_Factors_{year}.nc"
+        )
+    monkeypatch.setenv("LAIR_INVENTORY_DIR", str(tmp_path))
+    return tmp_path
+
+
+def test_epa_monthly_keeps_annual_only_sectors(epa_v2_dir, monkeypatch):
+    """On a real (tiny) lair EPAv2 archive, every sector reaches the prior."""
+    xe = types.ModuleType("xesmf")
+    xe.Regridder = lambda src, dst, method: lambda da: da.copy()
+    monkeypatch.setitem(sys.modules, "xesmf", xe)
+
+    months = pd.date_range("2018-01-01", periods=12, freq="MS")
+    prior = priors.load_epa_prior(out_grid=None, flux_times=months)
+    # sectors 1 + 2 scaled by month/6.5, the annual-only 3 + 4 at their annual rate
+    expected = 3.0 * months.month.values / 6.5 + 7.0
+    np.testing.assert_allclose(monthly_values(prior), expected)
 
 
 def test_coarser_flux_freq_averages_the_inventory(monkeypatch, identity_regrid):
