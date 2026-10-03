@@ -46,6 +46,9 @@ jobs:
           path: docs/_build/html
 
   deploy:
+    # PRs only build the docs: the github-pages environment rejects deploys
+    # from any branch but main, so deploying a PR fails every time
+    if: github.event_name != 'pull_request'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
