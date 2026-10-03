@@ -119,6 +119,12 @@ versions are calendar-based (YYYY.M.PATCH).
 
 ### Fixed
 
+- `read_horel_cr1000` puts horel logger rows on GPS time. The CR1000 clock runs 1-20 s ahead
+  of GPS time (10 s on 2024-06-01), and `fill_gps_gaps_with_horel` assumed it was true UTC, so
+  gap-filled TRAX rows sat up to ~250 m along the track from where they were. Rows are shifted by
+  the logger offset from uataq's `GPS_Time_UTC` (uataq#47), kept as `Logger_Offset_s`; without
+  that column nothing changes. lin and horel positions at the same GPS time now agree to a
+  median 5 m (was 24-45 m)
 - `SweepResults.best(target=...)` returned the matches ordered by distance to 1, not to
   `target`, so `best().iloc[0]` was not the closest match for `target != 1`
 - `merge_with_gps` joined the GPS fixes (lon/lat) with `storage_polygon` in the

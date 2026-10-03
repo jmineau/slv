@@ -79,6 +79,35 @@ def test_read_horel_cr1000_joins_gps_and_logger(monkeypatch):
     assert out.Speed_m_s.isna().all()  # the pilot logger has no speed: added as NaN
 
 
+def test_read_horel_cr1000_moves_rows_onto_gps_time(monkeypatch):
+    # The logger runs 10 s ahead; uataq gives each fix the receiver's time as GPS_Time_UTC
+    logger = ["2020-01-01 00:00:10", "2020-01-01 00:00:15", "2020-01-01 00:00:20"]
+    gps_time = pd.to_datetime(["2020-01-01 00:00:00", None, "2020-01-01 00:00:10"])
+    gps_raw = _frame(logger, Latitude_deg=[40.0, np.nan, 40.1], GPS_Time_UTC=gps_time)
+    cr1000 = _frame(["2020-01-01 00:00:25"], Battery_Voltage_V=[12.6])  # logger only
+    monkeypatch.setattr(
+        uataq, "read_data", lambda site, **kw: {"gps": gps_raw, "cr1000": cr1000}
+    )
+    out = gps.read_horel_cr1000(("2020-01-01", "2020-01-02"))
+
+    expected = pd.to_datetime(
+        ["2020-01-01 00:00:00", "2020-01-01 00:00:05", "2020-01-01 00:00:10",
+         "2020-01-01 00:00:15"]
+    )  # fmt: skip
+    assert list(out.index) == list(expected) and out.index.name == "Time_UTC"
+    assert "GPS_Time_UTC" not in out
+    np.testing.assert_array_equal(out.Logger_Offset_s, [10.0, np.nan, 10.0, np.nan])
+    assert out.Battery_Voltage_V.iloc[-1] == 12.6  # carried the nearest fix's offset
+
+
+def test_read_horel_cr1000_without_gps_time_stays_on_logger_time(monkeypatch):
+    gps_raw = _frame(["2020-01-01 00:00:10"], Latitude_deg=[40.0])
+    monkeypatch.setattr(uataq, "read_data", lambda site, **kw: {"gps": gps_raw})
+    out = gps.read_horel_cr1000(("2020-01-01", "2020-01-02"))
+    assert list(out.index) == [pd.Timestamp("2020-01-01 00:00:10")]
+    assert "Logger_Offset_s" not in out
+
+
 def test_read_horel_cr1000_logger_only_and_empty(monkeypatch):
     cr1000 = _frame(["2020-01-01"], Battery_Voltage_V=[12.0])
     monkeypatch.setattr(uataq, "read_data", lambda site, **kw: {"cr1000": cr1000})
