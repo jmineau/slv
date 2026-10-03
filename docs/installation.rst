@@ -1,8 +1,8 @@
 Installation
 ============
 
-``slv`` needs Python 3.11 or higher. It installs ``lair`` and ``uataq`` from their
-GitHub ``main`` branches.
+``slv`` needs Python 3.11 or higher. It installs ``lair`` from a pinned GitHub
+release tag and ``uataq`` from its GitHub ``main`` branch.
 
 Standard (uv or pip)
 --------------------

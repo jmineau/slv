@@ -41,6 +41,9 @@ versions are calendar-based (YYYY.M.PATCH).
   keeps every sector in `EPAv2(scale_by_month=True)`, holding those without monthly
   scale factors at their annual rate, so slv no longer loads the annual inventory to
   merge them back in; the prior is unchanged. lair is pinned to v2026.12.6
+- lair is pinned to v2026.12.7 (`lair.pollutants`; `import lair` warns instead of failing
+  when NOAA's CCG filter download fails). Component cache keys include the lair release,
+  so the next inversion run rebuilds its components
 - **PYSTILT variants** (breaking; needs the PYSTILT release that introduced variants and
   the matching fips). A PYSTILT project is now receptors crossed with named variants, each
   with at most one footprint, so `InversionConfig.footprint` (a footprint name, `"0.01"`)
