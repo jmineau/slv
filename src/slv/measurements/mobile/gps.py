@@ -81,6 +81,9 @@ def read_horel_cr1000(time_range, site: str = "trx01") -> pd.DataFrame:
     (``Latitude_deg``, ``Speed_m_s``, ``N_Sat``, ``Status``, ``Battery_Voltage_V``,
     ``Logger_T_C``, ``Ambient_T_C``, ``Ambient_RH_pct``).
 
+    Indexed by GPS time, not the CR1000 clock (which runs 1-20 s ahead): see
+    :func:`_to_gps_time`, which also adds ``Logger_Offset_s``.
+
     Covers Nov 2014 on (pilot files, then the post-pilot tree). The pilot-phase files
     (to :data:`HOREL_POST_PILOT`) are a different setup: one fix per minute (so the
     scatter feature is undefined), a receiver that reports 3–8 satellites, and no
@@ -111,8 +114,34 @@ def read_horel_cr1000(time_range, site: str = "trx01") -> pd.DataFrame:
     )
     if "Speed_m_s" not in df.columns:
         df["Speed_m_s"] = np.nan
+    df = df[~df.index.duplicated()].sort_index()
+    df = _to_gps_time(df)
     df.index.name = "Time_UTC"
     return df[~df.index.duplicated()].sort_index()
+
+
+def _to_gps_time(df: pd.DataFrame) -> pd.DataFrame:
+    """Move a horel logger frame from the CR1000 clock onto GPS time.
+
+    The CR1000 runs 1-20 s ahead of GPS time, drifting between resets. uataq gives each fix
+    the receiver's own time as ``GPS_Time_UTC``; the logger offset from those fixes is carried
+    to rows without one (logger-only rows) from the nearest fix, and every row is shifted by
+    it. ``Logger_Offset_s`` keeps the offset (logger minus GPS, NaN where none was known). A
+    frame without GPS time (pilot files, or a uataq without the column) is left on logger time.
+    """
+    if "GPS_Time_UTC" not in df.columns:
+        return df
+    gps_time = pd.to_datetime(df.pop("GPS_Time_UTC"), errors="coerce")
+    logger = pd.DatetimeIndex(df.index)
+    offset = pd.Series(
+        (logger - pd.DatetimeIndex(gps_time)).total_seconds(), index=df.index
+    )
+    if offset.isna().all():
+        return df
+    df["Logger_Offset_s"] = offset.to_numpy()
+    shift = offset.ffill().bfill()
+    df.index = logger - pd.to_timedelta(shift.to_numpy(), unit="s")
+    return df
 
 
 def read_lin_gps(time_range, site: str = "trx01", lvl: str = "qaqc") -> pd.DataFrame:
@@ -232,7 +261,9 @@ def fill_gps_gaps_with_horel(
 
     136 days have LGR data but no lin GPS file at all (it was never archived) and many more have
     partial outages — ~754 on-track hours, most of it 2019-2023. The horel CR1000 logger recorded
-    position throughout, in true UTC, so it can stand in wherever the Pi clock is trustworthy
+    position throughout. Its own clock runs 1-20 s ahead of GPS time, but
+    :func:`read_horel_cr1000` puts its fixes on GPS time (from the receiver's time of day), so
+    both sides are on GPS time and it can stand in wherever the Pi clock is trustworthy
     (:func:`clock_checked_days`). Adds ``gps_source`` (``"lin"`` / ``"horel"``) so the filled rows
     can be dropped or compared at load time.
     """
@@ -240,7 +271,7 @@ def fill_gps_gaps_with_horel(
         data = data.copy()
         data["gps_source"] = np.where(data["Latitude_deg"].notna(), "lin", None)
     missing = data["Latitude_deg"].isna()
-    if not missing.any():
+    if not bool(missing.any()):
         return data
     t = pd.to_datetime(data.loc[missing, "Time_UTC"])
     horel = read_horel_cr1000(
