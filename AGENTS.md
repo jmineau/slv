@@ -24,8 +24,8 @@ PyPI/import name: `slv`. Source in `src/slv/`.
   user's everyday SLV workflows reproducible: defining the domain, loading
   measurements and inventories, running flux inversions (via `fips`),
   building figures.
-- Depends directly on the user's own packages — `lair[science]` and
-  `uataq` are git-installed from main; `fips[flux]` (which pulls in
+- Depends directly on the user's own packages — `lair[science,geo]` (pinned to
+  a release tag) and `uataq` (from main) are git-installed; `fips[flux]` (which pulls in
   `pystilt`) lives in the `inversion` extra.
 
 ## Module layout
@@ -259,9 +259,12 @@ is read as more parameters).
   `XMIN`/`XMAX`/`YMIN`/`YMAX` elsewhere; import from `slv.domain`.
 - **Data paths via `get_data_dir`**, not raw `os.environ.get`. The
   error message tells users which env var to set.
-- **Upstream pins**: `lair` and `uataq` are pulled from git main
-  (no version pin). Bumping behavior in those repos can silently
-  change `slv` results — coordinate changes.
+- **Upstream pins**: `lair` is pinned to a release tag (`@vYYYY.MM.PATCH` in
+  `pyproject.toml` and `ci/environment.yml`; bump both and relock), `uataq` is
+  pulled from git main (no version pin). Bumping behavior in those repos can
+  silently change `slv` results — coordinate changes. `load_epa_prior` relies on
+  lair >= v2026.12.6 keeping the annual-only EPA sectors in
+  `EPAv2(scale_by_month=True)`.
 - **Inversion pipeline structure** mirrors `fips.InversionPipeline`'s
   template-method pattern. New inversion variants should subclass
   `SLVMethaneInversion` (or `fips.InversionPipeline`), not rewrite the
