@@ -14,6 +14,7 @@ from fips.kernels import (
     GridTimeDecay,
     RaggedTimeDecay,
 )
+from lair.clock import SEASONS
 
 
 def normalize_duration(value):
@@ -112,26 +113,7 @@ def build_mdm_error(
 
         if is_nested:
             # Site/season-specific std
-            seasons = (
-                times.to_series()
-                .dt.month.map(
-                    {
-                        12: "DJF",
-                        1: "DJF",
-                        2: "DJF",
-                        3: "MAM",
-                        4: "MAM",
-                        5: "MAM",
-                        6: "JJA",
-                        7: "JJA",
-                        8: "JJA",
-                        9: "SON",
-                        10: "SON",
-                        11: "SON",
-                    }
-                )
-                .values
-            )
+            seasons = times.to_series().dt.month.map(SEASONS).values
 
             # Look up std for each observation by site and season
             std_values = []
