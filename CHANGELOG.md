@@ -37,6 +37,13 @@ versions are calendar-based (YYYY.M.PATCH).
 
 ### Changed
 
+- `load_epa_prior(express=False)` (the default) scales EPA's **express** product by month,
+  not the base inventory, so it holds the same emissions as `express=True` (paper 1) and
+  differs only in seasonal timing (the yearly mean of the months equals the annual rate). The
+  base product has 26 sectors to 2018; express has 27 (adding post-meter) to 2020 and revises
+  the base years. In the SLV box the default prior rises ~13% (~7.5 points post-meter, ~5
+  revisions), and years 2019-2020 use their own data instead of 2018. Paper 1
+  (`express=True`) is unchanged
 - `load_epa_prior` (non-express) uses lair's monthly EPAv2 alone. lair v2026.12.6
   keeps every sector in `EPAv2(scale_by_month=True)`, holding those without monthly
   scale factors at their annual rate, so slv no longer loads the annual inventory to
