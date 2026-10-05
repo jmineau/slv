@@ -8,6 +8,10 @@ dependencies:
   # python version is injected from the workflow matrix: python=${{ matrix.python-version }}
   - python
   - esmpy>=8.4
+  # The no-MPI ESMF build: the MPICH build starts MPI on import, and when that
+  # start-up fails it kills the whole process group, so pytest died with exit
+  # 143 (no traceback) at the first xesmf import in about half the CI runs
+  - esmf=*=nompi*
   - xesmf
 
   # slv core deps available on conda-forge
