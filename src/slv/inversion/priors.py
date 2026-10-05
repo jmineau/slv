@@ -122,10 +122,11 @@ def load_epa_prior(
 ):
     """EPA gridded CH4 inventory (v2) regridded to ``out_grid`` and aligned to ``flux_times``.
 
-    Sectors are summed and regridded conservatively (needs ``xesmf``). With
-    ``express=False`` lair's monthly-scaled inventory is used: sectors with monthly
-    scale factors vary by month, the rest hold their annual rate. ``express=True``
-    loads lair's pre-summed annual product (faster, no monthly scaling). A flux time after the
+    Both options use EPA's express product (27 sectors including post-meter, 2012-2020),
+    so they hold the same annual emissions and differ only in seasonal timing. Sectors are
+    summed and regridded conservatively (needs ``xesmf``). With ``express=False`` it is
+    scaled by month: sectors with monthly scale factors vary by month, the rest hold their
+    annual rate. ``express=True`` keeps the annual rates (paper 1). A flux time after the
     inventory ends takes its last year (EPA 2020 for 2021-2023), see
     :func:`align_to_flux_times`.
 
@@ -142,7 +143,7 @@ def load_epa_prior(
     units : str, optional
         Convert to these units (e.g. ``"umol/m2/s"``).
     express : bool
-        Use the annual express product.
+        Keep the annual rates (True, paper 1) instead of scaling by month (False).
     return_regridder : bool
         Also return the ``xesmf.Regridder``.
 
@@ -151,34 +152,24 @@ def load_epa_prior(
     pd.Series or (pd.Series, xesmf.Regridder)
         The prior flux named ``"flux"``.
     """
-    if not express:
-        # lair keeps every sector when scaling by month: those without monthly scale
-        # factors hold their annual rate in each month (lair >= v2026.12.6)
-        monthly = inventories.EPAv2(scale_by_month=True)
+    # Both options read EPA's express product, the one paper 1 used: the 2012-2018 base
+    # inventory revised, extended to 2020, plus the supplemental post-meter sector. The
+    # base product (26 sectors, to 2018) is ~13% lower in the SLV, ~7.5 points of it
+    # post-meter. express=False scales it by month: lair holds sectors without monthly
+    # scale factors (post-meter, landfills, ...) at their annual rate, and past 2018
+    # scales only the sectors EPA says can be extrapolated.
+    epa = inventories.EPAv2(express=True, scale_by_month=not express)
 
-        # Clip to the bounding box or extent
-        if any([bbox, extent]):
-            monthly = monthly.clip(bbox=bbox, extent=extent)
+    # Clip to the bounding box or extent
+    if any([bbox, extent]):
+        epa = epa.clip(bbox=bbox, extent=extent)
 
-        # Convert units
-        if units:
-            monthly = monthly.convert_units(units)
+    # Convert units
+    if units:
+        epa = epa.convert_units(units)
 
-        # Sum sectors
-        total = inventories.sum_sectors(monthly.data)
-    else:
-        express = inventories.EPAv2(express=True)  # dont scale by month
-
-        # Clip to the bounding box or extent
-        if any([bbox, extent]):
-            express = express.clip(bbox=bbox, extent=extent)
-
-        # Convert units
-        if units:
-            express = express.convert_units(units)
-
-        # Sum sectors
-        total = inventories.sum_sectors(express.data)
+    # Sum sectors
+    total = inventories.sum_sectors(epa.data)
 
     # Regrid
     import xesmf as xe  # pyright: ignore[reportMissingImports]  # conda-forge only; lazy

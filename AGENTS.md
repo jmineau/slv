@@ -262,9 +262,11 @@ is read as more parameters).
 - **Upstream pins**: `lair` is pinned to a release tag (`@vYYYY.MM.PATCH` in
   `pyproject.toml` and `ci/environment.yml`; bump both and relock), `uataq` is
   pulled from git main (no version pin). Bumping behavior in those repos can
-  silently change `slv` results — coordinate changes. `load_epa_prior` relies on
-  lair >= v2026.12.6 keeping the annual-only EPA sectors in
-  `EPAv2(scale_by_month=True)`.
+  silently change `slv` results — coordinate changes. `load_epa_prior` reads EPA's
+  express product either way (`EPAv2(express=True, scale_by_month=not express)`), so the
+  monthly default and paper 1's annual `express=True` hold the same emissions (27 sectors
+  incl. post-meter, 2012-2020); it relies on lair >= v2026.12.6 holding sectors without
+  monthly scale factors at their annual rate.
 - **Inversion pipeline structure** mirrors `fips.InversionPipeline`'s
   template-method pattern. New inversion variants should subclass
   `SLVMethaneInversion` (or `fips.InversionPipeline`), not rewrite the

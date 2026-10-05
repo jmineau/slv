@@ -169,8 +169,9 @@ def test_epa_monthly_uses_the_monthly_inventory_alone(monkeypatch, identity_regr
     months = pd.date_range("2016-01-01", periods=12, freq="MS")
     monthly_ds = _sectors(months, landfill=[10.0] * 12, gas=np.arange(12.0))
 
-    def fake_epa(scale_by_month=False, **kwargs):
+    def fake_epa(express=False, scale_by_month=False, **kwargs):
         assert scale_by_month, "the annual inventory is no longer needed"
+        assert express, "the monthly prior reads the express product, as paper 1 does"
         return _FakeInventory(monthly_ds)
 
     def fake_sum(ds):
@@ -188,25 +189,36 @@ def test_epa_monthly_uses_the_monthly_inventory_alone(monkeypatch, identity_regr
 
 
 @pytest.fixture
-def epa_v2_dir(tmp_path, monkeypatch):
-    """A tiny EPA v2 archive (as in lair's tests): one annual file per year with
-    ``emi_ch4_<code>_<name>`` variables, and monthly scale factors for only the first
-    two sectors. Points ``$LAIR_INVENTORY_DIR`` at it."""
+def epa_v2_express_dir(tmp_path, monkeypatch):
+    """A tiny EPA v2 express archive (as in lair's tests): one annual file per year,
+    2017-2019, with ``emi_ch4_<code>_<name>`` variables including the supplemental
+    post-meter, and 2017-2018 monthly scale factors (month/6.5) for four sectors, three
+    of which EPA allows scaling past 2018. Points ``$LAIR_INVENTORY_DIR`` at it."""
     lat, lon = np.array([40.05, 40.15]), np.array([-111.95, -111.85])
     d = tmp_path / "EPA" / "v2"
-    (d / "monthly_scale_factors").mkdir(parents=True)
-    names = ["1A_Combustion_Stationary", "3B_Manure_Management"]
-    names += ["3A_Enteric_Fermentation", "5A1_Landfills_MSW"]
-    for year in [2017, 2018]:
+    (d / "express").mkdir(parents=True)
+    (d / "monthly_scale_factors").mkdir()
+    rates = {
+        "1A_Combustion_Stationary": 1.0,  # scaled to 2018 only
+        "3B_Manure_Management": 2.0,  # scaled past 2018 too
+        "3C_Rice_Cultivation": 0.0,  # scaled past 2018 too
+        "3F_Field_Burning": 0.0,  # scaled past 2018 too
+        "3A_Enteric_Fermentation": 3.0,  # annual only
+        "5A1_Landfills_MSW": 4.0,  # annual only
+        "Supp_1B2b_PostMeter": 5.0,  # annual only, express only
+    }
+    scaled = list(rates)[:4]
+    for year in [2017, 2018, 2019]:
         ds = xr.Dataset(
             {
-                f"emi_ch4_{n}": (("time", "lat", "lon"), np.full((1, 2, 2), i + 1.0))
-                for i, n in enumerate(names)
+                f"emi_ch4_{n}": (("time", "lat", "lon"), np.full((1, 2, 2), v))
+                for n, v in rates.items()
             },
             coords={"time": [pd.Timestamp(f"{year}-01-01")], "lat": lat, "lon": lon},
         )
         ds["grid_cell_area"] = (("time", "lat", "lon"), np.ones((1, 2, 2)))
-        ds.to_netcdf(d / f"Gridded_GHGI_Methane_v2_{year}.nc")
+        ds.to_netcdf(d / "express" / f"Gridded_GHGI_Methane_v2_{year}.nc")
+    for year in [2017, 2018]:
         months = pd.date_range(f"{year}-01-01", periods=12, freq="MS")
         sf = xr.Dataset(
             {
@@ -214,7 +226,7 @@ def epa_v2_dir(tmp_path, monkeypatch):
                     ("time", "lat", "lon"),
                     np.ones((12, 2, 2)) * (months.month.values[:, None, None] / 6.5),
                 )
-                for n in names[:2]
+                for n in scaled
             },
             coords={"time": months, "lat": lat, "lon": lon},
         )
@@ -227,16 +239,23 @@ def epa_v2_dir(tmp_path, monkeypatch):
     return tmp_path
 
 
-def test_epa_monthly_keeps_annual_only_sectors(epa_v2_dir, monkeypatch):
-    """On a real (tiny) lair EPAv2 archive, every sector reaches the prior."""
+def test_epa_monthly_is_the_express_product_scaled_by_month(
+    epa_v2_express_dir, monkeypatch
+):
+    """On a real (tiny) lair EPAv2 express archive, every sector reaches the prior,
+    post-meter included, and only EPA's extrapolable sectors are scaled past 2018."""
     xe = types.ModuleType("xesmf")
     xe.Regridder = lambda src, dst, method: lambda da: da.copy()
     monkeypatch.setitem(sys.modules, "xesmf", xe)
 
-    months = pd.date_range("2018-01-01", periods=12, freq="MS")
+    months = pd.date_range("2018-01-01", periods=24, freq="MS")
     prior = priors.load_epa_prior(out_grid=None, flux_times=months)
-    # sectors 1 + 2 scaled by month/6.5, the annual-only 3 + 4 at their annual rate
-    expected = 3.0 * months.month.values / 6.5 + 7.0
+    m = months.month.values
+    expected = np.where(
+        months.year == 2018,
+        3.0 * m / 6.5 + 12.0,  # combustion + manure scaled; 3 + 4 + 5 annual
+        2.0 * m / 6.5 + 13.0,  # manure scaled; combustion back at its annual 1
+    )
     np.testing.assert_allclose(monthly_values(prior), expected)
 
 
