@@ -361,6 +361,9 @@ results = run_sweep_job(sweep)
   data); viz tests stub `GeoAxes.add_image` so no tiles are fetched; the TRAX loaders run
   on a synthetic two-line network (`tests/measurements/mobile/test_network.py`). Tests
   needing xesmf (lair cell areas) `importorskip` it: they run in the conda env / CI only.
+  CI pins the no-MPI ESMF build (`esmf=*=nompi*`): with the MPICH build, the MPI
+  start-up on `import xesmf` sometimes killed the whole pytest process (exit 143, no
+  traceback), about half the runs until 2026-10-05.
   Measure coverage with `--cov=slv`: `--cov=slv.inversion.viz` imports numpy twice and
   fails collection.
 - fips `Block` squeezes its data, so a one-element Series becomes a scalar and fails
