@@ -1,4 +1,5 @@
-"""TRAX CH4 observations paired one-to-one with the STILT receptors.
+"""
+TRAX CH4 observations paired one-to-one with the STILT receptors.
 
 The inversion joins a Jacobian row to an observation on ``(obs_location, obs_time)``: for a
 mobile receptor ``obs_location`` is the receptor's PYSTILT ``location_id`` (it has no site
@@ -42,7 +43,8 @@ _DWELL_RE = re.compile(r"^dwell_(\d+)_(\d{10})$")
 def inlet_lag_seconds(
     times, lag: float | pd.DataFrame | None
 ) -> tuple[np.ndarray, np.ndarray]:
-    """Inlet lag in seconds at each of ``times``, and where it came from.
+    """
+    Inlet lag in seconds at each of ``times``, and where it came from.
 
     ``lag`` is ``None`` (no shift), a number (one lag throughout) or a table with ``start``,
     ``end`` and ``lag_s`` columns -- the curated per-epoch table from the inlet-lag workflow.
@@ -84,8 +86,10 @@ def inlet_lag_seconds(
 
 
 def _receptor_keys(receptors_csv: str | Path) -> pd.DataFrame:
-    """``r_idx``, ``obs_location`` and ``obs_time`` for every receptor in a PYSTILT CSV,
-    computed by :func:`stilt.read_receptors` exactly as the batch workers compute them."""
+    """
+    ``r_idx``, ``obs_location`` and ``obs_time`` for every receptor in a PYSTILT CSV,
+    computed by :func:`stilt.read_receptors` exactly as the batch workers compute them.
+    """
     import stilt
 
     recs = stilt.read_receptors(receptors_csv)
@@ -155,7 +159,8 @@ def trax_receptor_observations(
     crossing_states: Sequence[str] = CROSSING_STATES,
     dwell_states: Sequence[str] = DWELL_STATES,
 ) -> pd.DataFrame:
-    """One CH4 observation per STILT receptor, keyed for the inversion.
+    """
+    One CH4 observation per STILT receptor, keyed for the inversion.
 
     Parameters
     ----------

@@ -81,8 +81,10 @@ def _ch4_from_fixes(fixes, value, state="route"):
 
 
 def _ch4_grid(fixes, value, pad_s=120, state="route"):
-    """A CH4 record on a continuous 1-s grid, as the analyzer logs it -- through gaps in the
-    GPS and past the last fix, so a lag-shifted window always has samples to average."""
+    """
+    A CH4 record on a continuous 1-s grid, as the analyzer logs it -- through gaps in the
+    GPS and past the last fix, so a lag-shifted window always has samples to average.
+    """
     t = pd.date_range(
         pd.Timestamp(fixes.Time_UTC.min()),
         pd.Timestamp(fixes.Time_UTC.max()) + pd.Timedelta(seconds=pad_s),

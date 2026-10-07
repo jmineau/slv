@@ -1,5 +1,7 @@
-"""State cells: the prior/Jacobian agreement check and the Jacobian coverage filter
-for :class:`~slv.inversion.pipelines.SLVMethaneInversion`."""
+"""
+State cells: the prior/Jacobian agreement check and the Jacobian coverage filter
+for :class:`~slv.inversion.pipelines.SLVMethaneInversion`.
+"""
 
 from typing import Any
 
@@ -23,7 +25,8 @@ def _flux_cells(index: pd.Index) -> set[tuple[float, float]]:
 
 
 def check_state_cells(prior: Vector, forward_operator: ForwardOperator) -> None:
-    """Raise when the prior's flux cells and the Jacobian's flux columns differ.
+    """
+    Raise when the prior's flux cells and the Jacobian's flux columns differ.
 
     fips reindexes the Jacobian onto the prior's index with zero fill, so a cell only
     in the prior would silently get zero sensitivity, and a cell only in the Jacobian
@@ -44,8 +47,10 @@ def check_state_cells(prior: Vector, forward_operator: ForwardOperator) -> None:
 
 
 class CoverageFilterMixin:
-    """Drops poorly-constrained cells from the state (``jacobian_coverage_percentile``),
-    holding them at the prior, and reinstates them in the reported posterior."""
+    """
+    Drops poorly-constrained cells from the state (``jacobian_coverage_percentile``),
+    holding them at the prior, and reinstates them in the reported posterior.
+    """
 
     config: InversionConfig
     problem: FluxProblem
@@ -68,7 +73,8 @@ class CoverageFilterMixin:
         return self._all_cells - self._removed_cells
 
     def _apply_jacobian_coverage_filter(self, inputs: dict[str, Any]) -> dict[str, Any]:
-        """Remove cells with insufficient Jacobian coverage from the state vector.
+        """
+        Remove cells with insufficient Jacobian coverage from the state vector.
 
         Cells are removed across ALL time steps to preserve the Kronecker
         structure of the prior error covariance.  Removed cells are stored
@@ -222,7 +228,8 @@ class CoverageFilterMixin:
     def reconstruct_posterior(
         self, posterior_fluxes: pd.Series | None = None
     ) -> pd.Series:
-        """Reconstruct the full posterior by inserting prior for unconstrained cells.
+        """
+        Reconstruct the full posterior by inserting prior for unconstrained cells.
 
         Parameters
         ----------

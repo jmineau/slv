@@ -1,5 +1,7 @@
-"""Tests for the inversion's obs loading: the spike filter, tower-only runs, tz-aware
-mobile obs and the empty sub-hour std."""
+"""
+Tests for the inversion's obs loading: the spike filter, tower-only runs, tz-aware
+mobile obs and the empty sub-hour std.
+"""
 
 import pandas as pd
 import pytest

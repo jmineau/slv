@@ -1,5 +1,7 @@
-"""Wyoming mobile lab: Aeris CH4/C2H6 and vehicle met readers, enhancements and
-C2/C1 ratios, and a wind-barb map of a drive."""
+"""
+Wyoming mobile lab: Aeris CH4/C2H6 and vehicle met readers, enhancements and
+C2/C1 ratios, and a wind-barb map of a drive.
+"""
 
 import geopandas as gpd
 import matplotlib.pyplot as plt
@@ -15,8 +17,10 @@ PC = ccrs.PlateCarree()
 
 
 def read_aeris(file):
-    """Read an Aeris analyzer CSV: ``CH4 (ppb)`` (converted from ppm), ``C2H6 (ppb)``,
-    the analyzer's ``R`` and ``C2/C1``, indexed by ``Time_UTC``."""
+    """
+    Read an Aeris analyzer CSV: ``CH4 (ppb)`` (converted from ppm), ``C2H6 (ppb)``,
+    the analyzer's ``R`` and ``C2/C1``, indexed by ``Time_UTC``.
+    """
     aeris = pd.read_csv(file)
     aeris["Time_UTC"] = pd.to_datetime(
         aeris["Time Stamp"], errors="coerce", format="%m/%d/%Y %H:%M:%S.%f"
@@ -29,9 +33,11 @@ def read_aeris(file):
 
 
 def read_met(file):
-    """Read a vehicle met-station file: position (``latitude``, ``longitude``,
+    """
+    Read a vehicle met-station file: position (``latitude``, ``longitude``,
     ``Altitude (m)``), temperature, humidity, pressure, GPS-corrected wind and vehicle
-    speed, indexed by ``Time_UTC``, plus the source ``filename``."""
+    speed, indexed by ``Time_UTC``, plus the source ``filename``.
+    """
     # last column is vehicle speed (not sure of units per Zak)
     cols = [
         "PC",
@@ -168,7 +174,8 @@ def merge_aeris_met(aeris, met):
 
 
 def calculate_enhancements(data, window="1h"):
-    """Add ``CH4_base``/``C2H6_base`` (:func:`lair.background.rolling_baseline`) and the
+    """
+    Add ``CH4_base``/``C2H6_base`` (:func:`lair.background.rolling_baseline`) and the
     enhancements over them, ``CH4_ex``/``C2H6_ex``.
 
     ``window`` is the baseline window: anything ``pd.Timedelta`` takes, or a number of hours
@@ -186,9 +193,11 @@ def calculate_enhancements(data, window="1h"):
 
 
 def enhanced_R_and_ratio(data, window="30s"):
-    """Add the rolling ``window`` correlation ``R`` of the CH4 and C2H6 enhancements and
+    """
+    Add the rolling ``window`` correlation ``R`` of the CH4 and C2H6 enhancements and
     their ratio ``C2/C1`` (after :func:`calculate_enhancements`); the analyzer's own
-    columns are kept as ``R_aeris`` and ``C2C1_aeris``. Modifies ``data`` in place."""
+    columns are kept as ``R_aeris`` and ``C2C1_aeris``. Modifies ``data`` in place.
+    """
     data.rename(columns={"R": "R_aeris", "C2/C1": "C2C1_aeris"}, inplace=True)
 
     data["R"] = data.CH4_ex.rolling(window).corr(data.C2H6_ex)
@@ -198,8 +207,10 @@ def enhanced_R_and_ratio(data, window="30s"):
 
 
 def plot_windbarbs(data, ws, wd, ax=None, x="longitude", y="latitude"):
-    """Draw wind barbs from the speed column ``ws`` and direction column ``wd`` at each
-    ``(x, y)``; makes a PlateCarree axes when ``ax`` is not given."""
+    """
+    Draw wind barbs from the speed column ``ws`` and direction column ``wd`` at each
+    ``(x, y)``; makes a PlateCarree axes when ``ax`` is not given.
+    """
     if ax is None:
         fig, ax = plt.subplots(subplot_kw={"projection": PC})
 
@@ -223,9 +234,11 @@ def wyomingMap(
     title=None,
     **kwargs,
 ):
-    """Map a drive coloured by ``param`` (a column of the merged GeoDataFrame from
+    """
+    Map a drive coloured by ``param`` (a column of the merged GeoDataFrame from
     :func:`merge_aeris_met`), with every ``windskip``-th wind barb and optional map
-    tiles. ``**kwargs`` go to ``GeoDataFrame.plot``."""
+    tiles. ``**kwargs`` go to ``GeoDataFrame.plot``.
+    """
     crs = tiler.crs if tiler else PC
     if ax is None:
         fig, ax = plt.subplots(figsize=figsize, subplot_kw={"projection": crs})

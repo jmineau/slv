@@ -30,8 +30,10 @@ class CarbonTrackerCH4(noaa.CarbonTrackerCH4):
         )
 
     def get_SLV_molefractions(self, calc_pressure=False) -> xr.Dataset:
-        """CarbonTracker-CH4 mole fractions in the grid column over the SLV; with
-        ``calc_pressure``, adds the pressure of each level."""
+        """
+        CarbonTracker-CH4 mole fractions in the grid column over the SLV; with
+        ``calc_pressure``, adds the pressure of each level.
+        """
         mf = self.molefractions.sel(longitude=SLV_LON, latitude=SLV_LAT)
 
         if calc_pressure:
@@ -46,8 +48,10 @@ def user_gml_dir() -> Path:
 
 
 def lair_gml_dir() -> Path | None:
-    """lair's NOAA GML directory (the shared group copy): ``$LAIR_GML_DIR``, or the
-    built-in ``lair.noaa.GML_DIR`` of lair releases that still have one."""
+    """
+    The directory of lair's NOAA GML data (the shared group copy): ``$LAIR_GML_DIR``, or the
+    built-in ``lair.noaa.GML_DIR`` of lair releases that still have one.
+    """
     d = os.environ.get("LAIR_GML_DIR") or getattr(noaa, "GML_DIR", None)
     return Path(d) if d else None
 
@@ -100,8 +104,10 @@ class GMLDiscrete(noaa.GMLData):
 
     @staticmethod
     def _find(specie, site, refresh, **kwargs) -> Path:
-        """The directory to read from: the user cache, else the group copy, else the user
-        cache (to download into)."""
+        """
+        The directory to read from: the user cache, else the group copy, else the user
+        cache (to download into).
+        """
         try:
             user = user_gml_dir()
         except OSError:

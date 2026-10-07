@@ -1,4 +1,5 @@
-"""Parameter sweep harness for SLV methane inversions.
+"""
+Parameter sweep harness for SLV methane inversions.
 
 Run many :class:`~slv.inversion.pipelines.SLVMethaneInversion` configurations
 in one pass, collect goodness-of-fit metrics (targeting reduced chi² ≈ 1), and
@@ -137,8 +138,10 @@ def _to_json(v: Any) -> Any:
 
 
 def _cfg_columns(config: InversionConfig, swept_params: list[str] | None) -> dict:
-    """Config values as ``cfg_*`` columns (all scientific fields when *swept_params*
-    is None); dicts and lists are JSON-encoded so they survive a CSV round-trip."""
+    """
+    Config values as ``cfg_*`` columns (all scientific fields when *swept_params*
+    is None); dicts and lists are JSON-encoded so they survive a CSV round-trip.
+    """
     if swept_params is None:
         swept_params = [
             f.name
@@ -165,7 +168,8 @@ def _error_row(
 
 
 def _append_row(csv_path: Path, row: dict | None) -> None:
-    """Append one row to the results CSV, lined up with the columns already there.
+    """
+    Append one row to the results CSV, lined up with the columns already there.
 
     ``to_csv(mode="a")`` writes by position, so a row whose keys differ from the
     header would land its values under the wrong columns. A row with a column the
@@ -193,7 +197,8 @@ def _append_row(csv_path: Path, row: dict | None) -> None:
 
 
 def config_id(config: InversionConfig) -> str:
-    """Return a stable 16-char hex identifier for a config.
+    """
+    Return a stable 16-char hex identifier for a config.
 
     Excludes non-scientific fields (cache paths, plotting flags, etc.) so that
     changing only where to write outputs does not produce a new ID.
@@ -213,7 +218,8 @@ def config_id(config: InversionConfig) -> str:
 
 
 class Sweep:
-    """Object-oriented interface for parameter sweeps.
+    """
+    Object-oriented interface for parameter sweeps.
 
     Examples
     --------
@@ -262,7 +268,8 @@ class Sweep:
         grid_path: str | Path | None = None,
         **sweep_kwargs: list[Any],
     ):
-        """Initialize sweep with configs.
+        """
+        Initialize sweep with configs.
 
         Parameters
         ----------
@@ -376,7 +383,8 @@ class Sweep:
         resume: bool = True,
         config_ids: list[str] | None = None,
     ) -> SweepResults:
-        """Run the sweep.
+        """
+        Run the sweep.
 
         Parameters
         ----------
@@ -470,7 +478,8 @@ class Sweep:
         self,
         args: tuple[InversionConfig, type, str, list[str] | None, bool],
     ) -> dict[str, Any]:
-        """Run one inversion and return a metrics dict.
+        """
+        Run one inversion and return a metrics dict.
 
         Catches all exceptions so a single failed run does not abort the whole sweep.
         """
@@ -534,7 +543,8 @@ class Sweep:
             json.dump(grid, f, indent=2)
 
     def get_problem(self, config_id: str):
-        """Reconstruct and run a single config by ID.
+        """
+        Reconstruct and run a single config by ID.
 
         Parameters
         ----------
@@ -579,7 +589,8 @@ def collect_metrics(
     pipeline: SLVMethaneInversion,
     swept_params: list[str] | None = None,
 ) -> dict[str, Any]:
-    """Extract goodness-of-fit and flux metrics from a solved ``FluxProblem``.
+    """
+    Extract goodness-of-fit and flux metrics from a solved ``FluxProblem``.
 
     The primary target metric is ``reduced_chi2`` — ideally close to 1.0,
     which indicates the error covariances are well-specified.
@@ -686,7 +697,8 @@ def _suppress_output():
 
 
 def run_sweep_job(results_dir: str | Path) -> None:
-    """Run a single config from a pre-serialised sweep grid (SLURM job arrays).
+    """
+    Run a single config from a pre-serialised sweep grid (SLURM job arrays).
 
     Reads ``$SLURM_ARRAY_TASK_ID`` (falls back to ``--index`` CLI argument) to
     pick which config to run.  Writes one row to
@@ -785,7 +797,8 @@ def run_sweep_job(results_dir: str | Path) -> None:
 
 
 class SweepResults:
-    """Wraps ``sweep_results.csv`` for post-sweep analysis.
+    """
+    Wraps ``sweep_results.csv`` for post-sweep analysis.
 
     Attributes
     ----------
@@ -847,7 +860,8 @@ class SweepResults:
     # ------------------------------------------------------------------
 
     def best(self, target: float = 1.0, tol: float = 0.1) -> pd.DataFrame:
-        """Return rows where ``|reduced_chi2 - target| < tol``, best first.
+        """
+        Return rows where ``|reduced_chi2 - target| < tol``, best first.
 
         Parameters
         ----------
@@ -877,7 +891,8 @@ class SweepResults:
         groupby_params: str | list[str],
         metric: str = "posterior_flux_mean",
     ) -> pd.DataFrame:
-        """Standard deviation of *metric* grouped by *groupby_params*.
+        """
+        Standard deviation of *metric* grouped by *groupby_params*.
 
         A low std indicates those parameter values stabilise the posterior.
 
@@ -900,7 +915,8 @@ class SweepResults:
     def sensitivity(
         self, metric: str = "reduced_chi2", target: float | None = None
     ) -> pd.DataFrame:
-        """Rank swept parameters by their effect on *metric*.
+        """
+        Rank swept parameters by their effect on *metric*.
 
         Computes the range (max − min) of the group-mean *metric* when
         grouped by each ``cfg_*`` column.  A larger range means the result
@@ -948,7 +964,8 @@ class SweepResults:
         ax=None,
         target_band: tuple[float, float] = (0.9, 1.1),
     ):
-        """Scatter plot of reduced chi² vs a swept parameter.
+        """
+        Scatter plot of reduced chi² vs a swept parameter.
 
         Parameters
         ----------
@@ -987,7 +1004,8 @@ class SweepResults:
         metric: str = "reduced_chi2",
         ax=None,
     ):
-        """Heatmap of *metric* over two swept parameters.
+        """
+        Heatmap of *metric* over two swept parameters.
 
         Parameters
         ----------
@@ -1025,7 +1043,8 @@ class SweepResults:
         return ax
 
     def plot_sensitivity(self, metric: str = "reduced_chi2", ax=None):
-        """Horizontal bar chart of parameter sensitivity (range of group means).
+        """
+        Horizontal bar chart of parameter sensitivity (range of group means).
 
         Parameters
         ----------
@@ -1059,7 +1078,8 @@ class SweepResults:
         pipeline_cls: type = SLVMethaneInversion,
         cache: str | Path | None = None,
     ) -> tuple[InversionConfig, type]:
-        """Rehydrate an :class:`InversionConfig` from a results row.
+        """
+        Rehydrate an :class:`InversionConfig` from a results row.
 
         Parameters
         ----------

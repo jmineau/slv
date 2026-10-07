@@ -1,5 +1,7 @@
-"""Tests for the pipeline's obs-space steps: get_obs, filter_state_space and
-aggregate_obs_space."""
+"""
+Tests for the pipeline's obs-space steps: get_obs, filter_state_space and
+aggregate_obs_space.
+"""
 
 import numpy as np
 import pandas as pd

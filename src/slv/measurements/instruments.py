@@ -4,9 +4,11 @@ from abc import ABC
 
 
 class Instrument(ABC):
-    """An analyzer: its uataq ``name``, sample rate, and the column holding each
+    """
+    An analyzer: its uataq ``name``, sample rate, and the column holding each
     pollutant (``pollutants``). ``calibrated = False`` reads the qaqc level instead of
-    calibrated; ``samples_per_hour`` is the expected count of valid samples."""
+    calibrated; ``samples_per_hour`` is the expected count of valid samples.
+    """
 
     name: str
     display_name: str

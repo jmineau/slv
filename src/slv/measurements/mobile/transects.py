@@ -1,4 +1,5 @@
-"""TRAX transect matrices: ``obs[transect, point]`` over the 50-m network points.
+"""
+TRAX transect matrices: ``obs[transect, point]`` over the 50-m network points.
 
 Two generations of matrices:
 
@@ -60,7 +61,8 @@ NETWORK_DIR = "network"
 
 
 def load_transects(line: str, months=None, transects_dir: str | Path | None = None):
-    """Concatenate the archived transect matrices for one TRAX line into an xarray Dataset.
+    """
+    Concatenate the archived transect matrices for one TRAX line into an xarray Dataset.
 
     Files: ``$SLV_USER_DATA_DIR/trax/transects/trx01_CH4_<line>_YYYY-MM.nc`` (dims
     ``transect`` x ``point``; variables ``obs`` [ppm], ``time`` [POSIX s], ``n``; point
@@ -103,7 +105,8 @@ def assign_lines(
     window_s: float = 1800.0,
     letters: str = "RGBS",
 ) -> np.ndarray:
-    """The line letter each sample is on, resolved from the points around it in time.
+    """
+    The line letter each sample is on, resolved from the points around it in time.
 
     ``point_lines`` is the ``lines`` string of each sample's network point (``"R"``,
     ``"BR"``, ``"BGR"`` on the trunk, ...), ``time_s`` the sorted sample times (POSIX s) and
@@ -170,7 +173,8 @@ def build_network_transects(
     species: str = "CH4_ppm",
     return_samples: bool = False,
 ):
-    """Build the ``[transect, point]`` matrix of one obs frame on the network points.
+    """
+    Build the ``[transect, point]`` matrix of one obs frame on the network points.
 
     Parameters
     ----------
@@ -394,6 +398,10 @@ def build_network_transects(
 
 
 def network_transects_dir(transects_dir: str | Path | None = None) -> Path:
+    """
+    The network transects folder: ``NETWORK_DIR`` under *transects_dir*, by default
+    ``trax/transects`` in the user data directory.
+    """
     base = (
         user_dir() / "trax" / "transects"
         if transects_dir is None
@@ -411,7 +419,8 @@ def build_trax_transects(
     load_kwargs: dict | None = None,
     **build_kwargs,
 ) -> list[Path]:
-    """Build and write the network matrices, one NetCDF per calendar year.
+    """
+    Build and write the network matrices, one NetCDF per calendar year.
 
     Each year is read from ``obs.parquet`` on its own (``load_trax_obs(time_range=...)``,
     ``load_kwargs`` forwarded, default location ``on_track``), built with
@@ -459,9 +468,11 @@ def build_trax_transects(
 def load_network_transects(
     years=None, transects_dir: str | Path | None = None, site: str = "trx01"
 ):
-    """The network transect matrices of ``years`` (all on disk by default), concatenated
+    """
+    The network transect matrices of ``years`` (all on disk by default), concatenated
     along ``transect`` with a fresh 0..N-1 index. See :func:`build_network_transects` for
-    the layout."""
+    the layout.
+    """
     import xarray as xr
 
     d = network_transects_dir(transects_dir)

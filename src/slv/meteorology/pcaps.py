@@ -18,7 +18,8 @@ def get_soundings(
     driver="pandas",
     **kwargs,
 ):
-    """Load upper-air soundings for ``station`` with :func:`lair.soundings.get_soundings`.
+    """
+    Load upper-air soundings for ``station`` with :func:`lair.soundings.get_soundings`.
 
     If ``sounding_dir`` is not given, soundings are read from
     ``$SLV_SOUNDINGS_DIR/<station>``.
@@ -41,7 +42,8 @@ DEFAULT_MIN_PERIODS = 3
 
 
 def _pcap_events_cache(threshold, min_periods) -> Path | None:
-    """Cache file for PCAP events found with ``threshold`` and ``min_periods``, or
+    """
+    Cache file for PCAP events found with ``threshold`` and ``min_periods``, or
     None if ``SLV_USER_DATA_DIR`` is not set.
 
     The defaults use ``pcap_events.csv``; other parameters get their own file.
@@ -73,7 +75,8 @@ def get_pcap_events(
     min_periods=DEFAULT_MIN_PERIODS,
     sounding_kwargs=None,
 ):
-    """Determines PCAP events based on valley heat deficit from soundings.
+    """
+    Determines PCAP events based on valley heat deficit from soundings.
 
     Parameters
     ----------
@@ -115,7 +118,8 @@ def get_pcap_events(
 
 
 def filter_pcap_events(data: pd.Series | pd.DataFrame, level=None):
-    """Drop the rows of ``data`` that fall within a PCAP event.
+    """
+    Drop the rows of ``data`` that fall within a PCAP event.
 
     ``data`` must have a datetime index; for a MultiIndex, ``level`` names the
     time level.

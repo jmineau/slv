@@ -1,4 +1,5 @@
-"""Tests for the TRAX network loaders on a synthetic two-line network (no group data).
+"""
+Tests for the TRAX network loaders on a synthetic two-line network (no group data).
 
 Red runs 4 km east; Green shares its first 2 km, then turns 2 km north. Built in UTM
 12 N, so along-route distances are plain x / y offsets.

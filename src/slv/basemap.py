@@ -59,7 +59,8 @@ STADIA_ATTRIBUTION = (
 
 
 def load_population(bbox=MAP_BBOX) -> gpd.GeoDataFrame:
-    """Block-group population and density (people km⁻², over land area).
+    """
+    Block-group population and density (people km⁻², over land area).
 
     ACS 2022 5-year population (``$SLV_USER_DATA_DIR/census/raw/acs5_2022_utah_bg.csv``)
     joined on GEOID to the 2022 cartographic block groups
@@ -80,8 +81,10 @@ def load_population(bbox=MAP_BBOX) -> gpd.GeoDataFrame:
 
 
 def load_mesowest(status="ACTIVE", networks=("UUNET",)) -> gpd.GeoDataFrame:
-    """MesoWest stations (``$SLV_USER_DATA_DIR/mesowest``), optionally filtered by
-    ``Status`` and ``Mesonet``; ``None`` keeps all."""
+    """
+    MesoWest stations (``$SLV_USER_DATA_DIR/mesowest``), optionally filtered by
+    ``Status`` and ``Mesonet``; ``None`` keeps all.
+    """
     csv = (
         get_data_dir("SLV_USER_DATA_DIR")
         / "mesowest/MesoWest_Utah_stations_20221017.csv"
@@ -97,16 +100,20 @@ def load_mesowest(status="ACTIVE", networks=("UUNET",)) -> gpd.GeoDataFrame:
 
 
 def load_interstates(bbox=MAP_BBOX) -> gpd.GeoDataFrame:
-    """Interstates (UGRC road ``CARTOCODE`` "1") from
-    ``$SLV_SPATIAL_DIR/transportation/roads``."""
+    """
+    Interstates (UGRC road ``CARTOCODE`` "1") from
+    ``$SLV_SPATIAL_DIR/transportation/roads``.
+    """
     shp = get_data_dir("SLV_SPATIAL_DIR") / "transportation/roads/Roads.shp"
     roads = gpd.read_file(shp, bbox=bbox, columns=["CARTOCODE"])
     return roads[roads["CARTOCODE"] == "1"].to_crs("EPSG:4326")
 
 
 def load_borders(level="county", bbox=MAP_BBOX) -> gpd.GeoDataFrame:
-    """2022 Census state or county boundaries from
-    ``$SLV_SPATIAL_DIR/administrative``."""
+    """
+    2022 Census state or county boundaries from
+    ``$SLV_SPATIAL_DIR/administrative``.
+    """
     files = {
         "state": "states/cb_2022_us_state_500k.shp",
         "county": "counties/cb_2022_us_county_500k.shp",
@@ -118,7 +125,8 @@ def load_borders(level="county", bbox=MAP_BBOX) -> gpd.GeoDataFrame:
 
 
 def stadia_tiles(style="stamen_terrain") -> cimgt.StadiaMapsTiles:
-    """A Stadia Maps tiler (``$STADIA_API_KEY``), cached on disk by cartopy.
+    """
+    A Stadia Maps tiler (``$STADIA_API_KEY``), cached on disk by cartopy.
 
     Fetched from tiles.stadiamaps.com when the map is drawn. Their terms ask for
     :data:`STADIA_ATTRIBUTION` on the map, which :class:`SaltLake` adds by default.
@@ -168,7 +176,8 @@ def _thousands(x, pos=None):
 
 
 class SaltLake:
-    """A cartopy map of the Salt Lake Valley.
+    """
+    A cartopy map of the Salt Lake Valley.
 
     Parameters
     ----------
@@ -252,7 +261,8 @@ class SaltLake:
         alpha=0.6,
         colorbar=True,
     ):
-        """Block-group population density (people km⁻²) with a colorbar panel.
+        """
+        Block-group population density (people km⁻²) with a colorbar panel.
 
         ``population`` defaults to :func:`load_population`; block groups below
         ``min_density`` are left unshaded.
@@ -306,7 +316,8 @@ class SaltLake:
         return self
 
     def add_trax(self, lines="RG", trax=None, colors=None, linewidth=5, label="TRAX"):
-        """TRAX lines by their letters (R, G, B, S), in UTA's line colours.
+        """
+        TRAX lines by their letters (R, G, B, S), in UTA's line colours.
 
         ``trax`` defaults to :func:`slv.measurements.mobile.load_trax_lines`.
         """
@@ -365,7 +376,8 @@ class SaltLake:
         size=250,
         label="stationary",
     ):
-        """Measurement sites (``site_config`` rows) as open circles.
+        """
+        Measurement sites (``site_config`` rows) as open circles.
 
         ``labels=True`` writes each site's ID in capitals beside it; a dict maps IDs to
         the text to write instead (e.g. ``{"wbb": "UOU"}``). ``label_offset`` is in
@@ -419,8 +431,10 @@ class SaltLake:
         return self
 
     def add_mesowest(self, stations=None, label="MesoWest", **kwargs):
-        """MesoWest stations as crosses; ``stations`` defaults to active UUNET stations
-        (:func:`load_mesowest`)."""
+        """
+        MesoWest stations as crosses; ``stations`` defaults to active UUNET stations
+        (:func:`load_mesowest`).
+        """
         gdf = load_mesowest() if stations is None else stations
         style = {"marker": "x", "size": 60, "linewidths": 2}
         return self.add_points(gdf, label=label, **(style | kwargs))
@@ -449,7 +463,8 @@ class SaltLake:
         color="red",
         projection=None,
     ):
-        """A locator map of the western US with the map's area marked.
+        """
+        A locator map of the western US with the map's area marked.
 
         Uses cartopy's Natural Earth 50 m land, ocean and states (cached after the
         first download).

@@ -1,5 +1,7 @@
-"""CH4 point sources in the SLV (landfills, refineries, ...), packaged as
-``ch4_point_sources.csv``."""
+"""
+CH4 point sources in the SLV (landfills, refineries, ...), packaged as
+``ch4_point_sources.csv``.
+"""
 
 from functools import lru_cache
 from importlib.resources import files
@@ -17,7 +19,8 @@ def _load_points() -> pd.DataFrame:
 
 
 def load_point_sources() -> pd.DataFrame:
-    """The packaged SLV CH4 point sources.
+    """
+    The packaged SLV CH4 point sources.
 
     Returns a copy of ``ch4_point_sources.csv`` with ``category``, ``name``,
     ``longitude`` and ``latitude``. Categories match the keys of

@@ -188,7 +188,7 @@ def test_slope_guard_drops_outlier_slope_rows():
 
 
 def test_slope_guard_accepts_string_slopes():
-    """uataq multiprocess reads can hand back the slope column as strings."""
+    """Multiprocess uataq reads can hand back the slope column as strings."""
     from slv.measurements.mobile.obs import apply_slope_guard
 
     t = pd.date_range("2019-06-22", periods=200, freq="min")
@@ -244,9 +244,11 @@ def test_load_trax_obs_applies_the_location_filter(tmp_path):
 
 
 def _fake_read_lgr(tables):
-    """Stand-in for ``obs._read_lgr``: ``tables[(instrument, lvl)]`` is a ``Time_UTC``/``CH4``
+    """
+    Stand-in for ``obs._read_lgr``: ``tables[(instrument, lvl)]`` is a ``Time_UTC``/``CH4``
     frame, cut to ``time_range`` including both ends as uataq does; a missing entry raises
-    ReaderError like a level with no files."""
+    ReaderError like a level with no files.
+    """
     import uataq
 
     def read(site, instrument, lvl, value_col, time_range, num_processes, **kwargs):

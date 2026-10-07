@@ -1,4 +1,5 @@
-"""MesoWest surface observations for the SLV sites.
+"""
+MesoWest surface observations for the SLV sites.
 
 Reads the hourly station archives staged under ``$SLV_USER_DATA_DIR/mesowest``:
 
@@ -58,7 +59,8 @@ def _hourly_path(station_code: str):
 
 
 def load_station_metadata() -> pd.DataFrame:
-    """Station code, name, latitude, longitude and elevation for the archived stations.
+    """
+    Station code, name, latitude, longitude and elevation for the archived stations.
 
     Indexed by ``station_code``. Only stations with an hourly file are returned, so
     the table can be used directly to pick a station to read.
@@ -89,7 +91,8 @@ def load_station_metadata() -> pd.DataFrame:
 def nearest_station(
     latitude: float, longitude: float, metadata: pd.DataFrame | None = None
 ):
-    """The archived station closest to a point, as ``(station_code, distance_km)``.
+    """
+    The archived station closest to a point, as ``(station_code, distance_km)``.
 
     Distance is a local flat-earth approximation, which is well under a percent
     of error at the scale of the Salt Lake Valley.
@@ -107,7 +110,8 @@ def station_hourly(
     columns: list[str] | None = None,
     time_range: tuple | None = None,
 ) -> pd.DataFrame:
-    """Hourly observations for one station, indexed by ``Time_UTC``.
+    """
+    Hourly observations for one station, indexed by ``Time_UTC``.
 
     Columns are renamed out of MesoWest's ``_set_1`` convention where a standard
     name exists (see ``_RENAME``); anything else keeps its archive name. ``columns``
@@ -137,7 +141,8 @@ def station_hourly(
 
 
 def wind_sector(direction: pd.Series, n_sectors: int = 16) -> pd.Series:
-    """Compass sector label (N, NNE, ...) for a wind direction in degrees.
+    """
+    Compass sector label (N, NNE, ...) for a wind direction in degrees.
 
     ``n_sectors`` must be 4, 8 or 16. Directions are binned centred on each
     label, so N covers 348.75-11.25 degrees for 16 sectors.

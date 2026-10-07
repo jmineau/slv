@@ -1,4 +1,5 @@
-"""Salt Lake Valley py
+"""
+Salt Lake Valley py
 
 Salt Lake Valley python modules
 """
@@ -17,7 +18,8 @@ __email__ = "James.Mineau@utah.edu"
 
 
 def get_data_dir(env_var: str) -> Path:
-    """Return the directory stored in *env_var*, raising a clear error if unset.
+    """
+    Return the directory stored in *env_var*, raising a clear error if unset.
 
     Set environment variables in your shell profile, e.g.::
 

@@ -100,7 +100,7 @@ def _flux(values, times):
 
 @pytest.fixture
 def summarize_pipeline(monkeypatch):
-    """fips' own summary off; totals = sum over cells (no xesmf needed)."""
+    """With fips' own summary off, totals are the sum over cells (no xesmf needed)."""
     monkeypatch.setattr(FluxInversionPipeline, "summarize", lambda self: None)
     times = ["2020-01-01", "2021-01-01", "2022-01-01"]
     p = pipeline(tstart="2020-01-01", tend="2023-01-01", flux_freq="YS")

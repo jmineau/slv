@@ -1,4 +1,5 @@
-"""Where is the TRAX train, minute by minute: indoor (shed), yard, pass-by, route, stopped?
+"""
+Where is the TRAX train, minute by minute: indoor (shed), yard, pass-by, route, stopped?
 
 The TRAX trains sleep at a rail service center: trx01/trx02 at the Jordan River RSC
 (JRRSC, where the green line runs right past the yard's north edge), trx03 at the
@@ -110,7 +111,8 @@ def location_features(
     freq: str = "1min",
     storage_polygons: gpd.GeoDataFrame | None = None,
 ) -> pd.DataFrame:
-    """Per-``freq`` GPS features that the classifier needs (plus power, if available).
+    """
+    Per-``freq`` GPS features that the classifier needs (plus power, if available).
 
     Columns: ``n_gps``, ``x``/``y`` (UTM median), ``scatter`` (max of x/y std, m),
     ``speed`` (median m/s), ``speed_max``, ``speed_est`` (position-derived, see
@@ -203,7 +205,8 @@ def classify_location(
     smooth_min: int = SMOOTH_MIN,
     use_footprint: bool = False,
 ) -> pd.DataFrame:
-    """Classify each row of :func:`location_features` into one of :data:`STATES`.
+    """
+    Classify each row of :func:`location_features` into one of :data:`STATES`.
 
     Rules, per minute:
 
@@ -283,7 +286,8 @@ def classify_location(
 def state_intervals(
     states: pd.Series | pd.DataFrame, min_minutes: int = 0
 ) -> pd.DataFrame:
-    """Run-length table of a per-minute state series: ``start``, ``end``, ``state``, ``minutes``.
+    """
+    Run-length table of a per-minute state series: ``start``, ``end``, ``state``, ``minutes``.
 
     ``end`` is the last minute of the run (inclusive). Runs shorter than
     ``min_minutes`` are dropped (not merged) — useful to list depot stays only.
@@ -306,7 +310,8 @@ def state_intervals(
 def label_observations(
     obs: pd.DataFrame, states: pd.DataFrame, time_col: str = "Time_UTC"
 ) -> pd.Series:
-    """Per-observation ``state`` from the per-minute table (time floored to the minute).
+    """
+    Per-observation ``state`` from the per-minute table (time floored to the minute).
 
     Times outside the classified range come back as NaN.
     """

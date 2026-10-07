@@ -21,7 +21,8 @@ def normalize_pollutant(
     valid_range: tuple[float, float] | None = None,
     valid_flags: set | None = None,
 ) -> pd.Series:
-    """Extract and filter a pollutant column by QA/QC and range criteria.
+    """
+    Extract and filter a pollutant column by QA/QC and range criteria.
     Looks for column named {pollutant}d_ppm_cal or {pollutant}_ppm.
     Applies ID check, QAQC_Flag check, and valid range filtering.
     Returns Series with NaN for invalid values.

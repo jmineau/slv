@@ -8,7 +8,8 @@ from lair import inventories
 def get_slv_prior(
     prior: str, out_grid, flux_times, flux_freq=None, bbox=None, extent=None, **kwargs
 ):
-    """Build the prior flux for ``InversionConfig.prior``.
+    """
+    Build the prior flux for ``InversionConfig.prior``.
 
     Parameters
     ----------
@@ -71,7 +72,8 @@ def get_slv_prior(
 
 
 def align_to_flux_times(inventory: xr.DataArray | xr.Dataset, flux_times):
-    """Give each flux time the inventory period it falls in.
+    """
+    Give each flux time the inventory period it falls in.
 
     Inventory times label period starts (lair puts an annual inventory at Jan 1 and a
     monthly one at the 1st), as do ``flux_times``, so each flux time takes the latest
@@ -87,7 +89,8 @@ def align_to_flux_times(inventory: xr.DataArray | xr.Dataset, flux_times):
 
 
 def build_constant_prior(out_grid, flux_times, value=0.0, units=None):
-    """Build a spatially and temporally uniform prior.
+    """
+    Build a spatially and temporally uniform prior.
 
     Parameters
     ----------
@@ -120,7 +123,8 @@ def load_epa_prior(
     express=False,
     return_regridder=False,
 ):
-    """EPA gridded CH4 inventory (v2) regridded to ``out_grid`` and aligned to ``flux_times``.
+    """
+    EPA gridded CH4 inventory (v2) regridded to ``out_grid`` and aligned to ``flux_times``.
 
     Both options use EPA's express product (27 sectors including post-meter, 2012-2020),
     so they hold the same annual emissions and differ only in seasonal timing. Sectors are
@@ -207,7 +211,8 @@ def load_edgar_prior(
     units=None,
     return_regridder=False,
 ):
-    """EDGAR v8 annual CH4 prior -- the sensitivity alternative to the EPA prior.
+    """
+    EDGAR v8 annual CH4 prior -- the sensitivity alternative to the EPA prior.
 
     Mirrors ``load_epa_prior``'s express branch (load -> clip -> convert -> sum sectors ->
     conservative regrid -> resample/align to flux_times). EDGAR v8 annual covers 1970-2022,

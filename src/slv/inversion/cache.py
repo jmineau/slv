@@ -1,4 +1,5 @@
-"""Content-addressed cache for the inversion pipeline's components.
+"""
+Content-addressed cache for the inversion pipeline's components.
 
 Each component (obs, prior, forward operator, ...) is pickled under
 ``{cache}/.fips/{version tag}/{component}/{hash}.pkl``: the tag pins the fips + pystilt
@@ -134,8 +135,10 @@ def _json_default(v):
 def _component_hash(
     config, fields: frozenset[str], packages: tuple[str, ...] = ()
 ) -> str:
-    """Return the first 12 hex chars of sha256 over the given config fields, plus the
-    release versions of ``packages`` (see :func:`_release`)."""
+    """
+    Return the first 12 hex chars of sha256 over the given config fields, plus the
+    release versions of ``packages`` (see :func:`_release`).
+    """
     data = {f: _json_default(getattr(config, f)) for f in sorted(fields)}
     if packages:
         data["__packages__"] = {p: _release(p) for p in sorted(packages)}
@@ -158,7 +161,8 @@ def _is_installed(src: Path) -> bool:
 
 
 def _pkg_version(import_name: str, dist_name: str) -> str:
-    """Release version of a package, for cache keying -- coarser than :func:`_pkg_rev`.
+    """
+    Release version of a package, for cache keying -- coarser than :func:`_pkg_rev`.
 
     An installed copy reports its metadata version. An editable checkout's metadata is
     frozen at install time, so the source is read instead: the static
@@ -206,13 +210,16 @@ def _pkg_version(import_name: str, dist_name: str) -> str:
 
 @functools.cache
 def _release(package: str) -> str:
-    """:func:`_pkg_version` of ``package`` (import and distribution names match), once
-    per process."""
+    """
+    :func:`_pkg_version` of ``package`` (import and distribution names match), once
+    per process.
+    """
     return _pkg_version(package, package)
 
 
 def _pkg_rev(import_name: str, dist_name: str) -> str:
-    """Source revision of a package, for cache keying.
+    """
+    Source revision of a package, for cache keying.
 
     For an editable git checkout (the dev setup), ``git describe`` yields a tag +
     commits-since + short SHA (+ ``-dirty``), so any commit *or* uncommitted edit
@@ -253,7 +260,8 @@ def _pkg_rev(import_name: str, dist_name: str) -> str:
 
 @functools.lru_cache(maxsize=1)
 def _version_tag() -> str:
-    """``.fips/`` cache namespace pinning the running fips + pystilt source revision.
+    """
+    ``.fips/`` cache namespace pinning the running fips + pystilt source revision.
 
     Computed once per process from ``_pkg_rev`` so that committing or editing
     fips/pystilt code lands the cache in a fresh tree instead of silently reusing a
@@ -267,7 +275,8 @@ def _version_tag() -> str:
 
 
 def fips_cache(cls, filename):
-    """Content-addressed cache decorator for pipeline methods.
+    """
+    Content-addressed cache decorator for pipeline methods.
 
     Parameters
     ----------

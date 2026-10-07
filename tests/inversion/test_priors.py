@@ -78,7 +78,7 @@ class _FakeInventory:
 
 @pytest.fixture
 def identity_regrid(monkeypatch):
-    """xesmf is conda-only: an identity regridder, and sectors that are already summed."""
+    """``xesmf`` is conda-only: an identity regridder, and sectors that are already summed."""
     xe = types.ModuleType("xesmf")
     xe.Regridder = lambda src, dst, method: lambda da: da.copy()
     monkeypatch.setitem(sys.modules, "xesmf", xe)
@@ -190,10 +190,12 @@ def test_epa_monthly_uses_the_monthly_inventory_alone(monkeypatch, identity_regr
 
 @pytest.fixture
 def epa_v2_express_dir(tmp_path, monkeypatch):
-    """A tiny EPA v2 express archive (as in lair's tests): one annual file per year,
+    """
+    A tiny EPA v2 express archive (as in lair's tests): one annual file per year,
     2017-2019, with ``emi_ch4_<code>_<name>`` variables including the supplemental
     post-meter, and 2017-2018 monthly scale factors (month/6.5) for four sectors, three
-    of which EPA allows scaling past 2018. Points ``$LAIR_INVENTORY_DIR`` at it."""
+    of which EPA allows scaling past 2018. Points ``$LAIR_INVENTORY_DIR`` at it.
+    """
     lat, lon = np.array([40.05, 40.15]), np.array([-111.95, -111.85])
     d = tmp_path / "EPA" / "v2"
     (d / "express").mkdir(parents=True)
@@ -242,8 +244,10 @@ def epa_v2_express_dir(tmp_path, monkeypatch):
 def test_epa_monthly_is_the_express_product_scaled_by_month(
     epa_v2_express_dir, monkeypatch
 ):
-    """On a real (tiny) lair EPAv2 express archive, every sector reaches the prior,
-    post-meter included, and only EPA's extrapolable sectors are scaled past 2018."""
+    """
+    On a real (tiny) lair EPAv2 express archive, every sector reaches the prior,
+    post-meter included, and only EPA's extrapolable sectors are scaled past 2018.
+    """
     xe = types.ModuleType("xesmf")
     xe.Regridder = lambda src, dst, method: lambda da: da.copy()
     monkeypatch.setitem(sys.modules, "xesmf", xe)

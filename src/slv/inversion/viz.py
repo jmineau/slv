@@ -1,5 +1,7 @@
-"""Plots for :class:`~slv.inversion.pipelines.SLVMethaneInversion`: the domain,
-inputs, fluxes, domain totals and error diagnostics."""
+"""
+Plots for :class:`~slv.inversion.pipelines.SLVMethaneInversion`: the domain,
+inputs, fluxes, domain totals and error diagnostics.
+"""
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -11,8 +13,10 @@ from slv.emissions.point_sources import plot_point_sources
 
 
 def plot_sites(ax, sites, site_config, color="black"):
-    """Mark ``sites`` on a map axes: circles for stationary, triangles for mobile
-    (``site_config["type"]``). Returns one legend handle and label per kind."""
+    """
+    Mark ``sites`` on a map axes: circles for stationary, triangles for mobile
+    (``site_config["type"]``). Returns one legend handle and label per kind.
+    """
     # Plot all mobile and stationary sites, but only return one handle/label for each type
     mobile_marker = "^"
     stationary_marker = "o"
@@ -77,7 +81,8 @@ def plot_grid(
     add_point_sources=None,
     subplot_kwargs=None,
 ):
-    """Map the state grid's cells over tiles, with the sites and CH4 point sources.
+    """
+    Map the state grid's cells over tiles, with the sites and CH4 point sources.
 
     ``add_point_sources`` maps point-source kind to colour (default: every kind, in the
     Okabe-Ito palette); a falsy value leaves them off. Returns ``(fig, ax)``.
@@ -197,8 +202,10 @@ def plot_grid(
 
 
 def plot_concentrations(obs):
-    """Time series of the obs (a Series indexed by ``obs_location`` and ``obs_time``),
-    one line per location. Returns ``(fig, ax)``."""
+    """
+    Time series of the obs (a Series indexed by ``obs_location`` and ``obs_time``),
+    one line per location. Returns ``(fig, ax)``.
+    """
     fig, ax = plt.subplots()
 
     obs.unstack(level="obs_location").plot(ax=ax, alpha=0.7)
@@ -214,8 +221,10 @@ def plot_concentrations(obs):
 
 
 def plot_inventory(inventory, extent, tiler, zoom, subplot_kwargs=None):
-    """Map the time-mean of a flux field (umol/m2/s, with a ``time`` dim) over tiles.
-    Returns ``(fig, ax)``."""
+    """
+    Map the time-mean of a flux field (umol/m2/s, with a ``time`` dim) over tiles.
+    Returns ``(fig, ax)``.
+    """
     if subplot_kwargs is None:
         subplot_kwargs = {"figsize": (6, 6)}
     fig, ax = plt.subplots(subplot_kw={"projection": tiler.crs}, **subplot_kwargs)
@@ -374,8 +383,10 @@ def plot_fluxes(
     site_color="black",
     add_point_sources=None,
 ):
-    """fips' prior / posterior flux maps, with sites and point sources (default:
-    landfills and refineries) added to every panel."""
+    """
+    The fips prior / posterior flux maps, with sites and point sources (default:
+    landfills and refineries) added to every panel.
+    """
     fig, axes = problem.plot.fluxes(tiler=tiler, tiler_zoom=zoom)
 
     if add_point_sources is None:
@@ -403,8 +414,10 @@ def plot_fluxes_by_timestep(
     site_color="black",
     add_point_sources=None,
 ):
-    """One posterior flux map per flux time (8 per row). Returns the xarray
-    ``FacetGrid``."""
+    """
+    One posterior flux map per flux time (8 per row). Returns the xarray
+    ``FacetGrid``.
+    """
     facet = (
         problem.posterior_fluxes.to_xarray()
         .astype(float)
@@ -452,8 +465,10 @@ def plot_removed_contribution(removed_contribution, background):
 
 
 def plot_total_fluxes_over_time(*total_fluxes: pd.Series, units: str | None = None):
-    """Domain-total emissions over time; ``units`` labels the y axis (e.g. "Gg per MS
-    interval", as from ``SLVMethaneInversion.calculate_total_flux``)."""
+    """
+    Domain-total emissions over time; ``units`` labels the y axis (e.g. "Gg per MS
+    interval", as from ``SLVMethaneInversion.calculate_total_flux``).
+    """
     fig, ax = plt.subplots()
 
     for flux in total_fluxes:
@@ -474,7 +489,8 @@ def plot_total_fluxes_over_time(*total_fluxes: pd.Series, units: str | None = No
 
 
 def plot_mdm_components(components: dict[str, pd.DataFrame]):
-    """Plot the total error magnitude for each MDM error component.
+    """
+    Plot the total error magnitude for each MDM error component.
 
     Parameters
     ----------
@@ -524,7 +540,8 @@ def plot_mdm_components(components: dict[str, pd.DataFrame]):
 def plot_desroziers(
     by_site: pd.DataFrame, per_obs: pd.DataFrame, timeseries: pd.DataFrame
 ):
-    """Plot Desroziers diagnostic: variance comparison, box-whisker, and timeseries.
+    """
+    Plot Desroziers diagnostic: variance comparison, box-whisker, and timeseries.
 
     Parameters
     ----------
@@ -621,7 +638,8 @@ def plot_residuals(
     show_raw=True,
     location_dim="obs_location",
 ):
-    """Plot posterior - observed concentration residuals for all sites.
+    """
+    Plot posterior - observed concentration residuals for all sites.
 
     Parameters
     ----------
@@ -702,7 +720,8 @@ def plot_residuals(
 
 
 def plot_background_and_bias(problem):
-    """Plot background concentration and bias corrections.
+    """
+    Plot background concentration and bias corrections.
 
     Parameters
     ----------
