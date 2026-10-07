@@ -35,7 +35,9 @@ def load_trax_uncalibrated_windows(
     """
     if path is None:
         with (
-            files(__package__).joinpath("trax_uncalibrated_windows.csv").open("r") as f
+            files("slv.measurements.mobile")
+            .joinpath("trax_uncalibrated_windows.csv")
+            .open("r") as f
         ):
             df = pd.read_csv(f)
     else:
@@ -66,7 +68,11 @@ def load_trax_epoch_offsets(
     an analyzer swap or a rebuild of ``obs.parquet``.
     """
     if path is None:
-        with files(__package__).joinpath("trax_epoch_offsets.csv").open("r") as f:
+        with (
+            files("slv.measurements.mobile")
+            .joinpath("trax_epoch_offsets.csv")
+            .open("r") as f
+        ):
             df = pd.read_csv(f)
     else:
         df = pd.read_csv(path)

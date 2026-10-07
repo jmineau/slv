@@ -53,8 +53,8 @@ UTM12 = "EPSG:32612"
 #: group spatial dir). MRSC: Midvale Rail Service Center (trx03, the old-train yard;
 #: hull of trx03 parked positions, 2025 — see :mod:`.location`).
 storage_locations = {
-    "JRRSC": files(__package__).joinpath("jrrsc.geojson"),
-    "MRSC": files(__package__).joinpath("mrsc.geojson"),
+    "JRRSC": files("slv.measurements.mobile").joinpath("jrrsc.geojson"),
+    "MRSC": files("slv.measurements.mobile").joinpath("mrsc.geojson"),
 }
 
 
@@ -176,7 +176,9 @@ def load_depot_footprint(meters: bool = False) -> gpd.GeoDataFrame:
     per-minute median positions of degraded fixes (trx01 at JRRSC, trx03 at MRSC,
     Jan–Aug 2025), padded 15 m. Roughly 120 × 180 m and 220 × 230 m.
     """
-    with files(__package__).joinpath("trax_depots.geojson").open("r") as f:
+    with (
+        files("slv.measurements.mobile").joinpath("trax_depots.geojson").open("r") as f
+    ):
         gdf = gpd.read_file(f)
     return gdf.to_crs(UTM12) if meters else gdf
 

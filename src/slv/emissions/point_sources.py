@@ -13,7 +13,7 @@ from lair.geo import PC
 @lru_cache(maxsize=1)
 def _load_points() -> pd.DataFrame:
     """Load the bundled CH4 point-sources CSV (cached after first read)."""
-    csv_path = files(__package__).joinpath("ch4_point_sources.csv")
+    csv_path = files("slv.emissions").joinpath("ch4_point_sources.csv")
     with csv_path.open("r") as f:
         return pd.read_csv(f)
 
