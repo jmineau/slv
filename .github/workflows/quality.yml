@@ -2,38 +2,45 @@ name: Code Quality
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  quality-check:
+  quality:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash -l {0}
+    env:
+      UV_NO_SYNC: "1"  # `just` recipes run in the environment synced below
+      RUFF_OUTPUT_FORMAT: github  # annotate the PR diff
 
     steps:
-    - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+          fetch-depth: 0  # setuptools-scm reads the version from tags
 
-    - name: Create conda environment
-      uses: mamba-org/setup-micromamba@v2
-      with:
-        cache-downloads: true
-        micromamba-version: "latest"
-        environment-file: ci/environment.yml
+      - uses: astral-sh/setup-uv@v10.2.0
+        with:
+          version: "0.12.23"
+          python-version: "3.11"
 
-    - name: Install slv (editable)
-      run: pip install --no-deps -e .
+      - name: Install
+        run: uv sync --locked
 
-    - name: Lint with ruff
-      run: ruff check --output-format=github src/slv
+      - name: Lint and format check
+        run: uv run just lint
 
-    - name: Type checking with pyrefly
-      if: ${{ !cancelled() }}
-      run: pyrefly check
+      - name: Type check
+        if: ${{ !cancelled() }}
+        run: uv run just type-check
 
-    - name: Check docstring coverage
-      if: ${{ !cancelled() }}
-      # Fails below the current coverage; raise --fail-under as docstrings are added.
-      run: docstr-coverage src/slv --skip-magic --skip-init --fail-under 90
+      - name: Docstring coverage
+        if: ${{ !cancelled() }}
+        run: uv run just docstr

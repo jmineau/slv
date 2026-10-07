@@ -17,14 +17,6 @@ Salt Lake Valley py
    :target: https://codecov.io/gh/jmineau/slv
    :alt: Code Coverage
 
-.. image:: https://badge.fury.io/py/slv.svg
-   :target: https://badge.fury.io/py/slv
-   :alt: PyPI version
-
-.. image:: https://img.shields.io/pypi/pyversions/slv.svg
-   :target: https://pypi.org/project/slv/
-   :alt: Python Version
-
 .. image:: https://img.shields.io/badge/License-MIT-yellow.svg
    :target: https://opensource.org/licenses/MIT
    :alt: License

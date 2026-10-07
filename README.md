@@ -4,8 +4,6 @@
 [![Documentation](https://github.com/jmineau/slv/actions/workflows/docs.yml/badge.svg)](https://github.com/jmineau/slv/actions/workflows/docs.yml)
 [![Code Quality](https://github.com/jmineau/slv/actions/workflows/quality.yml/badge.svg)](https://github.com/jmineau/slv/actions/workflows/quality.yml)
 [![codecov](https://codecov.io/gh/jmineau/slv/branch/main/graph/badge.svg)](https://codecov.io/gh/jmineau/slv)
-[![PyPI version](https://badge.fury.io/py/slv.svg)](https://badge.fury.io/py/slv)
-[![Python Version](https://img.shields.io/pypi/pyversions/slv.svg)](https://pypi.org/project/slv/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.22258471.svg)](https://doi.org/10.5281/zenodo.22258471)
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)

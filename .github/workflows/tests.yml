@@ -2,47 +2,87 @@ name: Tests
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   test:
+    name: ${{ matrix.os }} / Python ${{ matrix.python-version }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]  # slv runs on Linux (CHPC)
+        python-version: ["3.11", "3.12", "3.13", "3.14"]
+    env:
+      UV_NO_SYNC: "1"  # `just` recipes run in the environment synced below
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+          fetch-depth: 0  # setuptools-scm reads the version from tags
+
+      - uses: astral-sh/setup-uv@v10.2.0
+        with:
+          version: "0.12.23"
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install
+        run: uv sync --locked
+
+      - name: Test
+        run: uv run just cov
+
+      - name: Upload coverage to Codecov
+        if: ${{ matrix.os == 'ubuntu-latest' && matrix.python-version == '3.11' && !cancelled() }}
+        uses: codecov/codecov-action@v7
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: coverage.xml
+
+      - name: Upload test results to Codecov
+        if: ${{ matrix.os == 'ubuntu-latest' && matrix.python-version == '3.11' && !cancelled() }}
+        uses: codecov/codecov-action@v7
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: junit.xml
+          report_type: test_results
+
+  # xesmf needs conda-forge's ESMF, so it is not in uv.lock and the job above
+  # skips the tests that need it. This job runs the whole suite in the conda
+  # environment that `slv` installs into for regridding.
+  conda:
+    name: conda env (with xesmf)
     runs-on: ubuntu-latest
     defaults:
       run:
         shell: bash -l {0}
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: ["3.11", "3.12"]
 
     steps:
-    - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+          fetch-depth: 0  # setuptools-scm reads the version from tags
 
-    - name: Create conda environment
-      uses: mamba-org/setup-micromamba@v2
-      with:
-        cache-downloads: true
-        micromamba-version: "latest"
-        environment-file: ci/environment.yml
-        create-args: >-
-          python=${{ matrix.python-version }}
+      - uses: mamba-org/setup-micromamba@v3
+        with:
+          cache-downloads: true
+          environment-file: ci/environment.yml
+          create-args: >-
+            python=3.12
 
-    - name: Install slv (editable)
-      run: pip install --no-deps -e .
+      - name: Install slv (its dependencies come from the environment)
+        run: pip install --no-deps -e .
 
-    - name: Run tests with pytest
-      run: pytest -v --cov=slv --junitxml=junit.xml -o junit_family=legacy
-
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v5
-      if: ${{ matrix.python-version == '3.12' && !cancelled() }}
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
-
-    - name: Upload test results to Codecov
-      if: ${{ matrix.python-version == '3.12' && !cancelled() }}
-      uses: codecov/test-results-action@v1
-      with:
-        token: ${{ secrets.CODECOV_TOKEN }}
+      - name: Test
+        run: pytest -n auto --maxprocesses=8 -m "not network and not slow"
