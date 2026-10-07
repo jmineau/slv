@@ -215,8 +215,8 @@ Two paths depending on `xesmf` (regridding) needs:
 
 ```bash
 # Standard (uv) — what the user runs day-to-day
-uv sync                        # base
-uv sync --extra inversion      # adds fips[flux] + joblib + seaborn
+uv sync                        # slv, the inversion extra (via the dev group), dev tools
+uv sync --no-dev               # slv alone; add --extra inversion for fips[flux] etc.
 
 # With xesmf (needs conda-built ESMF)
 conda env create -f ci/environment.yml
@@ -230,29 +230,37 @@ enough for `domain`, `basemap`, `measurements`, `emissions`.
 
 ## Dev commands
 
-Driven by `just` + `uv`. There is **no `just install`** recipe — use
-`uv sync` directly.
+Driven by `just` + `uv`; CI runs the same recipes (`just` lists them all).
 
 | Command | What it does |
 |---|---|
-| `just test` | `uv run pytest -v` |
-| `just quality-check` | ruff (`src/slv`) + pyrefly + tests |
-| `just ruff` | `uv run ruff check --fix` + `uv run ruff format` on `src/slv` |
-| `just build-docs` | clean + Sphinx HTML build |
-| `just pre-commit` | `uv run pre-commit run --all-files` |
+| `just sync` | `uv sync`: slv, `slv[inversion]` and the dev tools into `.venv` |
+| `just test` | the tests, in parallel (extra args go to pytest; `-n 0` for serial) |
+| `just lint` / `just format` | ruff check and format check / fix and format |
+| `just type-check` | pyrefly |
+| `just docstr` | docstring coverage of the public API (95%) |
+| `just quality-check` | lint, type check, docstrings, tests |
+| `just build-docs` | clean Sphinx HTML build; warnings are errors (`just docs-serve` previews) |
+| `just pre-commit` | every pre-commit hook on every file |
+| `just changelog` / `just release X` | draft CHANGELOG entries / tag and push a release |
 | `just clean` | wipe build artifacts, caches, coverage, docs |
 
-CI: `.github/workflows/` has `tests.yml`, `quality.yml`, `docs.yml`, all on the
-conda env in `ci/environment.yml` (no `uv` there -- workflows call tools directly,
-not `just`). No CHPC data roots are set in CI: tests must not read group data. pyrefly
-fails on any error not in `pyrefly-baseline.json` (the 2026-10 errors, nearly all
-pandas-stubs noise; fix them over time and `--update-baseline`);
-docstr-coverage fails below `--fail-under` in `quality.yml` (90; docstrings at 95 %, so
-new public functions need one). The CI env carries the inversion extra's conda deps
-(seaborn, joblib) because slv is installed `--no-deps`; add new extras there too. The docs
-build is warning-free: keep it so (`sphinx-build -q -b html docs <out>`), and numpy
-docstring sections must be ones napoleon knows (an unknown header such as "Cache layout"
-is read as more parameters).
+CI (`.github/workflows/`): `tests.yml`, `quality.yml` and `docs.yml` install
+`uv.lock` and run the recipes above, on Linux and Python 3.11 to 3.14; `publish.yml`
+makes the GitHub Release from a tag (Zenodo archives it). xesmf is not in `uv.lock`
+(conda-forge only), so there the tests that need it skip; the Tests workflow's
+`conda` job runs the whole suite in `ci/environment.yml`, which carries the conda
+deps of slv and its inversion extra because slv is installed `--no-deps` (keep its
+pins in step with `pyproject.toml`; add new extras there too). No CHPC data roots are
+set in CI: tests must not read group data. Warnings are errors in the tests; a test
+that expects one asserts it with `pytest.warns`, and a third-party one is ignored by
+message in `[tool.pytest]`. pyrefly fails on any error not in `pyrefly-baseline.json`
+(the 2026-10 errors, nearly all pandas-stubs noise; fix them over time and
+`--update-baseline`). The tooling comes from
+[jmineau/python-template](https://github.com/jmineau/python-template)
+(`.copier-answers.yml`); `copier update` pulls in its changes. Numpy docstring
+sections must be ones napoleon knows (an unknown header such as "Cache layout" is
+read as more parameters).
 
 ## Invariants to respect
 
@@ -294,9 +302,9 @@ is read as more parameters).
 
 ## Conventions and tooling
 
-- **Python**: 3.11+ (`ruff.target-version = "py311"`; pandas 3 and current xarray need 3.11).
-- **Linting**: ruff selects `E, F, UP, B, SIM, I` and ignores `E501`.
-  (Note: no `D` pydocstyle rules here, unlike `fips`.)
+- **Python**: 3.11+ (`requires-python`, which ruff also reads; pandas 3 and current xarray need 3.11).
+- **Linting**: ruff selects `E, F, UP, B, SIM, I, NPY, RUF100` and ignores `E501`,
+  over `src/` and `tests/`.
 - **Types**: pyrefly (default preset) on `src/`, with a baseline of the errors it
   found on adoption; a new error fails. Suppress one only with
   `# pyrefly: ignore[<code>]` on the line above, after a comment saying why.

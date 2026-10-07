@@ -4,9 +4,9 @@ import cartopy.crs as ccrs
 import matplotlib
 
 matplotlib.use("Agg")
-import matplotlib.pyplot as plt  # noqa: E402
+import matplotlib.pyplot as plt
 
-from slv.emissions.point_sources import _load_points, plot_point_sources  # noqa: E402
+from slv.emissions.point_sources import _load_points, plot_point_sources
 
 
 def test_plots_one_marker_per_source():

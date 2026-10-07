@@ -55,15 +55,15 @@ def test_read_aeris_converts_ch4_to_ppb(tmp_path):
     assert aeris.index[0] == pd.Timestamp("2024-08-05 18:00:00.500")
 
 
-MET_COLUMNS = 26
+MET_COLUMNS = 25  # as in the vehicle met files
 
 
 def _met_row(hhmmss, lat, lon, speed_kts, direction):
     row = ["0"] * MET_COLUMNS
     row[1:5] = [hhmmss, "2024", "8", "5"]
     row[5], row[6], row[8] = str(lat), str(lon), "1300"
-    row[21], row[22] = str(direction), str(speed_kts)  # GPS-corrected true dir, kts
-    row[25] = "12.5"  # vehicle speed
+    row[20], row[22] = str(direction), str(speed_kts)  # GPS-corrected true dir, kts
+    row[24] = "12.5"  # vehicle speed
     return ",".join(row)
 
 

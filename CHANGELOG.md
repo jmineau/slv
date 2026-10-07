@@ -34,6 +34,8 @@ versions are calendar-based (YYYY.M.PATCH).
   network through the real `line_locate_point` path), transects and the Wyoming lab.
   Two weak tests fixed (the off-track drop test passed without the drop; an always-true
   assertion)
+- The documentation has a version dropdown. The site opens at the latest
+  release, `dev/` follows `main`, and each release keeps its own pages.
 
 ### Changed
 

@@ -47,6 +47,7 @@ def make_stationary(n_per_hour=30, hours=2, sites=("A", "B"), instrument="lgr_ug
 def make_mobile(n_per_bin=5, n_bins=3, instrument="lgr_ugga"):
     """Build a minimal mobile observations DataFrame with distinct spatial clusters."""
     rows = []
+    rng = np.random.default_rng(0)
     base = pd.Timestamp("2024-01-01")
     lats = [40.72, 40.83, 40.94]
     lons = [-111.92, -111.83, -111.74]
@@ -58,8 +59,8 @@ def make_mobile(n_per_bin=5, n_bins=3, instrument="lgr_ugga"):
                     "site": "mobile",
                     "instrument": instrument,
                     "is_mobile": True,
-                    "latitude": lats[b] + np.random.uniform(-0.001, 0.001),
-                    "longitude": lons[b] + np.random.uniform(-0.001, 0.001),
+                    "latitude": lats[b] + rng.uniform(-0.001, 0.001),
+                    "longitude": lons[b] + rng.uniform(-0.001, 0.001),
                     "altitude": 1300.0,
                     "height": 2.0,
                     "CH4": 1.9 + 0.01 * i,

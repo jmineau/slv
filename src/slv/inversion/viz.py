@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from lair.geo import PC, add_latlon_ticks
+from matplotlib.markers import MarkerStyle
 
 from slv.emissions.point_sources import plot_point_sources
 
@@ -116,15 +117,16 @@ def plot_grid(
         from slv.emissions.point_sources import markers as ps_markers
 
         for ps_type, color in add_point_sources.items():
-            # Plot one dummy for legend
+            # Plot one dummy for legend; line markers ("+", "1") have no edge
+            marker = ps_markers.get(ps_type, "o")
             h = ax.scatter(
                 [],
                 [],
                 c=color,
-                marker=ps_markers.get(ps_type, "o"),
+                marker=marker,
                 s=80,
                 label=ps_type.title(),
-                edgecolor="k",
+                edgecolor="k" if MarkerStyle(marker).is_filled() else None,
                 linewidth=0.8,
             )
             ps_handles.append(h)
