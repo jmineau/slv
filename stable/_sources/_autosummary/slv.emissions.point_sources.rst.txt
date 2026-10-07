@@ -1,0 +1,12 @@
+slv.emissions.point\_sources
+============================
+
+.. automodule:: slv.emissions.point_sources
+
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      plot_point_sources
+   
