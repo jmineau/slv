@@ -3907,8 +3907,8 @@ wheels = [
 
 [[package]]
 name = "uataq"
-version = "2025.11.0"
-source = { git = "https://github.com/jmineau/uataq#a4dbfa672fa5d3a5979b36775571c2cb006284c9" }
+version = "2025.11.1.dev61+gbbebd4b09"
+source = { git = "https://github.com/jmineau/uataq#bbebd4b099d52676ca48c6aa8fe5c420169f7e7a" }
 dependencies = [
     { name = "geopandas" },
     { name = "numpy" },

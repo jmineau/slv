@@ -106,9 +106,6 @@ log_level = "INFO"  # show captured logs for failing tests
 # third-party warning with e.g. "ignore:some message:DeprecationWarning:pkg".
 filterwarnings = [
     "error",
-    # uataq sets pandas' copy_on_write option on import; pandas 3 always copies
-    # on write and deprecates the option.
-    "ignore:The 'mode.copy_on_write' option is deprecated:pandas.errors.Pandas4Warning",
     # seaborn's boxplot passes matplotlib the old `vert` argument.
     "ignore:vert. bool:PendingDeprecationWarning:seaborn",
     "ignore:vert. bool:DeprecationWarning:seaborn",
