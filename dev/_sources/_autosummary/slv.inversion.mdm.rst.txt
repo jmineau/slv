@@ -1,0 +1,12 @@
+slv.inversion.mdm
+=================
+
+.. automodule:: slv.inversion.mdm
+
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      ModelDataMismatchMixin
+   

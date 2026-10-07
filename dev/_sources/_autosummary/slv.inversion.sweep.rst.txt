@@ -1,0 +1,21 @@
+slv.inversion.sweep
+===================
+
+.. automodule:: slv.inversion.sweep
+
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      collect_metrics
+      config_id
+      run_sweep_job
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      Sweep
+      SweepResults
+   

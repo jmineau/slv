@@ -1,0 +1,27 @@
+slv.measurements.mobile.gps
+===========================
+
+.. automodule:: slv.measurements.mobile.gps
+
+   
+   .. rubric:: Module Attributes
+
+   .. autosummary::
+   
+      GPS_NUMERIC
+      ALTITUDE_RANGE_MSL
+      HOREL_POST_PILOT
+      LIN_GPS_DROP_FLAGS
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      clock_checked_days
+      fill_gps_gaps_with_horel
+      lin_clock_offset_by_day
+      merge_with_gps
+      read_horel_cr1000
+      read_lin_gps
+      read_trax_gps
+   

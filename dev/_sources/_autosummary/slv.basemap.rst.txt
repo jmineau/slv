@@ -1,0 +1,29 @@
+slv.basemap
+===========
+
+.. automodule:: slv.basemap
+
+   
+   .. rubric:: Module Attributes
+
+   .. autosummary::
+   
+      TRAX_COLORS
+      STADIA_ATTRIBUTION
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      load_borders
+      load_interstates
+      load_mesowest
+      load_population
+      stadia_tiles
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      SaltLake
+   

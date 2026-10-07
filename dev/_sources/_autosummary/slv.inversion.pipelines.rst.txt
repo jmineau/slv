@@ -1,0 +1,18 @@
+slv.inversion.pipelines
+=======================
+
+.. automodule:: slv.inversion.pipelines
+
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      stack_jacobians
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      SLVMethaneInversion
+   

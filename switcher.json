@@ -1,5 +1,10 @@
 [
   {
+    "name": "dev",
+    "version": "dev",
+    "url": "https://jmineau.github.io/slv/dev/"
+  },
+  {
     "name": "2026.9.1 (stable)",
     "version": "2026.9.1",
     "url": "https://jmineau.github.io/slv/stable/",

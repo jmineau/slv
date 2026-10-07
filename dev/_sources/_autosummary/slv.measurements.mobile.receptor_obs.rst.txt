@@ -1,0 +1,19 @@
+slv.measurements.mobile.receptor\_obs
+=====================================
+
+.. automodule:: slv.measurements.mobile.receptor_obs
+
+   
+   .. rubric:: Module Attributes
+
+   .. autosummary::
+   
+      CROSSING_STATES
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      inlet_lag_seconds
+      trax_receptor_observations
+   

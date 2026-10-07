@@ -1,0 +1,908 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>slv.measurements.mobile.obs &#8212; slv dev</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=ba117b66" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../_static/documentation_options.js?v=4dc2ff04"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_autosummary/slv.measurements.mobile.obs';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://jmineau.github.io/slv/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            true;
+        </script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="slv.measurements.mobile.receptor_obs" href="slv.measurements.mobile.receptor_obs.html" />
+    <link rel="prev" title="slv.measurements.mobile.network" href="slv.measurements.mobile.network.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="2026.9.2.dev67+gd2401dbd1" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">slv dev</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../usage.html">
+    Usage
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../api.html">
+    API Reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../contributing.html">
+    Contributing
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/jmineau/slv" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../usage.html">
+    Usage
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../api.html">
+    API Reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../contributing.html">
+    Contributing
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-3"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-3"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-3"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-3">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/jmineau/slv" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="slv.html">slv</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="slv.basemap.html">slv.basemap</a></li>
+<li class="toctree-l2"><a class="reference internal" href="slv.domain.html">slv.domain</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="slv.emissions.html">slv.emissions</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="slv.emissions.point_sources.html">slv.emissions.point_sources</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="slv.inversion.html">slv.inversion</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="slv.inversion.background.html">slv.inversion.background</a></li>
+<li class="toctree-l3"><a class="reference internal" href="slv.inversion.bias.html">slv.inversion.bias</a></li>
+<li class="toctree-l3"><a class="reference internal" href="slv.inversion.cache.html">slv.inversion.cache</a></li>
+<li class="toctree-l3"><a class="reference internal" href="slv.inversion.config.html">slv.inversion.config</a></li>
+<li class="toctree-l3"><a class="reference internal" href="slv.inversion.covariances.html">slv.inversion.covariances</a></li>
+<li class="toctree-l3"><a class="reference internal" href="slv.inversion.coverage.html">slv.inversion.coverage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="slv.inversion.data.html">slv.inversion.data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="slv.inversion.mdm.html">slv.inversion.mdm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="slv.inversion.pipelines.html">slv.inversion.pipelines</a></li>
+<li class="toctree-l3"><a class="reference internal" href="slv.inversion.priors.html">slv.inversion.priors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="slv.inversion.report.html">slv.inversion.report</a></li>
+<li class="toctree-l3"><a class="reference internal" href="slv.inversion.sweep.html">slv.inversion.sweep</a></li>
+<li class="toctree-l3"><a class="reference internal" href="slv.inversion.viz.html">slv.inversion.viz</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="slv.measurements.html">slv.measurements</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="slv.measurements.aggregate.html">slv.measurements.aggregate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="slv.measurements.background.html">slv.measurements.background</a></li>
+<li class="toctree-l3"><a class="reference internal" href="slv.measurements.concentrations.html">slv.measurements.concentrations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="slv.measurements.instruments.html">slv.measurements.instruments</a></li>
+<li class="toctree-l3 current active has-children"><a class="reference internal" href="slv.measurements.mobile.html">slv.measurements.mobile</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="slv.measurements.mobile.calibration.html">slv.measurements.mobile.calibration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.measurements.mobile.gps.html">slv.measurements.mobile.gps</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.measurements.mobile.location.html">slv.measurements.mobile.location</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.measurements.mobile.network.html">slv.measurements.mobile.network</a></li>
+<li class="toctree-l4 current active"><a class="current reference internal" href="#">slv.measurements.mobile.obs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.measurements.mobile.receptor_obs.html">slv.measurements.mobile.receptor_obs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.measurements.mobile.receptors.html">slv.measurements.mobile.receptors</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.measurements.mobile.transects.html">slv.measurements.mobile.transects</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.measurements.mobile.wyoming.html">slv.measurements.mobile.wyoming</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="slv.measurements.pollutants.html">slv.measurements.pollutants</a></li>
+<li class="toctree-l3"><a class="reference internal" href="slv.measurements.sites.html">slv.measurements.sites</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="slv.meteorology.html">slv.meteorology</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="slv.meteorology.mesowest.html">slv.meteorology.mesowest</a></li>
+<li class="toctree-l3"><a class="reference internal" href="slv.meteorology.pcaps.html">slv.meteorology.pcaps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="slv.meteorology.vhd.html">slv.meteorology.vhd</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../api.html" class="nav-link">API Reference</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="slv.html" class="nav-link">slv</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="slv.measurements.html" class="nav-link">slv.measurements</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="slv.measurements.mobile.html" class="nav-link">slv.measurements.mobile</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">slv.measurements.mobile.obs</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="module-slv.measurements.mobile.obs">
+<span id="slv-measurements-mobile-obs"></span><h1>slv.measurements.mobile.obs<a class="headerlink" href="#module-slv.measurements.mobile.obs" title="Link to this heading">#</a></h1>
+<p>The georeferenced TRAX CH4 observation record: build it from the pipeline levels,
+tag every row with calibration provenance and location, cache it, and load it with a
+location filter.</p>
+<p class="rubric">Module Attributes</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#slv.measurements.mobile.obs.LOCATION_SETS" title="slv.measurements.mobile.obs.LOCATION_SETS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LOCATION_SETS</span></code></a></p></td>
+<td><p>Named sets of location states kept by <a class="reference internal" href="#slv.measurements.mobile.obs.load_trax_obs" title="slv.measurements.mobile.obs.load_trax_obs"><code class="xref py py-func docutils literal notranslate"><span class="pre">load_trax_obs()</span></code></a>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#slv.measurements.mobile.obs.LOW_PRESSURE_BAND" title="slv.measurements.mobile.obs.LOW_PRESSURE_BAND"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LOW_PRESSURE_BAND</span></code></a></p></td>
+<td><p>Cavity-pressure band (torr) inside which manual-cal rows flagged −63 (pressure outside the pipeline's 135–145 window) are kept and tagged <code class="docutils literal notranslate"><span class="pre">low_pressure</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#slv.measurements.mobile.obs.PRESSURE_BAND" title="slv.measurements.mobile.obs.PRESSURE_BAND"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PRESSURE_BAND</span></code></a></p></td>
+<td><p>Cavity-pressure band (torr) the LGR is specified for; the pipeline's own <code class="docutils literal notranslate"><span class="pre">-63</span></code> flag uses the same bounds.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#slv.measurements.mobile.obs.DROPOUT_CH4_PPM" title="slv.measurements.mobile.obs.DROPOUT_CH4_PPM"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DROPOUT_CH4_PPM</span></code></a></p></td>
+<td><p>the global background is ~1.85-2.0 ppm and the pipeline's valid range starts at 1.70, so the shoulder of a dropout passes QC.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#slv.measurements.mobile.obs.DROPOUT_WINDOW_MIN" title="slv.measurements.mobile.obs.DROPOUT_WINDOW_MIN"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DROPOUT_WINDOW_MIN</span></code></a></p></td>
+<td><p>Minutes either side of a dropout row that are dropped with it (<a class="reference internal" href="#slv.measurements.mobile.obs.apply_dropout_rule" title="slv.measurements.mobile.obs.apply_dropout_rule"><code class="xref py py-func docutils literal notranslate"><span class="pre">apply_dropout_rule()</span></code></a>).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#slv.measurements.mobile.obs.SLOPE_TOL" title="slv.measurements.mobile.obs.SLOPE_TOL"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SLOPE_TOL</span></code></a></p></td>
+<td><p>Calibrated rows whose slope <code class="docutils literal notranslate"><span class="pre">CH4d_m</span></code> deviates more than this fraction from the day's median slope are dropped.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p class="rubric">Functions</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#slv.measurements.mobile.obs.apply_dropout_rule" title="slv.measurements.mobile.obs.apply_dropout_rule"><code class="xref py py-obj docutils literal notranslate"><span class="pre">apply_dropout_rule</span></code></a>(df, dropouts[, window_min])</p></td>
+<td><p>Drop rows within <code class="docutils literal notranslate"><span class="pre">window_min</span></code> minutes of a CH4 laser dropout.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#slv.measurements.mobile.obs.apply_low_pressure_rule" title="slv.measurements.mobile.obs.apply_low_pressure_rule"><code class="xref py py-obj docutils literal notranslate"><span class="pre">apply_low_pressure_rule</span></code></a>(df[, band])</p></td>
+<td><p>Keep rows flagged −63 whose <code class="docutils literal notranslate"><span class="pre">Cavity_P_torr</span></code> lies inside <code class="docutils literal notranslate"><span class="pre">band</span></code> and tag them.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#slv.measurements.mobile.obs.apply_pressure_rule" title="slv.measurements.mobile.obs.apply_pressure_rule"><code class="xref py py-obj docutils literal notranslate"><span class="pre">apply_pressure_rule</span></code></a>(df, pressure[, band, ...])</p></td>
+<td><p>Drop <code class="docutils literal notranslate"><span class="pre">sources</span></code> rows whose cavity pressure is outside <code class="docutils literal notranslate"><span class="pre">band</span></code> (see <a class="reference internal" href="#slv.measurements.mobile.obs.PRESSURE_BAND" title="slv.measurements.mobile.obs.PRESSURE_BAND"><code class="xref py py-data docutils literal notranslate"><span class="pre">PRESSURE_BAND</span></code></a>).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#slv.measurements.mobile.obs.apply_slope_guard" title="slv.measurements.mobile.obs.apply_slope_guard"><code class="xref py py-obj docutils literal notranslate"><span class="pre">apply_slope_guard</span></code></a>(df[, tol])</p></td>
+<td><p>Set <code class="docutils literal notranslate"><span class="pre">CH4</span></code> to NaN where <code class="docutils literal notranslate"><span class="pre">CH4d_m</span></code> differs from the same UTC day's median slope by more than <code class="docutils literal notranslate"><span class="pre">tol</span></code> (fraction).</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#slv.measurements.mobile.obs.build_trax_obs" title="slv.measurements.mobile.obs.build_trax_obs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">build_trax_obs</span></code></a>([site, time_range, ...])</p></td>
+<td><p>Build the georeferenced TRAX CH4 record from the pipeline levels.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#slv.measurements.mobile.obs.dropout_times" title="slv.measurements.mobile.obs.dropout_times"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dropout_times</span></code></a>(support[, threshold])</p></td>
+<td><p>Times of atmosphere rows whose <em>unvalidated</em> CH4 is below <code class="docutils literal notranslate"><span class="pre">threshold</span></code> — laser dropouts.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#slv.measurements.mobile.obs.filter_location" title="slv.measurements.mobile.obs.filter_location"><code class="xref py py-obj docutils literal notranslate"><span class="pre">filter_location</span></code></a>(df[, location])</p></td>
+<td><p>Keep rows whose <code class="docutils literal notranslate"><span class="pre">state</span></code> is in <code class="docutils literal notranslate"><span class="pre">location</span></code> (a <a class="reference internal" href="#slv.measurements.mobile.obs.LOCATION_SETS" title="slv.measurements.mobile.obs.LOCATION_SETS"><code class="xref py py-data docutils literal notranslate"><span class="pre">LOCATION_SETS</span></code></a> name or a tuple of states).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#slv.measurements.mobile.obs.label_trax_location" title="slv.measurements.mobile.obs.label_trax_location"><code class="xref py py-obj docutils literal notranslate"><span class="pre">label_trax_location</span></code></a>(obs[, site, time_range, ...])</p></td>
+<td><p>Add <code class="docutils literal notranslate"><span class="pre">state</span></code>, <code class="docutils literal notranslate"><span class="pre">indoor</span></code> and <code class="docutils literal notranslate"><span class="pre">yard_name</span></code> to a georeferenced TRAX obs frame.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#slv.measurements.mobile.obs.load_trax_obs" title="slv.measurements.mobile.obs.load_trax_obs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_trax_obs</span></code></a>([cache, include_uncalibrated, ...])</p></td>
+<td><p>Load the cached TRAX CH4 record (<code class="docutils literal notranslate"><span class="pre">$SLV_USER_DATA_DIR/trax/obs.parquet</span></code>), building it if needed.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#slv.measurements.mobile.obs.recover_hot_rows" title="slv.measurements.mobile.obs.recover_hot_rows"><code class="xref py py-obj docutils literal notranslate"><span class="pre">recover_hot_rows</span></code></a>(cal, support[, flag])</p></td>
+<td><p>Calibrate the rows the pipeline flagged <code class="docutils literal notranslate"><span class="pre">-64</span></code> (cavity T outside 5-45 C) itself.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<dl class="py data">
+<dt class="sig sig-object py" id="slv.measurements.mobile.obs.LOCATION_SETS">
+<span class="sig-prename descclassname"><span class="pre">slv.measurements.mobile.obs.</span></span><span class="sig-name descname"><span class="pre">LOCATION_SETS</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a><span class="p"><span class="pre">]</span></span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'all':</span> <span class="pre">None,</span> <span class="pre">'on_track':</span> <span class="pre">('route',</span> <span class="pre">'line',</span> <span class="pre">'stopped'),</span> <span class="pre">'outdoor':</span> <span class="pre">('route',</span> <span class="pre">'line',</span> <span class="pre">'stopped',</span> <span class="pre">'yard')}</span></span><a class="headerlink" href="#slv.measurements.mobile.obs.LOCATION_SETS" title="Link to this definition">#</a></dt>
+<dd><p>Named sets of location states kept by <a class="reference internal" href="#slv.measurements.mobile.obs.load_trax_obs" title="slv.measurements.mobile.obs.load_trax_obs"><code class="xref py py-func docutils literal notranslate"><span class="pre">load_trax_obs()</span></code></a>.
+<code class="docutils literal notranslate"><span class="pre">on_track</span></code> reproduces the old route-buffer behaviour (minus shed multipath ejecta,
+plus pass-bys at the yards); <code class="docutils literal notranslate"><span class="pre">outdoor</span></code> adds minutes parked outside in a yard;
+<code class="docutils literal notranslate"><span class="pre">all</span></code> keeps everything, including indoor (shed) and unknown minutes.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="slv.measurements.mobile.obs.filter_location">
+<span class="sig-prename descclassname"><span class="pre">slv.measurements.mobile.obs.</span></span><span class="sig-name descname"><span class="pre">filter_location</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">location</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'on_track'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/slv/measurements/mobile/obs.html#filter_location"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#slv.measurements.mobile.obs.filter_location" title="Link to this definition">#</a></dt>
+<dd><p>Keep rows whose <code class="docutils literal notranslate"><span class="pre">state</span></code> is in <code class="docutils literal notranslate"><span class="pre">location</span></code> (a <a class="reference internal" href="#slv.measurements.mobile.obs.LOCATION_SETS" title="slv.measurements.mobile.obs.LOCATION_SETS"><code class="xref py py-data docutils literal notranslate"><span class="pre">LOCATION_SETS</span></code></a> name or a
+tuple of states). <code class="docutils literal notranslate"><span class="pre">None</span></code>/<code class="docutils literal notranslate"><span class="pre">&quot;all&quot;</span></code> keeps every row.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.6)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="slv.measurements.mobile.obs.label_trax_location">
+<span class="sig-prename descclassname"><span class="pre">slv.measurements.mobile.obs.</span></span><span class="sig-name descname"><span class="pre">label_trax_location</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">site</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'trx01'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">states</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/slv/measurements/mobile/obs.html#label_trax_location"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#slv.measurements.mobile.obs.label_trax_location" title="Link to this definition">#</a></dt>
+<dd><p>Add <code class="docutils literal notranslate"><span class="pre">state</span></code>, <code class="docutils literal notranslate"><span class="pre">indoor</span></code> and <code class="docutils literal notranslate"><span class="pre">yard_name</span></code> to a georeferenced TRAX obs frame.</p>
+<p>Uses <a class="reference internal" href="slv.measurements.mobile.location.html#module-slv.measurements.mobile.location" title="slv.measurements.mobile.location"><code class="xref py py-mod docutils literal notranslate"><span class="pre">slv.measurements.mobile.location</span></code></a>: per-minute states from the best GPS
+source for the era (<code class="docutils literal notranslate"><span class="pre">states</span></code> may be passed in to reuse a classification).
+Observations are matched on <code class="docutils literal notranslate"><span class="pre">Time_UTC</span></code> floored to the minute; minutes without a
+classification come back <code class="docutils literal notranslate"><span class="pre">unknown</span></code> / NA.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.6)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="slv.measurements.mobile.obs.LOW_PRESSURE_BAND">
+<span class="sig-prename descclassname"><span class="pre">slv.measurements.mobile.obs.</span></span><span class="sig-name descname"><span class="pre">LOW_PRESSURE_BAND</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(100.0,</span> <span class="pre">145.0)</span></span><a class="headerlink" href="#slv.measurements.mobile.obs.LOW_PRESSURE_BAND" title="Link to this definition">#</a></dt>
+<dd><p>Cavity-pressure band (torr) inside which manual-cal rows flagged −63 (pressure outside the
+pipeline’s 135–145 window) are kept and tagged <code class="docutils literal notranslate"><span class="pre">low_pressure</span></code>. LGR 13-0221 ran at 131–134 torr
+in Jan–Mar 2025 and 102–110 torr from Jul 2026 with CH4 within 0.02 ppm of its normal-pressure
+behaviour (measurements/trax/record/outputs/pressure_flag_check.md); the 5–30 torr pressure
+collapses of 2016/2017/2019 stay excluded.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="slv.measurements.mobile.obs.PRESSURE_BAND">
+<span class="sig-prename descclassname"><span class="pre">slv.measurements.mobile.obs.</span></span><span class="sig-name descname"><span class="pre">PRESSURE_BAND</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.14)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(135.0,</span> <span class="pre">145.0)</span></span><a class="headerlink" href="#slv.measurements.mobile.obs.PRESSURE_BAND" title="Link to this definition">#</a></dt>
+<dd><p>Cavity-pressure band (torr) the LGR is specified for; the pipeline’s own <code class="docutils literal notranslate"><span class="pre">-63</span></code> flag uses the
+same bounds. It has to be re-checked in the loader because <code class="docutils literal notranslate"><span class="pre">lgr_ugga_qaqc.r</span></code> assigns flags in
+sequence, so <code class="docutils literal notranslate"><span class="pre">-64</span></code> (cavity T out of range) OVERWRITES <code class="docutils literal notranslate"><span class="pre">-63</span></code> on a row that fails both — and
+<code class="docutils literal notranslate"><span class="pre">-64</span></code> is an accepted flag. 360 on-track minutes at 100-135 torr reached obs.parquet that way
+(2016-12-30/31 and 2017-01-08, the sample line starving; low tail -0.10 ppm).</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="slv.measurements.mobile.obs.DROPOUT_CH4_PPM">
+<span class="sig-prename descclassname"><span class="pre">slv.measurements.mobile.obs.</span></span><span class="sig-name descname"><span class="pre">DROPOUT_CH4_PPM</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1.7</span></span><a class="headerlink" href="#slv.measurements.mobile.obs.DROPOUT_CH4_PPM" title="Link to this definition">#</a></dt>
+<dd><p>the global background is
+~1.85-2.0 ppm and the pipeline’s valid range starts at 1.70, so the shoulder of a dropout passes
+QC. Measured bias of the surviving rows: -0.29 ppm one minute out, -0.22 within 8 min, gone by 15.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>An atmosphere row below this (ppm) is a CH4 laser dropout, not air</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="slv.measurements.mobile.obs.DROPOUT_WINDOW_MIN">
+<span class="sig-prename descclassname"><span class="pre">slv.measurements.mobile.obs.</span></span><span class="sig-name descname"><span class="pre">DROPOUT_WINDOW_MIN</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><span class="pre">int</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">8</span></span><a class="headerlink" href="#slv.measurements.mobile.obs.DROPOUT_WINDOW_MIN" title="Link to this definition">#</a></dt>
+<dd><p>Minutes either side of a dropout row that are dropped with it (<a class="reference internal" href="#slv.measurements.mobile.obs.apply_dropout_rule" title="slv.measurements.mobile.obs.apply_dropout_rule"><code class="xref py py-func docutils literal notranslate"><span class="pre">apply_dropout_rule()</span></code></a>).</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="slv.measurements.mobile.obs.SLOPE_TOL">
+<span class="sig-prename descclassname"><span class="pre">slv.measurements.mobile.obs.</span></span><span class="sig-name descname"><span class="pre">SLOPE_TOL</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.14)"><span class="pre">float</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.14)"><span class="pre">None</span></a></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0.05</span></span><a class="headerlink" href="#slv.measurements.mobile.obs.SLOPE_TOL" title="Link to this definition">#</a></dt>
+<dd><p>Calibrated rows whose slope <code class="docutils literal notranslate"><span class="pre">CH4d_m</span></code> deviates more than this fraction from the day’s median
+slope are dropped. One bad reference period (a restart with air still in the line, a dying
+tank) is interpolated over the next hour by the pipeline’s single-tank calibration; the
+±100 ppm tolerances never catch it (measurements/trax/record/outputs/trax_cal_audit.txt).</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="slv.measurements.mobile.obs.apply_slope_guard">
+<span class="sig-prename descclassname"><span class="pre">slv.measurements.mobile.obs.</span></span><span class="sig-name descname"><span class="pre">apply_slope_guard</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/slv/measurements/mobile/obs.html#apply_slope_guard"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#slv.measurements.mobile.obs.apply_slope_guard" title="Link to this definition">#</a></dt>
+<dd><p>Set <code class="docutils literal notranslate"><span class="pre">CH4</span></code> to NaN where <code class="docutils literal notranslate"><span class="pre">CH4d_m</span></code> differs from the same UTC day’s median slope by more
+than <code class="docutils literal notranslate"><span class="pre">tol</span></code> (fraction). <code class="docutils literal notranslate"><span class="pre">df</span></code> needs <code class="docutils literal notranslate"><span class="pre">Time_UTC</span></code>, <code class="docutils literal notranslate"><span class="pre">CH4</span></code> and <code class="docutils literal notranslate"><span class="pre">CH4d_m</span></code>; <code class="docutils literal notranslate"><span class="pre">tol=None</span></code> is a
+no-op. Days with fewer than 100 sloped rows are left alone (no robust median).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.6)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="slv.measurements.mobile.obs.dropout_times">
+<span class="sig-prename descclassname"><span class="pre">slv.measurements.mobile.obs.</span></span><span class="sig-name descname"><span class="pre">dropout_times</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">support</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1.7</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/slv/measurements/mobile/obs.html#dropout_times"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#slv.measurements.mobile.obs.dropout_times" title="Link to this definition">#</a></dt>
+<dd><p>Times of atmosphere rows whose <em>unvalidated</em> CH4 is below <code class="docutils literal notranslate"><span class="pre">threshold</span></code> — laser dropouts.</p>
+<p><code class="docutils literal notranslate"><span class="pre">support</span></code> is a <code class="xref py py-func docutils literal notranslate"><span class="pre">_read_support()</span></code> frame (<code class="docutils literal notranslate"><span class="pre">Time_UTC</span></code>, <code class="docutils literal notranslate"><span class="pre">CH4_raw</span></code>, <code class="docutils literal notranslate"><span class="pre">ID_CH4</span></code>).
+Rows at or above the pipeline’s 1.70 ppm valid minimum are the ones that survive QC, so the
+dropouts themselves have to be found before validation and used to mask their neighbours
+(<a class="reference internal" href="#slv.measurements.mobile.obs.apply_dropout_rule" title="slv.measurements.mobile.obs.apply_dropout_rule"><code class="xref py py-func docutils literal notranslate"><span class="pre">apply_dropout_rule()</span></code></a>).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.Series.html#pandas.Series" title="(in pandas v3.0.6)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="slv.measurements.mobile.obs.apply_dropout_rule">
+<span class="sig-prename descclassname"><span class="pre">slv.measurements.mobile.obs.</span></span><span class="sig-name descname"><span class="pre">apply_dropout_rule</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dropouts</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window_min</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/slv/measurements/mobile/obs.html#apply_dropout_rule"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#slv.measurements.mobile.obs.apply_dropout_rule" title="Link to this definition">#</a></dt>
+<dd><p>Drop rows within <code class="docutils literal notranslate"><span class="pre">window_min</span></code> minutes of a CH4 laser dropout.</p>
+<p>The analyzer does not fail cleanly: on the way into (and out of) a dropout it reads a few
+per cent to 25 % low for minutes to hours, and everything it reports above 1.70 ppm passes
+QC. <code class="docutils literal notranslate"><span class="pre">dropouts</span></code> comes from <a class="reference internal" href="#slv.measurements.mobile.obs.dropout_times" title="slv.measurements.mobile.obs.dropout_times"><code class="xref py py-func docutils literal notranslate"><span class="pre">dropout_times()</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.6)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="slv.measurements.mobile.obs.apply_pressure_rule">
+<span class="sig-prename descclassname"><span class="pre">slv.measurements.mobile.obs.</span></span><span class="sig-name descname"><span class="pre">apply_pressure_rule</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pressure</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">band</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(135.0,</span> <span class="pre">145.0)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sources</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('pipeline',</span> <span class="pre">'uncalibrated')</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/slv/measurements/mobile/obs.html#apply_pressure_rule"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#slv.measurements.mobile.obs.apply_pressure_rule" title="Link to this definition">#</a></dt>
+<dd><p>Drop <code class="docutils literal notranslate"><span class="pre">sources</span></code> rows whose cavity pressure is outside <code class="docutils literal notranslate"><span class="pre">band</span></code> (see <a class="reference internal" href="#slv.measurements.mobile.obs.PRESSURE_BAND" title="slv.measurements.mobile.obs.PRESSURE_BAND"><code class="xref py py-data docutils literal notranslate"><span class="pre">PRESSURE_BAND</span></code></a>).</p>
+<p><code class="docutils literal notranslate"><span class="pre">pressure</span></code> is indexed by <code class="docutils literal notranslate"><span class="pre">Time_UTC</span></code>. Rows with no pressure reading are kept. The
+<code class="docutils literal notranslate"><span class="pre">manual_cal</span></code> rows are left alone by default: they are governed by
+<a class="reference internal" href="#slv.measurements.mobile.obs.apply_low_pressure_rule" title="slv.measurements.mobile.obs.apply_low_pressure_rule"><code class="xref py py-func docutils literal notranslate"><span class="pre">apply_low_pressure_rule()</span></code></a>, which deliberately keeps 100-135 torr for the analyzers that
+ran there (validated against UOU).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.6)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="slv.measurements.mobile.obs.recover_hot_rows">
+<span class="sig-prename descclassname"><span class="pre">slv.measurements.mobile.obs.</span></span><span class="sig-name descname"><span class="pre">recover_hot_rows</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cal</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">support</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">flag</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-64</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/slv/measurements/mobile/obs.html#recover_hot_rows"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#slv.measurements.mobile.obs.recover_hot_rows" title="Link to this definition">#</a></dt>
+<dd><p>Calibrate the rows the pipeline flagged <code class="docutils literal notranslate"><span class="pre">-64</span></code> (cavity T outside 5-45 C) itself.</p>
+<p><code class="docutils literal notranslate"><span class="pre">lgr_ugga_calibrate</span></code> fits the slope for these rows (<code class="docutils literal notranslate"><span class="pre">CH4d_m</span></code> is there) but blanks
+<code class="docutils literal notranslate"><span class="pre">CH4d_ppm_cal</span></code>, so ~645 on-track hours of summer afternoons — the best-mixed hours of the
+record — never reach obs.parquet. The value is simply the qaqc reading over the fitted slope.
+Hot-cavity CH4 is unbiased: on the same days, the 10th percentile above 45 C differs from
+below by -0.002 ppm (IQR -0.008..+0.010, 65 days; measurements/trax/audit).</p>
+<p>Returns the recovered rows (<code class="docutils literal notranslate"><span class="pre">Time_UTC</span></code>, <code class="docutils literal notranslate"><span class="pre">CH4</span></code>), which the caller appends to the
+calibrated ones.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.6)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="slv.measurements.mobile.obs.apply_low_pressure_rule">
+<span class="sig-prename descclassname"><span class="pre">slv.measurements.mobile.obs.</span></span><span class="sig-name descname"><span class="pre">apply_low_pressure_rule</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">band</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(100.0,</span> <span class="pre">145.0)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/slv/measurements/mobile/obs.html#apply_low_pressure_rule"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#slv.measurements.mobile.obs.apply_low_pressure_rule" title="Link to this definition">#</a></dt>
+<dd><p>Keep rows flagged −63 whose <code class="docutils literal notranslate"><span class="pre">Cavity_P_torr</span></code> lies inside <code class="docutils literal notranslate"><span class="pre">band</span></code> and tag them.</p>
+<p><code class="docutils literal notranslate"><span class="pre">df</span></code> must carry <code class="docutils literal notranslate"><span class="pre">CH4</span></code> (already validated with −63 among the accepted flags),
+<code class="docutils literal notranslate"><span class="pre">QAQC_Flag</span></code> and <code class="docutils literal notranslate"><span class="pre">Cavity_P_torr</span></code>. Rows flagged −63 outside the band (or with no
+pressure) get <code class="docutils literal notranslate"><span class="pre">CH4</span> <span class="pre">=</span> <span class="pre">NaN</span></code>; every row gets a boolean <code class="docutils literal notranslate"><span class="pre">low_pressure</span></code> column
+(True for the kept −63 rows). <code class="docutils literal notranslate"><span class="pre">band=None</span></code> drops all −63 rows.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.6)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="slv.measurements.mobile.obs.build_trax_obs">
+<span class="sig-prename descclassname"><span class="pre">slv.measurements.mobile.obs.</span></span><span class="sig-name descname"><span class="pre">build_trax_obs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">site</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'trx01'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_processes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">windows</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">classify</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">low_pressure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(100.0,</span> <span class="pre">145.0)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">slope_tol</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pressure_band</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(135.0,</span> <span class="pre">145.0)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dropout_window</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">recover_hot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chunk</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'YS'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">gps_kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/slv/measurements/mobile/obs.html#build_trax_obs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#slv.measurements.mobile.obs.build_trax_obs" title="Link to this definition">#</a></dt>
+<dd><p>Build the georeferenced TRAX CH4 record from the pipeline levels.</p>
+<p>Sources, each tagged in <code class="docutils literal notranslate"><span class="pre">cal_source</span></code> (see <code class="xref py py-data docutils literal notranslate"><span class="pre">CAL_SOURCES</span></code>):
+<code class="docutils literal notranslate"><span class="pre">lgr_ugga</span></code> calibrated → <code class="docutils literal notranslate"><span class="pre">pipeline</span></code>; <code class="docutils literal notranslate"><span class="pre">lgr_ugga_manual_cal</span></code> qaqc → <code class="docutils literal notranslate"><span class="pre">manual_cal</span></code>;
+<code class="docutils literal notranslate"><span class="pre">lgr_ugga</span></code> qaqc inside the uncalibrated windows (default: the packaged table) →
+<code class="docutils literal notranslate"><span class="pre">uncalibrated</span></code>. QC via <code class="xref py py-func docutils literal notranslate"><span class="pre">normalize_pollutant()</span></code> (flags {0,1,2,-64,-140}, ID −10,
+valid range). Manual-cal rows flagged −63 (cavity pressure outside 135–145 torr) are kept
+when the pressure is inside <code class="docutils literal notranslate"><span class="pre">low_pressure</span></code> (default <a class="reference internal" href="#slv.measurements.mobile.obs.LOW_PRESSURE_BAND" title="slv.measurements.mobile.obs.LOW_PRESSURE_BAND"><code class="xref py py-data docutils literal notranslate"><span class="pre">LOW_PRESSURE_BAND</span></code></a>) and
+tagged <code class="docutils literal notranslate"><span class="pre">low_pressure=True</span></code> (<a class="reference internal" href="#slv.measurements.mobile.obs.apply_low_pressure_rule" title="slv.measurements.mobile.obs.apply_low_pressure_rule"><code class="xref py py-func docutils literal notranslate"><span class="pre">apply_low_pressure_rule()</span></code></a>); <code class="docutils literal notranslate"><span class="pre">low_pressure=None</span></code>
+drops them. Pipeline-calibrated rows whose slope deviates more than <code class="docutils literal notranslate"><span class="pre">slope_tol</span></code> from the
+day’s median slope are dropped (<a class="reference internal" href="#slv.measurements.mobile.obs.apply_slope_guard" title="slv.measurements.mobile.obs.apply_slope_guard"><code class="xref py py-func docutils literal notranslate"><span class="pre">apply_slope_guard()</span></code></a>; one bad reference period
+otherwise miscalibrates the next hour by 20–100 %). Then merged with <em>every</em> GPS fix by <code class="xref py py-func docutils literal notranslate"><span class="pre">merge_with_gps()</span></code> (no route buffer,
+no storage-yard removal) and, with <code class="docutils literal notranslate"><span class="pre">classify</span></code>, labelled per minute by
+<a class="reference internal" href="#slv.measurements.mobile.obs.label_trax_location" title="slv.measurements.mobile.obs.label_trax_location"><code class="xref py py-func docutils literal notranslate"><span class="pre">label_trax_location()</span></code></a> (<code class="docutils literal notranslate"><span class="pre">state</span></code>, <code class="docutils literal notranslate"><span class="pre">indoor</span></code>, <code class="docutils literal notranslate"><span class="pre">yard_name</span></code>) so that the location
+filter is applied at load time (<a class="reference internal" href="#slv.measurements.mobile.obs.load_trax_obs" title="slv.measurements.mobile.obs.load_trax_obs"><code class="xref py py-func docutils literal notranslate"><span class="pre">load_trax_obs()</span></code></a>). Pass <code class="docutils literal notranslate"><span class="pre">routes</span></code> /
+<code class="docutils literal notranslate"><span class="pre">storage_polygon</span></code> in <code class="docutils literal notranslate"><span class="pre">gps_kwargs</span></code> to restore the old pre-filtering.</p>
+<p>The archive is processed in <code class="docutils literal notranslate"><span class="pre">chunk</span></code>-sized pieces (pandas offset alias, default one
+year) so that only one chunk of full-width pipeline files is in memory at a time (the
+whole-archive read peaked at 250 GB). Still heavy — run on a compute node.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">GeoDataFrame</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="slv.measurements.mobile.obs.load_trax_obs">
+<span class="sig-prename descclassname"><span class="pre">slv.measurements.mobile.obs.</span></span><span class="sig-name descname"><span class="pre">load_trax_obs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cache</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_uncalibrated</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_low_pressure</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epoch_offset</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">location</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'on_track'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rebuild</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">build_kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/slv/measurements/mobile/obs.html#load_trax_obs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#slv.measurements.mobile.obs.load_trax_obs" title="Link to this definition">#</a></dt>
+<dd><p>Load the cached TRAX CH4 record (<code class="docutils literal notranslate"><span class="pre">$SLV_USER_DATA_DIR/trax/obs.parquet</span></code>), building it if needed.</p>
+<p><code class="docutils literal notranslate"><span class="pre">include_uncalibrated=False</span></code> drops the tank-out windows so their effect can be tested;
+the <code class="docutils literal notranslate"><span class="pre">cal_source</span></code> column is always present for finer filtering. <code class="docutils literal notranslate"><span class="pre">location</span></code> selects
+where the train was (<a class="reference internal" href="#slv.measurements.mobile.obs.LOCATION_SETS" title="slv.measurements.mobile.obs.LOCATION_SETS"><code class="xref py py-data docutils literal notranslate"><span class="pre">LOCATION_SETS</span></code></a>): <code class="docutils literal notranslate"><span class="pre">&quot;on_track&quot;</span></code> (default) keeps
+route / line / stopped, <code class="docutils literal notranslate"><span class="pre">&quot;outdoor&quot;</span></code> also keeps yard-parked minutes, <code class="docutils literal notranslate"><span class="pre">&quot;all&quot;</span></code> keeps
+everything (indoor shed air and untrusted positions included); the <code class="docutils literal notranslate"><span class="pre">state</span></code>,
+<code class="docutils literal notranslate"><span class="pre">indoor</span></code> and <code class="docutils literal notranslate"><span class="pre">yard_name</span></code> columns are always present. <code class="docutils literal notranslate"><span class="pre">include_low_pressure=False</span></code>
+drops the manual-cal rows kept under the low-cavity-pressure rule (<code class="docutils literal notranslate"><span class="pre">low_pressure</span></code> column,
+see <a class="reference internal" href="#slv.measurements.mobile.obs.build_trax_obs" title="slv.measurements.mobile.obs.build_trax_obs"><code class="xref py py-func docutils literal notranslate"><span class="pre">build_trax_obs()</span></code></a>). <code class="docutils literal notranslate"><span class="pre">time_range=(start,</span> <span class="pre">end)</span></code> reads only <code class="docutils literal notranslate"><span class="pre">start</span> <span class="pre">&lt;=</span> <span class="pre">Time_UTC</span> <span class="pre">&lt;</span>
+<span class="pre">end</span></code> from the cache (a parquet row-group filter: the file is time-ordered, so one year
+of the 92 M rows costs a few seconds and a few GB rather than the whole record).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">GeoDataFrame</span></code></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="slv.measurements.mobile.network.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">slv.measurements.mobile.network</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="slv.measurements.mobile.receptor_obs.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">slv.measurements.mobile.receptor_obs</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#slv.measurements.mobile.obs.LOCATION_SETS"><code class="docutils literal notranslate"><span class="pre">LOCATION_SETS</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#slv.measurements.mobile.obs.filter_location"><code class="docutils literal notranslate"><span class="pre">filter_location()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#slv.measurements.mobile.obs.label_trax_location"><code class="docutils literal notranslate"><span class="pre">label_trax_location()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#slv.measurements.mobile.obs.LOW_PRESSURE_BAND"><code class="docutils literal notranslate"><span class="pre">LOW_PRESSURE_BAND</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#slv.measurements.mobile.obs.PRESSURE_BAND"><code class="docutils literal notranslate"><span class="pre">PRESSURE_BAND</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#slv.measurements.mobile.obs.DROPOUT_CH4_PPM"><code class="docutils literal notranslate"><span class="pre">DROPOUT_CH4_PPM</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#slv.measurements.mobile.obs.DROPOUT_WINDOW_MIN"><code class="docutils literal notranslate"><span class="pre">DROPOUT_WINDOW_MIN</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#slv.measurements.mobile.obs.SLOPE_TOL"><code class="docutils literal notranslate"><span class="pre">SLOPE_TOL</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#slv.measurements.mobile.obs.apply_slope_guard"><code class="docutils literal notranslate"><span class="pre">apply_slope_guard()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#slv.measurements.mobile.obs.dropout_times"><code class="docutils literal notranslate"><span class="pre">dropout_times()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#slv.measurements.mobile.obs.apply_dropout_rule"><code class="docutils literal notranslate"><span class="pre">apply_dropout_rule()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#slv.measurements.mobile.obs.apply_pressure_rule"><code class="docutils literal notranslate"><span class="pre">apply_pressure_rule()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#slv.measurements.mobile.obs.recover_hot_rows"><code class="docutils literal notranslate"><span class="pre">recover_hot_rows()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#slv.measurements.mobile.obs.apply_low_pressure_rule"><code class="docutils literal notranslate"><span class="pre">apply_low_pressure_rule()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#slv.measurements.mobile.obs.build_trax_obs"><code class="docutils literal notranslate"><span class="pre">build_trax_obs()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#slv.measurements.mobile.obs.load_trax_obs"><code class="docutils literal notranslate"><span class="pre">load_trax_obs()</span></code></a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/_autosummary/slv.measurements.mobile.obs.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026, James Mineau.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

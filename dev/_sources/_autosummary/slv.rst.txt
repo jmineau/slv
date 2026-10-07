@@ -1,0 +1,24 @@
+﻿slv
+===
+
+.. automodule:: slv
+
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      get_data_dir
+   
+.. rubric:: Modules
+
+.. autosummary::
+   :toctree:
+   :recursive:
+
+   basemap
+   domain
+   emissions
+   inversion
+   measurements
+   meteorology

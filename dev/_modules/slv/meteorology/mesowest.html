@@ -1,0 +1,682 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>slv.meteorology.mesowest &#8212; slv dev</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=ba117b66" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../_static/documentation_options.js?v=4dc2ff04"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/slv/meteorology/mesowest';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://jmineau.github.io/slv/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            true;
+        </script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="2026.9.2.dev67+gd2401dbd1" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">slv dev</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../usage.html">
+    Usage
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api.html">
+    API Reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../contributing.html">
+    Contributing
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/jmineau/slv" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../usage.html">
+    Usage
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api.html">
+    API Reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../contributing.html">
+    Contributing
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-3"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-3"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-3"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-3">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/jmineau/slv" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="../../slv.html" class="nav-link">slv</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">slv.meteorology.mesowest</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for slv.meteorology.mesowest</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">MesoWest surface observations for the SLV sites.</span>
+
+<span class="sd">Reads the hourly station archives staged under ``$SLV_USER_DATA_DIR/mesowest``:</span>
+
+<span class="sd">- ``synoptic/``: our own Synoptic API pull (``lair.synoptic``; stations near the TRAX</span>
+<span class="sd">  sources, Dec 2014 -&gt; present; ``meteorology/data/mesowest/synoptic_pull``), with</span>
+<span class="sd">  ``hourly/`` files and a ``stations.csv``. Used whenever it has the station.</span>
+<span class="sd">- ``hourly/``: the fixed ``john_data`` pull (96 stations, 2015-01 -&gt; 2025-09-30), with</span>
+<span class="sd">  ``stations_metadata.csv``.</span>
+
+<span class="sd">Each station is one parquet file of hourly values with a ``Time`` column in UTC; the</span>
+<span class="sd">columns vary by station, but wind speed, wind direction and air temperature are</span>
+<span class="sd">near-universal. Wind direction is always returned as the direction of the hourly</span>
+<span class="sd">vector-mean wind (from ``Uwind``/``Vwind``): the ``john_data`` files store an arithmetic</span>
+<span class="sd">mean of degrees, which is wrong whenever an hour straddles north.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">lair.air</span><span class="w"> </span><span class="kn">import</span> <span class="n">wind_direction</span> <span class="k">as</span> <span class="n">_uv_direction</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">slv</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_data_dir</span>
+
+<span class="c1">#: Columns renamed on read, so callers do not carry MesoWest&#39;s ``_set_1`` suffixes.</span>
+<span class="n">_RENAME</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;wind_speed_set_1&quot;</span><span class="p">:</span> <span class="s2">&quot;wind_speed&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;wind_direction_set_1&quot;</span><span class="p">:</span> <span class="s2">&quot;wind_direction&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;air_temp_set_1&quot;</span><span class="p">:</span> <span class="s2">&quot;air_temp&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;relative_humidity_set_1&quot;</span><span class="p">:</span> <span class="s2">&quot;relative_humidity&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;pressure_set_1&quot;</span><span class="p">:</span> <span class="s2">&quot;pressure&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;solar_radiation_set_1&quot;</span><span class="p">:</span> <span class="s2">&quot;solar_radiation&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ozone_concentration_set_1&quot;</span><span class="p">:</span> <span class="s2">&quot;ozone&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;PM_25_concentration_set_1&quot;</span><span class="p">:</span> <span class="s2">&quot;pm25&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+
+
+<span class="c1">#: Hourly archive subdirectories of :func:`mesowest_dir`, in order of preference.</span>
+<span class="n">_ARCHIVES</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;synoptic/hourly&quot;</span><span class="p">,</span> <span class="s2">&quot;hourly&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="mesowest_dir">
+<a class="viewcode-back" href="../../../_autosummary/slv.meteorology.mesowest.html#slv.meteorology.mesowest.mesowest_dir">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">mesowest_dir</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The staged MesoWest directory, ``$SLV_USER_DATA_DIR/mesowest``.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">get_data_dir</span><span class="p">(</span><span class="s2">&quot;SLV_USER_DATA_DIR&quot;</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;mesowest&quot;</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_hourly_path</span><span class="p">(</span><span class="n">station_code</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The station&#39;s hourly file from the first archive in ``_ARCHIVES`` that has it.&quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">sub</span> <span class="ow">in</span> <span class="n">_ARCHIVES</span><span class="p">:</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">mesowest_dir</span><span class="p">()</span> <span class="o">/</span> <span class="n">sub</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">station_code</span><span class="si">}</span><span class="s2">_hourly.parquet&quot;</span>
+        <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="k">return</span> <span class="n">path</span>
+    <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;No hourly archive for station </span><span class="si">{</span><span class="n">station_code</span><span class="si">!r}</span><span class="s2"> under &quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">mesowest_dir</span><span class="p">()</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">_ARCHIVES</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span>
+    <span class="p">)</span>
+
+
+<div class="viewcode-block" id="load_station_metadata">
+<a class="viewcode-back" href="../../../_autosummary/slv.meteorology.mesowest.html#slv.meteorology.mesowest.load_station_metadata">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">load_station_metadata</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Station code, name, latitude, longitude and elevation for the archived stations.</span>
+
+<span class="sd">    Indexed by ``station_code``. Only stations with an hourly file are returned, so</span>
+<span class="sd">    the table can be used directly to pick a station to read.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">meta</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">mesowest_dir</span><span class="p">()</span> <span class="o">/</span> <span class="s2">&quot;stations_metadata.csv&quot;</span><span class="p">)</span>
+    <span class="n">meta</span> <span class="o">=</span> <span class="n">meta</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+        <span class="n">columns</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;LAT&quot;</span><span class="p">:</span> <span class="s2">&quot;latitude&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;LON&quot;</span><span class="p">:</span> <span class="s2">&quot;longitude&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;ELEVATION.ft&quot;</span><span class="p">:</span> <span class="s2">&quot;elevation_ft&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+    <span class="n">ours</span> <span class="o">=</span> <span class="n">mesowest_dir</span><span class="p">()</span> <span class="o">/</span> <span class="s2">&quot;synoptic&quot;</span> <span class="o">/</span> <span class="s2">&quot;stations.csv&quot;</span>
+    <span class="k">if</span> <span class="n">ours</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>  <span class="c1"># stations the fixed pull never had; ours wins where both do</span>
+        <span class="n">extra</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">ours</span><span class="p">)</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+            <span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;stid&quot;</span><span class="p">:</span> <span class="s2">&quot;station_code&quot;</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;station_name&quot;</span><span class="p">}</span>
+        <span class="p">)[[</span><span class="s2">&quot;station_code&quot;</span><span class="p">,</span> <span class="s2">&quot;station_name&quot;</span><span class="p">,</span> <span class="s2">&quot;latitude&quot;</span><span class="p">,</span> <span class="s2">&quot;longitude&quot;</span><span class="p">,</span> <span class="s2">&quot;elevation_ft&quot;</span><span class="p">]]</span>
+        <span class="n">meta</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">extra</span><span class="p">,</span> <span class="n">meta</span><span class="p">])</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="s2">&quot;station_code&quot;</span><span class="p">)</span>
+    <span class="n">available</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">p</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;_hourly.parquet&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">sub</span> <span class="ow">in</span> <span class="n">_ARCHIVES</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="p">(</span><span class="n">mesowest_dir</span><span class="p">()</span> <span class="o">/</span> <span class="n">sub</span><span class="p">)</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">&quot;*_hourly.parquet&quot;</span><span class="p">)</span>
+    <span class="p">}</span>
+    <span class="n">meta</span> <span class="o">=</span> <span class="n">meta</span><span class="p">[</span><span class="n">meta</span><span class="p">[</span><span class="s2">&quot;station_code&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">available</span><span class="p">)]</span>
+    <span class="k">return</span> <span class="n">meta</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&quot;station_code&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span></div>
+
+
+
+<div class="viewcode-block" id="nearest_station">
+<a class="viewcode-back" href="../../../_autosummary/slv.meteorology.mesowest.html#slv.meteorology.mesowest.nearest_station">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">nearest_station</span><span class="p">(</span>
+    <span class="n">latitude</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">longitude</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">metadata</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The archived station closest to a point, as ``(station_code, distance_km)``.</span>
+
+<span class="sd">    Distance is a local flat-earth approximation, which is well under a percent</span>
+<span class="sd">    of error at the scale of the Salt Lake Valley.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">meta</span> <span class="o">=</span> <span class="n">load_station_metadata</span><span class="p">()</span> <span class="k">if</span> <span class="n">metadata</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">metadata</span>
+    <span class="n">dx</span> <span class="o">=</span> <span class="p">(</span><span class="n">meta</span><span class="p">[</span><span class="s2">&quot;longitude&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">longitude</span><span class="p">)</span> <span class="o">*</span> <span class="mf">111.32</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">latitude</span><span class="p">))</span>
+    <span class="n">dy</span> <span class="o">=</span> <span class="p">(</span><span class="n">meta</span><span class="p">[</span><span class="s2">&quot;latitude&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">latitude</span><span class="p">)</span> <span class="o">*</span> <span class="mf">111.32</span>
+    <span class="n">distance</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hypot</span><span class="p">(</span><span class="n">dx</span><span class="p">,</span> <span class="n">dy</span><span class="p">)</span>
+    <span class="n">code</span> <span class="o">=</span> <span class="n">distance</span><span class="o">.</span><span class="n">idxmin</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">code</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">distance</span><span class="p">[</span><span class="n">code</span><span class="p">])</span></div>
+
+
+
+<div class="viewcode-block" id="station_hourly">
+<a class="viewcode-back" href="../../../_autosummary/slv.meteorology.mesowest.html#slv.meteorology.mesowest.station_hourly">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">station_hourly</span><span class="p">(</span>
+    <span class="n">station_code</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">columns</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">time_range</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Hourly observations for one station, indexed by ``Time_UTC``.</span>
+
+<span class="sd">    Columns are renamed out of MesoWest&#39;s ``_set_1`` convention where a standard</span>
+<span class="sd">    name exists (see ``_RENAME``); anything else keeps its archive name. ``columns``</span>
+<span class="sd">    selects a subset by the *renamed* name, dropping any the station does not carry.</span>
+<span class="sd">    Reads our Synoptic pull when it has the station, else the fixed pull (module</span>
+<span class="sd">    docstring). ``wind_direction`` is recomputed from ``Uwind``/``Vwind`` (the hourly</span>
+<span class="sd">    vector mean) wherever both exist; ``lair.air.wind_direction`` gives a dead-calm</span>
+<span class="sd">    hour (U = V = 0) NaN. Callers that bin by direction should still drop light winds.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="n">_hourly_path</span><span class="p">(</span><span class="n">station_code</span><span class="p">))</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">_RENAME</span><span class="p">)</span>
+    <span class="k">if</span> <span class="p">{</span><span class="s2">&quot;Uwind&quot;</span><span class="p">,</span> <span class="s2">&quot;Vwind&quot;</span><span class="p">}</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">):</span>
+        <span class="n">u</span><span class="p">,</span> <span class="n">v</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Uwind&quot;</span><span class="p">],</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Vwind&quot;</span><span class="p">]</span>
+        <span class="n">uv</span> <span class="o">=</span> <span class="n">_uv_direction</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+        <span class="n">have_uv</span> <span class="o">=</span> <span class="n">u</span><span class="o">.</span><span class="n">notna</span><span class="p">()</span> <span class="o">&amp;</span> <span class="n">v</span><span class="o">.</span><span class="n">notna</span><span class="p">()</span>
+        <span class="k">if</span> <span class="s2">&quot;wind_direction&quot;</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;wind_direction&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">uv</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">have_uv</span><span class="p">,</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;wind_direction&quot;</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">df</span><span class="p">[</span><span class="s2">&quot;wind_direction&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">uv</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Time_UTC&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;Time&quot;</span><span class="p">),</span> <span class="n">utc</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">tz_localize</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&quot;Time_UTC&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">time_range</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="nb">slice</span><span class="p">(</span><span class="o">*</span><span class="n">time_range</span><span class="p">)]</span>
+    <span class="k">if</span> <span class="n">columns</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">columns</span> <span class="k">if</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">]]</span>
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
+
+<div class="viewcode-block" id="wind_sector">
+<a class="viewcode-back" href="../../../_autosummary/slv.meteorology.mesowest.html#slv.meteorology.mesowest.wind_sector">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">wind_sector</span><span class="p">(</span><span class="n">direction</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="n">n_sectors</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">16</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compass sector label (N, NNE, ...) for a wind direction in degrees.</span>
+
+<span class="sd">    ``n_sectors`` must be 4, 8 or 16. Directions are binned centred on each</span>
+<span class="sd">    label, so N covers 348.75-11.25 degrees for 16 sectors.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">labels</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="mi">4</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;N&quot;</span><span class="p">,</span> <span class="s2">&quot;E&quot;</span><span class="p">,</span> <span class="s2">&quot;S&quot;</span><span class="p">,</span> <span class="s2">&quot;W&quot;</span><span class="p">],</span>
+        <span class="mi">8</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;N&quot;</span><span class="p">,</span> <span class="s2">&quot;NE&quot;</span><span class="p">,</span> <span class="s2">&quot;E&quot;</span><span class="p">,</span> <span class="s2">&quot;SE&quot;</span><span class="p">,</span> <span class="s2">&quot;S&quot;</span><span class="p">,</span> <span class="s2">&quot;SW&quot;</span><span class="p">,</span> <span class="s2">&quot;W&quot;</span><span class="p">,</span> <span class="s2">&quot;NW&quot;</span><span class="p">],</span>
+        <span class="mi">16</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">&quot;N&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;NNE&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;NE&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;ENE&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;E&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;ESE&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;SE&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;SSE&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;S&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;SSW&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;SW&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;WSW&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;W&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;WNW&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;NW&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;NNW&quot;</span><span class="p">,</span>
+        <span class="p">],</span>
+    <span class="p">}[</span><span class="n">n_sectors</span><span class="p">]</span>
+    <span class="n">width</span> <span class="o">=</span> <span class="mi">360</span> <span class="o">/</span> <span class="n">n_sectors</span>
+    <span class="n">index</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(((</span><span class="n">direction</span> <span class="o">%</span> <span class="mi">360</span><span class="p">)</span> <span class="o">+</span> <span class="n">width</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">/</span> <span class="n">width</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;Int64&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="n">n_sectors</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">Categorical</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">labels</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">if</span> <span class="n">pd</span><span class="o">.</span><span class="n">notna</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">index</span><span class="p">],</span> <span class="n">categories</span><span class="o">=</span><span class="n">labels</span>
+        <span class="p">),</span>
+        <span class="n">index</span><span class="o">=</span><span class="n">direction</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026, James Mineau.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

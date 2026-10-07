@@ -1,0 +1,12 @@
+slv.inversion.bias
+==================
+
+.. automodule:: slv.inversion.bias
+
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      BiasMixin
+   

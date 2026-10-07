@@ -1,0 +1,14 @@
+slv.inversion.covariances
+=========================
+
+.. automodule:: slv.inversion.covariances
+
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      build_mdm_error
+      build_prior_error
+      normalize_duration
+   

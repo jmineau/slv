@@ -1,0 +1,12 @@
+slv.measurements.aggregate
+==========================
+
+.. automodule:: slv.measurements.aggregate
+
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      aggregate_obs
+   

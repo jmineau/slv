@@ -1,0 +1,1411 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>slv.inversion.viz &#8212; slv dev</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=ba117b66" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../_static/documentation_options.js?v=4dc2ff04"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/slv/inversion/viz';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://jmineau.github.io/slv/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            true;
+        </script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="2026.9.2.dev67+gd2401dbd1" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">slv dev</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../usage.html">
+    Usage
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api.html">
+    API Reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../contributing.html">
+    Contributing
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/jmineau/slv" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../usage.html">
+    Usage
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api.html">
+    API Reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../contributing.html">
+    Contributing
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-3"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-3"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-3"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-3">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/jmineau/slv" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="../../slv.html" class="nav-link">slv</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">slv.inversion.viz</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for slv.inversion.viz</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Plots for :class:`~slv.inversion.pipelines.SLVMethaneInversion`: the domain,</span>
+<span class="sd">inputs, fluxes, domain totals and error diagnostics.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">lair.geo</span><span class="w"> </span><span class="kn">import</span> <span class="n">PC</span><span class="p">,</span> <span class="n">add_latlon_ticks</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.markers</span><span class="w"> </span><span class="kn">import</span> <span class="n">MarkerStyle</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">slv.emissions.point_sources</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_point_sources</span>
+
+
+<div class="viewcode-block" id="plot_sites">
+<a class="viewcode-back" href="../../../_autosummary/slv.inversion.viz.html#slv.inversion.viz.plot_sites">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_sites</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">sites</span><span class="p">,</span> <span class="n">site_config</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Mark ``sites`` on a map axes: circles for stationary, triangles for mobile</span>
+<span class="sd">    (``site_config[&quot;type&quot;]``). Returns one legend handle and label per kind.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Plot all mobile and stationary sites, but only return one handle/label for each type</span>
+    <span class="n">mobile_marker</span> <span class="o">=</span> <span class="s2">&quot;^&quot;</span>
+    <span class="n">stationary_marker</span> <span class="o">=</span> <span class="s2">&quot;o&quot;</span>
+    <span class="n">mobile_sites</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">stationary_sites</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">sites</span><span class="p">:</span>
+        <span class="n">is_mobile</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="s2">&quot;type&quot;</span> <span class="ow">in</span> <span class="n">site_config</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="n">is_mobile</span> <span class="o">=</span> <span class="n">site_config</span><span class="o">.</span><span class="n">at</span><span class="p">[</span><span class="n">site</span><span class="p">,</span> <span class="s2">&quot;type&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;mobile&quot;</span>
+        <span class="k">elif</span> <span class="s2">&quot;mobile&quot;</span> <span class="ow">in</span> <span class="n">site</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+            <span class="n">is_mobile</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">if</span> <span class="n">is_mobile</span><span class="p">:</span>
+            <span class="n">mobile_sites</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">site</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">stationary_sites</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">site</span><span class="p">)</span>
+    <span class="n">handles</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">labels</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="c1"># Plot stationary sites</span>
+    <span class="k">if</span> <span class="n">stationary_sites</span><span class="p">:</span>
+        <span class="n">h_stat</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
+            <span class="n">site_config</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">stationary_sites</span><span class="p">,</span> <span class="s2">&quot;longitude&quot;</span><span class="p">],</span>
+            <span class="n">site_config</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">stationary_sites</span><span class="p">,</span> <span class="s2">&quot;latitude&quot;</span><span class="p">],</span>
+            <span class="n">transform</span><span class="o">=</span><span class="n">PC</span><span class="p">,</span>
+            <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Stationary Site&quot;</span><span class="p">,</span>
+            <span class="n">c</span><span class="o">=</span><span class="n">color</span><span class="p">,</span>
+            <span class="n">marker</span><span class="o">=</span><span class="n">stationary_marker</span><span class="p">,</span>
+            <span class="n">s</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+            <span class="n">edgecolor</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">,</span>
+            <span class="n">linewidth</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span>
+            <span class="n">zorder</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">handles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">h_stat</span><span class="p">)</span>
+        <span class="n">labels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Stationary Site&quot;</span><span class="p">)</span>
+    <span class="c1"># Plot mobile sites</span>
+    <span class="k">if</span> <span class="n">mobile_sites</span><span class="p">:</span>
+        <span class="n">h_mob</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
+            <span class="n">site_config</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">mobile_sites</span><span class="p">,</span> <span class="s2">&quot;longitude&quot;</span><span class="p">],</span>
+            <span class="n">site_config</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">mobile_sites</span><span class="p">,</span> <span class="s2">&quot;latitude&quot;</span><span class="p">],</span>
+            <span class="n">transform</span><span class="o">=</span><span class="n">PC</span><span class="p">,</span>
+            <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Mobile Site&quot;</span><span class="p">,</span>
+            <span class="n">c</span><span class="o">=</span><span class="n">color</span><span class="p">,</span>
+            <span class="n">marker</span><span class="o">=</span><span class="n">mobile_marker</span><span class="p">,</span>
+            <span class="n">s</span><span class="o">=</span><span class="mi">120</span><span class="p">,</span>
+            <span class="n">edgecolor</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">,</span>
+            <span class="n">linewidth</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span>
+            <span class="n">zorder</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">handles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">h_mob</span><span class="p">)</span>
+        <span class="n">labels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Mobile Site&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">handles</span><span class="p">,</span> <span class="n">labels</span></div>
+
+
+
+<div class="viewcode-block" id="plot_grid">
+<a class="viewcode-back" href="../../../_autosummary/slv.inversion.viz.html#slv.inversion.viz.plot_grid">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_grid</span><span class="p">(</span>
+    <span class="n">grid</span><span class="p">,</span>
+    <span class="n">extent</span><span class="p">,</span>
+    <span class="n">tiler</span><span class="p">,</span>
+    <span class="n">zoom</span><span class="p">,</span>
+    <span class="n">add_sites</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">sites</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">site_config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">site_color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span>
+    <span class="n">add_point_sources</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">subplot_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Map the state grid&#39;s cells over tiles, with the sites and CH4 point sources.</span>
+
+<span class="sd">    ``add_point_sources`` maps point-source kind to colour (default: every kind, in the</span>
+<span class="sd">    Okabe-Ito palette); a falsy value leaves them off. Returns ``(fig, ax)``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">add_point_sources</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># Okabe-Ito colorblind-friendly palette</span>
+        <span class="n">add_point_sources</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;landfill&quot;</span><span class="p">:</span> <span class="s2">&quot;#E69F00&quot;</span><span class="p">,</span>  <span class="c1"># orange</span>
+            <span class="s2">&quot;refinery&quot;</span><span class="p">:</span> <span class="s2">&quot;#56B4E9&quot;</span><span class="p">,</span>  <span class="c1"># sky blue</span>
+            <span class="s2">&quot;powerplant&quot;</span><span class="p">:</span> <span class="s2">&quot;#009E73&quot;</span><span class="p">,</span>  <span class="c1"># teal green</span>
+            <span class="s2">&quot;industrial&quot;</span><span class="p">:</span> <span class="s2">&quot;#F0E442&quot;</span><span class="p">,</span>  <span class="c1"># yellow</span>
+            <span class="s2">&quot;wastewater&quot;</span><span class="p">:</span> <span class="s2">&quot;#0072B2&quot;</span><span class="p">,</span>  <span class="c1"># blue</span>
+            <span class="s2">&quot;unknown&quot;</span><span class="p">:</span> <span class="s2">&quot;#D55E00&quot;</span><span class="p">,</span>  <span class="c1"># vermillion</span>
+        <span class="p">}</span>
+    <span class="k">if</span> <span class="n">subplot_kwargs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">subplot_kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;figsize&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">6</span><span class="p">)}</span>
+
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">subplot_kw</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;projection&quot;</span><span class="p">:</span> <span class="n">tiler</span><span class="o">.</span><span class="n">crs</span><span class="p">},</span> <span class="o">**</span><span class="n">subplot_kwargs</span><span class="p">)</span>
+
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_extent</span><span class="p">(</span><span class="n">extent</span><span class="p">,</span> <span class="n">crs</span><span class="o">=</span><span class="n">PC</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">add_image</span><span class="p">(</span><span class="n">tiler</span><span class="p">,</span> <span class="n">zoom</span><span class="p">)</span>
+
+    <span class="n">grid</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+        <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span>
+        <span class="n">transform</span><span class="o">=</span><span class="n">PC</span><span class="p">,</span>
+        <span class="n">add_colorbar</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">fc</span><span class="o">=</span><span class="s2">&quot;None&quot;</span><span class="p">,</span>
+        <span class="n">ec</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span>
+        <span class="n">linewidth</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span>
+        <span class="n">zorder</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># --- Plot point sources and collect legend handles ---</span>
+    <span class="n">ps_handles</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">ps_labels</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="n">add_point_sources</span><span class="p">:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">slv.emissions.point_sources</span><span class="w"> </span><span class="kn">import</span> <span class="n">markers</span> <span class="k">as</span> <span class="n">ps_markers</span>
+
+        <span class="k">for</span> <span class="n">ps_type</span><span class="p">,</span> <span class="n">color</span> <span class="ow">in</span> <span class="n">add_point_sources</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="c1"># Plot one dummy for legend; line markers (&quot;+&quot;, &quot;1&quot;) have no edge</span>
+            <span class="n">marker</span> <span class="o">=</span> <span class="n">ps_markers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">ps_type</span><span class="p">,</span> <span class="s2">&quot;o&quot;</span><span class="p">)</span>
+            <span class="n">h</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
+                <span class="p">[],</span>
+                <span class="p">[],</span>
+                <span class="n">c</span><span class="o">=</span><span class="n">color</span><span class="p">,</span>
+                <span class="n">marker</span><span class="o">=</span><span class="n">marker</span><span class="p">,</span>
+                <span class="n">s</span><span class="o">=</span><span class="mi">80</span><span class="p">,</span>
+                <span class="n">label</span><span class="o">=</span><span class="n">ps_type</span><span class="o">.</span><span class="n">title</span><span class="p">(),</span>
+                <span class="n">edgecolor</span><span class="o">=</span><span class="s2">&quot;k&quot;</span> <span class="k">if</span> <span class="n">MarkerStyle</span><span class="p">(</span><span class="n">marker</span><span class="p">)</span><span class="o">.</span><span class="n">is_filled</span><span class="p">()</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">ps_handles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">h</span><span class="p">)</span>
+            <span class="n">ps_labels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ps_type</span><span class="o">.</span><span class="n">title</span><span class="p">())</span>
+            <span class="n">plot_point_sources</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="n">ps_type</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">)</span>
+
+    <span class="c1"># --- Plot sites and collect handles ---</span>
+    <span class="n">site_handles</span><span class="p">,</span> <span class="n">site_labels</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="n">add_sites</span> <span class="ow">and</span> <span class="n">sites</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">site_config</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">site_handles</span><span class="p">,</span> <span class="n">site_labels</span> <span class="o">=</span> <span class="n">plot_sites</span><span class="p">(</span>
+            <span class="n">ax</span><span class="p">,</span> <span class="n">sites</span><span class="o">=</span><span class="n">sites</span><span class="p">,</span> <span class="n">site_config</span><span class="o">=</span><span class="n">site_config</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">site_color</span>
+        <span class="p">)</span>
+
+    <span class="n">add_latlon_ticks</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">extent</span><span class="p">,</span> <span class="n">x_rotation</span><span class="o">=</span><span class="mi">45</span><span class="p">)</span>
+
+    <span class="c1"># Clean up axis and title labels</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;SLV Inversion Domain and Sites&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">,</span> <span class="n">fontweight</span><span class="o">=</span><span class="s2">&quot;bold&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">xlabel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+
+    <span class="c1"># --- Build visually grouped legend ---</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.patches</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">mpatches</span>
+
+    <span class="n">grouped_handles</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">grouped_labels</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="c1"># Section header: Sites</span>
+    <span class="k">if</span> <span class="n">site_handles</span><span class="p">:</span>
+        <span class="n">sites_header</span> <span class="o">=</span> <span class="n">mpatches</span><span class="o">.</span><span class="n">Patch</span><span class="p">(</span><span class="n">facecolor</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Sites&quot;</span><span class="p">)</span>
+        <span class="n">grouped_handles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sites_header</span><span class="p">)</span>
+        <span class="n">grouped_labels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Sites&quot;</span><span class="p">)</span>
+        <span class="n">grouped_handles</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">site_handles</span><span class="p">)</span>
+        <span class="n">grouped_labels</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">site_labels</span><span class="p">)</span>
+    <span class="c1"># Section header: Point Sources</span>
+    <span class="k">if</span> <span class="n">ps_handles</span><span class="p">:</span>
+        <span class="n">ps_header</span> <span class="o">=</span> <span class="n">mpatches</span><span class="o">.</span><span class="n">Patch</span><span class="p">(</span>
+            <span class="n">facecolor</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Point Sources&quot;</span>
+        <span class="p">)</span>
+        <span class="n">grouped_handles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ps_header</span><span class="p">)</span>
+        <span class="n">grouped_labels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Point Sources&quot;</span><span class="p">)</span>
+        <span class="n">grouped_handles</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">ps_handles</span><span class="p">)</span>
+        <span class="n">grouped_labels</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">ps_labels</span><span class="p">)</span>
+
+    <span class="c1"># Use fontweight for section headers</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_legend_text_props</span><span class="p">(</span><span class="n">label</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">label</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;Sites&quot;</span><span class="p">,</span> <span class="s2">&quot;Point Sources&quot;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;weight&quot;</span><span class="p">:</span> <span class="s2">&quot;bold&quot;</span><span class="p">}</span>
+        <span class="k">return</span> <span class="p">{}</span>
+
+    <span class="n">leg</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span>
+        <span class="n">grouped_handles</span><span class="p">,</span>
+        <span class="n">grouped_labels</span><span class="p">,</span>
+        <span class="n">loc</span><span class="o">=</span><span class="s2">&quot;upper left&quot;</span><span class="p">,</span>
+        <span class="n">bbox_to_anchor</span><span class="o">=</span><span class="p">(</span><span class="mf">1.01</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">),</span>
+        <span class="n">fontsize</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span>
+        <span class="n">frameon</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">fancybox</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">borderpad</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span>
+        <span class="n">handletextpad</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span>
+        <span class="n">borderaxespad</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span>
+        <span class="n">labelspacing</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span>
+        <span class="n">prop</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;weight&quot;</span><span class="p">:</span> <span class="s2">&quot;normal&quot;</span><span class="p">},</span>
+    <span class="p">)</span>
+    <span class="c1"># Bold section headers</span>
+    <span class="k">for</span> <span class="n">text</span> <span class="ow">in</span> <span class="n">leg</span><span class="o">.</span><span class="n">get_texts</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">text</span><span class="o">.</span><span class="n">get_text</span><span class="p">()</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;Sites&quot;</span><span class="p">,</span> <span class="s2">&quot;Point Sources&quot;</span><span class="p">):</span>
+            <span class="n">text</span><span class="o">.</span><span class="n">set_fontweight</span><span class="p">(</span><span class="s2">&quot;bold&quot;</span><span class="p">)</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">(</span><span class="n">rect</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">0.85</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span></div>
+
+
+
+<div class="viewcode-block" id="plot_concentrations">
+<a class="viewcode-back" href="../../../_autosummary/slv.inversion.viz.html#slv.inversion.viz.plot_concentrations">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_concentrations</span><span class="p">(</span><span class="n">obs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Time series of the obs (a Series indexed by ``obs_location`` and ``obs_time``),</span>
+<span class="sd">    one line per location. Returns ``(fig, ax)``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+
+    <span class="n">obs</span><span class="o">.</span><span class="n">unstack</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="s2">&quot;obs_location&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.7</span><span class="p">)</span>
+
+    <span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
+        <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Valid CH$_4$ Observations&quot;</span><span class="p">,</span>
+        <span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;Time [UTC]&quot;</span><span class="p">,</span>
+        <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;CH$_4$ [ppm]&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">autofmt_xdate</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span></div>
+
+
+
+<div class="viewcode-block" id="plot_inventory">
+<a class="viewcode-back" href="../../../_autosummary/slv.inversion.viz.html#slv.inversion.viz.plot_inventory">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_inventory</span><span class="p">(</span><span class="n">inventory</span><span class="p">,</span> <span class="n">extent</span><span class="p">,</span> <span class="n">tiler</span><span class="p">,</span> <span class="n">zoom</span><span class="p">,</span> <span class="n">subplot_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Map the time-mean of a flux field (umol/m2/s, with a ``time`` dim) over tiles.</span>
+<span class="sd">    Returns ``(fig, ax)``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">subplot_kwargs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">subplot_kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;figsize&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">6</span><span class="p">)}</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">subplot_kw</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;projection&quot;</span><span class="p">:</span> <span class="n">tiler</span><span class="o">.</span><span class="n">crs</span><span class="p">},</span> <span class="o">**</span><span class="n">subplot_kwargs</span><span class="p">)</span>
+
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_extent</span><span class="p">(</span><span class="n">extent</span><span class="p">,</span> <span class="n">crs</span><span class="o">=</span><span class="n">PC</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">add_image</span><span class="p">(</span><span class="n">tiler</span><span class="p">,</span> <span class="n">zoom</span><span class="p">)</span>
+
+    <span class="n">inventory</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+        <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span>
+        <span class="n">transform</span><span class="o">=</span><span class="n">PC</span><span class="p">,</span>
+        <span class="n">add_colorbar</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;Reds&quot;</span><span class="p">,</span>
+        <span class="n">alpha</span><span class="o">=</span><span class="mf">0.55</span><span class="p">,</span>
+        <span class="n">cbar_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;CH$_4$ Flux [umol/m$^2$/s]&quot;</span><span class="p">},</span>
+    <span class="p">)</span>
+
+    <span class="n">add_latlon_ticks</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">extent</span><span class="p">,</span> <span class="n">x_rotation</span><span class="o">=</span><span class="mi">45</span><span class="p">)</span>
+
+    <span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;Prior Flux Inventory (mean over time)&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span></div>
+
+
+
+<div class="viewcode-block" id="shade_removed_cells">
+<a class="viewcode-back" href="../../../_autosummary/slv.inversion.viz.html#slv.inversion.viz.shade_removed_cells">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">shade_removed_cells</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">retained_cells</span><span class="p">,</span> <span class="n">all_cells</span><span class="p">,</span> <span class="n">dx</span><span class="p">,</span> <span class="n">dy</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Shade removed (unconstrained) cells with cross-hatching.&quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.patches</span><span class="w"> </span><span class="kn">import</span> <span class="n">Rectangle</span>
+
+    <span class="n">removed_cells</span> <span class="o">=</span> <span class="n">all_cells</span> <span class="o">-</span> <span class="n">retained_cells</span>
+    <span class="k">for</span> <span class="n">lat</span><span class="p">,</span> <span class="n">lon</span> <span class="ow">in</span> <span class="n">removed_cells</span><span class="p">:</span>
+        <span class="n">rect</span> <span class="o">=</span> <span class="n">Rectangle</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">lon</span> <span class="o">-</span> <span class="n">dx</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">lat</span> <span class="o">-</span> <span class="n">dy</span> <span class="o">/</span> <span class="mi">2</span><span class="p">),</span>
+            <span class="n">dx</span><span class="p">,</span>
+            <span class="n">dy</span><span class="p">,</span>
+            <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+            <span class="n">edgecolor</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span>
+            <span class="n">facecolor</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">,</span>
+            <span class="n">hatch</span><span class="o">=</span><span class="s2">&quot;///&quot;</span><span class="p">,</span>
+            <span class="n">transform</span><span class="o">=</span><span class="n">PC</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">add_patch</span><span class="p">(</span><span class="n">rect</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ax</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_plot_flux_with_coverage</span><span class="p">(</span>
+    <span class="n">flux_xr</span><span class="p">,</span>
+    <span class="n">retained_cells</span><span class="p">,</span>
+    <span class="n">all_cells</span><span class="p">,</span>
+    <span class="n">dx</span><span class="p">,</span>
+    <span class="n">dy</span><span class="p">,</span>
+    <span class="n">extent</span><span class="p">,</span>
+    <span class="n">tiler</span><span class="p">,</span>
+    <span class="n">zoom</span><span class="p">,</span>
+    <span class="n">title</span><span class="p">,</span>
+    <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;Reds&quot;</span><span class="p">,</span>
+    <span class="n">add_sites</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">sites</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">site_config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">site_color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span>
+    <span class="n">add_point_sources</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">subplot_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Plot flux map with removed cells shaded out.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">subplot_kwargs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">subplot_kwargs</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;figsize&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">6</span><span class="p">)}</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">subplot_kw</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;projection&quot;</span><span class="p">:</span> <span class="n">tiler</span><span class="o">.</span><span class="n">crs</span><span class="p">},</span> <span class="o">**</span><span class="n">subplot_kwargs</span><span class="p">)</span>
+
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_extent</span><span class="p">(</span><span class="n">extent</span><span class="p">,</span> <span class="n">crs</span><span class="o">=</span><span class="n">PC</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">add_image</span><span class="p">(</span><span class="n">tiler</span><span class="p">,</span> <span class="n">zoom</span><span class="p">)</span>
+
+    <span class="n">flux_xr</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+        <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span>
+        <span class="n">transform</span><span class="o">=</span><span class="n">PC</span><span class="p">,</span>
+        <span class="n">add_colorbar</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span>
+        <span class="n">alpha</span><span class="o">=</span><span class="mf">0.55</span><span class="p">,</span>
+        <span class="n">cbar_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;CH$_4$ Flux [umol/m$^2$/s]&quot;</span><span class="p">},</span>
+    <span class="p">)</span>
+
+    <span class="n">shade_removed_cells</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">retained_cells</span><span class="p">,</span> <span class="n">all_cells</span><span class="p">,</span> <span class="n">dx</span><span class="p">,</span> <span class="n">dy</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">add_point_sources</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">add_point_sources</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;landfill&quot;</span><span class="p">:</span> <span class="s2">&quot;yellow&quot;</span><span class="p">,</span> <span class="s2">&quot;refinery&quot;</span><span class="p">:</span> <span class="s2">&quot;cyan&quot;</span><span class="p">}</span>
+    <span class="k">if</span> <span class="n">add_point_sources</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">ps_type</span><span class="p">,</span> <span class="n">color</span> <span class="ow">in</span> <span class="n">add_point_sources</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">plot_point_sources</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="n">ps_type</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">add_sites</span> <span class="ow">and</span> <span class="n">sites</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">site_config</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">plot_sites</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">sites</span><span class="o">=</span><span class="n">sites</span><span class="p">,</span> <span class="n">site_config</span><span class="o">=</span><span class="n">site_config</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">site_color</span><span class="p">)</span>
+
+    <span class="n">add_latlon_ticks</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">extent</span><span class="p">,</span> <span class="n">x_rotation</span><span class="o">=</span><span class="mi">45</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span>
+
+
+<div class="viewcode-block" id="plot_prior_with_coverage">
+<a class="viewcode-back" href="../../../_autosummary/slv.inversion.viz.html#slv.inversion.viz.plot_prior_with_coverage">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_prior_with_coverage</span><span class="p">(</span>
+    <span class="n">full_prior_xr</span><span class="p">,</span>
+    <span class="n">retained_cells</span><span class="p">,</span>
+    <span class="n">all_cells</span><span class="p">,</span>
+    <span class="n">dx</span><span class="p">,</span>
+    <span class="n">dy</span><span class="p">,</span>
+    <span class="n">extent</span><span class="p">,</span>
+    <span class="n">tiler</span><span class="p">,</span>
+    <span class="n">zoom</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Plot the full prior with removed cells shaded.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_plot_flux_with_coverage</span><span class="p">(</span>
+        <span class="n">full_prior_xr</span><span class="p">,</span>
+        <span class="n">retained_cells</span><span class="p">,</span>
+        <span class="n">all_cells</span><span class="p">,</span>
+        <span class="n">dx</span><span class="p">,</span>
+        <span class="n">dy</span><span class="p">,</span>
+        <span class="n">extent</span><span class="p">,</span>
+        <span class="n">tiler</span><span class="p">,</span>
+        <span class="n">zoom</span><span class="p">,</span>
+        <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Prior Flux (shaded = unconstrained)&quot;</span><span class="p">,</span>
+        <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;Reds&quot;</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="plot_reconstructed_posterior">
+<a class="viewcode-back" href="../../../_autosummary/slv.inversion.viz.html#slv.inversion.viz.plot_reconstructed_posterior">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_reconstructed_posterior</span><span class="p">(</span>
+    <span class="n">posterior_xr</span><span class="p">,</span>
+    <span class="n">retained_cells</span><span class="p">,</span>
+    <span class="n">all_cells</span><span class="p">,</span>
+    <span class="n">dx</span><span class="p">,</span>
+    <span class="n">dy</span><span class="p">,</span>
+    <span class="n">extent</span><span class="p">,</span>
+    <span class="n">tiler</span><span class="p">,</span>
+    <span class="n">zoom</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Plot the reconstructed posterior with removed cells shaded.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_plot_flux_with_coverage</span><span class="p">(</span>
+        <span class="n">posterior_xr</span><span class="p">,</span>
+        <span class="n">retained_cells</span><span class="p">,</span>
+        <span class="n">all_cells</span><span class="p">,</span>
+        <span class="n">dx</span><span class="p">,</span>
+        <span class="n">dy</span><span class="p">,</span>
+        <span class="n">extent</span><span class="p">,</span>
+        <span class="n">tiler</span><span class="p">,</span>
+        <span class="n">zoom</span><span class="p">,</span>
+        <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Reconstructed Posterior (shaded = unconstrained)&quot;</span><span class="p">,</span>
+        <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;coolwarm&quot;</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="plot_fluxes">
+<a class="viewcode-back" href="../../../_autosummary/slv.inversion.viz.html#slv.inversion.viz.plot_fluxes">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_fluxes</span><span class="p">(</span>
+    <span class="n">problem</span><span class="p">,</span>
+    <span class="n">tiler</span><span class="p">,</span>
+    <span class="n">zoom</span><span class="p">,</span>
+    <span class="n">add_sites</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">sites</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">site_config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">site_color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span>
+    <span class="n">add_point_sources</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The fips prior / posterior flux maps, with sites and point sources (default:</span>
+<span class="sd">    landfills and refineries) added to every panel.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">problem</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">fluxes</span><span class="p">(</span><span class="n">tiler</span><span class="o">=</span><span class="n">tiler</span><span class="p">,</span> <span class="n">tiler_zoom</span><span class="o">=</span><span class="n">zoom</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">add_point_sources</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">add_point_sources</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;landfill&quot;</span><span class="p">:</span> <span class="s2">&quot;yellow&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;refinery&quot;</span><span class="p">:</span> <span class="s2">&quot;cyan&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+
+    <span class="k">for</span> <span class="n">ax</span> <span class="ow">in</span> <span class="n">axes</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">add_point_sources</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">ps_type</span><span class="p">,</span> <span class="n">color</span> <span class="ow">in</span> <span class="n">add_point_sources</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">plot_point_sources</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="n">ps_type</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">add_sites</span> <span class="ow">and</span> <span class="n">sites</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">site_config</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">plot_sites</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">sites</span><span class="o">=</span><span class="n">sites</span><span class="p">,</span> <span class="n">site_config</span><span class="o">=</span><span class="n">site_config</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">site_color</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="plot_fluxes_by_timestep">
+<a class="viewcode-back" href="../../../_autosummary/slv.inversion.viz.html#slv.inversion.viz.plot_fluxes_by_timestep">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_fluxes_by_timestep</span><span class="p">(</span>
+    <span class="n">problem</span><span class="p">,</span>
+    <span class="n">extent</span><span class="p">,</span>
+    <span class="n">tiler</span><span class="p">,</span>
+    <span class="n">zoom</span><span class="p">,</span>
+    <span class="n">add_sites</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">sites</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">site_config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">site_color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span>
+    <span class="n">add_point_sources</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    One posterior flux map per flux time (8 per row). Returns the xarray</span>
+<span class="sd">    ``FacetGrid``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">facet</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">problem</span><span class="o">.</span><span class="n">posterior_fluxes</span><span class="o">.</span><span class="n">to_xarray</span><span class="p">()</span>
+        <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+            <span class="n">col</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">,</span>
+            <span class="n">col_wrap</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
+            <span class="n">subplot_kws</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;projection&quot;</span><span class="p">:</span> <span class="n">tiler</span><span class="o">.</span><span class="n">crs</span><span class="p">},</span>
+            <span class="n">transform</span><span class="o">=</span><span class="n">PC</span><span class="p">,</span>
+            <span class="n">alpha</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span>
+            <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;coolwarm&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">for</span> <span class="n">ax</span> <span class="ow">in</span> <span class="n">facet</span><span class="o">.</span><span class="n">axs</span><span class="o">.</span><span class="n">flatten</span><span class="p">():</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_extent</span><span class="p">(</span><span class="n">extent</span><span class="p">,</span> <span class="n">crs</span><span class="o">=</span><span class="n">PC</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">add_image</span><span class="p">(</span><span class="n">tiler</span><span class="p">,</span> <span class="n">zoom</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">add_point_sources</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">ps_type</span><span class="p">,</span> <span class="n">color</span> <span class="ow">in</span> <span class="n">add_point_sources</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">plot_point_sources</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="n">ps_type</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">add_sites</span> <span class="ow">and</span> <span class="n">sites</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">site_config</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">plot_sites</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">sites</span><span class="o">=</span><span class="n">sites</span><span class="p">,</span> <span class="n">site_config</span><span class="o">=</span><span class="n">site_config</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">site_color</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">facet</span></div>
+
+
+
+<div class="viewcode-block" id="plot_removed_contribution">
+<a class="viewcode-back" href="../../../_autosummary/slv.inversion.viz.html#slv.inversion.viz.plot_removed_contribution">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_removed_contribution</span><span class="p">(</span><span class="n">removed_contribution</span><span class="p">,</span> <span class="n">background</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Plot the concentration contribution from unconstrained cells vs background.&quot;&quot;&quot;</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span> <span class="n">sharex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">times</span> <span class="o">=</span> <span class="n">background</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s2">&quot;obs_time&quot;</span><span class="p">)</span>
+
+    <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">times</span><span class="p">,</span> <span class="n">background</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;C0&quot;</span><span class="p">)</span>
+    <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;Background [ppm]&quot;</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Background Concentration&quot;</span><span class="p">)</span>
+
+    <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">times</span><span class="p">,</span> <span class="n">removed_contribution</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;C1&quot;</span><span class="p">)</span>
+    <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
+        <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;Contribution [ppm]&quot;</span><span class="p">,</span>
+        <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Unconstrained Cells&#39; Contribution&quot;</span><span class="p">,</span>
+        <span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;Time&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="s2">&quot;Constant Term Components&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">,</span> <span class="n">fontweight</span><span class="o">=</span><span class="s2">&quot;bold&quot;</span><span class="p">)</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">axes</span></div>
+
+
+
+<div class="viewcode-block" id="plot_total_fluxes_over_time">
+<a class="viewcode-back" href="../../../_autosummary/slv.inversion.viz.html#slv.inversion.viz.plot_total_fluxes_over_time">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_total_fluxes_over_time</span><span class="p">(</span><span class="o">*</span><span class="n">total_fluxes</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="n">units</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Domain-total emissions over time; ``units`` labels the y axis (e.g. &quot;Gg per MS</span>
+<span class="sd">    interval&quot;, as from ``SLVMethaneInversion.calculate_total_flux``).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+
+    <span class="k">for</span> <span class="n">flux</span> <span class="ow">in</span> <span class="n">total_fluxes</span><span class="p">:</span>
+        <span class="n">flux</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">flux</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
+        <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Total Emissions for Inversion Domain&quot;</span><span class="p">,</span>
+        <span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;Time&quot;</span><span class="p">,</span>
+        <span class="n">ylabel</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Total CH$_4$ emissions [</span><span class="si">{</span><span class="n">units</span><span class="si">}</span><span class="s2">]&quot;</span>
+        <span class="k">if</span> <span class="n">units</span>
+        <span class="k">else</span> <span class="s2">&quot;Total CH$_4$ emissions&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">autofmt_xdate</span><span class="p">()</span>
+
+    <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span></div>
+
+
+
+<div class="viewcode-block" id="plot_mdm_components">
+<a class="viewcode-back" href="../../../_autosummary/slv.inversion.viz.html#slv.inversion.viz.plot_mdm_components">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_mdm_components</span><span class="p">(</span><span class="n">components</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Plot the total error magnitude for each MDM error component.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    components : dict of str to pd.DataFrame</span>
+<span class="sd">        Dictionary where keys are component names and values are covariance matrices</span>
+<span class="sd">        as DataFrames with symmetric indexes.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    The total error is computed using the Frobenius norm of the covariance matrix,</span>
+<span class="sd">    which includes contributions from off-diagonal elements (correlations).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">names</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">total_errors</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">cov_matrix</span> <span class="ow">in</span> <span class="n">components</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+
+        <span class="c1"># Compute Frobenius norm: sqrt(sum of all squared elements)</span>
+        <span class="c1"># This includes off-diagonal covariances</span>
+        <span class="n">total_error</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">cov_matrix</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="s2">&quot;fro&quot;</span><span class="p">)</span>
+        <span class="n">total_errors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">total_error</span><span class="p">)</span>
+
+    <span class="c1"># Create bar plot</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+
+    <span class="n">bars</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">names</span><span class="p">,</span> <span class="n">total_errors</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">1.5</span><span class="p">)</span>
+
+    <span class="c1"># Color bars with a gradient</span>
+    <span class="n">colors</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">viridis</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">names</span><span class="p">)))</span>
+    <span class="k">for</span> <span class="n">bar</span><span class="p">,</span> <span class="n">color</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">bars</span><span class="p">,</span> <span class="n">colors</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="n">bar</span><span class="o">.</span><span class="n">set_color</span><span class="p">(</span><span class="n">color</span><span class="p">)</span>
+
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Total Error Magnitude [ppm]&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;MDM Error Component&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Model-Data Mismatch Error Components&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">,</span> <span class="n">fontweight</span><span class="o">=</span><span class="s2">&quot;bold&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="s2">&quot;y&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Rotate x-axis labels if needed</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">setp</span><span class="p">(</span><span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">get_majorticklabels</span><span class="p">(),</span> <span class="n">rotation</span><span class="o">=</span><span class="mi">45</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span></div>
+
+
+
+<div class="viewcode-block" id="plot_desroziers">
+<a class="viewcode-back" href="../../../_autosummary/slv.inversion.viz.html#slv.inversion.viz.plot_desroziers">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_desroziers</span><span class="p">(</span>
+    <span class="n">by_site</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">per_obs</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">timeseries</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Plot Desroziers diagnostic: variance comparison, box-whisker, and timeseries.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    by_site : pd.DataFrame</span>
+<span class="sd">        Site-aggregated Desroziers diagnostic (default groupby) with</span>
+<span class="sd">        &#39;diagnosed&#39;, &#39;specified&#39;, and &#39;ratio&#39; columns.</span>
+<span class="sd">    per_obs : pd.DataFrame</span>
+<span class="sd">        Per-observation Desroziers diagnostic (groupby=None) with</span>
+<span class="sd">        &#39;diagnosed&#39;, &#39;specified&#39;, and &#39;ratio&#39; columns. Index should have</span>
+<span class="sd">        &#39;obs_location&#39; and &#39;obs_time&#39; levels.</span>
+<span class="sd">    timeseries : pd.DataFrame</span>
+<span class="sd">        Temporally-aggregated Desroziers diagnostic with &#39;ratio&#39; column.</span>
+<span class="sd">        Index should have &#39;obs_location&#39; and &#39;obs_time&#39; levels.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">seaborn</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sns</span>
+
+    <span class="n">fig</span><span class="p">,</span> <span class="p">(</span><span class="n">ax1</span><span class="p">,</span> <span class="n">ax2</span><span class="p">,</span> <span class="n">ax3</span><span class="p">)</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">13</span><span class="p">))</span>
+
+    <span class="c1"># --- Panel 1: side-by-side variance bars by site ---</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">by_site</span><span class="p">))</span>
+    <span class="n">width</span> <span class="o">=</span> <span class="mf">0.35</span>
+    <span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span> <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="n">by_site</span><span class="o">.</span><span class="n">index</span><span class="p">]</span>
+
+    <span class="n">ax1</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span>
+        <span class="n">x</span> <span class="o">-</span> <span class="n">width</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span>
+        <span class="n">by_site</span><span class="p">[</span><span class="s2">&quot;specified&quot;</span><span class="p">],</span>
+        <span class="n">width</span><span class="p">,</span>
+        <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Specified (MDM)&quot;</span><span class="p">,</span>
+        <span class="n">color</span><span class="o">=</span><span class="s2">&quot;steelblue&quot;</span><span class="p">,</span>
+        <span class="n">edgecolor</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span>
+        <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">ax1</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span>
+        <span class="n">x</span> <span class="o">+</span> <span class="n">width</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span>
+        <span class="n">by_site</span><span class="p">[</span><span class="s2">&quot;diagnosed&quot;</span><span class="p">],</span>
+        <span class="n">width</span><span class="p">,</span>
+        <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Diagnosed (Desroziers)&quot;</span><span class="p">,</span>
+        <span class="n">color</span><span class="o">=</span><span class="s2">&quot;coral&quot;</span><span class="p">,</span>
+        <span class="n">edgecolor</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span>
+        <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">ax1</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Mean Variance [ppm$^2$]&quot;</span><span class="p">)</span>
+    <span class="n">ax1</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span>
+        <span class="s2">&quot;Desroziers Diagnostic: Specified vs Diagnosed Error&quot;</span><span class="p">,</span> <span class="n">fontweight</span><span class="o">=</span><span class="s2">&quot;bold&quot;</span>
+    <span class="p">)</span>
+    <span class="n">ax1</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="n">ax1</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">(</span><span class="n">labels</span><span class="p">)</span>
+    <span class="n">ax1</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+    <span class="n">ax1</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="s2">&quot;y&quot;</span><span class="p">)</span>
+
+    <span class="c1"># --- Panel 2: box-whisker of ratio by site ---</span>
+    <span class="n">plot_data</span> <span class="o">=</span> <span class="n">per_obs</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+    <span class="n">upper</span> <span class="o">=</span> <span class="n">plot_data</span><span class="p">[</span><span class="s2">&quot;ratio&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="mf">0.95</span><span class="p">)</span>
+    <span class="n">sns</span><span class="o">.</span><span class="n">boxplot</span><span class="p">(</span>
+        <span class="n">data</span><span class="o">=</span><span class="n">plot_data</span><span class="p">,</span>
+        <span class="n">x</span><span class="o">=</span><span class="s2">&quot;obs_location&quot;</span><span class="p">,</span>
+        <span class="n">y</span><span class="o">=</span><span class="s2">&quot;ratio&quot;</span><span class="p">,</span>
+        <span class="n">ax</span><span class="o">=</span><span class="n">ax2</span><span class="p">,</span>
+        <span class="n">showfliers</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">hue</span><span class="o">=</span><span class="s2">&quot;obs_location&quot;</span><span class="p">,</span>
+        <span class="n">palette</span><span class="o">=</span><span class="s2">&quot;Set2&quot;</span><span class="p">,</span>
+        <span class="n">legend</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">ax2</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">top</span><span class="o">=</span><span class="nb">max</span><span class="p">(</span><span class="n">upper</span> <span class="o">*</span> <span class="mf">1.1</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">))</span>
+    <span class="n">ax2</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">ax2</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Ratio (Diagnosed / Specified)&quot;</span><span class="p">)</span>
+    <span class="n">ax2</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="n">ax2</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Desroziers Ratio Distribution by Site&quot;</span><span class="p">,</span> <span class="n">fontweight</span><span class="o">=</span><span class="s2">&quot;bold&quot;</span><span class="p">)</span>
+    <span class="n">ax2</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="s2">&quot;y&quot;</span><span class="p">)</span>
+
+    <span class="c1"># --- Panel 3: ratio timeseries per site ---</span>
+    <span class="n">ts</span> <span class="o">=</span> <span class="n">timeseries</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">site</span><span class="p">,</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">ts</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;obs_location&quot;</span><span class="p">):</span>
+        <span class="n">ax3</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+            <span class="n">group</span><span class="p">[</span><span class="s2">&quot;obs_time&quot;</span><span class="p">],</span> <span class="n">group</span><span class="p">[</span><span class="s2">&quot;ratio&quot;</span><span class="p">],</span> <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;o&quot;</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">site</span>
+        <span class="p">)</span>
+    <span class="n">ax3</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">ax3</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Ratio (Diagnosed / Specified)&quot;</span><span class="p">)</span>
+    <span class="n">ax3</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Time&quot;</span><span class="p">)</span>
+    <span class="n">ax3</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Desroziers Ratio Over Time&quot;</span><span class="p">,</span> <span class="n">fontweight</span><span class="o">=</span><span class="s2">&quot;bold&quot;</span><span class="p">)</span>
+    <span class="n">ax3</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;Site&quot;</span><span class="p">)</span>
+    <span class="n">ax3</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">autofmt_xdate</span><span class="p">()</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="p">(</span><span class="n">ax1</span><span class="p">,</span> <span class="n">ax2</span><span class="p">,</span> <span class="n">ax3</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="plot_residuals">
+<a class="viewcode-back" href="../../../_autosummary/slv.inversion.viz.html#slv.inversion.viz.plot_residuals">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_residuals</span><span class="p">(</span>
+    <span class="n">problem</span><span class="p">,</span>
+    <span class="n">rolling_window</span><span class="o">=</span><span class="s2">&quot;30D&quot;</span><span class="p">,</span>
+    <span class="n">gap_threshold</span><span class="o">=</span><span class="s2">&quot;7D&quot;</span><span class="p">,</span>
+    <span class="n">show_raw</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">location_dim</span><span class="o">=</span><span class="s2">&quot;obs_location&quot;</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Plot posterior - observed concentration residuals for all sites.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    problem : FluxProblem</span>
+<span class="sd">        Solved inversion problem.</span>
+<span class="sd">    rolling_window : str or int, default &#39;30D&#39;</span>
+<span class="sd">        Rolling window for smoothed lines.</span>
+<span class="sd">    gap_threshold : str, default &#39;7D&#39;</span>
+<span class="sd">        Minimum gap duration to highlight as missing data.</span>
+<span class="sd">    show_raw : bool, default True</span>
+<span class="sd">        Whether to show raw residual points behind the smoothed lines.</span>
+<span class="sd">    location_dim : str, default &#39;obs_location&#39;</span>
+<span class="sd">        Name of the location dimension in the data.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">obs</span> <span class="o">=</span> <span class="n">problem</span><span class="o">.</span><span class="n">concentrations</span>
+    <span class="n">posterior</span> <span class="o">=</span> <span class="n">problem</span><span class="o">.</span><span class="n">posterior_concentrations</span>
+    <span class="n">residuals</span> <span class="o">=</span> <span class="p">(</span><span class="n">posterior</span> <span class="o">-</span> <span class="n">obs</span><span class="p">)</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
+
+    <span class="n">locations</span> <span class="o">=</span> <span class="n">residuals</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="n">location_dim</span><span class="p">)</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+    <span class="n">gap_td</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">gap_threshold</span><span class="p">)</span>
+
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+
+    <span class="k">for</span> <span class="n">location</span> <span class="ow">in</span> <span class="n">locations</span><span class="p">:</span>
+        <span class="n">loc_resid</span> <span class="o">=</span> <span class="n">residuals</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">location</span><span class="p">]</span>
+        <span class="n">color</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">_get_lines</span><span class="o">.</span><span class="n">get_next_color</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">show_raw</span><span class="p">:</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
+                <span class="n">loc_resid</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
+                <span class="n">loc_resid</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+                <span class="n">s</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+                <span class="n">alpha</span><span class="o">=</span><span class="mf">0.15</span><span class="p">,</span>
+                <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Detect gaps</span>
+        <span class="n">times</span> <span class="o">=</span> <span class="n">loc_resid</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">sort_values</span><span class="p">()</span>
+        <span class="n">diffs</span> <span class="o">=</span> <span class="n">times</span><span class="o">.</span><span class="n">to_series</span><span class="p">()</span><span class="o">.</span><span class="n">diff</span><span class="p">()</span>
+        <span class="n">gap_starts</span> <span class="o">=</span> <span class="n">times</span><span class="p">[</span><span class="n">diffs</span> <span class="o">&gt;</span> <span class="n">gap_td</span><span class="p">]</span>
+
+        <span class="c1"># Smoothed line with gaps broken</span>
+        <span class="n">smoothed</span> <span class="o">=</span> <span class="n">loc_resid</span><span class="o">.</span><span class="n">rolling</span><span class="p">(</span>
+            <span class="n">window</span><span class="o">=</span><span class="n">rolling_window</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">min_periods</span><span class="o">=</span><span class="mi">1</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">gap_start</span> <span class="ow">in</span> <span class="n">gap_starts</span><span class="p">:</span>
+            <span class="n">gap_begin</span> <span class="o">=</span> <span class="n">times</span><span class="p">[</span><span class="n">times</span> <span class="o">&lt;</span> <span class="n">gap_start</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">mid</span> <span class="o">=</span> <span class="n">gap_begin</span> <span class="o">+</span> <span class="p">(</span><span class="n">gap_start</span> <span class="o">-</span> <span class="n">gap_begin</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+            <span class="n">smoothed</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">mid</span><span class="p">:</span><span class="n">gap_start</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+
+        <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+            <span class="n">smoothed</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
+            <span class="n">smoothed</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+            <span class="n">linewidth</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span>
+            <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span>
+            <span class="n">label</span><span class="o">=</span><span class="n">location</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="n">ax</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+
+    <span class="c1"># Percentile-based y-limits</span>
+    <span class="n">all_vals</span> <span class="o">=</span> <span class="n">residuals</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">all_vals</span> <span class="o">=</span> <span class="n">all_vals</span><span class="p">[</span><span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">all_vals</span><span class="p">)]</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">all_vals</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">p01</span><span class="p">,</span> <span class="n">p99</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">all_vals</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">99</span><span class="p">])</span>
+        <span class="n">margin</span> <span class="o">=</span> <span class="p">(</span><span class="n">p99</span> <span class="o">-</span> <span class="n">p01</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.1</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">p01</span> <span class="o">-</span> <span class="n">margin</span><span class="p">,</span> <span class="n">p99</span> <span class="o">+</span> <span class="n">margin</span><span class="p">)</span>
+
+    <span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span>
+        <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Concentration Residuals (posterior $-$ observed)&quot;</span><span class="p">,</span>
+        <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;Residual [ppm]&quot;</span><span class="p">,</span>
+        <span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;Time&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">autofmt_xdate</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span></div>
+
+
+
+<div class="viewcode-block" id="plot_background_and_bias">
+<a class="viewcode-back" href="../../../_autosummary/slv.inversion.viz.html#slv.inversion.viz.plot_background_and_bias">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_background_and_bias</span><span class="p">(</span><span class="n">problem</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Plot background concentration and bias corrections.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    problem : FluxProblem</span>
+<span class="sd">        Solved inversion problem containing prior, posterior, and constant.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    - If bias exists, creates two subplots: background and bias</span>
+<span class="sd">    - If no bias, only plots background</span>
+<span class="sd">    - Background: automatically detects if all sites share the same regional</span>
+<span class="sd">      background (plots single line) or have site-specific backgrounds (plots</span>
+<span class="sd">      separate lines)</span>
+<span class="sd">    - Bias is shown as prior (initial) and posterior (estimated) values</span>
+<span class="sd">    - For grouped bias (site/site_group), each group gets its own line</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Check if bias exists</span>
+    <span class="n">has_bias</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">problem</span><span class="p">,</span> <span class="s2">&quot;prior&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">problem</span><span class="o">.</span><span class="n">prior</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">):</span>
+        <span class="c1"># Check if prior has a &quot;block&quot; level in its index</span>
+        <span class="n">prior_index</span> <span class="o">=</span> <span class="n">problem</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">index</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">prior_index</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span><span class="p">)</span> <span class="ow">and</span> <span class="s2">&quot;block&quot;</span> <span class="ow">in</span> <span class="n">prior_index</span><span class="o">.</span><span class="n">names</span><span class="p">:</span>
+            <span class="c1"># Check if &quot;bias&quot; is one of the block values</span>
+            <span class="n">has_bias</span> <span class="o">=</span> <span class="s2">&quot;bias&quot;</span> <span class="ow">in</span> <span class="n">prior_index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s2">&quot;block&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+
+    <span class="c1"># Set up subplots</span>
+    <span class="n">n_plots</span> <span class="o">=</span> <span class="mi">2</span> <span class="k">if</span> <span class="n">has_bias</span> <span class="k">else</span> <span class="mi">1</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">n_plots</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">n_plots</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">n_plots</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">axes</span> <span class="o">=</span> <span class="p">[</span><span class="n">axes</span><span class="p">]</span>
+
+    <span class="c1"># Plot background</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">problem</span><span class="p">,</span> <span class="s2">&quot;constant&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">problem</span><span class="o">.</span><span class="n">constant</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">bg_data</span> <span class="o">=</span> <span class="n">problem</span><span class="o">.</span><span class="n">constant</span><span class="p">[</span><span class="s2">&quot;concentration&quot;</span><span class="p">]</span>
+
+        <span class="c1"># Get unique sites</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">bg_data</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span><span class="p">):</span>
+            <span class="n">sites</span> <span class="o">=</span> <span class="n">bg_data</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s2">&quot;obs_location&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+
+            <span class="c1"># Check if all sites have identical background values</span>
+            <span class="n">site_series</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="n">site</span><span class="p">:</span> <span class="n">bg_data</span><span class="o">.</span><span class="n">xs</span><span class="p">(</span><span class="n">site</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="s2">&quot;obs_location&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">sites</span>
+            <span class="p">}</span>
+
+            <span class="c1"># Compare all site series to the first one</span>
+            <span class="n">first_site</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">site_series</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">first_series</span> <span class="o">=</span> <span class="n">site_series</span><span class="p">[</span><span class="n">first_site</span><span class="p">]</span>
+            <span class="n">all_identical</span> <span class="o">=</span> <span class="nb">all</span><span class="p">(</span>
+                <span class="n">site_series</span><span class="p">[</span><span class="n">site</span><span class="p">]</span><span class="o">.</span><span class="n">equals</span><span class="p">(</span><span class="n">first_series</span><span class="p">)</span> <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">sites</span>
+            <span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">all_identical</span><span class="p">:</span>
+                <span class="c1"># All sites share the same background - plot just one line</span>
+                <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+                    <span class="n">first_series</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
+                    <span class="n">first_series</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+                    <span class="n">color</span><span class="o">=</span><span class="s2">&quot;blue&quot;</span><span class="p">,</span>
+                    <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                    <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Regional Background (all sites)&quot;</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Sites have different backgrounds - plot each separately</span>
+                <span class="k">for</span> <span class="n">site</span> <span class="ow">in</span> <span class="n">sites</span><span class="p">:</span>
+                    <span class="n">site_data</span> <span class="o">=</span> <span class="n">site_series</span><span class="p">[</span><span class="n">site</span><span class="p">]</span>
+                    <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+                        <span class="n">site_data</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
+                        <span class="n">site_data</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+                        <span class="n">label</span><span class="o">=</span><span class="n">site</span><span class="p">,</span>
+                        <span class="n">alpha</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span>
+                        <span class="n">linewidth</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span>
+                    <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+                <span class="n">bg_data</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
+                <span class="n">bg_data</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+                <span class="n">color</span><span class="o">=</span><span class="s2">&quot;blue&quot;</span><span class="p">,</span>
+                <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Regional Background&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Background [ppm]&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+        <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Time&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+        <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Background Concentration&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">,</span> <span class="n">fontweight</span><span class="o">=</span><span class="s2">&quot;bold&quot;</span><span class="p">)</span>
+        <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">bbox_to_anchor</span><span class="o">=</span><span class="p">(</span><span class="mf">1.05</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">loc</span><span class="o">=</span><span class="s2">&quot;upper left&quot;</span><span class="p">)</span>
+        <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+
+    <span class="c1"># Plot bias if it exists</span>
+    <span class="k">if</span> <span class="n">has_bias</span><span class="p">:</span>
+        <span class="n">prior_bias</span> <span class="o">=</span> <span class="n">problem</span><span class="o">.</span><span class="n">prior</span><span class="p">[</span><span class="s2">&quot;bias&quot;</span><span class="p">]</span>
+        <span class="n">posterior_bias</span> <span class="o">=</span> <span class="n">problem</span><span class="o">.</span><span class="n">posterior</span><span class="p">[</span><span class="s2">&quot;bias&quot;</span><span class="p">]</span>
+
+        <span class="c1"># Check if bias has grouping (MultiIndex)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">prior_bias</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span><span class="p">):</span>
+            <span class="c1"># Grouped bias (site or site_group)</span>
+            <span class="n">group_level</span> <span class="o">=</span> <span class="n">prior_bias</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">names</span><span class="p">[</span>
+                <span class="mi">1</span>
+            <span class="p">]</span>  <span class="c1"># Should be &#39;obs_location&#39; or &#39;site_group&#39;</span>
+            <span class="n">groups</span> <span class="o">=</span> <span class="n">prior_bias</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="n">group_level</span><span class="p">)</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+
+            <span class="c1"># Get the default color cycle</span>
+            <span class="n">colors</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s2">&quot;axes.prop_cycle&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">by_key</span><span class="p">()[</span><span class="s2">&quot;color&quot;</span><span class="p">]</span>
+
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">group</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">groups</span><span class="p">):</span>
+                <span class="n">prior_group</span> <span class="o">=</span> <span class="n">prior_bias</span><span class="o">.</span><span class="n">xs</span><span class="p">(</span><span class="n">group</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="n">group_level</span><span class="p">)</span>
+                <span class="n">posterior_group</span> <span class="o">=</span> <span class="n">posterior_bias</span><span class="o">.</span><span class="n">xs</span><span class="p">(</span><span class="n">group</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="n">group_level</span><span class="p">)</span>
+
+                <span class="c1"># Use same color for prior and posterior of this group</span>
+                <span class="n">color</span> <span class="o">=</span> <span class="n">colors</span><span class="p">[</span><span class="n">i</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">colors</span><span class="p">)]</span>
+
+                <span class="c1"># Plot prior as dashed, posterior as solid</span>
+                <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+                    <span class="n">prior_group</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
+                    <span class="n">prior_group</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+                    <span class="s2">&quot;--&quot;</span><span class="p">,</span>
+                    <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">group</span><span class="si">}</span><span class="s2"> (prior)&quot;</span><span class="p">,</span>
+                    <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span>
+                    <span class="n">alpha</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span>
+                    <span class="n">linewidth</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+                    <span class="n">posterior_group</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
+                    <span class="n">posterior_group</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+                    <span class="s2">&quot;-&quot;</span><span class="p">,</span>
+                    <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">group</span><span class="si">}</span><span class="s2"> (posterior)&quot;</span><span class="p">,</span>
+                    <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span>
+                    <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Time-only bias</span>
+            <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+                <span class="n">prior_bias</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
+                <span class="n">prior_bias</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+                <span class="s2">&quot;--&quot;</span><span class="p">,</span>
+                <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Prior&quot;</span><span class="p">,</span>
+                <span class="n">color</span><span class="o">=</span><span class="s2">&quot;gray&quot;</span><span class="p">,</span>
+                <span class="n">alpha</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span>
+                <span class="n">linewidth</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+                <span class="n">posterior_bias</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
+                <span class="n">posterior_bias</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+                <span class="s2">&quot;-&quot;</span><span class="p">,</span>
+                <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Posterior&quot;</span><span class="p">,</span>
+                <span class="n">color</span><span class="o">=</span><span class="s2">&quot;red&quot;</span><span class="p">,</span>
+                <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;:&quot;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+        <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Bias [ppm]&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+        <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Time&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+        <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Bias Correction&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">,</span> <span class="n">fontweight</span><span class="o">=</span><span class="s2">&quot;bold&quot;</span><span class="p">)</span>
+        <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">bbox_to_anchor</span><span class="o">=</span><span class="p">(</span><span class="mf">1.05</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">loc</span><span class="o">=</span><span class="s2">&quot;upper left&quot;</span><span class="p">)</span>
+        <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">axes</span></div>
+
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026, James Mineau.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

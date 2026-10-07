@@ -1,0 +1,23 @@
+slv.measurements.mobile.transects
+=================================
+
+.. automodule:: slv.measurements.mobile.transects
+
+   
+   .. rubric:: Module Attributes
+
+   .. autosummary::
+   
+      NETWORK_DIR
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      assign_lines
+      build_network_transects
+      build_trax_transects
+      load_network_transects
+      load_transects
+      network_transects_dir
+   
