@@ -1,0 +1,1068 @@
+{
+  "errors": [
+    {
+      "column": 9,
+      "path": "src/slv/basemap.py",
+      "name": "missing-attribute",
+      "concise_description": "Object of class `Axes` has no attribute `set_extent`",
+      "severity": "error"
+    },
+    {
+      "column": 26,
+      "path": "src/slv/basemap.py",
+      "name": "bad-argument-type",
+      "concise_description": "Argument `StadiaMapsTiles | Unknown` is not assignable to parameter `image` with type `AxesImage` in function `matplotlib.axes._base._AxesBase.add_image`",
+      "severity": "error"
+    },
+    {
+      "column": 33,
+      "path": "src/slv/basemap.py",
+      "name": "bad-argument-count",
+      "concise_description": "Expected 1 positional argument, got 2 in function `matplotlib.axes._base._AxesBase.add_image`",
+      "severity": "error"
+    },
+    {
+      "column": 39,
+      "path": "src/slv/basemap.py",
+      "name": "unexpected-keyword",
+      "concise_description": "Unexpected keyword argument `zorder` in function `matplotlib.axes._base._AxesBase.add_image`",
+      "severity": "error"
+    },
+    {
+      "column": 17,
+      "path": "src/slv/basemap.py",
+      "name": "no-matching-overload",
+      "concise_description": "No matching overload found for function `geopandas.plotting.GeoplotAccessor.__call__` called with arguments: (ax=Axes | Unknown, transform=PlateCarree, zorder=Literal[2], **dict[str, float | str | Unknown])",
+      "severity": "error"
+    },
+    {
+      "column": 17,
+      "path": "src/slv/basemap.py",
+      "name": "no-matching-overload",
+      "concise_description": "No matching overload found for function `geopandas.plotting.GeoplotAccessor.__call__` called with arguments: (ax=Axes | Unknown, transform=PlateCarree, zorder=Literal[2], **dict[str, float | str | Unknown])",
+      "severity": "error"
+    },
+    {
+      "column": 21,
+      "path": "src/slv/basemap.py",
+      "name": "bad-argument-type",
+      "concise_description": "Argument `Unknown | None` is not assignable to parameter `text` with type `str` in function `matplotlib.axes._axes.Axes.annotate`",
+      "severity": "error"
+    },
+    {
+      "column": 37,
+      "path": "src/slv/basemap.py",
+      "name": "missing-attribute",
+      "concise_description": "Object of class `Hashable` has no attribute `upper`",
+      "severity": "error"
+    },
+    {
+      "column": 33,
+      "path": "src/slv/basemap.py",
+      "name": "bad-argument-type",
+      "concise_description": "Argument `list[object]` is not assignable to parameter `handles` with type `Iterable[Artist | tuple[Artist, ...]]` in function `matplotlib.axes._axes.Axes.legend`",
+      "severity": "error"
+    },
+    {
+      "column": 9,
+      "path": "src/slv/basemap.py",
+      "name": "missing-attribute",
+      "concise_description": "Object of class `Axes` has no attribute `set_extent`",
+      "severity": "error"
+    },
+    {
+      "column": 9,
+      "path": "src/slv/basemap.py",
+      "name": "missing-attribute",
+      "concise_description": "Object of class `Axes` has no attribute `add_feature`",
+      "severity": "error"
+    },
+    {
+      "column": 9,
+      "path": "src/slv/basemap.py",
+      "name": "missing-attribute",
+      "concise_description": "Object of class `Axes` has no attribute `add_feature`",
+      "severity": "error"
+    },
+    {
+      "column": 9,
+      "path": "src/slv/basemap.py",
+      "name": "missing-attribute",
+      "concise_description": "Object of class `Axes` has no attribute `add_feature`",
+      "severity": "error"
+    },
+    {
+      "column": 9,
+      "path": "src/slv/basemap.py",
+      "name": "missing-attribute",
+      "concise_description": "Object of class `Axes` has no attribute `add_geometries`",
+      "severity": "error"
+    },
+    {
+      "column": 18,
+      "path": "src/slv/basemap.py",
+      "name": "bad-argument-type",
+      "concise_description": "Argument `float` is not assignable to parameter `ccw` with type `bool` in function `shapely.geometry.geo.box`",
+      "severity": "error"
+    },
+    {
+      "column": 13,
+      "path": "src/slv/basemap.py",
+      "name": "bad-argument-type",
+      "concise_description": "Argument `float | Unknown` is not assignable to parameter `s` with type `str` in function `matplotlib.axes._axes.Axes.text`",
+      "severity": "error"
+    },
+    {
+      "column": 13,
+      "path": "src/slv/basemap.py",
+      "name": "bad-argument-type",
+      "concise_description": "Argument `float | Unknown` is not assignable to parameter `fontdict` with type `dict[str, Any] | None` in function `matplotlib.axes._axes.Axes.text`",
+      "severity": "error"
+    },
+    {
+      "column": 13,
+      "path": "src/slv/basemap.py",
+      "name": "bad-argument-count",
+      "concise_description": "Expected 4 positional arguments, got 5 in function `matplotlib.axes._axes.Axes.text`",
+      "severity": "error"
+    },
+    {
+      "column": 16,
+      "path": "src/slv/inversion/bias.py",
+      "name": "missing-attribute",
+      "concise_description": "Object of class `BiasMixin` has no attribute `_resolve_sites`",
+      "severity": "error"
+    },
+    {
+      "column": 17,
+      "path": "src/slv/inversion/bias.py",
+      "name": "bad-argument-type",
+      "concise_description": "Argument `Index[str]` is not assignable to parameter `tuples` with type `Iterable[tuple[Hashable, ...]]` in function `pandas.core.indexes.multi.MultiIndex.from_tuples`",
+      "severity": "error"
+    },
+    {
+      "column": 17,
+      "path": "src/slv/inversion/bias.py",
+      "name": "bad-argument-type",
+      "concise_description": "Argument `Index[str]` is not assignable to parameter `tuples` with type `Iterable[tuple[Hashable, ...]]` in function `pandas.core.indexes.multi.MultiIndex.from_tuples`",
+      "severity": "error"
+    },
+    {
+      "column": 16,
+      "path": "src/slv/inversion/config.py",
+      "name": "bad-return",
+      "concise_description": "Returned type `Index` is not assignable to declared return type `DatetimeIndex`",
+      "severity": "error"
+    },
+    {
+      "column": 70,
+      "path": "src/slv/inversion/covariances.py",
+      "name": "bad-argument-type",
+      "concise_description": "Argument `Unknown | None` is not assignable to parameter `scale` with type `float` in function `fips.kernels.GridSpatialDecay`",
+      "severity": "error"
+    },
+    {
+      "column": 34,
+      "path": "src/slv/inversion/coverage.py",
+      "name": "no-matching-overload",
+      "concise_description": "No matching overload found for function `numpy.lib._function_base_impl.percentile` called with arguments: (Unknown, float | None)",
+      "severity": "error"
+    },
+    {
+      "column": 28,
+      "path": "src/slv/inversion/coverage.py",
+      "name": "no-matching-overload",
+      "concise_description": "No matching overload found for function `pandas.core.construction.array` called with arguments: (list[bool], dtype=type[bool])",
+      "severity": "error"
+    },
+    {
+      "column": 27,
+      "path": "src/slv/inversion/coverage.py",
+      "name": "unsupported-operation",
+      "concise_description": "`**` is not supported between `None` and `Literal[2]`",
+      "severity": "error"
+    },
+    {
+      "column": 21,
+      "path": "src/slv/inversion/coverage.py",
+      "name": "bad-argument-type",
+      "concise_description": "Argument `Index` is not assignable to parameter `index` with type `MultiIndex` in function `fips.covariance.DiagonalError.build`",
+      "severity": "error"
+    },
+    {
+      "column": 16,
+      "path": "src/slv/inversion/mdm.py",
+      "name": "missing-attribute",
+      "concise_description": "Object of class `EllipsisType` has no attribute `to_coo`",
+      "severity": "error"
+    },
+    {
+      "column": 21,
+      "path": "src/slv/inversion/mdm.py",
+      "name": "missing-attribute",
+      "concise_description": "Object of class `ModelDataMismatchMixin` has no attribute `get_prior`",
+      "severity": "error"
+    },
+    {
+      "column": 18,
+      "path": "src/slv/inversion/mdm.py",
+      "name": "missing-attribute",
+      "concise_description": "Object of class `ModelDataMismatchMixin` has no attribute `get_constant`",
+      "severity": "error"
+    },
+    {
+      "column": 17,
+      "path": "src/slv/inversion/mdm.py",
+      "name": "missing-attribute",
+      "concise_description": "Object of class `ModelDataMismatchMixin` has no attribute `get_prior`",
+      "severity": "error"
+    },
+    {
+      "column": 42,
+      "path": "src/slv/inversion/mdm.py",
+      "name": "missing-attribute",
+      "concise_description": "Object of class `ModelDataMismatchMixin` has no attribute `_get_flux_jacobian`",
+      "severity": "error"
+    },
+    {
+      "column": 21,
+      "path": "src/slv/inversion/mdm.py",
+      "name": "missing-attribute",
+      "concise_description": "Object of class `ModelDataMismatchMixin` has no attribute `obs_sites`",
+      "severity": "error"
+    },
+    {
+      "column": 16,
+      "path": "src/slv/inversion/pipelines.py",
+      "name": "bad-return",
+      "concise_description": "Returned type `MatrixBlock | dict[str, MatrixBlock]` is not assignable to declared return type `MatrixBlock | None`",
+      "severity": "error"
+    },
+    {
+      "column": 26,
+      "path": "src/slv/inversion/pipelines.py",
+      "name": "bad-argument-type",
+      "concise_description": "Argument `list[float]` is not assignable to parameter `subset_hours` with type `int | list[int] | None` in function `fips.problems.flux.transport.stilt.builder.JacobianBuilder.build_from_target`",
+      "severity": "error"
+    },
+    {
+      "column": 17,
+      "path": "src/slv/inversion/pipelines.py",
+      "name": "bad-argument-type",
+      "concise_description": "Argument `Index` is not assignable to parameter `index` with type `MultiIndex` in function `fips.covariance.DiagonalError.build`",
+      "severity": "error"
+    },
+    {
+      "column": 40,
+      "path": "src/slv/inversion/pipelines.py",
+      "name": "bad-argument-type",
+      "concise_description": "Argument `Literal[True] | str` is not assignable to parameter `freq` with type `str | None` in function `fips.aggregators.ObsAggregator.__init__`",
+      "severity": "error"
+    },
+    {
+      "column": 33,
+      "path": "src/slv/inversion/report.py",
+      "name": "bad-argument-type",
+      "concise_description": "Argument `TimeGrouper` is not assignable to parameter `object` with type `str` in function `list.append`",
+      "severity": "error"
+    },
+    {
+      "column": 9,
+      "path": "src/slv/inversion/report.py",
+      "name": "missing-attribute",
+      "concise_description": "Object of class `object` has no attribute `summarize`",
+      "severity": "error"
+    },
+    {
+      "column": 12,
+      "path": "src/slv/inversion/report.py",
+      "name": "missing-attribute",
+      "concise_description": "Object of class `ReportingMixin` has no attribute `_retained_cells`",
+      "severity": "error"
+    },
+    {
+      "column": 26,
+      "path": "src/slv/inversion/report.py",
+      "name": "missing-attribute",
+      "concise_description": "Object of class `ReportingMixin` has no attribute `_full_prior`",
+      "severity": "error"
+    },
+    {
+      "column": 29,
+      "path": "src/slv/inversion/report.py",
+      "name": "missing-attribute",
+      "concise_description": "Object of class `ReportingMixin` has no attribute `reconstruct_posterior`",
+      "severity": "error"
+    },
+    {
+      "column": 23,
+      "path": "src/slv/inversion/report.py",
+      "name": "missing-attribute",
+      "concise_description": "Object of class `Index` has no attribute `year`",
+      "severity": "error"
+    },
+    {
+      "column": 33,
+      "path": "src/slv/inversion/report.py",
+      "name": "missing-attribute",
+      "concise_description": "Object of class `Index` has no attribute `day_of_year`",
+      "severity": "error"
+    },
+    {
+      "column": 12,
+      "path": "src/slv/inversion/report.py",
+      "name": "missing-attribute",
+      "concise_description": "Object of class `ReportingMixin` has no attribute `_retained_cells`",
+      "severity": "error"
+    },
+    {
+      "column": 29,
+      "path": "src/slv/inversion/report.py",
+      "name": "missing-attribute",
+      "concise_description": "Object of class `ReportingMixin` has no attribute `_full_prior`",
+      "severity": "error"
+    },
+    {
+      "column": 17,
+      "path": "src/slv/inversion/report.py",
+      "name": "missing-attribute",
+      "concise_description": "Object of class `ReportingMixin` has no attribute `_all_cells`",
+      "severity": "error"
+    },
+    {
+      "column": 12,
+      "path": "src/slv/inversion/report.py",
+      "name": "missing-attribute",
+      "concise_description": "Object of class `ReportingMixin` has no attribute `_retained_cells`",
+      "severity": "error"
+    },
+    {
+      "column": 29,
+      "path": "src/slv/inversion/report.py",
+      "name": "missing-attribute",
+      "concise_description": "Object of class `ReportingMixin` has no attribute `reconstruct_posterior`",
+      "severity": "error"
+    },
+    {
+      "column": 17,
+      "path": "src/slv/inversion/report.py",
+      "name": "missing-attribute",
+      "concise_description": "Object of class `ReportingMixin` has no attribute `_all_cells`",
+      "severity": "error"
+    },
+    {
+      "column": 26,
+      "path": "src/slv/inversion/report.py",
+      "name": "missing-attribute",
+      "concise_description": "Object of class `ReportingMixin` has no attribute `_full_prior`",
+      "severity": "error"
+    },
+    {
+      "column": 17,
+      "path": "src/slv/inversion/report.py",
+      "name": "bad-index",
+      "concise_description": "Cannot index into `float`",
+      "severity": "error"
+    },
+    {
+      "column": 21,
+      "path": "src/slv/inversion/sweep.py",
+      "name": "bad-argument-type",
+      "concise_description": "Unpacked keyword argument `str | Any` is not assignable to parameter `utc_offset` with type `int` in function `slv.inversion.config.InversionConfig.__init__`",
+      "severity": "error"
+    },
+    {
+      "column": 21,
+      "path": "src/slv/inversion/sweep.py",
+      "name": "bad-argument-type",
+      "concise_description": "Unpacked keyword argument `str | Any` is not assignable to parameter `subset_hours` with type `list[int]` in function `slv.inversion.config.InversionConfig.__init__`",
+      "severity": "error"
+    },
+    {
+      "column": 21,
+      "path": "src/slv/inversion/sweep.py",
+      "name": "bad-argument-type",
+      "concise_description": "Unpacked keyword argument `str | Any` is not assignable to parameter `xmin` with type `float` in function `slv.inversion.config.InversionConfig.__init__`",
+      "severity": "error"
+    },
+    {
+      "column": 21,
+      "path": "src/slv/inversion/sweep.py",
+      "name": "bad-argument-type",
+      "concise_description": "Unpacked keyword argument `str | Any` is not assignable to parameter `xmax` with type `float` in function `slv.inversion.config.InversionConfig.__init__`",
+      "severity": "error"
+    },
+    {
+      "column": 21,
+      "path": "src/slv/inversion/sweep.py",
+      "name": "bad-argument-type",
+      "concise_description": "Unpacked keyword argument `str | Any` is not assignable to parameter `ymin` with type `float` in function `slv.inversion.config.InversionConfig.__init__`",
+      "severity": "error"
+    },
+    {
+      "column": 21,
+      "path": "src/slv/inversion/sweep.py",
+      "name": "bad-argument-type",
+      "concise_description": "Unpacked keyword argument `str | Any` is not assignable to parameter `ymax` with type `float` in function `slv.inversion.config.InversionConfig.__init__`",
+      "severity": "error"
+    },
+    {
+      "column": 21,
+      "path": "src/slv/inversion/sweep.py",
+      "name": "bad-argument-type",
+      "concise_description": "Unpacked keyword argument `str | Any` is not assignable to parameter `dx` with type `float` in function `slv.inversion.config.InversionConfig.__init__`",
+      "severity": "error"
+    },
+    {
+      "column": 21,
+      "path": "src/slv/inversion/sweep.py",
+      "name": "bad-argument-type",
+      "concise_description": "Unpacked keyword argument `str | Any` is not assignable to parameter `dy` with type `float` in function `slv.inversion.config.InversionConfig.__init__`",
+      "severity": "error"
+    },
+    {
+      "column": 21,
+      "path": "src/slv/inversion/sweep.py",
+      "name": "bad-argument-type",
+      "concise_description": "Unpacked keyword argument `str | Any` is not assignable to parameter `sites` with type `list[str]` in function `slv.inversion.config.InversionConfig.__init__`",
+      "severity": "error"
+    },
+    {
+      "column": 21,
+      "path": "src/slv/inversion/sweep.py",
+      "name": "bad-argument-type",
+      "concise_description": "Unpacked keyword argument `str | Any` is not assignable to parameter `filter_pcaps` with type `bool` in function `slv.inversion.config.InversionConfig.__init__`",
+      "severity": "error"
+    },
+    {
+      "column": 21,
+      "path": "src/slv/inversion/sweep.py",
+      "name": "bad-argument-type",
+      "concise_description": "Unpacked keyword argument `str | Any` is not assignable to parameter `filter_spikes` with type `bool` in function `slv.inversion.config.InversionConfig.__init__`",
+      "severity": "error"
+    },
+    {
+      "column": 21,
+      "path": "src/slv/inversion/sweep.py",
+      "name": "bad-argument-type",
+      "concise_description": "Unpacked keyword argument `str | Any` is not assignable to parameter `spike_percentile` with type `float` in function `slv.inversion.config.InversionConfig.__init__`",
+      "severity": "error"
+    },
+    {
+      "column": 21,
+      "path": "src/slv/inversion/sweep.py",
+      "name": "bad-argument-type",
+      "concise_description": "Unpacked keyword argument `str | Any` is not assignable to parameter `background_kwargs` with type `dict[Unknown, Unknown]` in function `slv.inversion.config.InversionConfig.__init__`",
+      "severity": "error"
+    },
+    {
+      "column": 21,
+      "path": "src/slv/inversion/sweep.py",
+      "name": "bad-argument-type",
+      "concise_description": "Unpacked keyword argument `str | Any` is not assignable to parameter `location_site_map` with type `dict[str, str]` in function `slv.inversion.config.InversionConfig.__init__`",
+      "severity": "error"
+    },
+    {
+      "column": 21,
+      "path": "src/slv/inversion/sweep.py",
+      "name": "bad-argument-type",
+      "concise_description": "Unpacked keyword argument `str | Any` is not assignable to parameter `prior_kwargs` with type `dict[Unknown, Unknown]` in function `slv.inversion.config.InversionConfig.__init__`",
+      "severity": "error"
+    },
+    {
+      "column": 21,
+      "path": "src/slv/inversion/sweep.py",
+      "name": "bad-argument-type",
+      "concise_description": "Unpacked keyword argument `str | Any` is not assignable to parameter `sparse_jacobian` with type `bool` in function `slv.inversion.config.InversionConfig.__init__`",
+      "severity": "error"
+    },
+    {
+      "column": 21,
+      "path": "src/slv/inversion/sweep.py",
+      "name": "bad-argument-type",
+      "concise_description": "Unpacked keyword argument `str | Any` is not assignable to parameter `prior_base_std` with type `float` in function `slv.inversion.config.InversionConfig.__init__`",
+      "severity": "error"
+    },
+    {
+      "column": 21,
+      "path": "src/slv/inversion/sweep.py",
+      "name": "bad-argument-type",
+      "concise_description": "Unpacked keyword argument `str | Any` is not assignable to parameter `prior_std_frac` with type `float` in function `slv.inversion.config.InversionConfig.__init__`",
+      "severity": "error"
+    },
+    {
+      "column": 21,
+      "path": "src/slv/inversion/sweep.py",
+      "name": "bad-argument-type",
+      "concise_description": "Unpacked keyword argument `str | Any` is not assignable to parameter `prior_spatial_scale` with type `float` in function `slv.inversion.config.InversionConfig.__init__`",
+      "severity": "error"
+    },
+    {
+      "column": 21,
+      "path": "src/slv/inversion/sweep.py",
+      "name": "bad-argument-type",
+      "concise_description": "Unpacked keyword argument `str | Any` is not assignable to parameter `mdm_config` with type `dict[Unknown, Unknown]` in function `slv.inversion.config.InversionConfig.__init__`",
+      "severity": "error"
+    },
+    {
+      "column": 21,
+      "path": "src/slv/inversion/sweep.py",
+      "name": "bad-argument-type",
+      "concise_description": "Unpacked keyword argument `str | Any` is not assignable to parameter `bias_std` with type `float | None` in function `slv.inversion.config.InversionConfig.__init__`",
+      "severity": "error"
+    },
+    {
+      "column": 21,
+      "path": "src/slv/inversion/sweep.py",
+      "name": "bad-argument-type",
+      "concise_description": "Unpacked keyword argument `str | Any` is not assignable to parameter `jacobian_coverage_percentile` with type `float | None` in function `slv.inversion.config.InversionConfig.__init__`",
+      "severity": "error"
+    },
+    {
+      "column": 21,
+      "path": "src/slv/inversion/sweep.py",
+      "name": "bad-argument-type",
+      "concise_description": "Unpacked keyword argument `str | Any` is not assignable to parameter `min_obs_per_interval` with type `int` in function `slv.inversion.config.InversionConfig.__init__`",
+      "severity": "error"
+    },
+    {
+      "column": 21,
+      "path": "src/slv/inversion/sweep.py",
+      "name": "bad-argument-type",
+      "concise_description": "Unpacked keyword argument `str | Any` is not assignable to parameter `min_sims_per_interval` with type `int` in function `slv.inversion.config.InversionConfig.__init__`",
+      "severity": "error"
+    },
+    {
+      "column": 21,
+      "path": "src/slv/inversion/sweep.py",
+      "name": "bad-argument-type",
+      "concise_description": "Unpacked keyword argument `str | Any` is not assignable to parameter `gamma` with type `float | None` in function `slv.inversion.config.InversionConfig.__init__`",
+      "severity": "error"
+    },
+    {
+      "column": 21,
+      "path": "src/slv/inversion/sweep.py",
+      "name": "bad-argument-type",
+      "concise_description": "Unpacked keyword argument `str | Any` is not assignable to parameter `num_processes` with type `int` in function `slv.inversion.config.InversionConfig.__init__`",
+      "severity": "error"
+    },
+    {
+      "column": 21,
+      "path": "src/slv/inversion/sweep.py",
+      "name": "bad-argument-type",
+      "concise_description": "Unpacked keyword argument `str | Any` is not assignable to parameter `timeout` with type `int` in function `slv.inversion.config.InversionConfig.__init__`",
+      "severity": "error"
+    },
+    {
+      "column": 21,
+      "path": "src/slv/inversion/sweep.py",
+      "name": "bad-argument-type",
+      "concise_description": "Unpacked keyword argument `str | Any` is not assignable to parameter `plot_inputs` with type `bool` in function `slv.inversion.config.InversionConfig.__init__`",
+      "severity": "error"
+    },
+    {
+      "column": 21,
+      "path": "src/slv/inversion/sweep.py",
+      "name": "bad-argument-type",
+      "concise_description": "Unpacked keyword argument `str | Any` is not assignable to parameter `plot_results` with type `bool` in function `slv.inversion.config.InversionConfig.__init__`",
+      "severity": "error"
+    },
+    {
+      "column": 21,
+      "path": "src/slv/inversion/sweep.py",
+      "name": "bad-argument-type",
+      "concise_description": "Unpacked keyword argument `str | Any` is not assignable to parameter `plot_diagnostics` with type `bool` in function `slv.inversion.config.InversionConfig.__init__`",
+      "severity": "error"
+    },
+    {
+      "column": 21,
+      "path": "src/slv/inversion/sweep.py",
+      "name": "bad-argument-type",
+      "concise_description": "Unpacked keyword argument `str | Any` is not assignable to parameter `tiler` with type `GoogleTiles` in function `slv.inversion.config.InversionConfig.__init__`",
+      "severity": "error"
+    },
+    {
+      "column": 21,
+      "path": "src/slv/inversion/sweep.py",
+      "name": "bad-argument-type",
+      "concise_description": "Unpacked keyword argument `str | Any` is not assignable to parameter `tiler_zoom` with type `int` in function `slv.inversion.config.InversionConfig.__init__`",
+      "severity": "error"
+    },
+    {
+      "column": 13,
+      "path": "src/slv/inversion/sweep.py",
+      "name": "missing-attribute",
+      "concise_description": "Object of class `Hashable` has no attribute `removeprefix`",
+      "severity": "error"
+    },
+    {
+      "column": 16,
+      "path": "src/slv/inversion/sweep.py",
+      "name": "missing-attribute",
+      "concise_description": "Object of class `Hashable` has no attribute `startswith`",
+      "severity": "error"
+    },
+    {
+      "column": 41,
+      "path": "src/slv/inversion/sweep.py",
+      "name": "missing-attribute",
+      "concise_description": "Object of class `Hashable` has no attribute `removeprefix`",
+      "severity": "error"
+    },
+    {
+      "column": 27,
+      "path": "src/slv/inversion/viz.py",
+      "name": "no-matching-overload",
+      "concise_description": "No matching overload found for function `matplotlib.pyplot.subplots` called with arguments: (subplot_kw=dict[str, Unknown], **dict[str, tuple[int, int]] | Unknown)",
+      "severity": "error"
+    },
+    {
+      "column": 27,
+      "path": "src/slv/inversion/viz.py",
+      "name": "no-matching-overload",
+      "concise_description": "No matching overload found for function `matplotlib.pyplot.subplots` called with arguments: (subplot_kw=dict[str, Unknown], **dict[str, tuple[int, int]] | Unknown)",
+      "severity": "error"
+    },
+    {
+      "column": 27,
+      "path": "src/slv/inversion/viz.py",
+      "name": "no-matching-overload",
+      "concise_description": "No matching overload found for function `matplotlib.pyplot.subplots` called with arguments: (subplot_kw=dict[str, Unknown], **dict[str, tuple[int, int]] | Unknown)",
+      "severity": "error"
+    },
+    {
+      "column": 14,
+      "path": "src/slv/inversion/viz.py",
+      "name": "missing-attribute",
+      "concise_description": "No attribute `viridis` in module `matplotlib.cm`",
+      "severity": "error"
+    },
+    {
+      "column": 17,
+      "path": "src/slv/inversion/viz.py",
+      "name": "missing-attribute",
+      "concise_description": "Object of class `Axes` has no attribute `_get_lines`",
+      "severity": "error"
+    },
+    {
+      "column": 56,
+      "path": "src/slv/inversion/viz.py",
+      "name": "bad-argument-type",
+      "concise_description": "Argument `Hashable | None` is not assignable to parameter `level` with type `int | str` in function `pandas.core.indexes.multi.MultiIndex.get_level_values`",
+      "severity": "error"
+    },
+    {
+      "column": 27,
+      "path": "src/slv/measurements/aggregate.py",
+      "name": "missing-module-attribute",
+      "concise_description": "Could not import `cKDTree` from `scipy.spatial`",
+      "severity": "error"
+    },
+    {
+      "column": 8,
+      "path": "src/slv/measurements/aggregate.py",
+      "name": "missing-attribute",
+      "concise_description": "Object of class `Properties` has no attribute `tz`",
+      "severity": "error"
+    },
+    {
+      "column": 17,
+      "path": "src/slv/measurements/aggregate.py",
+      "name": "missing-attribute",
+      "concise_description": "Object of class `Properties` has no attribute `tz_localize`",
+      "severity": "error"
+    },
+    {
+      "column": 17,
+      "path": "src/slv/measurements/aggregate.py",
+      "name": "missing-attribute",
+      "concise_description": "Object of class `Properties` has no attribute `floor`",
+      "severity": "error"
+    },
+    {
+      "column": 12,
+      "path": "src/slv/measurements/aggregate.py",
+      "name": "missing-attribute",
+      "concise_description": "Object of class `Properties` has no attribute `to_period`",
+      "severity": "error"
+    },
+    {
+      "column": 77,
+      "path": "src/slv/measurements/aggregate.py",
+      "name": "bad-argument-type",
+      "concise_description": "Argument `str | None` is not assignable to parameter `freq` with type `str` in function `_bin_start`",
+      "severity": "error"
+    },
+    {
+      "column": 43,
+      "path": "src/slv/measurements/aggregate.py",
+      "name": "bad-argument-type",
+      "concise_description": "Argument `str | None` is not assignable to parameter `freq` with type `str` in function `_is_fixed_freq`",
+      "severity": "error"
+    },
+    {
+      "column": 34,
+      "path": "src/slv/measurements/aggregate.py",
+      "name": "missing-attribute",
+      "concise_description": "Object of class `NoneType` has no attribute `nanos`",
+      "severity": "error"
+    },
+    {
+      "column": 42,
+      "path": "src/slv/measurements/aggregate.py",
+      "name": "unsupported-operation",
+      "concise_description": "Cannot set item in `dict[str, str]`",
+      "severity": "error"
+    },
+    {
+      "column": 69,
+      "path": "src/slv/measurements/aggregate.py",
+      "name": "bad-argument-type",
+      "concise_description": "Argument `str | None` is not assignable to parameter `freq` with type `str` in function `_bin_start`",
+      "severity": "error"
+    },
+    {
+      "column": 34,
+      "path": "src/slv/measurements/aggregate.py",
+      "name": "unsupported-operation",
+      "concise_description": "Cannot set item in `dict[str, str]`",
+      "severity": "error"
+    },
+    {
+      "column": 21,
+      "path": "src/slv/measurements/background.py",
+      "name": "bad-assignment",
+      "concise_description": "`DataArray | Series` is not assignable to attribute `data` with type `DataFrame | Dataset`",
+      "severity": "error"
+    },
+    {
+      "column": 46,
+      "path": "src/slv/measurements/background.py",
+      "name": "bad-argument-type",
+      "concise_description": "Keyword argument `columns` with type `dict[str, str]` is not assignable to parameter `**names` with type `Hashable` in function `xarray.core.dataset.Dataset.rename`",
+      "severity": "error"
+    },
+    {
+      "column": 24,
+      "path": "src/slv/measurements/background.py",
+      "name": "bad-argument-type",
+      "concise_description": "Argument `DataFrame | Dataset` is not assignable to parameter `data` with type `Series` in function `lair.background.thoning`",
+      "severity": "error"
+    },
+    {
+      "column": 19,
+      "path": "src/slv/measurements/concentrations.py",
+      "name": "missing-attribute",
+      "concise_description": "Object of class `Properties` has no attribute `hour`",
+      "severity": "error"
+    },
+    {
+      "column": 9,
+      "path": "src/slv/measurements/concentrations.py",
+      "name": "missing-attribute",
+      "concise_description": "Object of class `Properties` has no attribute `strftime`",
+      "severity": "error"
+    },
+    {
+      "column": 38,
+      "path": "src/slv/measurements/mobile/gps.py",
+      "name": "no-matching-overload",
+      "concise_description": "No matching overload found for function `numpy._core.multiarray.where` called with arguments: (Series[bool], Literal['lin'], None)",
+      "severity": "error"
+    },
+    {
+      "column": 44,
+      "path": "src/slv/measurements/mobile/gps.py",
+      "name": "bad-argument-type",
+      "concise_description": "Argument `float | Unknown` is not assignable to parameter `inclusive` with type `Literal['both', 'left', 'neither', 'right']` in function `pandas.core.series.Series.between`",
+      "severity": "error"
+    },
+    {
+      "column": 33,
+      "path": "src/slv/measurements/mobile/gps.py",
+      "name": "bad-argument-type",
+      "concise_description": "Argument `Traversable | Unknown | None` is not assignable to parameter `obj` with type `GeoDataFrame | Path | bool | str | None` in function `slv.measurements.mobile.network.get_geodf`",
+      "severity": "error"
+    },
+    {
+      "column": 50,
+      "path": "src/slv/measurements/mobile/gps.py",
+      "name": "bad-argument-type",
+      "concise_description": "Argument `CRS | None` is not assignable to parameter `crs` with type `_SupportsToWkt | dict[str, Any] | int | list[str] | str | tuple[str, str]` in function `geopandas.geodataframe.GeoDataFrame.to_crs`",
+      "severity": "error"
+    },
+    {
+      "column": 14,
+      "path": "src/slv/measurements/mobile/network.py",
+      "name": "bad-argument-type",
+      "concise_description": "Argument `CRS | None` is not assignable to parameter `crs` with type `_SupportsToWkt | dict[str, Any] | int | list[str] | str | tuple[str, str]` in function `geopandas.geodataframe.GeoDataFrame.to_crs`",
+      "severity": "error"
+    },
+    {
+      "column": 13,
+      "path": "src/slv/measurements/mobile/network.py",
+      "name": "missing-attribute",
+      "concise_description": "Object of class `NoneType` has no attribute `to_crs`",
+      "severity": "error"
+    },
+    {
+      "column": 23,
+      "path": "src/slv/measurements/mobile/network.py",
+      "name": "bad-argument-type",
+      "concise_description": "Argument `Traversable` is not assignable to parameter `obj` with type `GeoDataFrame | Path | bool | str | None` in function `get_geodf`",
+      "severity": "error"
+    },
+    {
+      "column": 12,
+      "path": "src/slv/measurements/mobile/network.py",
+      "name": "bad-return",
+      "concise_description": "Returned type `DataFrame | Unknown` is not assignable to declared return type `GeoDataFrame`",
+      "severity": "error"
+    },
+    {
+      "column": 31,
+      "path": "src/slv/measurements/mobile/network.py",
+      "name": "not-callable",
+      "concise_description": "Expected a callable, got `Series`",
+      "severity": "error"
+    },
+    {
+      "column": 69,
+      "path": "src/slv/measurements/mobile/obs.py",
+      "name": "bad-argument-type",
+      "concise_description": "Argument `Series` is not assignable to parameter `exclude_times` with type `Index | None` in function `slv.measurements.mobile.calibration.select_uncalibrated`",
+      "severity": "error"
+    },
+    {
+      "column": 39,
+      "path": "src/slv/measurements/mobile/obs.py",
+      "name": "bad-argument-type",
+      "concise_description": "Argument `Series | None` is not assignable to parameter `dropouts` with type `Series` in function `apply_dropout_rule`",
+      "severity": "error"
+    },
+    {
+      "column": 13,
+      "path": "src/slv/measurements/mobile/receptor_obs.py",
+      "name": "unsupported-operation",
+      "concise_description": "Cannot set item in `_LocIndexerSeries`",
+      "severity": "error"
+    },
+    {
+      "column": 48,
+      "path": "src/slv/measurements/mobile/receptor_obs.py",
+      "name": "bad-argument-type",
+      "concise_description": "Argument `Series | Any` is not assignable to parameter `ts_input` with type `date | datetime | datetime64 | float | integer | str` in function `pandas._libs.tslibs.timestamps.Timestamp.__new__`",
+      "severity": "error"
+    },
+    {
+      "column": 13,
+      "path": "src/slv/measurements/mobile/receptor_obs.py",
+      "name": "unsupported-operation",
+      "concise_description": "Cannot set item in `_LocIndexerSeries`",
+      "severity": "error"
+    },
+    {
+      "column": 72,
+      "path": "src/slv/measurements/mobile/receptor_obs.py",
+      "name": "bad-argument-type",
+      "concise_description": "Argument `Series | Any` is not assignable to parameter `ts_input` with type `date | datetime | datetime64 | float | integer | str` in function `pandas._libs.tslibs.timestamps.Timestamp.__new__`",
+      "severity": "error"
+    },
+    {
+      "column": 27,
+      "path": "src/slv/measurements/mobile/receptors.py",
+      "name": "missing-module-attribute",
+      "concise_description": "Could not import `cKDTree` from `scipy.spatial`",
+      "severity": "error"
+    },
+    {
+      "column": 29,
+      "path": "src/slv/measurements/mobile/receptors.py",
+      "name": "bad-argument-type",
+      "concise_description": "Argument `signedinteger[_64Bit]` is not assignable to parameter `m` with type `int` in function `_col`",
+      "severity": "error"
+    },
+    {
+      "column": 9,
+      "path": "src/slv/measurements/mobile/receptors.py",
+      "name": "unsupported-operation",
+      "concise_description": "`&=` is not supported between `bool` and `Categorical`",
+      "severity": "error"
+    },
+    {
+      "column": 9,
+      "path": "src/slv/measurements/mobile/receptors.py",
+      "name": "unsupported-operation",
+      "concise_description": "`&=` is not supported between `bool` and `ExtensionArray`",
+      "severity": "error"
+    },
+    {
+      "column": 9,
+      "path": "src/slv/measurements/mobile/receptors.py",
+      "name": "unsupported-operation",
+      "concise_description": "`&=` is not supported between `ndarray[tuple[Any, ...], dtype[numpy.bool]]` and `ExtensionArray`",
+      "severity": "error"
+    },
+    {
+      "column": 52,
+      "path": "src/slv/measurements/mobile/receptors.py",
+      "name": "no-matching-overload",
+      "concise_description": "No matching overload found for function `numpy.datetime64.__new__` called with arguments: (type[datetime64[_DT64ItemT_co]], Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64)",
+      "severity": "error"
+    },
+    {
+      "column": 78,
+      "path": "src/slv/measurements/mobile/receptors.py",
+      "name": "no-matching-overload",
+      "concise_description": "No matching overload found for function `numpy.datetime64.__new__` called with arguments: (type[datetime64[_DT64ItemT_co]], Timedelta | Timestamp | bool | bytes | complex | complexfloating | date | datetime | datetime64 | float | floating | int | integer | str | timedelta | timedelta64)",
+      "severity": "error"
+    },
+    {
+      "column": 15,
+      "path": "src/slv/measurements/mobile/receptors.py",
+      "name": "missing-attribute",
+      "concise_description": "Object of class `Properties` has no attribute `total_seconds`",
+      "severity": "error"
+    },
+    {
+      "column": 56,
+      "path": "src/slv/measurements/mobile/transects.py",
+      "name": "no-matching-overload",
+      "concise_description": "No matching overload found for function `pandas.core.series.Series.groupby` called with arguments: (Categorical | ExtensionArray | ndarray[tuple[int]])",
+      "severity": "error"
+    },
+    {
+      "column": 17,
+      "path": "src/slv/measurements/mobile/transects.py",
+      "name": "no-matching-overload",
+      "concise_description": "No matching overload found for function `pandas.core.series.Series.groupby` called with arguments: (Categorical | ExtensionArray | ndarray[tuple[int]])",
+      "severity": "error"
+    },
+    {
+      "column": 66,
+      "path": "src/slv/measurements/mobile/transects.py",
+      "name": "no-matching-overload",
+      "concise_description": "No matching overload found for function `pandas.core.series.Series.groupby` called with arguments: (Categorical | ExtensionArray | ndarray[tuple[int]])",
+      "severity": "error"
+    },
+    {
+      "column": 12,
+      "path": "src/slv/measurements/mobile/transects.py",
+      "name": "missing-attribute",
+      "concise_description": "Object of class `tuple` has no attribute `sizes`",
+      "severity": "error"
+    },
+    {
+      "column": 9,
+      "path": "src/slv/measurements/mobile/transects.py",
+      "name": "missing-attribute",
+      "concise_description": "Object of class `tuple` has no attribute `attrs`",
+      "severity": "error"
+    },
+    {
+      "column": 9,
+      "path": "src/slv/measurements/mobile/transects.py",
+      "name": "missing-attribute",
+      "concise_description": "Object of class `tuple` has no attribute `to_netcdf`",
+      "severity": "error"
+    },
+    {
+      "column": 24,
+      "path": "src/slv/measurements/mobile/transects.py",
+      "name": "missing-attribute",
+      "concise_description": "Object of class `tuple` has no attribute `sizes`",
+      "severity": "error"
+    },
+    {
+      "column": 61,
+      "path": "src/slv/measurements/mobile/transects.py",
+      "name": "missing-attribute",
+      "concise_description": "Object of class `tuple` has no attribute `attrs`",
+      "severity": "error"
+    },
+    {
+      "column": 17,
+      "path": "src/slv/measurements/mobile/transects.py",
+      "name": "missing-attribute",
+      "concise_description": "Object of class `tuple` has no attribute `attrs`",
+      "severity": "error"
+    },
+    {
+      "column": 16,
+      "path": "src/slv/measurements/mobile/transects.py",
+      "name": "missing-attribute",
+      "concise_description": "Object of class `tuple` has no attribute `attrs`",
+      "severity": "error"
+    },
+    {
+      "column": 38,
+      "path": "src/slv/measurements/mobile/wyoming.py",
+      "name": "no-matching-overload",
+      "concise_description": "No matching overload found for function `pandas.core.tools.datetimes.to_datetime` called with arguments: (dict[str, Series], errors=Literal['coerce'])",
+      "severity": "error"
+    },
+    {
+      "column": 5,
+      "path": "src/slv/measurements/mobile/wyoming.py",
+      "name": "missing-attribute",
+      "concise_description": "Object of class `FunctionType` has no attribute `names`",
+      "severity": "error"
+    },
+    {
+      "column": 9,
+      "path": "src/slv/measurements/mobile/wyoming.py",
+      "name": "missing-attribute",
+      "concise_description": "Object of class `Axes` has no attribute `set_extent`",
+      "severity": "error"
+    },
+    {
+      "column": 29,
+      "path": "src/slv/measurements/mobile/wyoming.py",
+      "name": "bad-argument-count",
+      "concise_description": "Expected 1 positional argument, got 2 in function `matplotlib.axes._base._AxesBase.add_image`",
+      "severity": "error"
+    },
+    {
+      "column": 23,
+      "path": "src/slv/measurements/pollutants.py",
+      "name": "bad-assignment",
+      "concise_description": "`set[int] | tuple[float, int] | tuple[int, int] | None` is not assignable to variable `valid_range` with type `tuple[float, float] | None`",
+      "severity": "error"
+    },
+    {
+      "column": 12,
+      "path": "src/slv/measurements/sites.py",
+      "name": "bad-return",
+      "concise_description": "Returned type `tuple[Series | Any, Series | Any]` is not assignable to declared return type `tuple[float, float]`",
+      "severity": "error"
+    },
+    {
+      "column": 12,
+      "path": "src/slv/meteorology/mesowest.py",
+      "name": "missing-attribute",
+      "concise_description": "Object of class `ndarray` has no attribute `idxmin`",
+      "severity": "error"
+    },
+    {
+      "column": 40,
+      "path": "src/slv/meteorology/pcaps.py",
+      "name": "bad-argument-type",
+      "concise_description": "Argument `DataFrame | Dataset` is not assignable to parameter `data` with type `Dataset` in function `lair.pcaps.valleyheatdeficit`",
+      "severity": "error"
+    },
+    {
+      "column": 9,
+      "path": "src/slv/meteorology/pcaps.py",
+      "name": "bad-argument-type",
+      "concise_description": "Argument `DataArray` is not assignable to parameter `vhd` with type `Series` in function `lair.pcaps.determine_pcap_events`",
+      "severity": "error"
+    },
+    {
+      "column": 42,
+      "path": "src/slv/meteorology/pcaps.py",
+      "name": "bad-argument-type",
+      "concise_description": "Argument `DataFrame | Series` is not assignable to parameter `data` with type `DataFrame` in function `lair.pcaps.filter_pcap_events`",
+      "severity": "error"
+    }
+  ]
+}

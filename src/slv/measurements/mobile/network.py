@@ -177,7 +177,7 @@ def load_storage_polygons(meters: bool = False) -> gpd.GeoDataFrame:
     """All storage yards in :data:`storage_locations`, one row each with a ``name``."""
     rows = []
     for name, src in storage_locations.items():
-        g = get_geodf(src).to_crs(UTM12)  # pyright: ignore[reportOptionalMemberAccess]
+        g = get_geodf(src).to_crs(UTM12)
         rows.append(
             gpd.GeoDataFrame(
                 {"name": [name]}, geometry=[g.geometry.union_all()], crs=UTM12

@@ -37,10 +37,6 @@ Salt Lake Valley py
    :target: https://github.com/astral-sh/ruff
    :alt: Ruff
 
-.. image:: https://img.shields.io/badge/pyright-checked-brightgreen.svg
-   :target: https://github.com/microsoft/pyright
-   :alt: Pyright
-
 ``slv`` ties together `lair <https://github.com/jmineau/lair>`_,
 `uataq <https://github.com/jmineau/uataq>`_, `fips <https://github.com/jmineau/fips>`_
 and `PYSTILT <https://github.com/jmineau/PYSTILT>`_ for trace-gas emission estimates in

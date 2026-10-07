@@ -435,7 +435,7 @@ class SLVMethaneInversion(
             aggregator = ObsAggregator(
                 level="obs_time", freq=self.config.aggregate_obs, blocks="concentration"
             )
-            obs, forward_operator, modeldata_mismatch, constant = aggregator.apply(  # pyright: ignore[reportAssignmentType]
+            obs, forward_operator, modeldata_mismatch, constant = aggregator.apply(
                 obs, forward_operator, modeldata_mismatch, constant
             )
         return obs, forward_operator, modeldata_mismatch, constant
