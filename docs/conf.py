@@ -3,12 +3,7 @@
 # For the full list of built-in configuration values, see the documentation:
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
 
-import os
-import sys
-from importlib.metadata import PackageNotFoundError
 from importlib.metadata import version as package_version
-
-sys.path.insert(0, os.path.abspath("../src"))
 
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
@@ -16,10 +11,7 @@ sys.path.insert(0, os.path.abspath("../src"))
 project = "Salt Lake Valley py"
 copyright = "2026, James Mineau"
 author = "James Mineau"
-try:
-    release = package_version("slv")
-except PackageNotFoundError:  # building from a checkout that is not installed
-    release = "unknown"
+release = package_version("slv")  # from git tags, via setuptools-scm
 version = release
 
 # -- General configuration ---------------------------------------------------
