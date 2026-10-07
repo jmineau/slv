@@ -18,9 +18,11 @@ from lair.clock import SEASONS
 
 
 def normalize_duration(value):
-    """``"14d"`` -> ``"14D"``. pandas deprecates the lowercase day unit (Pandas4Warning).
+    """
+    ``"14d"`` -> ``"14D"``. pandas deprecates the lowercase day unit (Pandas4Warning).
     Config strings keep their spelling -- they are hashed into cache keys and sweep IDs --
-    and are converted only where they are parsed."""
+    and are converted only where they are parsed.
+    """
     if isinstance(value, str) and value.endswith("d"):
         return value[:-1] + "D"
     return value

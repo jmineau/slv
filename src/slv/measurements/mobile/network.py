@@ -1,4 +1,5 @@
-"""The TRAX network and its yards: line geometry, staged points, storage polygons,
+"""
+The TRAX network and its yards: line geometry, staged points, storage polygons,
 shed footprints, and the route-buffer filter used by the GPS merge.
 
 Group-data source: ``UTA_TRAX.geojson`` (the lines) under
@@ -60,8 +61,10 @@ storage_locations = {
 def get_geodf(
     obj: str | Path | gpd.GeoDataFrame | bool | None,
 ) -> gpd.GeoDataFrame | None:
-    """Resolve a geometry argument: a GeoDataFrame, a path or packaged file to read, or
-    ``False`` / ``None`` for no geometry (returns ``None``). ``True`` raises."""
+    """
+    Resolve a geometry argument: a GeoDataFrame, a path or packaged file to read, or
+    ``False`` / ``None`` for no geometry (returns ``None``). ``True`` raises.
+    """
     if isinstance(obj, gpd.GeoDataFrame):
         return obj
     elif isinstance(obj, (str, Path)):
@@ -80,8 +83,10 @@ def get_geodf(
 
 
 def load_trax_lines(meters=False) -> gpd.GeoDataFrame:
-    """The TRAX lines (``UTA_TRAX.geojson`` under ``$LINGROUP_DATA_DIR``), one row per
-    line with its letter in ``line``. ``meters=True`` returns them in UTM 12N."""
+    """
+    The TRAX lines (``UTA_TRAX.geojson`` under ``$LINGROUP_DATA_DIR``), one row per
+    line with its letter in ``line``. ``meters=True`` returns them in UTM 12N.
+    """
     lines = gpd.read_file(
         group_dir() / "spatial/transportation/light_rail/UTA_TRAX.geojson"
     )
@@ -94,7 +99,8 @@ def load_trax_lines(meters=False) -> gpd.GeoDataFrame:
 def load_trax_points(
     spacing=2000, meters=False, resolution_factor=None
 ) -> gpd.GeoDataFrame:
-    """Points every ``spacing`` m along the TRAX lines, with the lines they serve.
+    """
+    Points every ``spacing`` m along the TRAX lines, with the lines they serve.
 
     Cached at ``$SLV_USER_DATA_DIR/trax/points_{spacing}m.geojson`` (``..._rf{factor}``
     when ``resolution_factor`` is given, so each setting has its own file); built from
@@ -147,7 +153,8 @@ def load_trax_points(
 def filter_near_routes(
     gps: gpd.GeoDataFrame, routes: gpd.GeoDataFrame, buffer: float
 ) -> gpd.GeoDataFrame:
-    """Keep GPS points within ``buffer`` (in ``routes``' CRS units) of any route.
+    """
+    Keep GPS points within ``buffer`` (in ``routes``' CRS units) of any route.
 
     The per-line buffers are dissolved into one geometry first: where lines share
     track (the red/blue/green downtown trunk) a point falls inside several buffers and
@@ -162,7 +169,8 @@ def filter_near_routes(
 
 
 def load_depot_footprint(meters: bool = False) -> gpd.GeoDataFrame:
-    """Packaged shed footprints at the service centers (``trax_depots.geojson``).
+    """
+    Packaged shed footprints at the service centers (``trax_depots.geojson``).
 
     One feature per yard (``name``: JRRSC, MRSC). Data-derived: the 5–95 % box of the
     per-minute median positions of degraded fixes (trx01 at JRRSC, trx03 at MRSC,

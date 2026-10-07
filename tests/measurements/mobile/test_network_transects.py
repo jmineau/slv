@@ -21,9 +21,11 @@ TO_LONLAT = Transformer.from_crs(UTM12, "EPSG:4326", always_xy=True)
 
 
 def _network():
-    """Red: 100 points north-south along x = X0 (y from Y0 southward). Green shares the
+    """
+    Red: 100 points north-south along x = X0 (y from Y0 southward). Green shares the
     first 20 (northern) points, then branches east. ``s`` increases southward on Red and
-    along the branch on Green, like the real UTA lines."""
+    along the branch on Green, like the real UTA lines.
+    """
     spacing = 50.0
     red_y = Y0 - spacing * np.arange(100)
     red = pd.DataFrame({"x": X0, "y": red_y, "lines": "R"})
@@ -50,9 +52,11 @@ def _network():
 
 
 def _obs(points, t0="2024-06-01 12:00:00", speed=10.0, gap_min=30):
-    """A Red out-and-back (north end -> south end, dwell, back) then, after a gap, a Green
+    """
+    A Red out-and-back (north end -> south end, dwell, back) then, after a gap, a Green
     run out along the branch. 1-s samples; CH4 2.0 ppm with a +0.5 ppm source at Red
-    point 60 and +0.3 at Green point 130."""
+    point 60 and +0.3 at Green point 130.
+    """
     r = points[points.s_R.notna()].sort_values("s_R")
     g = points[points.s_G.notna()].sort_values("s_G")
 
@@ -137,8 +141,10 @@ def test_build_network_transects_two_lines(tmp_path):
 
 
 def test_coverage_flags_a_short_turn():
-    """A short out-and-back over the first third of Red should read well under full
-    coverage, distinguishing it from an end-to-end run on the same line."""
+    """
+    A short out-and-back over the first third of Red should read well under full
+    coverage, distinguishing it from an end-to-end run on the same line.
+    """
     pts = _network()
     r = pts[pts.s_R.notna()].sort_values("s_R")
     short = r[r.s_R <= r.s_R.max() / 3]

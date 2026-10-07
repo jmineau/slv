@@ -11,8 +11,10 @@ from slv.measurements import instruments
 
 
 def _is_fixed_freq(freq: str) -> bool:
-    """True if ``freq`` has a fixed length (e.g. "15min", "1h", "1D"), False for
-    calendar frequencies such as "W" or "M"."""
+    """
+    True if ``freq`` has a fixed length (e.g. "15min", "1h", "1D"), False for
+    calendar frequencies such as "W" or "M".
+    """
     try:
         return pd.tseries.frequencies.to_offset(freq).nanos > 0
     except ValueError:
@@ -20,7 +22,8 @@ def _is_fixed_freq(freq: str) -> bool:
 
 
 def _bin_start(times: pd.Series, freq: str) -> pd.Series:
-    """Start of the ``freq`` bin that each time falls in.
+    """
+    Start of the ``freq`` bin that each time falls in.
 
     Fixed frequencies are floored first so that multiples such as "15min" or
     "2h" bin correctly (``to_period`` alone only truncates to the base unit).

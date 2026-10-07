@@ -23,7 +23,8 @@ def split_sites(
 
 
 def _drop_spike_days(obs: pd.DataFrame, percentile: float) -> pd.DataFrame:
-    """Drop (site, day) obs whose within-hour CH4 variance is anomalously high.
+    """
+    Drop (site, day) obs whose within-hour CH4 variance is anomalously high.
 
     For each site, computes the within-hour std of the native CH4 record,
     averages it over each day, and flags days above ``percentile`` of that
@@ -60,7 +61,8 @@ def load_mobile_obs(
     filter_pcaps: bool = True,
     utc_offset: int = UTC_OFFSET,
 ) -> pd.DataFrame:
-    """Receptor-paired mobile observations, filtered like the stationary ones.
+    """
+    Receptor-paired mobile observations, filtered like the stationary ones.
 
     ``mobile_obs`` is the output of
     :func:`slv.measurements.mobile.trax_receptor_observations` (or a parquet of it): indexed
@@ -107,7 +109,8 @@ def get_slv_observations(
     mobile_obs: str | Path | pd.DataFrame | None = None,
     utc_offset: int = UTC_OFFSET,
 ) -> pd.DataFrame:
-    """Fetches observations for the pipeline.
+    """
+    Fetches observations for the pipeline.
 
     Returns DataFrame indexed by (obs_location, obs_time) with a CH4 column.
     For stationary sites, obs_location is the site name (e.g. "wbb").
@@ -205,7 +208,8 @@ def get_slv_subhour_std(
     num_processes: int = 1,
     utc_offset: int = UTC_OFFSET,
 ) -> pd.Series:
-    """Per-obs within-hour CH4 std -- the temporal representativeness error for the ``subhour``
+    """
+    Per-obs within-hour CH4 std -- the temporal representativeness error for the ``subhour``
     MDM component.
 
     Loads the native (sub-hourly) record and returns, for each hourly obs, the std of the

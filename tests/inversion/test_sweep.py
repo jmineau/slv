@@ -108,7 +108,8 @@ class TestComponentHash:
 
 
 class TestFipsCache:
-    """Smoke-tests for the cache decorator using fake fips objects.
+    """
+    Smoke-tests for the cache decorator using fake fips objects.
 
     Hashed components live under ``<cache>/.fips/<version tag>/<component>/<hash>.pkl``.
     """

@@ -17,8 +17,10 @@ TO_LONLAT = Transformer.from_crs(UTM12, "EPSG:4326", always_xy=True)
 
 
 def _network(n=120, spacing=50.0, seg_points=40):
-    """n points east-west at y=Y0, `seg_points` per segment. Straight line, so the
-    along-route coordinate is just the distance east of the first point."""
+    """
+    ``n`` points east-west at y=Y0, `seg_points` per segment. Straight line, so the
+    along-route coordinate is just the distance east of the first point.
+    """
     x = X0 + spacing * np.arange(n)
     return gpd.GeoDataFrame(
         {

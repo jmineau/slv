@@ -7,7 +7,6 @@ import pandas as pd
 
 def load_site_config() -> pd.DataFrame:
     """Loads the internal site_config.csv into a Pandas DataFrame."""
-
     # Locate the file dynamically within the installed package
     csv_path = files(__package__).joinpath("site_config.csv")
 

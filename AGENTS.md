@@ -303,8 +303,11 @@ read as more parameters).
 ## Conventions and tooling
 
 - **Python**: 3.11+ (`requires-python`, which ruff also reads; pandas 3 and current xarray need 3.11).
-- **Linting**: ruff selects `E, F, UP, B, SIM, I, NPY, RUF100` and ignores `E501`,
-  over `src/` and `tests/`.
+- **Linting**: ruff selects `E, F, UP, B, SIM, I, D, D213, NPY, RUF100` and ignores
+  `E501`, over `src/` and `tests/`. pydocstyle uses the NumPy convention, with the
+  summary on the line after the opening quotes (D213). slv's summaries may be noun
+  phrases ("The directory a package is imported from") spanning several lines, so
+  D401 and D205 are off.
 - **Types**: pyrefly (default preset) on `src/`, with a baseline of the errors it
   found on adoption; a new error fails. Suppress one only with
   `# pyrefly: ignore[<code>]` on the line above, after a comment saying why.

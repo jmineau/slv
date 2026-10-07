@@ -37,9 +37,11 @@ PRIORS = ("epa", "edgar", "constant")
 
 
 def stilt_project_dir() -> Path:
-    """The paper-1 PYSTILT project: ``$SLV_STILT_DIR`` if set, else
+    """
+    The paper-1 PYSTILT project: ``$SLV_STILT_DIR`` if set, else
     :data:`DEFAULT_STILT_PROJECT`. Use this in scripts instead of spelling the path out;
-    ``stilt_project_dir() / "simulations" / "by-id"`` is the per-receptor tree."""
+    ``stilt_project_dir() / "simulations" / "by-id"`` is the per-receptor tree.
+    """
     return Path(os.environ.get("SLV_STILT_DIR", DEFAULT_STILT_PROJECT))
 
 
@@ -101,7 +103,8 @@ DEFAULT_MDM_CONFIG = {
 
 
 def get_mdm_comp_configs(config: dict) -> list[dict]:
-    """Build MDM components list from config dict, merging with defaults.
+    """
+    Build MDM components list from config dict, merging with defaults.
 
     Raises ``ValueError`` for a component name that is not in
     :data:`DEFAULT_MDM_CONFIG`: a misspelled or retired key (e.g. the old
@@ -125,7 +128,8 @@ def build_location_site_map(
     location_ids: list[str],
     site_config: pd.DataFrame,
 ) -> dict[str, str]:
-    """Build location mapper from STILT location IDs to site names.
+    """
+    Build location mapper from STILT location IDs to site names.
 
     Parses location IDs (format: "lon_lat_height") and matches them to sites
     in the site_config: within 1e-5 deg (~1 m) in lat/lon and 0.5 m in height.
@@ -182,7 +186,8 @@ def build_location_site_map(
 
 @dataclass
 class InversionConfig:
-    """Settings for one :class:`~slv.inversion.pipelines.SLVMethaneInversion` run.
+    """
+    Settings for one :class:`~slv.inversion.pipelines.SLVMethaneInversion` run.
 
     Invalid choices (``flux_freq``, ``background``, ``prior``, ``bias_grouping``, MDM
     component names, an empty domain) raise ``ValueError`` at construction. Cached
@@ -481,7 +486,8 @@ class InversionConfig:
 
     @cached_property
     def grid(self):
-        """The flux cells as a lon/lat ``DataArray`` of zeros: the prior's regrid target.
+        """
+        The flux cells as a lon/lat ``DataArray`` of zeros: the prior's regrid target.
 
         Built from :attr:`state_grid`'s axes, so the prior and the Jacobian columns
         enumerate the same cell centres by construction.
@@ -543,7 +549,8 @@ class InversionConfig:
 
     @property
     def stilt_projects(self) -> list[Path]:
-        """``stilt_project`` as a list of paths, whether one project or several was given.
+        """
+        ``stilt_project`` as a list of paths, whether one project or several was given.
 
         ``stilt_project`` itself is left as given, so a single-project config keeps the same
         cache key it always had; only code that opens the projects normalises it.
@@ -558,7 +565,8 @@ class InversionConfig:
 
     @property
     def mobile_obs_key(self) -> str | None:
-        """Cache fingerprint of ``mobile_obs``: its path plus size and mtime.
+        """
+        Cache fingerprint of ``mobile_obs``: its path plus size and mtime.
 
         Hashing the path alone would miss a file rebuilt in place -- e.g. regenerated with a
         revised inlet lag -- and silently reuse obs, Jacobian and MDM built from the old

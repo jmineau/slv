@@ -1,5 +1,7 @@
-"""Domain totals, the summary report and plots for
-:class:`~slv.inversion.pipelines.SLVMethaneInversion`."""
+"""
+Domain totals, the summary report and plots for
+:class:`~slv.inversion.pipelines.SLVMethaneInversion`.
+"""
 
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -29,13 +31,16 @@ class ReportingMixin:
         )
 
     def _total_units(self) -> str:
-        """Unit of :meth:`calculate_total_flux`: it integrates each flux interval over its
-        cells and its duration, so the mass part of ``output_units`` per interval."""
+        """
+        Unit of :meth:`calculate_total_flux`: it integrates each flux interval over its
+        cells and its duration, so the mass part of ``output_units`` per interval.
+        """
         units = self.config.output_units or "umol/m2/s"
         return f"{units.split('/')[0]} per {self.config.flux_freq} interval"
 
     def calculate_total_flux(self, fluxes: pd.Series, units=None) -> pd.Series:
-        """Domain-total emission per flux interval.
+        """
+        Domain-total emission per flux interval.
 
         The flux field is integrated over its cells' areas and each interval's duration
         (lair ``absolute_emissions``), so the result is a mass per interval, e.g. Gg per
@@ -67,7 +72,8 @@ class ReportingMixin:
         groupby: str | list[str] | None = "obs_location",
         freq: str | None = None,
     ) -> pd.DataFrame:
-        """Compare Desroziers-diagnosed vs specified observation error variances.
+        """
+        Compare Desroziers-diagnosed vs specified observation error variances.
 
         Parameters
         ----------
@@ -107,7 +113,8 @@ class ReportingMixin:
         return result
 
     def summarize(self) -> None:
-        """Print fips' summary, then prior and posterior domain totals.
+        """
+        Print fips' summary, then prior and posterior domain totals.
 
         Totals are per flux interval (:meth:`calculate_total_flux`) in
         ``config.output_units``. With the coverage filter on, the removed cells are put
@@ -210,9 +217,11 @@ class ReportingMixin:
         plt.show()
 
     def plot_results(self, problem: FluxProblem):
-        """Plot the posterior fluxes, the reconstructed full-domain posterior (with the
+        """
+        Plot the posterior fluxes, the reconstructed full-domain posterior (with the
         coverage filter on), domain totals over time, modelled vs observed
-        concentrations, residuals, and background and bias."""
+        concentrations, residuals, and background and bias.
+        """
         config = self.config
 
         # --- Plot Fluxes (inversion domain only) ---
@@ -276,8 +285,10 @@ class ReportingMixin:
         plt.show()
 
     def plot_diagnostics(self, problem: FluxProblem):
-        """Plot fluxes per time step, the Desroziers diagnostics and, with the coverage
-        filter on, the removed cells' contribution to the obs."""
+        """
+        Plot fluxes per time step, the Desroziers diagnostics and, with the coverage
+        filter on, the removed cells' contribution to the obs.
+        """
         config = self.config
         # --- Plot Fluxes by Timestep ---
         viz.plot_fluxes_by_timestep(

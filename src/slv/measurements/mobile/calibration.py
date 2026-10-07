@@ -1,4 +1,5 @@
-"""Calibration provenance of the TRAX CH4 record: ``cal_source`` tags and the windows
+"""
+Calibration provenance of the TRAX CH4 record: ``cal_source`` tags and the windows
 where the analyzer ran without a reference tank but its raw data are usable.
 """
 
@@ -25,7 +26,8 @@ CAL_SOURCES = ("pipeline", "manual_cal", "uncalibrated")
 def load_trax_uncalibrated_windows(
     path: str | Path | None = None, enabled_only: bool = True
 ) -> pd.DataFrame:
-    """Windows where the LGR ran without a valid reference tank but the raw data are good.
+    """
+    Windows where the LGR ran without a valid reference tank but the raw data are good.
 
     Packaged in ``trax_uncalibrated_windows.csv`` (columns: start, end, reason, enabled; start/end
     are ISO dates or date-times, e.g. ``2015-10-11T16:00``).
@@ -49,7 +51,8 @@ def load_trax_uncalibrated_windows(
 def load_trax_epoch_offsets(
     path: str | Path | None = None, enabled_only: bool = True
 ) -> pd.DataFrame:
-    """Analyzer-epoch offsets of the uncalibrated (manual-cal) era, ppm.
+    """
+    Analyzer-epoch offsets of the uncalibrated (manual-cal) era, ppm.
 
     Packaged in ``trax_epoch_offsets.csv`` (start, end, analyzer, offset_ppm, n_hours,
     enabled, note). Since the tank came off the train (2023-11-17) the pipeline applies no
@@ -76,7 +79,8 @@ def load_trax_epoch_offsets(
 
 
 def epoch_offset_column(times, offsets: pd.DataFrame | None = None) -> pd.Series:
-    """The epoch offset (ppm) in force at each time, 0.0 outside every epoch.
+    """
+    The epoch offset (ppm) in force at each time, 0.0 outside every epoch.
 
     Stored in ``obs.parquet`` as ``epoch_offset_ppm`` so the correction can be applied or
     removed at load time without rebuilding (:func:`apply_epoch_offset`).
@@ -93,7 +97,8 @@ def epoch_offset_column(times, offsets: pd.DataFrame | None = None) -> pd.Series
 
 
 def apply_epoch_offset(df: pd.DataFrame, apply: bool = True) -> pd.DataFrame:
-    """Subtract the analyzer-epoch offset from ``CH4_ppm`` (no-op when ``apply`` is False).
+    """
+    Subtract the analyzer-epoch offset from ``CH4_ppm`` (no-op when ``apply`` is False).
 
     Uses the ``epoch_offset_ppm`` column written by :func:`build_trax_obs`; a frame built
     before that column existed (``obs.parquet`` of 2026-09-21 and earlier) gets it computed
@@ -116,7 +121,8 @@ def apply_epoch_offset(df: pd.DataFrame, apply: bool = True) -> pd.DataFrame:
 def select_uncalibrated(
     qaqc: pd.DataFrame, windows: pd.DataFrame, exclude_times: pd.Index | None = None
 ) -> pd.DataFrame:
-    """Rows of a qaqc-level LGR frame that fall inside the uncalibrated windows.
+    """
+    Rows of a qaqc-level LGR frame that fall inside the uncalibrated windows.
 
     ``qaqc`` must have a ``Time_UTC`` column (or a datetime index) and a ``CH4`` column that
     has already passed :func:`slv.measurements.pollutants.normalize_pollutant`. Rows whose
@@ -138,7 +144,8 @@ def select_uncalibrated(
 def filter_cal_source(
     df: pd.DataFrame, include_uncalibrated: bool = True
 ) -> pd.DataFrame:
-    """Drop the ``uncalibrated`` rows when ``include_uncalibrated`` is False.
+    """
+    Drop the ``uncalibrated`` rows when ``include_uncalibrated`` is False.
 
     ``manual_cal`` rows are always kept: after the last pipeline calibration (2024-08-20)
     they are the only data.

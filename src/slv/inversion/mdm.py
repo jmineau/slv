@@ -20,7 +20,8 @@ def _matrix(block: pd.DataFrame):
 
 
 class ModelDataMismatchMixin:
-    """Builds the model-data mismatch covariance from ``config.mdm_components``.
+    """
+    Builds the model-data mismatch covariance from ``config.mdm_components``.
 
     Multiplicative terms scale with the run's prior and flux Jacobian; per-obs terms
     with data-derived stds. Expects the host pipeline's ``get_prior``,
@@ -30,7 +31,8 @@ class ModelDataMismatchMixin:
     config: InversionConfig
 
     def _multiplicative_scale(self, obs: Vector, scale_on: str) -> np.ndarray:
-        """Per-obs scale [ppm] for a multiplicative MDM term.
+        """
+        Per-obs scale [ppm] for a multiplicative MDM term.
 
         ``scale_on="obs"``   -> |obs - background| (observed enhancement; the actual signal,
         so extreme shallow-PBL days the prior under-predicts still get a large error).
@@ -87,7 +89,8 @@ class ModelDataMismatchMixin:
         return flux["concentration", "flux"]
 
     def _per_obs_std(self, obs: Vector, src: str) -> np.ndarray:
-        """Per-obs std [ppm] for a data-derived MDM term.
+        """
+        Per-obs std [ppm] for a data-derived MDM term.
 
         ``src="subhour"`` -> each obs's within-hour CH4 std (temporal representativeness error:
         the sub-hour variability an hour-mean footprint cannot represent). Obs with no
@@ -111,7 +114,8 @@ class ModelDataMismatchMixin:
 
     @fips_cache(CovarianceMatrix, "modeldata_mismatch")
     def get_modeldata_mismatch(self, obs: Vector) -> CovarianceMatrix:
-        """Model-data mismatch covariance: the sum of ``config.mdm_components``.
+        """
+        Model-data mismatch covariance: the sum of ``config.mdm_components``.
 
         Each component is built by :func:`~slv.inversion.covariances.build_mdm_error`
         over the obs index, with site-keyed terms resolved through :meth:`obs_sites`

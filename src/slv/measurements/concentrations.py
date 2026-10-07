@@ -30,7 +30,8 @@ def load_concentrations(
     mobile_kwargs: dict | None = None,
     utc_offset: int = UTC_OFFSET,
 ) -> pd.DataFrame:
-    """Concentrations for the requested sites in one long table.
+    """
+    Concentrations for the requested sites in one long table.
 
     Each site's instruments (``site_config["instruments"]``) are read at the calibrated
     level (qaqc for instruments flagged uncalibrated): UATAQ sites through
@@ -330,9 +331,11 @@ def generate_stilt_receptors(
     obs: pd.DataFrame,
     out_csv: str | Path | None = None,
 ):
-    """STILT receptor table (``site``, ``time``, ``lati``, ``long``, ``zagl``,
+    """
+    STILT receptor table (``site``, ``time``, ``lati``, ``long``, ``zagl``,
     ``sim_id``) from :func:`load_concentrations` output with locations; written to
-    ``out_csv`` when given."""
+    ``out_csv`` when given.
+    """
     # Rename columns to match expected output
     obs = obs.rename(
         columns={

@@ -19,7 +19,8 @@ def get_slv_background(
     filter_pcaps: bool = False,
     **kwargs,
 ) -> pd.Series:
-    """Dispatch background calculation by type.
+    """
+    Dispatch background calculation by type.
 
     Returns Series with obs_time index and background concentration. The hourly rolling
     baseline is looked up for the hour each obs time falls in, so a mobile receptor released
@@ -60,7 +61,8 @@ def get_rolling_background(
     min_periods: int = int(24 * 3.5),
     background_sites: list[str] | None = None,
 ) -> pd.Series:
-    """Hourly rolling 1st-percentile baseline, averaged over the stationary sites.
+    """
+    Hourly rolling 1st-percentile baseline, averaged over the stationary sites.
 
     The baseline comes from the towers: mobile sites in ``sites`` are left out (a train
     sampling the urban core is not a background site, and its per-grid-point rows do not
@@ -131,7 +133,8 @@ def get_ct_stilt_background(
     value_col: str = "ct_ch4_ppm",
     **kwargs,
 ) -> pd.Series:
-    """CarbonTracker-STILT endpoint background [ppm], joined to obs by UTC date.
+    """
+    CarbonTracker-STILT endpoint background [ppm], joined to obs by UTC date.
 
     Reads the daily CT-STILT background product (built by sampling the
     CarbonTracker-CH4 field at STILT trajectory endpoints -- see

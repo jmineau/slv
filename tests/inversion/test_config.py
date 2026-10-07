@@ -183,8 +183,10 @@ RESOLUTIONS = [0.002, 0.005, 0.01, 0.02, 0.025, 0.03, 0.05, 0.1, 0.15]
 
 
 class TestInversionConfigGrid:
-    """The prior's grid and the Jacobian's state_grid must enumerate the same cells:
-    fips zero-fills Jacobian columns the prior has and the Jacobian lacks."""
+    """
+    The prior's grid and the Jacobian's state_grid must enumerate the same cells:
+    fips zero-fills Jacobian columns the prior has and the Jacobian lacks.
+    """
 
     @pytest.mark.parametrize("d", RESOLUTIONS)
     def test_grid_matches_state_grid(self, d):

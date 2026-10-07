@@ -1,4 +1,5 @@
-"""The georeferenced TRAX CH4 observation record: build it from the pipeline levels,
+"""
+The georeferenced TRAX CH4 observation record: build it from the pipeline levels,
 tag every row with calibration provenance and location, cache it, and load it with a
 location filter.
 """
@@ -36,8 +37,10 @@ LOCATION_SETS: dict[str, tuple[str, ...] | None] = {
 def filter_location(
     df: pd.DataFrame, location: str | tuple[str, ...] | None = "on_track"
 ) -> pd.DataFrame:
-    """Keep rows whose ``state`` is in ``location`` (a :data:`LOCATION_SETS` name or a
-    tuple of states). ``None``/``"all"`` keeps every row."""
+    """
+    Keep rows whose ``state`` is in ``location`` (a :data:`LOCATION_SETS` name or a
+    tuple of states). ``None``/``"all"`` keeps every row.
+    """
     if location is None or "state" not in df.columns:
         return df
     states = LOCATION_SETS[location] if isinstance(location, str) else tuple(location)
@@ -52,7 +55,8 @@ def label_trax_location(
     time_range=None,
     states: pd.DataFrame | None = None,
 ) -> pd.DataFrame:
-    """Add ``state``, ``indoor`` and ``yard_name`` to a georeferenced TRAX obs frame.
+    """
+    Add ``state``, ``indoor`` and ``yard_name`` to a georeferenced TRAX obs frame.
 
     Uses :mod:`slv.measurements.mobile.location`: per-minute states from the best GPS
     source for the era (``states`` may be passed in to reuse a classification).
@@ -126,9 +130,11 @@ SLOPE_TOL: float | None = 0.05
 
 
 def apply_slope_guard(df: pd.DataFrame, tol: float | None = SLOPE_TOL) -> pd.DataFrame:
-    """Set ``CH4`` to NaN where ``CH4d_m`` differs from the same UTC day's median slope by more
+    """
+    Set ``CH4`` to NaN where ``CH4d_m`` differs from the same UTC day's median slope by more
     than ``tol`` (fraction). ``df`` needs ``Time_UTC``, ``CH4`` and ``CH4d_m``; ``tol=None`` is a
-    no-op. Days with fewer than 100 sloped rows are left alone (no robust median)."""
+    no-op. Days with fewer than 100 sloped rows are left alone (no robust median).
+    """
     if tol is None or "CH4d_m" not in df.columns:
         return df
     out = df.copy()
@@ -150,7 +156,8 @@ def apply_slope_guard(df: pd.DataFrame, tol: float | None = SLOPE_TOL) -> pd.Dat
 def dropout_times(
     support: pd.DataFrame, threshold: float = DROPOUT_CH4_PPM
 ) -> pd.Series:
-    """Times of atmosphere rows whose *unvalidated* CH4 is below ``threshold`` — laser dropouts.
+    """
+    Times of atmosphere rows whose *unvalidated* CH4 is below ``threshold`` — laser dropouts.
 
     ``support`` is a :func:`_read_support` frame (``Time_UTC``, ``CH4_raw``, ``ID_CH4``).
     Rows at or above the pipeline's 1.70 ppm valid minimum are the ones that survive QC, so the
@@ -167,7 +174,8 @@ def dropout_times(
 def apply_dropout_rule(
     df: pd.DataFrame, dropouts: pd.Series, window_min: int = DROPOUT_WINDOW_MIN
 ) -> pd.DataFrame:
-    """Drop rows within ``window_min`` minutes of a CH4 laser dropout.
+    """
+    Drop rows within ``window_min`` minutes of a CH4 laser dropout.
 
     The analyzer does not fail cleanly: on the way into (and out of) a dropout it reads a few
     per cent to 25 % low for minutes to hours, and everything it reports above 1.70 ppm passes
@@ -189,7 +197,8 @@ def apply_pressure_rule(
     band: tuple[float, float] | None = PRESSURE_BAND,
     sources: tuple[str, ...] = ("pipeline", "uncalibrated"),
 ) -> pd.DataFrame:
-    """Drop ``sources`` rows whose cavity pressure is outside ``band`` (see :data:`PRESSURE_BAND`).
+    """
+    Drop ``sources`` rows whose cavity pressure is outside ``band`` (see :data:`PRESSURE_BAND`).
 
     ``pressure`` is indexed by ``Time_UTC``. Rows with no pressure reading are kept. The
     ``manual_cal`` rows are left alone by default: they are governed by
@@ -210,7 +219,8 @@ def apply_pressure_rule(
 def recover_hot_rows(
     cal: pd.DataFrame, support: pd.DataFrame, flag: int = -64
 ) -> pd.DataFrame:
-    """Calibrate the rows the pipeline flagged ``-64`` (cavity T outside 5-45 C) itself.
+    """
+    Calibrate the rows the pipeline flagged ``-64`` (cavity T outside 5-45 C) itself.
 
     ``lgr_ugga_calibrate`` fits the slope for these rows (``CH4d_m`` is there) but blanks
     ``CH4d_ppm_cal``, so ~645 on-track hours of summer afternoons — the best-mixed hours of the
@@ -246,7 +256,8 @@ def recover_hot_rows(
 
 
 def _read_support(site, instrument, time_range, num_processes) -> pd.DataFrame:
-    """Unvalidated qaqc columns the rules need: CH4 as reported, flag, cavity pressure, ID.
+    """
+    Unvalidated qaqc columns the rules need: CH4 as reported, flag, cavity pressure, ID.
 
     Deliberately skips :func:`~slv.measurements.pollutants.normalize_pollutant`: the dropout rule
     has to see the sub-1.70 ppm rows that validation removes, and the pressure rule has to see
@@ -300,10 +311,12 @@ def _read_lgr(
     keep: tuple[str, ...] = (),
     valid_flags: set | None = None,
 ) -> pd.DataFrame:
-    """Read one LGR level via uataq, validate CH4, return Time_UTC + CH4 (+ ``keep`` columns).
+    """
+    Read one LGR level via uataq, validate CH4, return Time_UTC + CH4 (+ ``keep`` columns).
 
     Only the needed columns are retained, so the full-width uataq frame is released as soon
-    as this returns."""
+    as this returns.
+    """
     from slv.measurements.pollutants import normalize_pollutant
 
     df = uataq.read_data(
@@ -325,7 +338,8 @@ def _read_lgr(
 def apply_low_pressure_rule(
     df: pd.DataFrame, band: tuple[float, float] | None = LOW_PRESSURE_BAND
 ) -> pd.DataFrame:
-    """Keep rows flagged −63 whose ``Cavity_P_torr`` lies inside ``band`` and tag them.
+    """
+    Keep rows flagged −63 whose ``Cavity_P_torr`` lies inside ``band`` and tag them.
 
     ``df`` must carry ``CH4`` (already validated with −63 among the accepted flags),
     ``QAQC_Flag`` and ``Cavity_P_torr``. Rows flagged −63 outside the band (or with no
@@ -359,7 +373,8 @@ def _build_chunk(
     dropout_window=DROPOUT_WINDOW_MIN,
     recover_hot=True,
 ):
-    """One time chunk of :func:`build_trax_obs` (see there); returns a plain DataFrame.
+    """
+    One time chunk of :func:`build_trax_obs` (see there); returns a plain DataFrame.
 
     uataq time ranges include both ends, so unless this is the ``last`` chunk, LGR rows at
     exactly ``t1`` are left to the next chunk.
@@ -509,7 +524,8 @@ def build_trax_obs(
     chunk: str = "YS",
     **gps_kwargs,
 ) -> gpd.GeoDataFrame:
-    """Build the georeferenced TRAX CH4 record from the pipeline levels.
+    """
+    Build the georeferenced TRAX CH4 record from the pipeline levels.
 
     Sources, each tagged in ``cal_source`` (see :data:`CAL_SOURCES`):
     ``lgr_ugga`` calibrated → ``pipeline``; ``lgr_ugga_manual_cal`` qaqc → ``manual_cal``;
@@ -595,7 +611,8 @@ def load_trax_obs(
     time_range: tuple | None = None,
     **build_kwargs,
 ) -> gpd.GeoDataFrame:
-    """Load the cached TRAX CH4 record (``$SLV_USER_DATA_DIR/trax/obs.parquet``), building it if needed.
+    """
+    Load the cached TRAX CH4 record (``$SLV_USER_DATA_DIR/trax/obs.parquet``), building it if needed.
 
     ``include_uncalibrated=False`` drops the tank-out windows so their effect can be tested;
     the ``cal_source`` column is always present for finer filtering. ``location`` selects

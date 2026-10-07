@@ -1,4 +1,5 @@
-"""GPS records for the mobile platforms and the observation/GPS merge.
+"""
+GPS records for the mobile platforms and the observation/GPS merge.
 
 Two GPS sources exist for the TRAX trains:
 
@@ -72,7 +73,8 @@ LIN_GPS_DROP_FLAGS = (-21, -22, -23, -200)
 
 
 def read_horel_cr1000(time_range, site: str = "trx01") -> pd.DataFrame:
-    """Horel-group CR1000 logger record (5 s): GPS + battery voltage + roof T/RH.
+    """
+    Horel-group CR1000 logger record (5 s): GPS + battery voltage + roof T/RH.
 
     ``uataq`` ``raw`` level of the ``gps`` and ``cr1000`` instruments (the monthly
     ``TRXnn_YYYY_MM_cr1000.h5`` files), joined on time. The ``raw`` level is the one to
@@ -121,7 +123,8 @@ def read_horel_cr1000(time_range, site: str = "trx01") -> pd.DataFrame:
 
 
 def _to_gps_time(df: pd.DataFrame) -> pd.DataFrame:
-    """Move a horel logger frame from the CR1000 clock onto GPS time.
+    """
+    Move a horel logger frame from the CR1000 clock onto GPS time.
 
     The CR1000 runs 1-20 s ahead of GPS time, drifting between resets. uataq gives each fix
     the receiver's own time as ``GPS_Time_UTC``; the logger offset from those fixes is carried
@@ -145,7 +148,8 @@ def _to_gps_time(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def read_lin_gps(time_range, site: str = "trx01", lvl: str = "qaqc") -> pd.DataFrame:
-    """Lin-group (air-trend) GPS at 1 s from the pipeline ``qaqc`` level, Dec 2014 on.
+    """
+    Lin-group (air-trend) GPS at 1 s from the pipeline ``qaqc`` level, Dec 2014 on.
 
     ``uataq`` read with ``N_Satellites`` renamed to ``N_Sat``; rows with
     :data:`LIN_GPS_DROP_FLAGS` are removed. ``Speed_m_s`` is NA from Dec 2015 to
@@ -169,7 +173,8 @@ def read_lin_gps(time_range, site: str = "trx01", lvl: str = "qaqc") -> pd.DataF
 def read_trax_gps(
     time_range, site: str = "trx01", fill_gaps: bool = True
 ) -> pd.DataFrame:
-    """Best GPS source for classifying, by era: lin-group GPS before
+    """
+    Best GPS source for classifying, by era: lin-group GPS before
     :data:`HOREL_POST_PILOT`, horel logger (with battery/T/RH) after.
 
     With ``fill_gaps`` (default), minutes the horel logger did not record are filled from the
@@ -207,7 +212,8 @@ def read_trax_gps(
 
 
 def lin_clock_offset_by_day(gps: pd.DataFrame) -> pd.Series:
-    """Median GPS-minus-Pi clock offset (s) per UTC day, from a lin GPS frame.
+    """
+    Median GPS-minus-Pi clock offset (s) per UTC day, from a lin GPS frame.
 
     The Pi had no working real-time clock for most of the record, so its time can be hours to
     days off. A horel fix can only georeference an LGR row (which carries Pi time) while the two
@@ -228,7 +234,8 @@ def clock_checked_days(
     max_clock_offset_s: float = 3.0,
     neighbour_days: int = 3,
 ) -> set:
-    """Days whose Pi clock can be trusted to ``max_clock_offset_s``.
+    """
+    Days whose Pi clock can be trusted to ``max_clock_offset_s``.
 
     A day with its own lin-GPS offset is judged on that; a day with no lin GPS at all is
     judged on the nearest days within ``neighbour_days`` on each side (the Pi clock drifts
@@ -257,7 +264,8 @@ def fill_gps_gaps_with_horel(
     max_clock_offset_s: float = 3.0,
     tolerance: str = "15s",
 ) -> pd.DataFrame:
-    """Georeference the rows the lin GPS could not, using the horel logger's 5-s fixes.
+    """
+    Georeference the rows the lin GPS could not, using the horel logger's 5-s fixes.
 
     136 days have LGR data but no lin GPS file at all (it was never archived) and many more have
     partial outages — ~754 on-track hours, most of it 2019-2023. The horel CR1000 logger recorded
@@ -338,7 +346,8 @@ def merge_with_gps(
     altitude_range=ALTITUDE_RANGE_MSL,
     horel_fallback=True,
 ):
-    """Attach GPS positions to a mobile site's concentration records.
+    """
+    Attach GPS positions to a mobile site's concentration records.
 
     Reads the site's final-level GPS through uataq (UATAQ sites only), drops the
     fixes with an altitude outside ``altitude_range`` (m MSL; fixes without one are kept,

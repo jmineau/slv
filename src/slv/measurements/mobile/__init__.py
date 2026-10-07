@@ -1,4 +1,5 @@
-"""Mobile-platform measurements: the TRAX light-rail trains and the Wyoming mobile lab.
+"""
+Mobile-platform measurements: the TRAX light-rail trains and the Wyoming mobile lab.
 
 Submodules, one concern each:
 

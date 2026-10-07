@@ -1,4 +1,5 @@
-"""The SLV methane inversion pipeline: builds the fips inputs and runs the solve.
+"""
+The SLV methane inversion pipeline: builds the fips inputs and runs the solve.
 
 The model-data mismatch, bias block, coverage filter, reporting and component cache live
 in their own modules (:mod:`.mdm`, :mod:`.bias`, :mod:`.coverage`, :mod:`.report`,
@@ -37,7 +38,8 @@ from slv.inversion.report import ReportingMixin
 def stack_jacobians(
     parts: list[tuple[Path, MatrixBlock]], sparse: bool = True
 ) -> MatrixBlock:
-    """Row-stack the per-project flux Jacobians into one.
+    """
+    Row-stack the per-project flux Jacobians into one.
 
     ``parts`` pairs each STILT project with the Jacobian built from it. Every project is
     aggregated onto the same state grid and flux time bins, so the columns agree; they are
@@ -79,7 +81,8 @@ class SLVMethaneInversion(
     ModelDataMismatchMixin,
     FluxInversionPipeline,
 ):
-    """SLV-specific implementation of the flux inversion pipeline.
+    """
+    SLV-specific implementation of the flux inversion pipeline.
 
     Supports optional bias correction via config.bias_std and config.bias_grouping.
     When bias_std is set, augments the state vector with bias terms that can be
@@ -100,7 +103,7 @@ class SLVMethaneInversion(
     }
 
     def get_inputs(self) -> dict[str, Any]:
-        """fips' inputs, checked that the prior and the Jacobian share their cells."""
+        """The fips inputs, checked that the prior and the Jacobian share their cells."""
         inputs = super().get_inputs()
         check_state_cells(inputs["prior"], inputs["forward_operator"])
         return inputs
@@ -128,7 +131,8 @@ class SLVMethaneInversion(
         )
 
     def get_prior(self) -> Vector:
-        """Get the prior vector, optionally including bias terms.
+        """
+        Get the prior vector, optionally including bias terms.
 
         Returns a single-block flux prior if bias_std is None, otherwise
         returns a multi-block [flux, bias] prior. Built (or loaded) once per pipeline:
@@ -158,7 +162,8 @@ class SLVMethaneInversion(
         return Vector(name="prior", data=[flux_prior.blocks["flux"], bias_blk])
 
     def get_forward_operator(self, obs: Vector, prior: Vector) -> ForwardOperator:
-        """Get the forward operator, optionally including bias Jacobian.
+        """
+        Get the forward operator, optionally including bias Jacobian.
 
         Returns a single-block flux Jacobian if bias_std is None, otherwise
         returns a multi-block [flux_jac | bias_jac] operator.
@@ -180,7 +185,8 @@ class SLVMethaneInversion(
 
     @fips_cache(ForwardOperator, "forward_operator")
     def _get_flux_jacobian(self, obs: Vector) -> ForwardOperator:
-        """The flux Jacobian from the PYSTILT footprints (cached as ``forward_operator``).
+        """
+        The flux Jacobian from the PYSTILT footprints (cached as ``forward_operator``).
 
         ``config.stilt_project`` may name several projects (``config.stilt_projects``): the
         UOU and DAQ footprints live in the paper-1 project and the TRAX ones in their own.
@@ -208,8 +214,10 @@ class SLVMethaneInversion(
     def _project_jacobian(
         self, project: Path, obs_locations: set
     ) -> MatrixBlock | None:
-        """One project's Jacobian rows for the obs in ``obs_locations``, or None if it has
-        no simulation matching any of them."""
+        """
+        One project's Jacobian rows for the obs in ``obs_locations``, or None if it has
+        no simulation matching any of them.
+        """
         from stilt import Model
 
         from slv.inversion.config import build_location_site_map
@@ -261,8 +269,10 @@ class SLVMethaneInversion(
         )
 
     def _resolve_variant(self, model, project: Path) -> str:
-        """``config.variant`` if set (this project must define it), else the project's one
-        variant with a footprint."""
+        """
+        ``config.variant`` if set (this project must define it), else the project's one
+        variant with a footprint.
+        """
         variants = model.variants
         variant = self.config.variant
         if variant is not None:
@@ -285,7 +295,8 @@ class SLVMethaneInversion(
 
     @fips_cache(CovarianceMatrix, "prior_error")
     def get_prior_error(self, prior: Vector) -> CovarianceMatrix:
-        """Get prior error covariance, optionally including bias error.
+        """
+        Get prior error covariance, optionally including bias error.
 
         Returns a single-block flux error if bias_std is None, otherwise
         returns a multi-block [flux_err, bias_err] covariance.
@@ -319,7 +330,8 @@ class SLVMethaneInversion(
         return CovarianceMatrix(name="prior_error", data=[flux_err_blk, bias_err_blk])
 
     def obs_sites(self, obs_index: pd.Index) -> pd.Index:
-        """The site of each obs, for site- and organization-keyed MDM and bias terms.
+        """
+        The site of each obs, for site- and organization-keyed MDM and bias terms.
 
         A tower obs is keyed by its site; a mobile obs by its receptor's PYSTILT location_id,
         which belongs to the (single) mobile site in ``config.sites``.
@@ -327,8 +339,10 @@ class SLVMethaneInversion(
         return self._resolve_sites(obs_index.get_level_values("obs_location"))
 
     def _resolve_sites(self, locations) -> pd.Index:
-        """Sites for obs locations: a site stays itself, anything else is a receptor of
-        the single mobile site in ``config.sites``."""
+        """
+        Sites for obs locations: a site stays itself, anything else is a receptor of
+        the single mobile site in ``config.sites``.
+        """
         locations = pd.Index(locations)
         known = locations.isin(self.config.site_config.index)
         if known.all():
@@ -344,7 +358,8 @@ class SLVMethaneInversion(
 
     @fips_cache(Vector, "constant")
     def get_constant(self, obs: Vector) -> Vector:
-        """Background concentration for each obs (``config.background``).
+        """
+        Background concentration for each obs (``config.background``).
 
         Obs whose background is missing (outside the ct_stilt product, rolling-baseline
         gaps) are dropped here rather than filled: fips vectors reject NaN, and
@@ -378,7 +393,8 @@ class SLVMethaneInversion(
         return Vector(name="background", data=Block(name="concentration", data=data))
 
     def filter_state_space(self, obs: Vector, prior: Vector) -> tuple[Vector, Vector]:
-        """Trim obs and prior to ``config.time_range``, then run interval filter.
+        """
+        Trim obs and prior to ``config.time_range``, then run interval filter.
 
         This ensures that objects loaded from a wide-range cache are sliced
         down to the current run's time window before any downstream builders
@@ -441,7 +457,8 @@ class SLVMethaneInversion(
         return obs, forward_operator, modeldata_mismatch, constant
 
     def run(self, estimator_kwargs: dict | None = None, **kwargs) -> FluxProblem:
-        """Build the inputs, solve, summarize and plot.
+        """
+        Build the inputs, solve, summarize and plot.
 
         Steps: :meth:`get_inputs` (cached components), the Jacobian coverage filter when
         ``config.jacobian_coverage_percentile`` is set, the solve (``config.gamma`` scales

@@ -1,4 +1,5 @@
-"""STILT receptors for the TRAX record: one multipoint receptor per 2-km segment crossing.
+"""
+STILT receptors for the TRAX record: one multipoint receptor per 2-km segment crossing.
 
 The paper-2 inversion samples TRAX CH4 at the staged 2-km network points
 (:func:`~slv.measurements.mobile.network.load_trax_points`). Each staged point owns a
@@ -87,7 +88,8 @@ def load_trax_network_points(
     meters: bool = False,
     rebuild: bool = False,
 ) -> gpd.GeoDataFrame:
-    """The 50-m network points with their 2-km segment membership.
+    """
+    The 50-m network points with their 2-km segment membership.
 
     Both point sets come from :func:`load_trax_points` (``lair.geo.points_along_line`` on
     the UTA line network, so shared track is one row of points and every pair is at least
@@ -142,7 +144,8 @@ def _line_geometries() -> dict[str, shapely.LineString]:
 def load_trax_fixes(
     cache: str | Path | None = None, location: str | tuple[str, ...] | None = "on_track"
 ) -> pd.DataFrame:
-    """``Time_UTC``, ``Latitude_deg``, ``Longitude_deg`` of the ``location`` rows of the cached
+    """
+    ``Time_UTC``, ``Latitude_deg``, ``Longitude_deg`` of the ``location`` rows of the cached
     TRAX record (``obs.parquet``), one row per distinct second, time-sorted.
 
     Reads only those columns (pyarrow, filtered on ``state``) — the full parquet with CH4 is
@@ -175,7 +178,8 @@ def find_segment_crossings(
     max_gap: str | pd.Timedelta = "10min",
     max_point_dist: float = 60.0,
 ) -> pd.DataFrame:
-    """Split the GPS record into crossings of the 2-km segments.
+    """
+    Split the GPS record into crossings of the 2-km segments.
 
     Each fix is snapped to the nearest 50-m network point (dropped if farther than
     ``max_point_dist`` m) and inherits its segment; a crossing is a run of consecutive
@@ -301,7 +305,8 @@ def _mask_to_lines(mask: int) -> str:
 
 
 def release_points(points: gpd.GeoDataFrame, segment: int, lines: str) -> pd.Index:
-    """Index of the segment's points on every line in ``lines`` (all of them if ``lines`` is empty).
+    """
+    Index of the segment's points on every line in ``lines`` (all of them if ``lines`` is empty).
 
     At a junction a staged 2-km point collects the arms of several lines (downtown,
     segment 21 has 92 points on three arms); a train on one line only samples that line's
@@ -315,7 +320,8 @@ def release_points(points: gpd.GeoDataFrame, segment: int, lines: str) -> pd.Ind
 
 
 def _minute_positions(fixes: pd.DataFrame) -> pd.DataFrame:
-    """Median projected position per minute: index ``minute``, columns ``x``, ``y``, ``n``.
+    """
+    Median projected position per minute: index ``minute``, columns ``x``, ``y``, ``n``.
 
     Dwells are found at 1-minute resolution rather than per fix -- 46 M fixes is too many
     for a run-detection loop and a dwell lasts tens of minutes, so nothing is lost.
@@ -335,7 +341,8 @@ def find_dwells(
     min_duration: str | pd.Timedelta = "20min",
     max_gap: str | pd.Timedelta = "10min",
 ) -> pd.DataFrame:
-    """Periods where the train stayed put: parked on a yard track or waiting at a terminus.
+    """
+    Periods where the train stayed put: parked on a yard track or waiting at a terminus.
 
     Walks the per-minute positions and opens a dwell at each minute, extending it while the
     train stays within ``radius`` of the first minute of the run and no gap exceeds
@@ -396,7 +403,8 @@ def label_dwell_site(
     max_dist: float = 200.0,
     yard_buffer: float | None = None,
 ) -> pd.DataFrame:
-    """Where each dwell is: ``yard_name`` (JRRSC / MRSC, from the packaged storage polygons)
+    """
+    Where each dwell is: ``yard_name`` (JRRSC / MRSC, from the packaged storage polygons)
     and ``segment`` (nearest 2-km segment, NaN beyond ``max_dist``).
 
     A dwell is in a yard within ``yard_buffer`` m of its polygon (default the location
@@ -444,7 +452,8 @@ def build_dwell_receptors(
     hours: Sequence[int] | None = None,
     utc_offset: int = UTC_OFFSET,
 ) -> pd.DataFrame:
-    """PYSTILT receptor table (:data:`RECEPTOR_COLUMNS`) for the dwell periods.
+    """
+    PYSTILT receptor table (:data:`RECEPTOR_COLUMNS`) for the dwell periods.
 
     One single-point receptor per ``freq`` bin of each dwell that holds at least
     ``min_minutes`` *distinct minutes* of data (counting minutes, not fixes, so the rule
@@ -514,7 +523,8 @@ def build_dwell_receptors(
 def filter_receptor_hours(
     rec: pd.DataFrame, hours: Sequence[int] | None, utc_offset: int = UTC_OFFSET
 ) -> pd.DataFrame:
-    """Keep rows whose ``time`` falls in those local-time hours (``None`` keeps all).
+    """
+    Keep rows whose ``time`` falls in those local-time hours (``None`` keeps all).
 
     ``utc_offset`` is a fixed offset, by default ``slv.domain.UTC_OFFSET`` (MST, no DST), so
     the window is the same standard-time hours all year; in summer the wall clock (MDT)
@@ -538,7 +548,8 @@ def build_trax_receptors(
     hours: Sequence[int] | None = None,
     utc_offset: int = UTC_OFFSET,
 ) -> pd.DataFrame:
-    """PYSTILT receptor table (:data:`RECEPTOR_COLUMNS`) from a crossings table.
+    """
+    PYSTILT receptor table (:data:`RECEPTOR_COLUMNS`) from a crossings table.
 
     One ``r_idx`` (= ``crossing``) per crossing that drove at least ``min_coverage`` of its
     release geometry along the route (and at least ``min_span_m`` of it in metres, if set),

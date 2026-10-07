@@ -1,4 +1,5 @@
-"""Tests for building one flux Jacobian from several PYSTILT projects.
+"""
+Tests for building one flux Jacobian from several PYSTILT projects.
 
 The UOU/DAQ footprints live in the production project and the TRAX ones in their own, so a
 joint inversion stacks the rows each project contributes.

@@ -7,8 +7,10 @@ from slv.inversion.config import InversionConfig
 
 
 class BiasMixin:
-    """Bias terms grouped by time, site or site organization (``config.bias_std`` /
-    ``config.bias_grouping``). Expects the host pipeline's ``_resolve_sites``."""
+    """
+    Bias terms grouped by time, site or site organization (``config.bias_std`` /
+    ``config.bias_grouping``). Expects the host pipeline's ``_resolve_sites``.
+    """
 
     config: InversionConfig
 
@@ -17,7 +19,8 @@ class BiasMixin:
         return self.config.site_config.organization.to_dict().get(site, "unknown")
 
     def get_bias(self) -> pd.Series:
-        """Build the bias prior based on config.bias_grouping.
+        """
+        Build the bias prior based on config.bias_grouping.
 
         Returns a zero-valued Series with index determined by bias_grouping:
           - None or "time": one bias per time interval
@@ -59,8 +62,10 @@ class BiasMixin:
         return pd.Series(0.0, index=index, name="bias")
 
     def _obs_bias_sites(self, obs_index, location_mapper=None) -> pd.Index:
-        """Each obs's site: STILT location IDs through the location map, then receptors
-        to the mobile site (:meth:`obs_sites`)."""
+        """
+        Each obs's site: STILT location IDs through the location map, then receptors
+        to the mobile site (:meth:`obs_sites`).
+        """
         mapper = location_mapper or self.config.location_site_map or {}
         locations = obs_index.get_level_values("obs_location")
         return self._resolve_sites(locations.map(lambda loc: mapper.get(loc, loc)))
@@ -68,7 +73,8 @@ class BiasMixin:
     def get_bias_jacobian(
         self, obs: Vector, prior: Vector, location_mapper: dict | None = None
     ) -> pd.DataFrame:
-        """Build the obs × bias Jacobian based on config.bias_grouping.
+        """
+        Build the obs × bias Jacobian based on config.bias_grouping.
 
         Maps each observation to its corresponding bias term:
           - time: match by time interval only
