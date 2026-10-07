@@ -89,6 +89,7 @@ exclude_also = [
 
 [tool.pyrefly]
 project-includes = ["src"]
+python-version = "3.11"  # as CI checks, against the oldest supported Python
 ignore-missing-imports = ["xesmf"]  # conda-forge only, imported lazily
 # The errors that existed when slv moved from pyright to pyrefly (2026-10), nearly
 # all from pandas-stubs. New errors fail the check; fix the listed ones over time,
@@ -109,7 +110,13 @@ filterwarnings = [
     # on write and deprecates the option.
     "ignore:The 'mode.copy_on_write' option is deprecated:pandas.errors.Pandas4Warning",
     # seaborn's boxplot passes matplotlib the old `vert` argument.
-    "ignore:vert. bool will be deprecated:PendingDeprecationWarning",
+    "ignore:vert. bool:PendingDeprecationWarning:seaborn",
+    "ignore:vert. bool:DeprecationWarning:seaborn",
+    # xarray's netCDF4 backend sets an array's shape (deprecated in NumPy 2.5).
+    "ignore:Setting the shape on a NumPy array:DeprecationWarning:xarray",
+    # cartopy downloads Natural Earth and caches map tiles where none are cached.
+    "ignore::cartopy.io.DownloadWarning",
+    "ignore:Cartopy created the following directory to cache:UserWarning",
     # numpy ignores this one itself (netCDF4 raises it on import); pytest's
     # "error" filter would bring it back.
     "ignore:numpy.ndarray size changed:RuntimeWarning",
