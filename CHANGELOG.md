@@ -39,6 +39,11 @@ versions are calendar-based (YYYY.M.PATCH).
 
 ### Changed
 
+- uataq is locked at its current main (bbebd4b), up from a4dbfa6 of 2026-09-21. It
+  brings uataq#44 (mobile obs located with the GPS on their own logger's clock),
+  #47 (horel GPS reads carry the receiver's GPS time, which #10 relies on) and #45
+  (uataq no longer sets pandas' copy_on_write option). Rebuild the TRAX
+  `obs.parquet` after updating.
 - The version comes from git tags (setuptools-scm). Between releases,
   `slv.__version__` is a dev version such as `2026.9.2.dev5+g1a2b3c4`
   instead of the last release's number.
