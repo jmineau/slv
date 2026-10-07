@@ -3,8 +3,6 @@ message: "If you use this software, please cite it as below."
 type: software
 title: "slv"
 abstract: "Salt Lake Valley methane analysis and inversion workflows: measurements, inventories, domain definitions, and the flux-inversion pipeline built on fips and pystilt."
-version: 2026.9.1
-date-released: "2026-09-17"
 # Concept DOI (always resolves to the latest release) — same convention as
 # pandas/astropy/xarray. `doi` is the shorthand GitHub's "Cite this
 # repository" popup actually renders in APA/BibTeX (it ignores

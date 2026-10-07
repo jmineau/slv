@@ -37,6 +37,9 @@ versions are calendar-based (YYYY.M.PATCH).
 
 ### Changed
 
+- The version comes from git tags (setuptools-scm). Between releases,
+  `slv.__version__` is a dev version such as `2026.9.2.dev5+g1a2b3c4`
+  instead of the last release's number.
 - `load_epa_prior(express=False)` (the default) scales EPA's **express** product by month,
   not the base inventory, so it holds the same emissions as `express=True` (paper 1) and
   differs only in seasonal timing (the yearly mean of the months equals the annual rate). The

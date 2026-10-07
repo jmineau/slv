@@ -4,9 +4,14 @@ Salt Lake Valley python modules
 """
 
 import os
+from importlib.metadata import PackageNotFoundError
+from importlib.metadata import version as _version
 from pathlib import Path
 
-__version__ = "2026.9.1"
+try:
+    __version__ = _version("slv")  # set by setuptools-scm from git tags
+except PackageNotFoundError:  # pragma: no cover - not installed
+    __version__ = "0+unknown"
 __author__ = "James Mineau"
 __email__ = "James.Mineau@utah.edu"
 
