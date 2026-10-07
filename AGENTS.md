@@ -236,7 +236,7 @@ Driven by `just` + `uv`. There is **no `just install`** recipe — use
 | Command | What it does |
 |---|---|
 | `just test` | `uv run pytest -v` |
-| `just quality-check` | ruff (`src/slv`) + pyright (`src/slv`) + tests |
+| `just quality-check` | ruff (`src/slv`) + pyrefly + tests |
 | `just ruff` | `uv run ruff check --fix` + `uv run ruff format` on `src/slv` |
 | `just build-docs` | clean + Sphinx HTML build |
 | `just pre-commit` | `uv run pre-commit run --all-files` |
@@ -244,8 +244,9 @@ Driven by `just` + `uv`. There is **no `just install`** recipe — use
 
 CI: `.github/workflows/` has `tests.yml`, `quality.yml`, `docs.yml`, all on the
 conda env in `ci/environment.yml` (no `uv` there -- workflows call tools directly,
-not `just`). No CHPC data roots are set in CI: tests must not read group data. pyright
-reports the pandas-noise rules as warnings (`[tool.pyright]`) and fails on the rest;
+not `just`). No CHPC data roots are set in CI: tests must not read group data. pyrefly
+fails on any error not in `pyrefly-baseline.json` (the 2026-10 errors, nearly all
+pandas-stubs noise; fix them over time and `--update-baseline`);
 docstr-coverage fails below `--fail-under` in `quality.yml` (90; docstrings at 95 %, so
 new public functions need one). The CI env carries the inversion extra's conda deps
 (seaborn, joblib) because slv is installed `--no-deps`; add new extras there too. The docs
@@ -296,9 +297,12 @@ is read as more parameters).
 - **Python**: 3.11+ (`ruff.target-version = "py311"`; pandas 3 and current xarray need 3.11).
 - **Linting**: ruff selects `E, F, UP, B, SIM, I` and ignores `E501`.
   (Note: no `D` pydocstyle rules here, unlike `fips`.)
-- **Types**: pyright using `.venv`. `py.typed` shipped.
+- **Types**: pyrefly (default preset) on `src/`, with a baseline of the errors it
+  found on adoption; a new error fails. Suppress one only with
+  `# pyrefly: ignore[<code>]` on the line above, after a comment saying why.
+  `py.typed` shipped.
 - **Coverage**: `tests/` only; standard `coverage.exclude_also` patterns.
-- **Dev group**: brings in `slv[inversion]`, ipykernel, ruff, pyright,
+- **Dev group**: brings in `slv[inversion]`, ipykernel, ruff, pyrefly,
   pytest, sphinx, pre-commit.
 
 ## Common workflows

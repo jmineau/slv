@@ -204,7 +204,7 @@ class CoverageFilterMixin:
             bias_index = filtered_prior["bias"].index
             bias_err = DiagonalError(
                 name="bias_error",
-                variances=self.config.bias_std**2,  # pyright: ignore[reportOptionalOperand]
+                variances=self.config.bias_std**2,
             ).build(bias_index)
             bias_err_blk = MatrixBlock(bias_err, "bias", "bias")
             prior_error = CovarianceMatrix(

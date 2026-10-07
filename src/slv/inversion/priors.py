@@ -172,7 +172,7 @@ def load_epa_prior(
     total = inventories.sum_sectors(epa.data)
 
     # Regrid
-    import xesmf as xe  # pyright: ignore[reportMissingImports]  # conda-forge only; lazy
+    import xesmf as xe  # conda-forge only; lazy
 
     regridder = xe.Regridder(total, out_grid, method="conservative")
     inventory = regridder(total)
@@ -223,7 +223,7 @@ def load_edgar_prior(
     total = inventories.sum_sectors(edgar.data)
 
     # Regrid
-    import xesmf as xe  # pyright: ignore[reportMissingImports]  # conda-forge only; lazy
+    import xesmf as xe  # conda-forge only; lazy
 
     regridder = xe.Regridder(total, out_grid, method="conservative")
     inventory = regridder(total)

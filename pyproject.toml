@@ -47,7 +47,7 @@ dev = [
     "ipykernel>=7.2.0",
     "pre-commit>=3.0.0",
     "pydata-sphinx-theme>=0.14.0",
-    "pyright[nodejs]>=1.1.0",
+    "pyrefly>=1.3",
     "pytest>=7.0.0",
     "pytest-cov>=4.0.0",
     "ruff>=0.1.0",
@@ -84,21 +84,13 @@ exclude_also = [
     "@(abc\\.)?abstractmethod",
     ]
 
-[tool.pyright]
-include = ["src"]
-exclude = ["**/__pycache__", "**/.venv"]
-venvPath = "."
-venv = ".venv"
-# pandas' partial annotations type most indexing as `DataFrame | Series` (and many
-# returns as unions), so these rules flood with false positives on ordinary pandas
-# code (~340 of them). They stay visible as warnings; every other rule -- unbound
-# names, missing imports, None access, ... -- still fails the check.
-reportAttributeAccessIssue = "warning"
-reportArgumentType = "warning"
-reportIndexIssue = "warning"
-reportCallIssue = "warning"
-reportReturnType = "warning"
-reportOperatorIssue = "warning"
+[tool.pyrefly]
+project-includes = ["src"]
+ignore-missing-imports = ["xesmf"]  # conda-forge only, imported lazily
+# The errors that existed when slv moved from pyright to pyrefly (2026-10), nearly
+# all from pandas-stubs. New errors fail the check; fix the listed ones over time,
+# then run `uv run pyrefly check --update-baseline` to shrink it.
+baseline = "pyrefly-baseline.json"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
