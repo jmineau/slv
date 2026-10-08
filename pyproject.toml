@@ -117,8 +117,8 @@ filterwarnings = [
     # cartopy downloads Natural Earth and caches map tiles where none are cached.
     "ignore::cartopy.io.DownloadWarning",
     "ignore:Cartopy created the following directory to cache:UserWarning",
-    # numpy ignores this one itself (netCDF4 raises it on import); pytest's
-    # "error" filter would bring it back.
+    # numpy ignores this one itself (compiled packages such as netCDF4 raise it on
+    # import); pytest's "error" filter would bring it back.
     "ignore:numpy.ndarray size changed:RuntimeWarning",
 ]
 markers = [
@@ -144,9 +144,9 @@ ignore = [
 
 [tool.ruff.format]
 docstring-code-format = true
-# ruff also formats code blocks in Markdown; the README's and AGENTS.md's
-# examples keep their hand-aligned comments.
-exclude = ["AGENTS.md", "README.md"]
+# ruff also formats code blocks in Markdown; these keep their examples as written
+# (e.g. hand-aligned comments).
+exclude = ["README.md", "AGENTS.md"]
 
 [tool.ruff.lint]
 select = [
@@ -156,7 +156,7 @@ select = [
     "B",  # flake8-bugbear
     "SIM",  # flake8-simplify
     "I",  # isort
-    "D",  # pydocstyle, numpy convention (below)
+    "D",  # pydocstyle, NumPy convention (below)
     "D213",  # docstring summary on the second line
     "NPY",  # NumPy-specific, incl. NumPy 2 deprecations
     "RUF100",  # unused noqa
@@ -200,5 +200,6 @@ fallback_version = "0.0.0"  # no git metadata at all (e.g. a bare source copy)
 [tool.uv]
 required-version = ">=0.12"
 # Rebuild the editable install when pyproject.toml or the git state changes, so
-# `__version__` follows new commits and tags.
+# `__version__` follows new commits and tags. This replaces uv's default keys, so
+# add { file = "setup.py" } (and any C sources) if the project has them.
 cache-keys = [{ file = "pyproject.toml" }, { git = { commit = true, tags = true } }]

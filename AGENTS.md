@@ -262,6 +262,18 @@ message in `[tool.pytest]`. pyrefly fails on any error not in `pyrefly-baseline.
 sections must be ones napoleon knows (an unknown header such as "Cache layout" is
 read as more parameters).
 
+The API reference has a page for each class, with tables of its attributes and
+methods, and a page for each member; a subclass lists what it defines and links
+to what it inherits (`docs/_templates/autosummary/` and `docs/_ext/api_pages.py`,
+from python-template). The extension also drops from a class docstring the
+`Methods` section and the `Attributes` entries that the tables list. A property
+or attribute's page is where its See Also and Examples go, as in pandas: give each
+public one a docstring that says what it is, and add See Also or Examples where
+they help. One with no docstring shows an empty row.
+The docs are versioned on GitHub Pages, which serves the gh-pages branch (`dev/`,
+one folder per release, `stable/`); `.github/scripts/docs_versions.py` maintains
+the branch. Never edit gh-pages by hand.
+
 ## Invariants to respect
 
 - **Domain constants live in one place** (`slv.domain`). Don't hardcode
