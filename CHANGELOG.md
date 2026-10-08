@@ -39,6 +39,12 @@ versions are calendar-based (YYYY.M.PATCH).
 
 ### Changed
 
+- The API reference has a page for each class, with tables of its attributes and
+  methods, and a page for each member, as in pandas. A subclass links to the
+  members it inherits, and a package's page lists the public names it
+  re-exports from its submodules. The class docstrings' `Methods` sections and
+  the `Attributes` entries the tables list are dropped from the pages, so
+  nothing is described twice.
 - The version comes from git tags (setuptools-scm). Between releases,
   `slv.__version__` is a dev version such as `2026.9.2.dev5+g1a2b3c4`
   instead of the last release's number.

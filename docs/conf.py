@@ -4,7 +4,11 @@ Sphinx configuration for the slv docs.
 The full list of settings: https://www.sphinx-doc.org/en/master/usage/configuration.html
 """
 
+import sys
 from importlib.metadata import version as package_version
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).parent / "_ext"))
 
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
@@ -28,6 +32,7 @@ extensions = [
     "sphinx.ext.intersphinx",
     "sphinx_autodoc_typehints",
     "sphinx_copybutton",
+    "api_pages",  # _ext/api_pages.py: class pages with member tables
 ]
 
 templates_path = ["_templates"]
@@ -71,7 +76,7 @@ napoleon_include_special_with_doc = True
 napoleon_use_admonition_for_examples = False
 napoleon_use_admonition_for_notes = False
 napoleon_use_admonition_for_references = False
-napoleon_use_ivar = False
+napoleon_use_ivar = True  # what a class page's tables leave in "Attributes"
 napoleon_use_param = True
 napoleon_use_rtype = True
 napoleon_preprocess_types = False
@@ -79,12 +84,10 @@ napoleon_type_aliases = None
 napoleon_attr_annotations = True
 
 # Autodoc settings
+# A page per module, class, function, and class member, as in pandas'
+# reference. The page templates are in _templates/autosummary/.
 autodoc_default_options = {
-    "members": True,
     "member-order": "bysource",
-    "special-members": "__init__",
-    "undoc-members": True,
-    "exclude-members": "__weakref__",
 }
 
 # Autosummary settings
