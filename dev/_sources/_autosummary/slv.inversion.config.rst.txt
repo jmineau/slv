@@ -2,25 +2,42 @@ slv.inversion.config
 ====================
 
 .. automodule:: slv.inversion.config
+   :no-members:
 
-   
-   .. rubric:: Module Attributes
 
-   .. autosummary::
-   
-      FLUX_FREQ_TIME_STEPS
-   
-   .. rubric:: Functions
+.. rubric:: Attributes
 
-   .. autosummary::
-   
-      build_location_site_map
-      get_mdm_comp_configs
-      stilt_project_dir
-   
-   .. rubric:: Classes
+.. autosummary::
+   :toctree:
+   :nosignatures:
 
-   .. autosummary::
-   
-      InversionConfig
-   
+   FLUX_FREQ_TIME_STEPS
+
+
+
+.. rubric:: Functions
+
+.. autosummary::
+   :toctree:
+   :nosignatures:
+
+   build_location_site_map
+   get_mdm_comp_configs
+   stilt_project_dir
+
+
+
+.. rubric:: Classes
+
+.. autosummary::
+   :toctree:
+   :nosignatures:
+
+   InversionConfig
+
+
+
+
+
+
+

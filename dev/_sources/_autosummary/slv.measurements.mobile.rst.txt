@@ -2,8 +2,75 @@ slv.measurements.mobile
 =======================
 
 .. automodule:: slv.measurements.mobile
+   :no-members:
 
-   
+
+
+
+
+
+
+
+
+
+
+.. rubric:: Exported from submodules
+
+.. autosummary::
+   :nosignatures:
+
+   ~obs.apply_dropout_rule
+   ~calibration.apply_epoch_offset
+   ~obs.apply_low_pressure_rule
+   ~obs.apply_pressure_rule
+   ~obs.apply_slope_guard
+   ~transects.assign_lines
+   ~receptors.build_dwell_receptors
+   ~obs.build_trax_obs
+   ~receptors.build_trax_receptors
+   ~transects.build_network_transects
+   ~transects.build_trax_transects
+   ~location.classify_location
+   ~gps.clock_checked_days
+   ~obs.dropout_times
+   ~calibration.epoch_offset_column
+   ~gps.fill_gps_gaps_with_horel
+   ~calibration.filter_cal_source
+   ~obs.filter_location
+   ~network.filter_near_routes
+   ~receptors.filter_receptor_hours
+   ~receptors.find_dwells
+   ~receptors.find_segment_crossings
+   ~network.get_geodf
+   ~receptor_obs.inlet_lag_seconds
+   ~receptors.label_dwell_site
+   ~location.label_observations
+   ~obs.label_trax_location
+   ~gps.lin_clock_offset_by_day
+   ~network.load_depot_footprint
+   ~network.load_storage_polygons
+   ~transects.load_network_transects
+   ~transects.load_transects
+   ~calibration.load_trax_epoch_offsets
+   ~receptors.load_trax_fixes
+   ~network.load_trax_lines
+   ~receptors.load_trax_network_points
+   ~obs.load_trax_obs
+   ~network.load_trax_points
+   ~calibration.load_trax_uncalibrated_windows
+   ~location.location_features
+   ~gps.merge_with_gps
+   ~gps.read_horel_cr1000
+   ~gps.read_lin_gps
+   ~gps.read_trax_gps
+   ~obs.recover_hot_rows
+   ~receptors.release_points
+   ~calibration.select_uncalibrated
+   ~location.state_intervals
+   ~receptor_obs.trax_receptor_observations
+
+
+
 .. rubric:: Modules
 
 .. autosummary::

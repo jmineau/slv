@@ -1,0 +1,6 @@
+slv.measurements.mobile.receptors.LINE\_LETTERS
+===============================================
+
+.. currentmodule:: slv.measurements.mobile.receptors
+
+.. autodata:: LINE_LETTERS

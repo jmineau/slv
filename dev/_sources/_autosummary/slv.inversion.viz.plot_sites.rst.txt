@@ -1,0 +1,6 @@
+slv.inversion.viz.plot\_sites
+=============================
+
+.. currentmodule:: slv.inversion.viz
+
+.. autofunction:: plot_sites

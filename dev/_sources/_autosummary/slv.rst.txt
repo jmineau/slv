@@ -2,14 +2,28 @@
 ===
 
 .. automodule:: slv
+   :no-members:
 
-   
-   .. rubric:: Functions
 
-   .. autosummary::
-   
-      get_data_dir
-   
+
+
+.. rubric:: Functions
+
+.. autosummary::
+   :toctree:
+   :nosignatures:
+
+   get_data_dir
+
+
+
+
+
+
+
+
+
+
 .. rubric:: Modules
 
 .. autosummary::

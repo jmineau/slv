@@ -39,7 +39,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../../../_static/documentation_options.js?v=4dc2ff04"></script>
+    <script src="../../../../_static/documentation_options.js?v=3dcb0a44"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -56,7 +56,7 @@
     <link rel="search" title="Search" href="../../../../search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.9.2.dev67+gd2401dbd1" />
+  <meta name="docsearch:version" content="2026.9.2.dev68+g6a74a2716" />
   </head>
   
   
@@ -447,7 +447,7 @@
 
 
 <div class="viewcode-block" id="filter_location">
-<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.obs.html#slv.measurements.mobile.filter_location">[docs]</a>
+<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.obs.filter_location.html#slv.measurements.mobile.obs.filter_location">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">filter_location</span><span class="p">(</span>
     <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">location</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="s2">&quot;on_track&quot;</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
@@ -465,7 +465,7 @@
 
 
 <div class="viewcode-block" id="label_trax_location">
-<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.obs.html#slv.measurements.mobile.label_trax_location">[docs]</a>
+<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.obs.label_trax_location.html#slv.measurements.mobile.obs.label_trax_location">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">label_trax_location</span><span class="p">(</span>
     <span class="n">obs</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
     <span class="n">site</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;trx01&quot;</span><span class="p">,</span>
@@ -548,7 +548,7 @@
 
 
 <div class="viewcode-block" id="apply_slope_guard">
-<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.obs.html#slv.measurements.mobile.apply_slope_guard">[docs]</a>
+<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.obs.apply_slope_guard.html#slv.measurements.mobile.obs.apply_slope_guard">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">apply_slope_guard</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">tol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">SLOPE_TOL</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Set ``CH4`` to NaN where ``CH4d_m`` differs from the same UTC day&#39;s median slope by more</span>
@@ -575,7 +575,7 @@
 
 
 <div class="viewcode-block" id="dropout_times">
-<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.obs.html#slv.measurements.mobile.dropout_times">[docs]</a>
+<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.obs.dropout_times.html#slv.measurements.mobile.obs.dropout_times">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">dropout_times</span><span class="p">(</span>
     <span class="n">support</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">DROPOUT_CH4_PPM</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
@@ -596,7 +596,7 @@
 
 
 <div class="viewcode-block" id="apply_dropout_rule">
-<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.obs.html#slv.measurements.mobile.apply_dropout_rule">[docs]</a>
+<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.obs.apply_dropout_rule.html#slv.measurements.mobile.obs.apply_dropout_rule">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">apply_dropout_rule</span><span class="p">(</span>
     <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">dropouts</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="n">window_min</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">DROPOUT_WINDOW_MIN</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
@@ -619,7 +619,7 @@
 
 
 <div class="viewcode-block" id="apply_pressure_rule">
-<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.obs.html#slv.measurements.mobile.apply_pressure_rule">[docs]</a>
+<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.obs.apply_pressure_rule.html#slv.measurements.mobile.obs.apply_pressure_rule">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">apply_pressure_rule</span><span class="p">(</span>
     <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
     <span class="n">pressure</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span>
@@ -647,7 +647,7 @@
 
 
 <div class="viewcode-block" id="recover_hot_rows">
-<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.obs.html#slv.measurements.mobile.recover_hot_rows">[docs]</a>
+<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.obs.recover_hot_rows.html#slv.measurements.mobile.obs.recover_hot_rows">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">recover_hot_rows</span><span class="p">(</span>
     <span class="n">cal</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">support</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">flag</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="o">-</span><span class="mi">64</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
@@ -769,7 +769,7 @@
 
 
 <div class="viewcode-block" id="apply_low_pressure_rule">
-<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.obs.html#slv.measurements.mobile.apply_low_pressure_rule">[docs]</a>
+<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.obs.apply_low_pressure_rule.html#slv.measurements.mobile.obs.apply_low_pressure_rule">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">apply_low_pressure_rule</span><span class="p">(</span>
     <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">band</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">LOW_PRESSURE_BAND</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
@@ -947,7 +947,7 @@
 
 
 <div class="viewcode-block" id="build_trax_obs">
-<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.obs.html#slv.measurements.mobile.build_trax_obs">[docs]</a>
+<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.obs.build_trax_obs.html#slv.measurements.mobile.obs.build_trax_obs">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">build_trax_obs</span><span class="p">(</span>
     <span class="n">site</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;trx01&quot;</span><span class="p">,</span>
     <span class="n">time_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -1041,7 +1041,7 @@
 
 
 <div class="viewcode-block" id="load_trax_obs">
-<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.obs.html#slv.measurements.mobile.load_trax_obs">[docs]</a>
+<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.obs.load_trax_obs.html#slv.measurements.mobile.obs.load_trax_obs">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">load_trax_obs</span><span class="p">(</span>
     <span class="n">cache</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">include_uncalibrated</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>

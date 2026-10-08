@@ -1,0 +1,6 @@
+slv.inversion.sweep.SweepResults.plot\_sensitivity
+==================================================
+
+.. currentmodule:: slv.inversion.sweep
+
+.. automethod:: SweepResults.plot_sensitivity

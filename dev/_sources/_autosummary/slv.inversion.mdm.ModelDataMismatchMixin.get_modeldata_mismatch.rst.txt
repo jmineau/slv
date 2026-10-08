@@ -1,0 +1,6 @@
+slv.inversion.mdm.ModelDataMismatchMixin.get\_modeldata\_mismatch
+=================================================================
+
+.. currentmodule:: slv.inversion.mdm
+
+.. automethod:: ModelDataMismatchMixin.get_modeldata_mismatch

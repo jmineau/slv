@@ -2,18 +2,33 @@ slv.measurements.mobile.receptor\_obs
 =====================================
 
 .. automodule:: slv.measurements.mobile.receptor_obs
+   :no-members:
 
-   
-   .. rubric:: Module Attributes
 
-   .. autosummary::
-   
-      CROSSING_STATES
-   
-   .. rubric:: Functions
+.. rubric:: Attributes
 
-   .. autosummary::
-   
-      inlet_lag_seconds
-      trax_receptor_observations
-   
+.. autosummary::
+   :toctree:
+   :nosignatures:
+
+   CROSSING_STATES
+
+
+
+.. rubric:: Functions
+
+.. autosummary::
+   :toctree:
+   :nosignatures:
+
+   inlet_lag_seconds
+   trax_receptor_observations
+
+
+
+
+
+
+
+
+

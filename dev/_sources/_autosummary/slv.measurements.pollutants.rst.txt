@@ -2,11 +2,24 @@ slv.measurements.pollutants
 ===========================
 
 .. automodule:: slv.measurements.pollutants
+   :no-members:
 
-   
-   .. rubric:: Functions
 
-   .. autosummary::
-   
-      normalize_pollutant
-   
+
+
+.. rubric:: Functions
+
+.. autosummary::
+   :toctree:
+   :nosignatures:
+
+   normalize_pollutant
+
+
+
+
+
+
+
+
+

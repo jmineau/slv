@@ -1,0 +1,6 @@
+slv.measurements.mobile.gps.GPS\_NUMERIC
+========================================
+
+.. currentmodule:: slv.measurements.mobile.gps
+
+.. autodata:: GPS_NUMERIC

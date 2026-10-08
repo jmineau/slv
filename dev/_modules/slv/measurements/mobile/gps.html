@@ -39,7 +39,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../../../_static/documentation_options.js?v=4dc2ff04"></script>
+    <script src="../../../../_static/documentation_options.js?v=3dcb0a44"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -56,7 +56,7 @@
     <link rel="search" title="Search" href="../../../../search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.9.2.dev67+gd2401dbd1" />
+  <meta name="docsearch:version" content="2026.9.2.dev68+g6a74a2716" />
   </head>
   
   
@@ -485,7 +485,7 @@
 
 
 <div class="viewcode-block" id="read_horel_cr1000">
-<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.gps.html#slv.measurements.mobile.read_horel_cr1000">[docs]</a>
+<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.gps.read_horel_cr1000.html#slv.measurements.mobile.gps.read_horel_cr1000">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">read_horel_cr1000</span><span class="p">(</span><span class="n">time_range</span><span class="p">,</span> <span class="n">site</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;trx01&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Horel-group CR1000 logger record (5 s): GPS + battery voltage + roof T/RH.</span>
@@ -563,7 +563,7 @@
 
 
 <div class="viewcode-block" id="read_lin_gps">
-<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.gps.html#slv.measurements.mobile.read_lin_gps">[docs]</a>
+<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.gps.read_lin_gps.html#slv.measurements.mobile.gps.read_lin_gps">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">read_lin_gps</span><span class="p">(</span><span class="n">time_range</span><span class="p">,</span> <span class="n">site</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;trx01&quot;</span><span class="p">,</span> <span class="n">lvl</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;qaqc&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Lin-group (air-trend) GPS at 1 s from the pipeline ``qaqc`` level, Dec 2014 on.</span>
@@ -589,7 +589,7 @@
 
 
 <div class="viewcode-block" id="read_trax_gps">
-<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.gps.html#slv.measurements.mobile.read_trax_gps">[docs]</a>
+<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.gps.read_trax_gps.html#slv.measurements.mobile.gps.read_trax_gps">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">read_trax_gps</span><span class="p">(</span>
     <span class="n">time_range</span><span class="p">,</span> <span class="n">site</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;trx01&quot;</span><span class="p">,</span> <span class="n">fill_gaps</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
@@ -633,7 +633,7 @@
 
 
 <div class="viewcode-block" id="lin_clock_offset_by_day">
-<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.gps.html#slv.measurements.mobile.lin_clock_offset_by_day">[docs]</a>
+<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.gps.lin_clock_offset_by_day.html#slv.measurements.mobile.gps.lin_clock_offset_by_day">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">lin_clock_offset_by_day</span><span class="p">(</span><span class="n">gps</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Median GPS-minus-Pi clock offset (s) per UTC day, from a lin GPS frame.</span>
@@ -653,7 +653,7 @@
 
 
 <div class="viewcode-block" id="clock_checked_days">
-<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.gps.html#slv.measurements.mobile.clock_checked_days">[docs]</a>
+<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.gps.clock_checked_days.html#slv.measurements.mobile.gps.clock_checked_days">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">clock_checked_days</span><span class="p">(</span>
     <span class="n">offsets</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span>
     <span class="n">days</span><span class="p">,</span>
@@ -685,7 +685,7 @@
 
 
 <div class="viewcode-block" id="fill_gps_gaps_with_horel">
-<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.gps.html#slv.measurements.mobile.fill_gps_gaps_with_horel">[docs]</a>
+<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.gps.fill_gps_gaps_with_horel.html#slv.measurements.mobile.gps.fill_gps_gaps_with_horel">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">fill_gps_gaps_with_horel</span><span class="p">(</span>
     <span class="n">data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
     <span class="n">site</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -765,7 +765,7 @@
 
 
 <div class="viewcode-block" id="merge_with_gps">
-<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.gps.html#slv.measurements.mobile.merge_with_gps">[docs]</a>
+<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.gps.merge_with_gps.html#slv.measurements.mobile.gps.merge_with_gps">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">merge_with_gps</span><span class="p">(</span>
     <span class="n">site</span><span class="p">,</span>
     <span class="n">org</span><span class="p">,</span>

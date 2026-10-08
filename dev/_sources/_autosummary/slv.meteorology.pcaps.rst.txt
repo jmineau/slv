@@ -2,13 +2,26 @@ slv.meteorology.pcaps
 =====================
 
 .. automodule:: slv.meteorology.pcaps
+   :no-members:
 
-   
-   .. rubric:: Functions
 
-   .. autosummary::
-   
-      filter_pcap_events
-      get_pcap_events
-      get_soundings
-   
+
+
+.. rubric:: Functions
+
+.. autosummary::
+   :toctree:
+   :nosignatures:
+
+   filter_pcap_events
+   get_pcap_events
+   get_soundings
+
+
+
+
+
+
+
+
+

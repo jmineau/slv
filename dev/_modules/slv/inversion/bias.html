@@ -39,7 +39,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../../_static/documentation_options.js?v=4dc2ff04"></script>
+    <script src="../../../_static/documentation_options.js?v=3dcb0a44"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -56,7 +56,7 @@
     <link rel="search" title="Search" href="../../../search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.9.2.dev67+gd2401dbd1" />
+  <meta name="docsearch:version" content="2026.9.2.dev68+g6a74a2716" />
   </head>
   
   
@@ -419,7 +419,7 @@
 
 
 <div class="viewcode-block" id="BiasMixin">
-<a class="viewcode-back" href="../../../_autosummary/slv.inversion.bias.html#slv.inversion.bias.BiasMixin">[docs]</a>
+<a class="viewcode-back" href="../../../_autosummary/slv.inversion.bias.BiasMixin.html#slv.inversion.bias.BiasMixin">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">BiasMixin</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Bias terms grouped by time, site or site organization (``config.bias_std`` /</span>
@@ -429,14 +429,14 @@
     <span class="n">config</span><span class="p">:</span> <span class="n">InversionConfig</span>
 
 <div class="viewcode-block" id="BiasMixin.get_site_group">
-<a class="viewcode-back" href="../../../_autosummary/slv.inversion.bias.html#slv.inversion.bias.BiasMixin.get_site_group">[docs]</a>
+<a class="viewcode-back" href="../../../_autosummary/slv.inversion.bias.BiasMixin.get_site_group.html#slv.inversion.bias.BiasMixin.get_site_group">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_site_group</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">site</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Map site to organization group.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">site_config</span><span class="o">.</span><span class="n">organization</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">site</span><span class="p">,</span> <span class="s2">&quot;unknown&quot;</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="BiasMixin.get_bias">
-<a class="viewcode-back" href="../../../_autosummary/slv.inversion.bias.html#slv.inversion.bias.BiasMixin.get_bias">[docs]</a>
+<a class="viewcode-back" href="../../../_autosummary/slv.inversion.bias.BiasMixin.get_bias.html#slv.inversion.bias.BiasMixin.get_bias">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_bias</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Build the bias prior based on config.bias_grouping.</span>
@@ -491,7 +491,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolve_sites</span><span class="p">(</span><span class="n">locations</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">loc</span><span class="p">:</span> <span class="n">mapper</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">loc</span><span class="p">,</span> <span class="n">loc</span><span class="p">)))</span>
 
 <div class="viewcode-block" id="BiasMixin.get_bias_jacobian">
-<a class="viewcode-back" href="../../../_autosummary/slv.inversion.bias.html#slv.inversion.bias.BiasMixin.get_bias_jacobian">[docs]</a>
+<a class="viewcode-back" href="../../../_autosummary/slv.inversion.bias.BiasMixin.get_bias_jacobian.html#slv.inversion.bias.BiasMixin.get_bias_jacobian">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_bias_jacobian</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">obs</span><span class="p">:</span> <span class="n">Vector</span><span class="p">,</span> <span class="n">prior</span><span class="p">:</span> <span class="n">Vector</span><span class="p">,</span> <span class="n">location_mapper</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>

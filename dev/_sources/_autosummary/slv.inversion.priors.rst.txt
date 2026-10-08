@@ -2,15 +2,28 @@ slv.inversion.priors
 ====================
 
 .. automodule:: slv.inversion.priors
+   :no-members:
 
-   
-   .. rubric:: Functions
 
-   .. autosummary::
-   
-      align_to_flux_times
-      build_constant_prior
-      get_slv_prior
-      load_edgar_prior
-      load_epa_prior
-   
+
+
+.. rubric:: Functions
+
+.. autosummary::
+   :toctree:
+   :nosignatures:
+
+   align_to_flux_times
+   build_constant_prior
+   get_slv_prior
+   load_edgar_prior
+   load_epa_prior
+
+
+
+
+
+
+
+
+

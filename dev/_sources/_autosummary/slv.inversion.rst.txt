@@ -2,8 +2,31 @@ slv.inversion
 =============
 
 .. automodule:: slv.inversion
+   :no-members:
 
-   
+
+
+
+
+
+
+
+
+
+
+.. rubric:: Exported from submodules
+
+.. autosummary::
+   :nosignatures:
+
+   ~config.InversionConfig
+   ~pipelines.SLVMethaneInversion
+   ~sweep.Sweep
+   ~sweep.run_sweep_job
+   ~sweep.SweepResults
+
+
+
 .. rubric:: Modules
 
 .. autosummary::

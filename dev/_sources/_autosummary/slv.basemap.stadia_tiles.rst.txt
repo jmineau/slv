@@ -1,0 +1,6 @@
+slv.basemap.stadia\_tiles
+=========================
+
+.. currentmodule:: slv.basemap
+
+.. autofunction:: stadia_tiles

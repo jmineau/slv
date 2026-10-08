@@ -39,7 +39,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../../_static/documentation_options.js?v=4dc2ff04"></script>
+    <script src="../../../_static/documentation_options.js?v=3dcb0a44"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -56,7 +56,7 @@
     <link rel="search" title="Search" href="../../../search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.9.2.dev67+gd2401dbd1" />
+  <meta name="docsearch:version" content="2026.9.2.dev68+g6a74a2716" />
   </head>
   
   
@@ -454,7 +454,7 @@
 
 
 <div class="viewcode-block" id="mesowest_dir">
-<a class="viewcode-back" href="../../../_autosummary/slv.meteorology.mesowest.html#slv.meteorology.mesowest.mesowest_dir">[docs]</a>
+<a class="viewcode-back" href="../../../_autosummary/slv.meteorology.mesowest.mesowest_dir.html#slv.meteorology.mesowest.mesowest_dir">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">mesowest_dir</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;The staged MesoWest directory, ``$SLV_USER_DATA_DIR/mesowest``.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">get_data_dir</span><span class="p">(</span><span class="s2">&quot;SLV_USER_DATA_DIR&quot;</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;mesowest&quot;</span></div>
@@ -474,7 +474,7 @@
 
 
 <div class="viewcode-block" id="load_station_metadata">
-<a class="viewcode-back" href="../../../_autosummary/slv.meteorology.mesowest.html#slv.meteorology.mesowest.load_station_metadata">[docs]</a>
+<a class="viewcode-back" href="../../../_autosummary/slv.meteorology.mesowest.load_station_metadata.html#slv.meteorology.mesowest.load_station_metadata">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">load_station_metadata</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Station code, name, latitude, longitude and elevation for the archived stations.</span>
@@ -507,7 +507,7 @@
 
 
 <div class="viewcode-block" id="nearest_station">
-<a class="viewcode-back" href="../../../_autosummary/slv.meteorology.mesowest.html#slv.meteorology.mesowest.nearest_station">[docs]</a>
+<a class="viewcode-back" href="../../../_autosummary/slv.meteorology.mesowest.nearest_station.html#slv.meteorology.mesowest.nearest_station">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">nearest_station</span><span class="p">(</span>
     <span class="n">latitude</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">longitude</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">metadata</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">):</span>
@@ -527,7 +527,7 @@
 
 
 <div class="viewcode-block" id="station_hourly">
-<a class="viewcode-back" href="../../../_autosummary/slv.meteorology.mesowest.html#slv.meteorology.mesowest.station_hourly">[docs]</a>
+<a class="viewcode-back" href="../../../_autosummary/slv.meteorology.mesowest.station_hourly.html#slv.meteorology.mesowest.station_hourly">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">station_hourly</span><span class="p">(</span>
     <span class="n">station_code</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">columns</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -565,7 +565,7 @@
 
 
 <div class="viewcode-block" id="wind_sector">
-<a class="viewcode-back" href="../../../_autosummary/slv.meteorology.mesowest.html#slv.meteorology.mesowest.wind_sector">[docs]</a>
+<a class="viewcode-back" href="../../../_autosummary/slv.meteorology.mesowest.wind_sector.html#slv.meteorology.mesowest.wind_sector">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">wind_sector</span><span class="p">(</span><span class="n">direction</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="n">n_sectors</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">16</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Compass sector label (N, NNE, ...) for a wind direction in degrees.</span>

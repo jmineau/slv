@@ -2,11 +2,24 @@ slv.inversion.bias
 ==================
 
 .. automodule:: slv.inversion.bias
+   :no-members:
 
-   
-   .. rubric:: Classes
 
-   .. autosummary::
-   
-      BiasMixin
-   
+
+
+
+
+.. rubric:: Classes
+
+.. autosummary::
+   :toctree:
+   :nosignatures:
+
+   BiasMixin
+
+
+
+
+
+
+

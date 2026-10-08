@@ -2,20 +2,35 @@ slv.inversion.sweep
 ===================
 
 .. automodule:: slv.inversion.sweep
+   :no-members:
 
-   
-   .. rubric:: Functions
 
-   .. autosummary::
-   
-      collect_metrics
-      config_id
-      run_sweep_job
-   
-   .. rubric:: Classes
 
-   .. autosummary::
-   
-      Sweep
-      SweepResults
-   
+
+.. rubric:: Functions
+
+.. autosummary::
+   :toctree:
+   :nosignatures:
+
+   collect_metrics
+   config_id
+   run_sweep_job
+
+
+
+.. rubric:: Classes
+
+.. autosummary::
+   :toctree:
+   :nosignatures:
+
+   Sweep
+   SweepResults
+
+
+
+
+
+
+

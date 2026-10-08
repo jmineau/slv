@@ -1,0 +1,6 @@
+slv.measurements.sites.get\_site\_coordinates
+=============================================
+
+.. currentmodule:: slv.measurements.sites
+
+.. autofunction:: get_site_coordinates

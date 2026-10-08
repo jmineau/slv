@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=4dc2ff04"></script>
+    <script src="../_static/documentation_options.js?v=3dcb0a44"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -55,11 +55,11 @@
         </script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="slv.measurements" href="slv.measurements.html" />
-    <link rel="prev" title="slv.inversion.sweep" href="slv.inversion.sweep.html" />
+    <link rel="next" title="slv.inversion.viz.plot_background_and_bias" href="slv.inversion.viz.plot_background_and_bias.html" />
+    <link rel="prev" title="slv.inversion.sweep.SweepResults.to_config" href="slv.inversion.sweep.SweepResults.to_config.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.9.2.dev67+gd2401dbd1" />
+  <meta name="docsearch:version" content="2026.9.2.dev68+g6a74a2716" />
   </head>
   
   
@@ -363,33 +363,161 @@
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
   <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="slv.html">slv</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="slv.basemap.html">slv.basemap</a></li>
+<li class="toctree-l2"><a class="reference internal" href="slv.get_data_dir.html">slv.get_data_dir</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="slv.basemap.html">slv.basemap</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="slv.basemap.TRAX_COLORS.html">slv.basemap.TRAX_COLORS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="slv.basemap.STADIA_ATTRIBUTION.html">slv.basemap.STADIA_ATTRIBUTION</a></li>
+<li class="toctree-l3"><a class="reference internal" href="slv.basemap.load_borders.html">slv.basemap.load_borders</a></li>
+<li class="toctree-l3"><a class="reference internal" href="slv.basemap.load_interstates.html">slv.basemap.load_interstates</a></li>
+<li class="toctree-l3"><a class="reference internal" href="slv.basemap.load_mesowest.html">slv.basemap.load_mesowest</a></li>
+<li class="toctree-l3"><a class="reference internal" href="slv.basemap.load_population.html">slv.basemap.load_population</a></li>
+<li class="toctree-l3"><a class="reference internal" href="slv.basemap.stadia_tiles.html">slv.basemap.stadia_tiles</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="slv.basemap.SaltLake.html">slv.basemap.SaltLake</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.basemap.SaltLake.fig.html">slv.basemap.SaltLake.fig</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.basemap.SaltLake.add_borders.html">slv.basemap.SaltLake.add_borders</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.basemap.SaltLake.add_inset.html">slv.basemap.SaltLake.add_inset</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.basemap.SaltLake.add_interstates.html">slv.basemap.SaltLake.add_interstates</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.basemap.SaltLake.add_inventory.html">slv.basemap.SaltLake.add_inventory</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.basemap.SaltLake.add_legend.html">slv.basemap.SaltLake.add_legend</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.basemap.SaltLake.add_mesowest.html">slv.basemap.SaltLake.add_mesowest</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.basemap.SaltLake.add_north_arrow.html">slv.basemap.SaltLake.add_north_arrow</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.basemap.SaltLake.add_points.html">slv.basemap.SaltLake.add_points</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.basemap.SaltLake.add_population.html">slv.basemap.SaltLake.add_population</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.basemap.SaltLake.add_sites.html">slv.basemap.SaltLake.add_sites</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.basemap.SaltLake.add_trax.html">slv.basemap.SaltLake.add_trax</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
 <li class="toctree-l2"><a class="reference internal" href="slv.domain.html">slv.domain</a></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="slv.emissions.html">slv.emissions</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="slv.emissions.point_sources.html">slv.emissions.point_sources</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="slv.emissions.point_sources.html">slv.emissions.point_sources</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.emissions.point_sources.load_point_sources.html">slv.emissions.point_sources.load_point_sources</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.emissions.point_sources.plot_point_sources.html">slv.emissions.point_sources.plot_point_sources</a></li>
+</ul>
+</details></li>
 </ul>
 </details></li>
 <li class="toctree-l2 current active has-children"><a class="reference internal" href="slv.inversion.html">slv.inversion</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="slv.inversion.background.html">slv.inversion.background</a></li>
-<li class="toctree-l3"><a class="reference internal" href="slv.inversion.bias.html">slv.inversion.bias</a></li>
-<li class="toctree-l3"><a class="reference internal" href="slv.inversion.cache.html">slv.inversion.cache</a></li>
-<li class="toctree-l3"><a class="reference internal" href="slv.inversion.config.html">slv.inversion.config</a></li>
-<li class="toctree-l3"><a class="reference internal" href="slv.inversion.covariances.html">slv.inversion.covariances</a></li>
-<li class="toctree-l3"><a class="reference internal" href="slv.inversion.coverage.html">slv.inversion.coverage</a></li>
-<li class="toctree-l3"><a class="reference internal" href="slv.inversion.data.html">slv.inversion.data</a></li>
-<li class="toctree-l3"><a class="reference internal" href="slv.inversion.mdm.html">slv.inversion.mdm</a></li>
-<li class="toctree-l3"><a class="reference internal" href="slv.inversion.pipelines.html">slv.inversion.pipelines</a></li>
-<li class="toctree-l3"><a class="reference internal" href="slv.inversion.priors.html">slv.inversion.priors</a></li>
-<li class="toctree-l3"><a class="reference internal" href="slv.inversion.report.html">slv.inversion.report</a></li>
-<li class="toctree-l3"><a class="reference internal" href="slv.inversion.sweep.html">slv.inversion.sweep</a></li>
-<li class="toctree-l3 current active"><a class="current reference internal" href="#">slv.inversion.viz</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="slv.inversion.background.html">slv.inversion.background</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.background.get_ct_stilt_background.html">slv.inversion.background.get_ct_stilt_background</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.background.get_gml_background.html">slv.inversion.background.get_gml_background</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.background.get_rolling_background.html">slv.inversion.background.get_rolling_background</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.background.get_slv_background.html">slv.inversion.background.get_slv_background</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="slv.inversion.bias.html">slv.inversion.bias</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.bias.BiasMixin.html">slv.inversion.bias.BiasMixin</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="slv.inversion.cache.html">slv.inversion.cache</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.cache.DEFAULT_COMPONENT_DEPS.html">slv.inversion.cache.DEFAULT_COMPONENT_DEPS</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.cache.DEFAULT_COMPONENT_PACKAGES.html">slv.inversion.cache.DEFAULT_COMPONENT_PACKAGES</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.cache.fips_cache.html">slv.inversion.cache.fips_cache</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="slv.inversion.config.html">slv.inversion.config</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.config.FLUX_FREQ_TIME_STEPS.html">slv.inversion.config.FLUX_FREQ_TIME_STEPS</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.config.build_location_site_map.html">slv.inversion.config.build_location_site_map</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.config.get_mdm_comp_configs.html">slv.inversion.config.get_mdm_comp_configs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.config.stilt_project_dir.html">slv.inversion.config.stilt_project_dir</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.config.InversionConfig.html">slv.inversion.config.InversionConfig</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="slv.inversion.covariances.html">slv.inversion.covariances</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.covariances.build_mdm_error.html">slv.inversion.covariances.build_mdm_error</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.covariances.build_prior_error.html">slv.inversion.covariances.build_prior_error</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.covariances.normalize_duration.html">slv.inversion.covariances.normalize_duration</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="slv.inversion.coverage.html">slv.inversion.coverage</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.coverage.check_state_cells.html">slv.inversion.coverage.check_state_cells</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.coverage.CoverageFilterMixin.html">slv.inversion.coverage.CoverageFilterMixin</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="slv.inversion.data.html">slv.inversion.data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.data.get_slv_observations.html">slv.inversion.data.get_slv_observations</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.data.get_slv_subhour_std.html">slv.inversion.data.get_slv_subhour_std</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.data.load_mobile_obs.html">slv.inversion.data.load_mobile_obs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.data.split_sites.html">slv.inversion.data.split_sites</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="slv.inversion.mdm.html">slv.inversion.mdm</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.mdm.ModelDataMismatchMixin.html">slv.inversion.mdm.ModelDataMismatchMixin</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="slv.inversion.pipelines.html">slv.inversion.pipelines</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.pipelines.stack_jacobians.html">slv.inversion.pipelines.stack_jacobians</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.pipelines.SLVMethaneInversion.html">slv.inversion.pipelines.SLVMethaneInversion</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="slv.inversion.priors.html">slv.inversion.priors</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.priors.align_to_flux_times.html">slv.inversion.priors.align_to_flux_times</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.priors.build_constant_prior.html">slv.inversion.priors.build_constant_prior</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.priors.get_slv_prior.html">slv.inversion.priors.get_slv_prior</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.priors.load_edgar_prior.html">slv.inversion.priors.load_edgar_prior</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.priors.load_epa_prior.html">slv.inversion.priors.load_epa_prior</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="slv.inversion.report.html">slv.inversion.report</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.report.ReportingMixin.html">slv.inversion.report.ReportingMixin</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="slv.inversion.sweep.html">slv.inversion.sweep</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.sweep.collect_metrics.html">slv.inversion.sweep.collect_metrics</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.sweep.config_id.html">slv.inversion.sweep.config_id</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.sweep.run_sweep_job.html">slv.inversion.sweep.run_sweep_job</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.sweep.Sweep.html">slv.inversion.sweep.Sweep</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.sweep.SweepResults.html">slv.inversion.sweep.SweepResults</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 current active has-children"><a class="current reference internal" href="#">slv.inversion.viz</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.viz.plot_background_and_bias.html">slv.inversion.viz.plot_background_and_bias</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.viz.plot_concentrations.html">slv.inversion.viz.plot_concentrations</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.viz.plot_desroziers.html">slv.inversion.viz.plot_desroziers</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.viz.plot_fluxes.html">slv.inversion.viz.plot_fluxes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.viz.plot_fluxes_by_timestep.html">slv.inversion.viz.plot_fluxes_by_timestep</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.viz.plot_grid.html">slv.inversion.viz.plot_grid</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.viz.plot_inventory.html">slv.inversion.viz.plot_inventory</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.viz.plot_mdm_components.html">slv.inversion.viz.plot_mdm_components</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.viz.plot_prior_with_coverage.html">slv.inversion.viz.plot_prior_with_coverage</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.viz.plot_reconstructed_posterior.html">slv.inversion.viz.plot_reconstructed_posterior</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.viz.plot_removed_contribution.html">slv.inversion.viz.plot_removed_contribution</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.viz.plot_residuals.html">slv.inversion.viz.plot_residuals</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.viz.plot_sites.html">slv.inversion.viz.plot_sites</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.viz.plot_total_fluxes_over_time.html">slv.inversion.viz.plot_total_fluxes_over_time</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.viz.shade_removed_cells.html">slv.inversion.viz.shade_removed_cells</a></li>
+</ul>
+</details></li>
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="slv.measurements.html">slv.measurements</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="slv.measurements.aggregate.html">slv.measurements.aggregate</a></li>
-<li class="toctree-l3"><a class="reference internal" href="slv.measurements.background.html">slv.measurements.background</a></li>
-<li class="toctree-l3"><a class="reference internal" href="slv.measurements.concentrations.html">slv.measurements.concentrations</a></li>
-<li class="toctree-l3"><a class="reference internal" href="slv.measurements.instruments.html">slv.measurements.instruments</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="slv.measurements.aggregate.html">slv.measurements.aggregate</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.measurements.aggregate.aggregate_obs.html">slv.measurements.aggregate.aggregate_obs</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="slv.measurements.background.html">slv.measurements.background</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.measurements.background.lair_gml_dir.html">slv.measurements.background.lair_gml_dir</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.measurements.background.user_gml_dir.html">slv.measurements.background.user_gml_dir</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.measurements.background.CarbonTrackerCH4.html">slv.measurements.background.CarbonTrackerCH4</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.measurements.background.GMLDiscrete.html">slv.measurements.background.GMLDiscrete</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.measurements.background.UATAQCH4.html">slv.measurements.background.UATAQCH4</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.measurements.background.UTAFlask.html">slv.measurements.background.UTAFlask</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="slv.measurements.concentrations.html">slv.measurements.concentrations</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.measurements.concentrations.generate_stilt_receptors.html">slv.measurements.concentrations.generate_stilt_receptors</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.measurements.concentrations.load_concentrations.html">slv.measurements.concentrations.load_concentrations</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="slv.measurements.instruments.html">slv.measurements.instruments</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.measurements.instruments.Instrument.html">slv.measurements.instruments.Instrument</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.measurements.instruments.LGR_UGGA.html">slv.measurements.instruments.LGR_UGGA</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.measurements.instruments.LGR_UGGA_Manual_Cal.html">slv.measurements.instruments.LGR_UGGA_Manual_Cal</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.measurements.instruments.Picarro_G2307.html">slv.measurements.instruments.Picarro_G2307</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.measurements.instruments.Picarro_G2401.html">slv.measurements.instruments.Picarro_G2401</a></li>
+</ul>
+</details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="slv.measurements.mobile.html">slv.measurements.mobile</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l4"><a class="reference internal" href="slv.measurements.mobile.calibration.html">slv.measurements.mobile.calibration</a></li>
 <li class="toctree-l4"><a class="reference internal" href="slv.measurements.mobile.gps.html">slv.measurements.mobile.gps</a></li>
@@ -402,14 +530,36 @@
 <li class="toctree-l4"><a class="reference internal" href="slv.measurements.mobile.wyoming.html">slv.measurements.mobile.wyoming</a></li>
 </ul>
 </details></li>
-<li class="toctree-l3"><a class="reference internal" href="slv.measurements.pollutants.html">slv.measurements.pollutants</a></li>
-<li class="toctree-l3"><a class="reference internal" href="slv.measurements.sites.html">slv.measurements.sites</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="slv.measurements.pollutants.html">slv.measurements.pollutants</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.measurements.pollutants.normalize_pollutant.html">slv.measurements.pollutants.normalize_pollutant</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="slv.measurements.sites.html">slv.measurements.sites</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.measurements.sites.get_site_coordinates.html">slv.measurements.sites.get_site_coordinates</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.measurements.sites.load_site_config.html">slv.measurements.sites.load_site_config</a></li>
+</ul>
+</details></li>
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="slv.meteorology.html">slv.meteorology</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="slv.meteorology.mesowest.html">slv.meteorology.mesowest</a></li>
-<li class="toctree-l3"><a class="reference internal" href="slv.meteorology.pcaps.html">slv.meteorology.pcaps</a></li>
-<li class="toctree-l3"><a class="reference internal" href="slv.meteorology.vhd.html">slv.meteorology.vhd</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="slv.meteorology.mesowest.html">slv.meteorology.mesowest</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.meteorology.mesowest.load_station_metadata.html">slv.meteorology.mesowest.load_station_metadata</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.meteorology.mesowest.mesowest_dir.html">slv.meteorology.mesowest.mesowest_dir</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.meteorology.mesowest.nearest_station.html">slv.meteorology.mesowest.nearest_station</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.meteorology.mesowest.station_hourly.html">slv.meteorology.mesowest.station_hourly</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.meteorology.mesowest.wind_sector.html">slv.meteorology.mesowest.wind_sector</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="slv.meteorology.pcaps.html">slv.meteorology.pcaps</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.meteorology.pcaps.filter_pcap_events.html">slv.meteorology.pcaps.filter_pcap_events</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.meteorology.pcaps.get_pcap_events.html">slv.meteorology.pcaps.get_pcap_events</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.meteorology.pcaps.get_soundings.html">slv.meteorology.pcaps.get_soundings</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="slv.meteorology.vhd.html">slv.meteorology.vhd</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.meteorology.vhd.load_vhd.html">slv.meteorology.vhd.load_vhd</a></li>
+</ul>
+</details></li>
 </ul>
 </details></li>
 </ul>
@@ -482,205 +632,59 @@
                   
   <section id="module-slv.inversion.viz">
 <span id="slv-inversion-viz"></span><h1>slv.inversion.viz<a class="headerlink" href="#module-slv.inversion.viz" title="Link to this heading">#</a></h1>
-<p>Plots for <a class="reference internal" href="slv.inversion.pipelines.html#slv.inversion.pipelines.SLVMethaneInversion" title="slv.inversion.pipelines.SLVMethaneInversion"><code class="xref py py-class docutils literal notranslate"><span class="pre">SLVMethaneInversion</span></code></a>: the domain,
+<p>Plots for <a class="reference internal" href="slv.inversion.pipelines.SLVMethaneInversion.html#slv.inversion.pipelines.SLVMethaneInversion" title="slv.inversion.pipelines.SLVMethaneInversion"><code class="xref py py-class docutils literal notranslate"><span class="pre">SLVMethaneInversion</span></code></a>: the domain,
 inputs, fluxes, domain totals and error diagnostics.</p>
 <p class="rubric">Functions</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#slv.inversion.viz.plot_background_and_bias" title="slv.inversion.viz.plot_background_and_bias"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_background_and_bias</span></code></a>(problem)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="slv.inversion.viz.plot_background_and_bias.html#slv.inversion.viz.plot_background_and_bias" title="slv.inversion.viz.plot_background_and_bias"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_background_and_bias</span></code></a></p></td>
 <td><p>Plot background concentration and bias corrections.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#slv.inversion.viz.plot_concentrations" title="slv.inversion.viz.plot_concentrations"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_concentrations</span></code></a>(obs)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="slv.inversion.viz.plot_concentrations.html#slv.inversion.viz.plot_concentrations" title="slv.inversion.viz.plot_concentrations"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_concentrations</span></code></a></p></td>
 <td><p>Time series of the obs (a Series indexed by <code class="docutils literal notranslate"><span class="pre">obs_location</span></code> and <code class="docutils literal notranslate"><span class="pre">obs_time</span></code>), one line per location.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#slv.inversion.viz.plot_desroziers" title="slv.inversion.viz.plot_desroziers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_desroziers</span></code></a>(by_site, per_obs, timeseries)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="slv.inversion.viz.plot_desroziers.html#slv.inversion.viz.plot_desroziers" title="slv.inversion.viz.plot_desroziers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_desroziers</span></code></a></p></td>
 <td><p>Plot Desroziers diagnostic: variance comparison, box-whisker, and timeseries.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#slv.inversion.viz.plot_fluxes" title="slv.inversion.viz.plot_fluxes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_fluxes</span></code></a>(problem, tiler, zoom[, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="slv.inversion.viz.plot_fluxes.html#slv.inversion.viz.plot_fluxes" title="slv.inversion.viz.plot_fluxes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_fluxes</span></code></a></p></td>
 <td><p>The fips prior / posterior flux maps, with sites and point sources (default: landfills and refineries) added to every panel.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#slv.inversion.viz.plot_fluxes_by_timestep" title="slv.inversion.viz.plot_fluxes_by_timestep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_fluxes_by_timestep</span></code></a>(problem, extent, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="slv.inversion.viz.plot_fluxes_by_timestep.html#slv.inversion.viz.plot_fluxes_by_timestep" title="slv.inversion.viz.plot_fluxes_by_timestep"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_fluxes_by_timestep</span></code></a></p></td>
 <td><p>One posterior flux map per flux time (8 per row).</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#slv.inversion.viz.plot_grid" title="slv.inversion.viz.plot_grid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_grid</span></code></a>(grid, extent, tiler, zoom[, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="slv.inversion.viz.plot_grid.html#slv.inversion.viz.plot_grid" title="slv.inversion.viz.plot_grid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_grid</span></code></a></p></td>
 <td><p>Map the state grid's cells over tiles, with the sites and CH4 point sources.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#slv.inversion.viz.plot_inventory" title="slv.inversion.viz.plot_inventory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_inventory</span></code></a>(inventory, extent, tiler, zoom)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="slv.inversion.viz.plot_inventory.html#slv.inversion.viz.plot_inventory" title="slv.inversion.viz.plot_inventory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_inventory</span></code></a></p></td>
 <td><p>Map the time-mean of a flux field (umol/m2/s, with a <code class="docutils literal notranslate"><span class="pre">time</span></code> dim) over tiles.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#slv.inversion.viz.plot_mdm_components" title="slv.inversion.viz.plot_mdm_components"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_mdm_components</span></code></a>(components)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="slv.inversion.viz.plot_mdm_components.html#slv.inversion.viz.plot_mdm_components" title="slv.inversion.viz.plot_mdm_components"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_mdm_components</span></code></a></p></td>
 <td><p>Plot the total error magnitude for each MDM error component.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#slv.inversion.viz.plot_prior_with_coverage" title="slv.inversion.viz.plot_prior_with_coverage"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_prior_with_coverage</span></code></a>(full_prior_xr, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="slv.inversion.viz.plot_prior_with_coverage.html#slv.inversion.viz.plot_prior_with_coverage" title="slv.inversion.viz.plot_prior_with_coverage"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_prior_with_coverage</span></code></a></p></td>
 <td><p>Plot the full prior with removed cells shaded.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#slv.inversion.viz.plot_reconstructed_posterior" title="slv.inversion.viz.plot_reconstructed_posterior"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_reconstructed_posterior</span></code></a>(posterior_xr, ...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="slv.inversion.viz.plot_reconstructed_posterior.html#slv.inversion.viz.plot_reconstructed_posterior" title="slv.inversion.viz.plot_reconstructed_posterior"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_reconstructed_posterior</span></code></a></p></td>
 <td><p>Plot the reconstructed posterior with removed cells shaded.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#slv.inversion.viz.plot_removed_contribution" title="slv.inversion.viz.plot_removed_contribution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_removed_contribution</span></code></a>(...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="slv.inversion.viz.plot_removed_contribution.html#slv.inversion.viz.plot_removed_contribution" title="slv.inversion.viz.plot_removed_contribution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_removed_contribution</span></code></a></p></td>
 <td><p>Plot the concentration contribution from unconstrained cells vs background.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#slv.inversion.viz.plot_residuals" title="slv.inversion.viz.plot_residuals"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_residuals</span></code></a>(problem[, rolling_window, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="slv.inversion.viz.plot_residuals.html#slv.inversion.viz.plot_residuals" title="slv.inversion.viz.plot_residuals"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_residuals</span></code></a></p></td>
 <td><p>Plot posterior - observed concentration residuals for all sites.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#slv.inversion.viz.plot_sites" title="slv.inversion.viz.plot_sites"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_sites</span></code></a>(ax, sites, site_config[, color])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="slv.inversion.viz.plot_sites.html#slv.inversion.viz.plot_sites" title="slv.inversion.viz.plot_sites"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_sites</span></code></a></p></td>
 <td><p>Mark <code class="docutils literal notranslate"><span class="pre">sites</span></code> on a map axes: circles for stationary, triangles for mobile (<code class="docutils literal notranslate"><span class="pre">site_config[&quot;type&quot;]</span></code>).</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#slv.inversion.viz.plot_total_fluxes_over_time" title="slv.inversion.viz.plot_total_fluxes_over_time"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_total_fluxes_over_time</span></code></a>(*total_fluxes[, ...])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="slv.inversion.viz.plot_total_fluxes_over_time.html#slv.inversion.viz.plot_total_fluxes_over_time" title="slv.inversion.viz.plot_total_fluxes_over_time"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_total_fluxes_over_time</span></code></a></p></td>
 <td><p>Domain-total emissions over time; <code class="docutils literal notranslate"><span class="pre">units</span></code> labels the y axis (e.g. &quot;Gg per MS interval&quot;, as from <code class="docutils literal notranslate"><span class="pre">SLVMethaneInversion.calculate_total_flux</span></code>).</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#slv.inversion.viz.shade_removed_cells" title="slv.inversion.viz.shade_removed_cells"><code class="xref py py-obj docutils literal notranslate"><span class="pre">shade_removed_cells</span></code></a>(ax, retained_cells, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="slv.inversion.viz.shade_removed_cells.html#slv.inversion.viz.shade_removed_cells" title="slv.inversion.viz.shade_removed_cells"><code class="xref py py-obj docutils literal notranslate"><span class="pre">shade_removed_cells</span></code></a></p></td>
 <td><p>Shade removed (unconstrained) cells with cross-hatching.</p></td>
 </tr>
 </tbody>
 </table>
 </div>
-<dl class="py function">
-<dt class="sig sig-object py" id="slv.inversion.viz.plot_sites">
-<span class="sig-prename descclassname"><span class="pre">slv.inversion.viz.</span></span><span class="sig-name descname"><span class="pre">plot_sites</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sites</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">site_config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'black'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/slv/inversion/viz.html#plot_sites"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#slv.inversion.viz.plot_sites" title="Link to this definition">#</a></dt>
-<dd><p>Mark <code class="docutils literal notranslate"><span class="pre">sites</span></code> on a map axes: circles for stationary, triangles for mobile
-(<code class="docutils literal notranslate"><span class="pre">site_config[&quot;type&quot;]</span></code>). Returns one legend handle and label per kind.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="slv.inversion.viz.plot_grid">
-<span class="sig-prename descclassname"><span class="pre">slv.inversion.viz.</span></span><span class="sig-name descname"><span class="pre">plot_grid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">grid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extent</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tiler</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zoom</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_sites</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sites</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">site_config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">site_color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'black'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_point_sources</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subplot_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/slv/inversion/viz.html#plot_grid"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#slv.inversion.viz.plot_grid" title="Link to this definition">#</a></dt>
-<dd><p>Map the state grid’s cells over tiles, with the sites and CH4 point sources.</p>
-<p><code class="docutils literal notranslate"><span class="pre">add_point_sources</span></code> maps point-source kind to colour (default: every kind, in the
-Okabe-Ito palette); a falsy value leaves them off. Returns <code class="docutils literal notranslate"><span class="pre">(fig,</span> <span class="pre">ax)</span></code>.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="slv.inversion.viz.plot_concentrations">
-<span class="sig-prename descclassname"><span class="pre">slv.inversion.viz.</span></span><span class="sig-name descname"><span class="pre">plot_concentrations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/slv/inversion/viz.html#plot_concentrations"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#slv.inversion.viz.plot_concentrations" title="Link to this definition">#</a></dt>
-<dd><p>Time series of the obs (a Series indexed by <code class="docutils literal notranslate"><span class="pre">obs_location</span></code> and <code class="docutils literal notranslate"><span class="pre">obs_time</span></code>),
-one line per location. Returns <code class="docutils literal notranslate"><span class="pre">(fig,</span> <span class="pre">ax)</span></code>.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="slv.inversion.viz.plot_inventory">
-<span class="sig-prename descclassname"><span class="pre">slv.inversion.viz.</span></span><span class="sig-name descname"><span class="pre">plot_inventory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inventory</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extent</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tiler</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zoom</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subplot_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/slv/inversion/viz.html#plot_inventory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#slv.inversion.viz.plot_inventory" title="Link to this definition">#</a></dt>
-<dd><p>Map the time-mean of a flux field (umol/m2/s, with a <code class="docutils literal notranslate"><span class="pre">time</span></code> dim) over tiles.
-Returns <code class="docutils literal notranslate"><span class="pre">(fig,</span> <span class="pre">ax)</span></code>.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="slv.inversion.viz.shade_removed_cells">
-<span class="sig-prename descclassname"><span class="pre">slv.inversion.viz.</span></span><span class="sig-name descname"><span class="pre">shade_removed_cells</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">retained_cells</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">all_cells</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dy</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/slv/inversion/viz.html#shade_removed_cells"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#slv.inversion.viz.shade_removed_cells" title="Link to this definition">#</a></dt>
-<dd><p>Shade removed (unconstrained) cells with cross-hatching.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="slv.inversion.viz.plot_prior_with_coverage">
-<span class="sig-prename descclassname"><span class="pre">slv.inversion.viz.</span></span><span class="sig-name descname"><span class="pre">plot_prior_with_coverage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">full_prior_xr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">retained_cells</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">all_cells</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extent</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tiler</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zoom</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/slv/inversion/viz.html#plot_prior_with_coverage"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#slv.inversion.viz.plot_prior_with_coverage" title="Link to this definition">#</a></dt>
-<dd><p>Plot the full prior with removed cells shaded.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="slv.inversion.viz.plot_reconstructed_posterior">
-<span class="sig-prename descclassname"><span class="pre">slv.inversion.viz.</span></span><span class="sig-name descname"><span class="pre">plot_reconstructed_posterior</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">posterior_xr</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">retained_cells</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">all_cells</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dy</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extent</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tiler</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zoom</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/slv/inversion/viz.html#plot_reconstructed_posterior"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#slv.inversion.viz.plot_reconstructed_posterior" title="Link to this definition">#</a></dt>
-<dd><p>Plot the reconstructed posterior with removed cells shaded.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="slv.inversion.viz.plot_fluxes">
-<span class="sig-prename descclassname"><span class="pre">slv.inversion.viz.</span></span><span class="sig-name descname"><span class="pre">plot_fluxes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problem</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tiler</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zoom</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_sites</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sites</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">site_config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">site_color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'black'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_point_sources</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/slv/inversion/viz.html#plot_fluxes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#slv.inversion.viz.plot_fluxes" title="Link to this definition">#</a></dt>
-<dd><p>The fips prior / posterior flux maps, with sites and point sources (default:
-landfills and refineries) added to every panel.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="slv.inversion.viz.plot_fluxes_by_timestep">
-<span class="sig-prename descclassname"><span class="pre">slv.inversion.viz.</span></span><span class="sig-name descname"><span class="pre">plot_fluxes_by_timestep</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problem</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extent</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tiler</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zoom</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_sites</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sites</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">site_config</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">site_color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'black'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">add_point_sources</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/slv/inversion/viz.html#plot_fluxes_by_timestep"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#slv.inversion.viz.plot_fluxes_by_timestep" title="Link to this definition">#</a></dt>
-<dd><p>One posterior flux map per flux time (8 per row). Returns the xarray
-<code class="docutils literal notranslate"><span class="pre">FacetGrid</span></code>.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="slv.inversion.viz.plot_removed_contribution">
-<span class="sig-prename descclassname"><span class="pre">slv.inversion.viz.</span></span><span class="sig-name descname"><span class="pre">plot_removed_contribution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">removed_contribution</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">background</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/slv/inversion/viz.html#plot_removed_contribution"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#slv.inversion.viz.plot_removed_contribution" title="Link to this definition">#</a></dt>
-<dd><p>Plot the concentration contribution from unconstrained cells vs background.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="slv.inversion.viz.plot_total_fluxes_over_time">
-<span class="sig-prename descclassname"><span class="pre">slv.inversion.viz.</span></span><span class="sig-name descname"><span class="pre">plot_total_fluxes_over_time</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">total_fluxes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">units</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/slv/inversion/viz.html#plot_total_fluxes_over_time"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#slv.inversion.viz.plot_total_fluxes_over_time" title="Link to this definition">#</a></dt>
-<dd><p>Domain-total emissions over time; <code class="docutils literal notranslate"><span class="pre">units</span></code> labels the y axis (e.g. “Gg per MS
-interval”, as from <code class="docutils literal notranslate"><span class="pre">SLVMethaneInversion.calculate_total_flux</span></code>).</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="slv.inversion.viz.plot_mdm_components">
-<span class="sig-prename descclassname"><span class="pre">slv.inversion.viz.</span></span><span class="sig-name descname"><span class="pre">plot_mdm_components</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">components</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/slv/inversion/viz.html#plot_mdm_components"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#slv.inversion.viz.plot_mdm_components" title="Link to this definition">#</a></dt>
-<dd><p>Plot the total error magnitude for each MDM error component.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>components</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em> of </em><em>str to pd.DataFrame</em>) – Dictionary where keys are component names and values are covariance matrices
-as DataFrames with symmetric indexes.</p>
-</dd>
-</dl>
-<p class="rubric">Notes</p>
-<p>The total error is computed using the Frobenius norm of the covariance matrix,
-which includes contributions from off-diagonal elements (correlations).</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="slv.inversion.viz.plot_desroziers">
-<span class="sig-prename descclassname"><span class="pre">slv.inversion.viz.</span></span><span class="sig-name descname"><span class="pre">plot_desroziers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">by_site</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">per_obs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeseries</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/slv/inversion/viz.html#plot_desroziers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#slv.inversion.viz.plot_desroziers" title="Link to this definition">#</a></dt>
-<dd><p>Plot Desroziers diagnostic: variance comparison, box-whisker, and timeseries.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>by_site</strong> (<em>pd.DataFrame</em>) – Site-aggregated Desroziers diagnostic (default groupby) with
-‘diagnosed’, ‘specified’, and ‘ratio’ columns.</p></li>
-<li><p><strong>per_obs</strong> (<em>pd.DataFrame</em>) – Per-observation Desroziers diagnostic (groupby=None) with
-‘diagnosed’, ‘specified’, and ‘ratio’ columns. Index should have
-‘obs_location’ and ‘obs_time’ levels.</p></li>
-<li><p><strong>timeseries</strong> (<em>pd.DataFrame</em>) – Temporally-aggregated Desroziers diagnostic with ‘ratio’ column.
-Index should have ‘obs_location’ and ‘obs_time’ levels.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="slv.inversion.viz.plot_residuals">
-<span class="sig-prename descclassname"><span class="pre">slv.inversion.viz.</span></span><span class="sig-name descname"><span class="pre">plot_residuals</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problem</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rolling_window</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'30D'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gap_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'7D'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_raw</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">location_dim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'obs_location'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/slv/inversion/viz.html#plot_residuals"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#slv.inversion.viz.plot_residuals" title="Link to this definition">#</a></dt>
-<dd><p>Plot posterior - observed concentration residuals for all sites.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>problem</strong> (<em>FluxProblem</em>) – Solved inversion problem.</p></li>
-<li><p><strong>rolling_window</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#int" title="(in Python v3.14)"><em>int</em></a><em>, </em><em>default '30D'</em>) – Rolling window for smoothed lines.</p></li>
-<li><p><strong>gap_threshold</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>default '7D'</em>) – Minimum gap duration to highlight as missing data.</p></li>
-<li><p><strong>show_raw</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.14)"><em>bool</em></a><em>, </em><em>default True</em>) – Whether to show raw residual points behind the smoothed lines.</p></li>
-<li><p><strong>location_dim</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>default 'obs_location'</em>) – Name of the location dimension in the data.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="slv.inversion.viz.plot_background_and_bias">
-<span class="sig-prename descclassname"><span class="pre">slv.inversion.viz.</span></span><span class="sig-name descname"><span class="pre">plot_background_and_bias</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problem</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/slv/inversion/viz.html#plot_background_and_bias"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#slv.inversion.viz.plot_background_and_bias" title="Link to this definition">#</a></dt>
-<dd><p>Plot background concentration and bias corrections.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>problem</strong> (<em>FluxProblem</em>) – Solved inversion problem containing prior, posterior, and constant.</p>
-</dd>
-</dl>
-<p class="rubric">Notes</p>
-<ul class="simple">
-<li><p>If bias exists, creates two subplots: background and bias</p></li>
-<li><p>If no bias, only plots background</p></li>
-<li><p>Background: automatically detects if all sites share the same regional
-background (plots single line) or have site-specific backgrounds (plots
-separate lines)</p></li>
-<li><p>Bias is shown as prior (initial) and posterior (estimated) values</p></li>
-<li><p>For grouped bias (site/site_group), each group gets its own line</p></li>
-</ul>
-</dd></dl>
-
 </section>
 
 
@@ -694,20 +698,20 @@ separate lines)</p></li>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="slv.inversion.sweep.html"
+       href="slv.inversion.sweep.SweepResults.to_config.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">slv.inversion.sweep</p>
+        <p class="prev-next-title">slv.inversion.sweep.SweepResults.to_config</p>
       </div>
     </a>
     <a class="right-next"
-       href="slv.measurements.html"
+       href="slv.inversion.viz.plot_background_and_bias.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">slv.measurements</p>
+        <p class="prev-next-title">slv.inversion.viz.plot_background_and_bias</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -721,32 +725,6 @@ separate lines)</p></li>
                 <dialog id="pst-secondary-sidebar-modal"></dialog>
                 <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
 
-
-  <div class="sidebar-secondary-item">
-<div
-    id="pst-page-navigation-heading-2"
-    class="page-toc tocsection onthispage">
-    <i class="fa-solid fa-list"></i> On this page
-  </div>
-  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
-    <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#slv.inversion.viz.plot_sites"><code class="docutils literal notranslate"><span class="pre">plot_sites()</span></code></a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#slv.inversion.viz.plot_grid"><code class="docutils literal notranslate"><span class="pre">plot_grid()</span></code></a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#slv.inversion.viz.plot_concentrations"><code class="docutils literal notranslate"><span class="pre">plot_concentrations()</span></code></a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#slv.inversion.viz.plot_inventory"><code class="docutils literal notranslate"><span class="pre">plot_inventory()</span></code></a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#slv.inversion.viz.shade_removed_cells"><code class="docutils literal notranslate"><span class="pre">shade_removed_cells()</span></code></a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#slv.inversion.viz.plot_prior_with_coverage"><code class="docutils literal notranslate"><span class="pre">plot_prior_with_coverage()</span></code></a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#slv.inversion.viz.plot_reconstructed_posterior"><code class="docutils literal notranslate"><span class="pre">plot_reconstructed_posterior()</span></code></a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#slv.inversion.viz.plot_fluxes"><code class="docutils literal notranslate"><span class="pre">plot_fluxes()</span></code></a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#slv.inversion.viz.plot_fluxes_by_timestep"><code class="docutils literal notranslate"><span class="pre">plot_fluxes_by_timestep()</span></code></a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#slv.inversion.viz.plot_removed_contribution"><code class="docutils literal notranslate"><span class="pre">plot_removed_contribution()</span></code></a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#slv.inversion.viz.plot_total_fluxes_over_time"><code class="docutils literal notranslate"><span class="pre">plot_total_fluxes_over_time()</span></code></a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#slv.inversion.viz.plot_mdm_components"><code class="docutils literal notranslate"><span class="pre">plot_mdm_components()</span></code></a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#slv.inversion.viz.plot_desroziers"><code class="docutils literal notranslate"><span class="pre">plot_desroziers()</span></code></a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#slv.inversion.viz.plot_residuals"><code class="docutils literal notranslate"><span class="pre">plot_residuals()</span></code></a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#slv.inversion.viz.plot_background_and_bias"><code class="docutils literal notranslate"><span class="pre">plot_background_and_bias()</span></code></a></li>
-</ul>
-  </nav></div>
 
   <div class="sidebar-secondary-item">
   <div role="note" aria-label="source link">

@@ -1,0 +1,6 @@
+slv.inversion.pipelines.SLVMethaneInversion.get\_obs
+====================================================
+
+.. currentmodule:: slv.inversion.pipelines
+
+.. automethod:: SLVMethaneInversion.get_obs

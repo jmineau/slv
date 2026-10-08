@@ -1,0 +1,6 @@
+slv.inversion.report.ReportingMixin.fluxes\_as\_inventory
+=========================================================
+
+.. currentmodule:: slv.inversion.report
+
+.. automethod:: ReportingMixin.fluxes_as_inventory

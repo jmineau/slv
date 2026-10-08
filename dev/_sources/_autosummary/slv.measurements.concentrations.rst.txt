@@ -2,12 +2,25 @@ slv.measurements.concentrations
 ===============================
 
 .. automodule:: slv.measurements.concentrations
+   :no-members:
 
-   
-   .. rubric:: Functions
 
-   .. autosummary::
-   
-      generate_stilt_receptors
-      load_concentrations
-   
+
+
+.. rubric:: Functions
+
+.. autosummary::
+   :toctree:
+   :nosignatures:
+
+   generate_stilt_receptors
+   load_concentrations
+
+
+
+
+
+
+
+
+

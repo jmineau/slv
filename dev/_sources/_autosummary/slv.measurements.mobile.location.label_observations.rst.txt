@@ -1,0 +1,6 @@
+slv.measurements.mobile.location.label\_observations
+====================================================
+
+.. currentmodule:: slv.measurements.mobile.location
+
+.. autofunction:: label_observations

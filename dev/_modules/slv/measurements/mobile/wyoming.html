@@ -39,7 +39,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../../../_static/documentation_options.js?v=4dc2ff04"></script>
+    <script src="../../../../_static/documentation_options.js?v=3dcb0a44"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -56,7 +56,7 @@
     <link rel="search" title="Search" href="../../../../search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.9.2.dev67+gd2401dbd1" />
+  <meta name="docsearch:version" content="2026.9.2.dev68+g6a74a2716" />
   </head>
   
   
@@ -429,7 +429,7 @@
 
 
 <div class="viewcode-block" id="read_aeris">
-<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.wyoming.html#slv.measurements.mobile.wyoming.read_aeris">[docs]</a>
+<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.wyoming.read_aeris.html#slv.measurements.mobile.wyoming.read_aeris">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">read_aeris</span><span class="p">(</span><span class="n">file</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Read an Aeris analyzer CSV: ``CH4 (ppb)`` (converted from ppm), ``C2H6 (ppb)``,</span>
@@ -448,7 +448,7 @@
 
 
 <div class="viewcode-block" id="read_met">
-<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.wyoming.html#slv.measurements.mobile.wyoming.read_met">[docs]</a>
+<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.wyoming.read_met.html#slv.measurements.mobile.wyoming.read_met">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">read_met</span><span class="p">(</span><span class="n">file</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Read a vehicle met-station file: position (``latitude``, ``longitude``,</span>
@@ -553,7 +553,7 @@
 
 
 <div class="viewcode-block" id="merge_aeris_met">
-<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.wyoming.html#slv.measurements.mobile.wyoming.merge_aeris_met">[docs]</a>
+<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.wyoming.merge_aeris_met.html#slv.measurements.mobile.wyoming.merge_aeris_met">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">merge_aeris_met</span><span class="p">(</span><span class="n">aeris</span><span class="p">,</span> <span class="n">met</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Merge aeris and met dataframes, interpolating met data to match aeris timestamps</span>
@@ -595,7 +595,7 @@
 
 
 <div class="viewcode-block" id="calculate_enhancements">
-<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.wyoming.html#slv.measurements.mobile.wyoming.calculate_enhancements">[docs]</a>
+<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.wyoming.calculate_enhancements.html#slv.measurements.mobile.wyoming.calculate_enhancements">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">calculate_enhancements</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">window</span><span class="o">=</span><span class="s2">&quot;1h&quot;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Add ``CH4_base``/``C2H6_base`` (:func:`lair.background.rolling_baseline`) and the</span>
@@ -617,7 +617,7 @@
 
 
 <div class="viewcode-block" id="enhanced_R_and_ratio">
-<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.wyoming.html#slv.measurements.mobile.wyoming.enhanced_R_and_ratio">[docs]</a>
+<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.wyoming.enhanced_R_and_ratio.html#slv.measurements.mobile.wyoming.enhanced_R_and_ratio">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">enhanced_R_and_ratio</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">window</span><span class="o">=</span><span class="s2">&quot;30s&quot;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Add the rolling ``window`` correlation ``R`` of the CH4 and C2H6 enhancements and</span>
@@ -634,7 +634,7 @@
 
 
 <div class="viewcode-block" id="plot_windbarbs">
-<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.wyoming.html#slv.measurements.mobile.wyoming.plot_windbarbs">[docs]</a>
+<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.wyoming.plot_windbarbs.html#slv.measurements.mobile.wyoming.plot_windbarbs">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">plot_windbarbs</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">ws</span><span class="p">,</span> <span class="n">wd</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="s2">&quot;longitude&quot;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s2">&quot;latitude&quot;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Draw wind barbs from the speed column ``ws`` and direction column ``wd`` at each</span>
@@ -651,7 +651,7 @@
 
 
 <div class="viewcode-block" id="wyomingMap">
-<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.wyoming.html#slv.measurements.mobile.wyoming.wyomingMap">[docs]</a>
+<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.wyoming.wyomingMap.html#slv.measurements.mobile.wyoming.wyomingMap">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">wyomingMap</span><span class="p">(</span>
     <span class="n">data</span><span class="p">,</span>
     <span class="n">param</span><span class="p">,</span>

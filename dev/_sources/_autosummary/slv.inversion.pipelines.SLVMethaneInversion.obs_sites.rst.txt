@@ -1,0 +1,6 @@
+slv.inversion.pipelines.SLVMethaneInversion.obs\_sites
+======================================================
+
+.. currentmodule:: slv.inversion.pipelines
+
+.. automethod:: SLVMethaneInversion.obs_sites

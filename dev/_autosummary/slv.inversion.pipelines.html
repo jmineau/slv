@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=4dc2ff04"></script>
+    <script src="../_static/documentation_options.js?v=3dcb0a44"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -55,11 +55,11 @@
         </script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="slv.inversion.priors" href="slv.inversion.priors.html" />
-    <link rel="prev" title="slv.inversion.mdm" href="slv.inversion.mdm.html" />
+    <link rel="next" title="slv.inversion.pipelines.stack_jacobians" href="slv.inversion.pipelines.stack_jacobians.html" />
+    <link rel="prev" title="slv.inversion.mdm.ModelDataMismatchMixin.get_modeldata_mismatch" href="slv.inversion.mdm.ModelDataMismatchMixin.get_modeldata_mismatch.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.9.2.dev67+gd2401dbd1" />
+  <meta name="docsearch:version" content="2026.9.2.dev68+g6a74a2716" />
   </head>
   
   
@@ -363,33 +363,161 @@
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
   <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="slv.html">slv</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="slv.basemap.html">slv.basemap</a></li>
+<li class="toctree-l2"><a class="reference internal" href="slv.get_data_dir.html">slv.get_data_dir</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="slv.basemap.html">slv.basemap</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="slv.basemap.TRAX_COLORS.html">slv.basemap.TRAX_COLORS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="slv.basemap.STADIA_ATTRIBUTION.html">slv.basemap.STADIA_ATTRIBUTION</a></li>
+<li class="toctree-l3"><a class="reference internal" href="slv.basemap.load_borders.html">slv.basemap.load_borders</a></li>
+<li class="toctree-l3"><a class="reference internal" href="slv.basemap.load_interstates.html">slv.basemap.load_interstates</a></li>
+<li class="toctree-l3"><a class="reference internal" href="slv.basemap.load_mesowest.html">slv.basemap.load_mesowest</a></li>
+<li class="toctree-l3"><a class="reference internal" href="slv.basemap.load_population.html">slv.basemap.load_population</a></li>
+<li class="toctree-l3"><a class="reference internal" href="slv.basemap.stadia_tiles.html">slv.basemap.stadia_tiles</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="slv.basemap.SaltLake.html">slv.basemap.SaltLake</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.basemap.SaltLake.fig.html">slv.basemap.SaltLake.fig</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.basemap.SaltLake.add_borders.html">slv.basemap.SaltLake.add_borders</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.basemap.SaltLake.add_inset.html">slv.basemap.SaltLake.add_inset</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.basemap.SaltLake.add_interstates.html">slv.basemap.SaltLake.add_interstates</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.basemap.SaltLake.add_inventory.html">slv.basemap.SaltLake.add_inventory</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.basemap.SaltLake.add_legend.html">slv.basemap.SaltLake.add_legend</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.basemap.SaltLake.add_mesowest.html">slv.basemap.SaltLake.add_mesowest</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.basemap.SaltLake.add_north_arrow.html">slv.basemap.SaltLake.add_north_arrow</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.basemap.SaltLake.add_points.html">slv.basemap.SaltLake.add_points</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.basemap.SaltLake.add_population.html">slv.basemap.SaltLake.add_population</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.basemap.SaltLake.add_sites.html">slv.basemap.SaltLake.add_sites</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.basemap.SaltLake.add_trax.html">slv.basemap.SaltLake.add_trax</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
 <li class="toctree-l2"><a class="reference internal" href="slv.domain.html">slv.domain</a></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="slv.emissions.html">slv.emissions</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="slv.emissions.point_sources.html">slv.emissions.point_sources</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="slv.emissions.point_sources.html">slv.emissions.point_sources</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.emissions.point_sources.load_point_sources.html">slv.emissions.point_sources.load_point_sources</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.emissions.point_sources.plot_point_sources.html">slv.emissions.point_sources.plot_point_sources</a></li>
+</ul>
+</details></li>
 </ul>
 </details></li>
 <li class="toctree-l2 current active has-children"><a class="reference internal" href="slv.inversion.html">slv.inversion</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="slv.inversion.background.html">slv.inversion.background</a></li>
-<li class="toctree-l3"><a class="reference internal" href="slv.inversion.bias.html">slv.inversion.bias</a></li>
-<li class="toctree-l3"><a class="reference internal" href="slv.inversion.cache.html">slv.inversion.cache</a></li>
-<li class="toctree-l3"><a class="reference internal" href="slv.inversion.config.html">slv.inversion.config</a></li>
-<li class="toctree-l3"><a class="reference internal" href="slv.inversion.covariances.html">slv.inversion.covariances</a></li>
-<li class="toctree-l3"><a class="reference internal" href="slv.inversion.coverage.html">slv.inversion.coverage</a></li>
-<li class="toctree-l3"><a class="reference internal" href="slv.inversion.data.html">slv.inversion.data</a></li>
-<li class="toctree-l3"><a class="reference internal" href="slv.inversion.mdm.html">slv.inversion.mdm</a></li>
-<li class="toctree-l3 current active"><a class="current reference internal" href="#">slv.inversion.pipelines</a></li>
-<li class="toctree-l3"><a class="reference internal" href="slv.inversion.priors.html">slv.inversion.priors</a></li>
-<li class="toctree-l3"><a class="reference internal" href="slv.inversion.report.html">slv.inversion.report</a></li>
-<li class="toctree-l3"><a class="reference internal" href="slv.inversion.sweep.html">slv.inversion.sweep</a></li>
-<li class="toctree-l3"><a class="reference internal" href="slv.inversion.viz.html">slv.inversion.viz</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="slv.inversion.background.html">slv.inversion.background</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.background.get_ct_stilt_background.html">slv.inversion.background.get_ct_stilt_background</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.background.get_gml_background.html">slv.inversion.background.get_gml_background</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.background.get_rolling_background.html">slv.inversion.background.get_rolling_background</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.background.get_slv_background.html">slv.inversion.background.get_slv_background</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="slv.inversion.bias.html">slv.inversion.bias</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.bias.BiasMixin.html">slv.inversion.bias.BiasMixin</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="slv.inversion.cache.html">slv.inversion.cache</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.cache.DEFAULT_COMPONENT_DEPS.html">slv.inversion.cache.DEFAULT_COMPONENT_DEPS</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.cache.DEFAULT_COMPONENT_PACKAGES.html">slv.inversion.cache.DEFAULT_COMPONENT_PACKAGES</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.cache.fips_cache.html">slv.inversion.cache.fips_cache</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="slv.inversion.config.html">slv.inversion.config</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.config.FLUX_FREQ_TIME_STEPS.html">slv.inversion.config.FLUX_FREQ_TIME_STEPS</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.config.build_location_site_map.html">slv.inversion.config.build_location_site_map</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.config.get_mdm_comp_configs.html">slv.inversion.config.get_mdm_comp_configs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.config.stilt_project_dir.html">slv.inversion.config.stilt_project_dir</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.config.InversionConfig.html">slv.inversion.config.InversionConfig</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="slv.inversion.covariances.html">slv.inversion.covariances</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.covariances.build_mdm_error.html">slv.inversion.covariances.build_mdm_error</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.covariances.build_prior_error.html">slv.inversion.covariances.build_prior_error</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.covariances.normalize_duration.html">slv.inversion.covariances.normalize_duration</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="slv.inversion.coverage.html">slv.inversion.coverage</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.coverage.check_state_cells.html">slv.inversion.coverage.check_state_cells</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.coverage.CoverageFilterMixin.html">slv.inversion.coverage.CoverageFilterMixin</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="slv.inversion.data.html">slv.inversion.data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.data.get_slv_observations.html">slv.inversion.data.get_slv_observations</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.data.get_slv_subhour_std.html">slv.inversion.data.get_slv_subhour_std</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.data.load_mobile_obs.html">slv.inversion.data.load_mobile_obs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.data.split_sites.html">slv.inversion.data.split_sites</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="slv.inversion.mdm.html">slv.inversion.mdm</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.mdm.ModelDataMismatchMixin.html">slv.inversion.mdm.ModelDataMismatchMixin</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 current active has-children"><a class="current reference internal" href="#">slv.inversion.pipelines</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.pipelines.stack_jacobians.html">slv.inversion.pipelines.stack_jacobians</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.pipelines.SLVMethaneInversion.html">slv.inversion.pipelines.SLVMethaneInversion</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="slv.inversion.priors.html">slv.inversion.priors</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.priors.align_to_flux_times.html">slv.inversion.priors.align_to_flux_times</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.priors.build_constant_prior.html">slv.inversion.priors.build_constant_prior</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.priors.get_slv_prior.html">slv.inversion.priors.get_slv_prior</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.priors.load_edgar_prior.html">slv.inversion.priors.load_edgar_prior</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.priors.load_epa_prior.html">slv.inversion.priors.load_epa_prior</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="slv.inversion.report.html">slv.inversion.report</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.report.ReportingMixin.html">slv.inversion.report.ReportingMixin</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="slv.inversion.sweep.html">slv.inversion.sweep</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.sweep.collect_metrics.html">slv.inversion.sweep.collect_metrics</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.sweep.config_id.html">slv.inversion.sweep.config_id</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.sweep.run_sweep_job.html">slv.inversion.sweep.run_sweep_job</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.sweep.Sweep.html">slv.inversion.sweep.Sweep</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.sweep.SweepResults.html">slv.inversion.sweep.SweepResults</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="slv.inversion.viz.html">slv.inversion.viz</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.viz.plot_background_and_bias.html">slv.inversion.viz.plot_background_and_bias</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.viz.plot_concentrations.html">slv.inversion.viz.plot_concentrations</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.viz.plot_desroziers.html">slv.inversion.viz.plot_desroziers</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.viz.plot_fluxes.html">slv.inversion.viz.plot_fluxes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.viz.plot_fluxes_by_timestep.html">slv.inversion.viz.plot_fluxes_by_timestep</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.viz.plot_grid.html">slv.inversion.viz.plot_grid</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.viz.plot_inventory.html">slv.inversion.viz.plot_inventory</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.viz.plot_mdm_components.html">slv.inversion.viz.plot_mdm_components</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.viz.plot_prior_with_coverage.html">slv.inversion.viz.plot_prior_with_coverage</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.viz.plot_reconstructed_posterior.html">slv.inversion.viz.plot_reconstructed_posterior</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.viz.plot_removed_contribution.html">slv.inversion.viz.plot_removed_contribution</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.viz.plot_residuals.html">slv.inversion.viz.plot_residuals</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.viz.plot_sites.html">slv.inversion.viz.plot_sites</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.viz.plot_total_fluxes_over_time.html">slv.inversion.viz.plot_total_fluxes_over_time</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.viz.shade_removed_cells.html">slv.inversion.viz.shade_removed_cells</a></li>
+</ul>
+</details></li>
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="slv.measurements.html">slv.measurements</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="slv.measurements.aggregate.html">slv.measurements.aggregate</a></li>
-<li class="toctree-l3"><a class="reference internal" href="slv.measurements.background.html">slv.measurements.background</a></li>
-<li class="toctree-l3"><a class="reference internal" href="slv.measurements.concentrations.html">slv.measurements.concentrations</a></li>
-<li class="toctree-l3"><a class="reference internal" href="slv.measurements.instruments.html">slv.measurements.instruments</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="slv.measurements.aggregate.html">slv.measurements.aggregate</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.measurements.aggregate.aggregate_obs.html">slv.measurements.aggregate.aggregate_obs</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="slv.measurements.background.html">slv.measurements.background</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.measurements.background.lair_gml_dir.html">slv.measurements.background.lair_gml_dir</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.measurements.background.user_gml_dir.html">slv.measurements.background.user_gml_dir</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.measurements.background.CarbonTrackerCH4.html">slv.measurements.background.CarbonTrackerCH4</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.measurements.background.GMLDiscrete.html">slv.measurements.background.GMLDiscrete</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.measurements.background.UATAQCH4.html">slv.measurements.background.UATAQCH4</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.measurements.background.UTAFlask.html">slv.measurements.background.UTAFlask</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="slv.measurements.concentrations.html">slv.measurements.concentrations</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.measurements.concentrations.generate_stilt_receptors.html">slv.measurements.concentrations.generate_stilt_receptors</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.measurements.concentrations.load_concentrations.html">slv.measurements.concentrations.load_concentrations</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="slv.measurements.instruments.html">slv.measurements.instruments</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.measurements.instruments.Instrument.html">slv.measurements.instruments.Instrument</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.measurements.instruments.LGR_UGGA.html">slv.measurements.instruments.LGR_UGGA</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.measurements.instruments.LGR_UGGA_Manual_Cal.html">slv.measurements.instruments.LGR_UGGA_Manual_Cal</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.measurements.instruments.Picarro_G2307.html">slv.measurements.instruments.Picarro_G2307</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.measurements.instruments.Picarro_G2401.html">slv.measurements.instruments.Picarro_G2401</a></li>
+</ul>
+</details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="slv.measurements.mobile.html">slv.measurements.mobile</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l4"><a class="reference internal" href="slv.measurements.mobile.calibration.html">slv.measurements.mobile.calibration</a></li>
 <li class="toctree-l4"><a class="reference internal" href="slv.measurements.mobile.gps.html">slv.measurements.mobile.gps</a></li>
@@ -402,14 +530,36 @@
 <li class="toctree-l4"><a class="reference internal" href="slv.measurements.mobile.wyoming.html">slv.measurements.mobile.wyoming</a></li>
 </ul>
 </details></li>
-<li class="toctree-l3"><a class="reference internal" href="slv.measurements.pollutants.html">slv.measurements.pollutants</a></li>
-<li class="toctree-l3"><a class="reference internal" href="slv.measurements.sites.html">slv.measurements.sites</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="slv.measurements.pollutants.html">slv.measurements.pollutants</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.measurements.pollutants.normalize_pollutant.html">slv.measurements.pollutants.normalize_pollutant</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="slv.measurements.sites.html">slv.measurements.sites</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.measurements.sites.get_site_coordinates.html">slv.measurements.sites.get_site_coordinates</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.measurements.sites.load_site_config.html">slv.measurements.sites.load_site_config</a></li>
+</ul>
+</details></li>
 </ul>
 </details></li>
 <li class="toctree-l2 has-children"><a class="reference internal" href="slv.meteorology.html">slv.meteorology</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l3"><a class="reference internal" href="slv.meteorology.mesowest.html">slv.meteorology.mesowest</a></li>
-<li class="toctree-l3"><a class="reference internal" href="slv.meteorology.pcaps.html">slv.meteorology.pcaps</a></li>
-<li class="toctree-l3"><a class="reference internal" href="slv.meteorology.vhd.html">slv.meteorology.vhd</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="slv.meteorology.mesowest.html">slv.meteorology.mesowest</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.meteorology.mesowest.load_station_metadata.html">slv.meteorology.mesowest.load_station_metadata</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.meteorology.mesowest.mesowest_dir.html">slv.meteorology.mesowest.mesowest_dir</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.meteorology.mesowest.nearest_station.html">slv.meteorology.mesowest.nearest_station</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.meteorology.mesowest.station_hourly.html">slv.meteorology.mesowest.station_hourly</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.meteorology.mesowest.wind_sector.html">slv.meteorology.mesowest.wind_sector</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="slv.meteorology.pcaps.html">slv.meteorology.pcaps</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.meteorology.pcaps.filter_pcap_events.html">slv.meteorology.pcaps.filter_pcap_events</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.meteorology.pcaps.get_pcap_events.html">slv.meteorology.pcaps.get_pcap_events</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.meteorology.pcaps.get_soundings.html">slv.meteorology.pcaps.get_soundings</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="slv.meteorology.vhd.html">slv.meteorology.vhd</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.meteorology.vhd.load_vhd.html">slv.meteorology.vhd.load_vhd</a></li>
+</ul>
+</details></li>
 </ul>
 </details></li>
 </ul>
@@ -485,11 +635,11 @@
 <p>The SLV methane inversion pipeline: builds the fips inputs and runs the solve.</p>
 <p>The model-data mismatch, bias block, coverage filter, reporting and component cache live
 in their own modules (<a class="reference internal" href="slv.inversion.mdm.html#module-slv.inversion.mdm" title="slv.inversion.mdm"><code class="xref py py-mod docutils literal notranslate"><span class="pre">mdm</span></code></a>, <a class="reference internal" href="slv.inversion.bias.html#module-slv.inversion.bias" title="slv.inversion.bias"><code class="xref py py-mod docutils literal notranslate"><span class="pre">bias</span></code></a>, <a class="reference internal" href="slv.inversion.coverage.html#module-slv.inversion.coverage" title="slv.inversion.coverage"><code class="xref py py-mod docutils literal notranslate"><span class="pre">coverage</span></code></a>, <a class="reference internal" href="slv.inversion.report.html#module-slv.inversion.report" title="slv.inversion.report"><code class="xref py py-mod docutils literal notranslate"><span class="pre">report</span></code></a>,
-<a class="reference internal" href="slv.inversion.cache.html#module-slv.inversion.cache" title="slv.inversion.cache"><code class="xref py py-mod docutils literal notranslate"><span class="pre">cache</span></code></a>); <a class="reference internal" href="#slv.inversion.pipelines.SLVMethaneInversion" title="slv.inversion.pipelines.SLVMethaneInversion"><code class="xref py py-class docutils literal notranslate"><span class="pre">SLVMethaneInversion</span></code></a> combines them.</p>
+<a class="reference internal" href="slv.inversion.cache.html#module-slv.inversion.cache" title="slv.inversion.cache"><code class="xref py py-mod docutils literal notranslate"><span class="pre">cache</span></code></a>); <a class="reference internal" href="slv.inversion.pipelines.SLVMethaneInversion.html#slv.inversion.pipelines.SLVMethaneInversion" title="slv.inversion.pipelines.SLVMethaneInversion"><code class="xref py py-class docutils literal notranslate"><span class="pre">SLVMethaneInversion</span></code></a> combines them.</p>
 <p class="rubric">Functions</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#slv.inversion.pipelines.stack_jacobians" title="slv.inversion.pipelines.stack_jacobians"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stack_jacobians</span></code></a>(parts[, sparse])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="slv.inversion.pipelines.stack_jacobians.html#slv.inversion.pipelines.stack_jacobians" title="slv.inversion.pipelines.stack_jacobians"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stack_jacobians</span></code></a></p></td>
 <td><p>Row-stack the per-project flux Jacobians into one.</p></td>
 </tr>
 </tbody>
@@ -498,187 +648,12 @@ in their own modules (<a class="reference internal" href="slv.inversion.mdm.html
 <p class="rubric">Classes</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#slv.inversion.pipelines.SLVMethaneInversion" title="slv.inversion.pipelines.SLVMethaneInversion"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SLVMethaneInversion</span></code></a>(config)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="slv.inversion.pipelines.SLVMethaneInversion.html#slv.inversion.pipelines.SLVMethaneInversion" title="slv.inversion.pipelines.SLVMethaneInversion"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SLVMethaneInversion</span></code></a></p></td>
 <td><p>SLV-specific implementation of the flux inversion pipeline.</p></td>
 </tr>
 </tbody>
 </table>
 </div>
-<dl class="py function">
-<dt class="sig sig-object py" id="slv.inversion.pipelines.stack_jacobians">
-<span class="sig-prename descclassname"><span class="pre">slv.inversion.pipelines.</span></span><span class="sig-name descname"><span class="pre">stack_jacobians</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parts</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sparse</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/slv/inversion/pipelines.html#stack_jacobians"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#slv.inversion.pipelines.stack_jacobians" title="Link to this definition">#</a></dt>
-<dd><p>Row-stack the per-project flux Jacobians into one.</p>
-<p><code class="docutils literal notranslate"><span class="pre">parts</span></code> pairs each STILT project with the Jacobian built from it. Every project is
-aggregated onto the same state grid and flux time bins, so the columns agree; they are
-still aligned on their union (missing cells are zero sensitivity) rather than assumed.</p>
-<p>A row – an <code class="docutils literal notranslate"><span class="pre">(obs_location,</span> <span class="pre">obs_time)</span></code> – appearing in two projects is an error: it
-means the same receptor was simulated in both, and there is no principled way to pick
-one footprint. Remove it from one project’s receptors, or drop that project.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">MatrixBlock</span></code></span></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py class">
-<dt class="sig sig-object py" id="slv.inversion.pipelines.SLVMethaneInversion">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">slv.inversion.pipelines.</span></span><span class="sig-name descname"><span class="pre">SLVMethaneInversion</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/slv/inversion/pipelines.html#SLVMethaneInversion"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#slv.inversion.pipelines.SLVMethaneInversion" title="Link to this definition">#</a></dt>
-<dd><p>SLV-specific implementation of the flux inversion pipeline.</p>
-<p>Supports optional bias correction via config.bias_std and config.bias_grouping.
-When bias_std is set, augments the state vector with bias terms that can be
-grouped by time (default), site, or site organization.</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="slv.inversion.pipelines.SLVMethaneInversion.COMPONENT_DEPS">
-<span class="sig-name descname"><span class="pre">COMPONENT_DEPS</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#frozenset" title="(in Python v3.14)"><span class="pre">frozenset</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><span class="pre">str</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'constant':</span> <span class="pre">frozenset({'background',</span> <span class="pre">'background_kwargs',</span> <span class="pre">'filter_pcaps',</span> <span class="pre">'filter_spikes',</span> <span class="pre">'min_obs_per_interval',</span> <span class="pre">'min_sims_per_interval',</span> <span class="pre">'mobile_obs_key',</span> <span class="pre">'sites',</span> <span class="pre">'spike_percentile',</span> <span class="pre">'subset_hours',</span> <span class="pre">'tend',</span> <span class="pre">'tstart',</span> <span class="pre">'utc_offset'}),</span> <span class="pre">'forward_operator':</span> <span class="pre">frozenset({'bias_grouping',</span> <span class="pre">'bias_std',</span> <span class="pre">'dx',</span> <span class="pre">'dy',</span> <span class="pre">'filter_pcaps',</span> <span class="pre">'flux_freq',</span> <span class="pre">'mobile_obs_key',</span> <span class="pre">'prior',</span> <span class="pre">'prior_kwargs',</span> <span class="pre">'sites',</span> <span class="pre">'sparse_jacobian',</span> <span class="pre">'stilt_project',</span> <span class="pre">'subset_hours',</span> <span class="pre">'tend',</span> <span class="pre">'tstart',</span> <span class="pre">'utc_offset',</span> <span class="pre">'variant',</span> <span class="pre">'xmax',</span> <span class="pre">'xmin',</span> <span class="pre">'ymax',</span> <span class="pre">'ymin'}),</span> <span class="pre">'modeldata_mismatch':</span> <span class="pre">frozenset({'background',</span> <span class="pre">'background_kwargs',</span> <span class="pre">'dx',</span> <span class="pre">'dy',</span> <span class="pre">'filter_pcaps',</span> <span class="pre">'filter_spikes',</span> <span class="pre">'flux_freq',</span> <span class="pre">'mdm_components',</span> <span class="pre">'min_obs_per_interval',</span> <span class="pre">'min_sims_per_interval',</span> <span class="pre">'mobile_obs_key',</span> <span class="pre">'prior',</span> <span class="pre">'prior_kwargs',</span> <span class="pre">'sites',</span> <span class="pre">'sparse_jacobian',</span> <span class="pre">'spike_percentile',</span> <span class="pre">'stilt_project',</span> <span class="pre">'subset_hours',</span> <span class="pre">'tend',</span> <span class="pre">'tstart',</span> <span class="pre">'utc_offset',</span> <span class="pre">'variant',</span> <span class="pre">'xmax',</span> <span class="pre">'xmin',</span> <span class="pre">'ymax',</span> <span class="pre">'ymin'}),</span> <span class="pre">'obs':</span> <span class="pre">frozenset({'filter_pcaps',</span> <span class="pre">'filter_spikes',</span> <span class="pre">'mobile_obs_key',</span> <span class="pre">'sites',</span> <span class="pre">'spike_percentile',</span> <span class="pre">'subset_hours',</span> <span class="pre">'tend',</span> <span class="pre">'tstart',</span> <span class="pre">'utc_offset'}),</span> <span class="pre">'prior':</span> <span class="pre">frozenset({'bias_grouping',</span> <span class="pre">'bias_std',</span> <span class="pre">'dx',</span> <span class="pre">'dy',</span> <span class="pre">'flux_freq',</span> <span class="pre">'prior',</span> <span class="pre">'prior_kwargs',</span> <span class="pre">'sites',</span> <span class="pre">'tend',</span> <span class="pre">'tstart',</span> <span class="pre">'xmax',</span> <span class="pre">'xmin',</span> <span class="pre">'ymax',</span> <span class="pre">'ymin'}),</span> <span class="pre">'prior_error':</span> <span class="pre">frozenset({'bias_grouping',</span> <span class="pre">'bias_std',</span> <span class="pre">'dx',</span> <span class="pre">'dy',</span> <span class="pre">'flux_freq',</span> <span class="pre">'prior',</span> <span class="pre">'prior_base_std',</span> <span class="pre">'prior_kwargs',</span> <span class="pre">'prior_spatial_scale',</span> <span class="pre">'prior_std_frac',</span> <span class="pre">'prior_time_scale',</span> <span class="pre">'sites',</span> <span class="pre">'tend',</span> <span class="pre">'tstart',</span> <span class="pre">'xmax',</span> <span class="pre">'xmin',</span> <span class="pre">'ymax',</span> <span class="pre">'ymin'})}</span></span><a class="headerlink" href="#slv.inversion.pipelines.SLVMethaneInversion.COMPONENT_DEPS" title="Link to this definition">#</a></dt>
-<dd><p>Maps each cache component to the InversionConfig fields it depends on. The bias
-block is indexed by <code class="docutils literal notranslate"><span class="pre">sites</span></code> under the “site”/”site_group” groupings, so the
-prior and prior error key on it too.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="slv.inversion.pipelines.SLVMethaneInversion.get_inputs">
-<span class="sig-name descname"><span class="pre">get_inputs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/slv/inversion/pipelines.html#SLVMethaneInversion.get_inputs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#slv.inversion.pipelines.SLVMethaneInversion.get_inputs" title="Link to this definition">#</a></dt>
-<dd><p>The fips inputs, checked that the prior and the Jacobian share their cells.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>, <a class="reference external" href="https://docs.python.org/3/library/typing.html#typing.Any" title="(in Python v3.14)"><code class="xref py py-data docutils literal notranslate"><span class="pre">Any</span></code></a>]</span></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="slv.inversion.pipelines.SLVMethaneInversion.get_obs">
-<span class="sig-name descname"><span class="pre">get_obs</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/slv/inversion/pipelines.html#SLVMethaneInversion.get_obs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#slv.inversion.pipelines.SLVMethaneInversion.get_obs" title="Link to this definition">#</a></dt>
-<dd><p>Passes just the obs attributes to the pure obs function.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Vector</span></code></span></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="slv.inversion.pipelines.SLVMethaneInversion.get_prior">
-<span class="sig-name descname"><span class="pre">get_prior</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/slv/inversion/pipelines.html#SLVMethaneInversion.get_prior"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#slv.inversion.pipelines.SLVMethaneInversion.get_prior" title="Link to this definition">#</a></dt>
-<dd><p>Get the prior vector, optionally including bias terms.</p>
-<p>Returns a single-block flux prior if bias_std is None, otherwise
-returns a multi-block [flux, bias] prior. Built (or loaded) once per pipeline:
-the multiplicative MDM asks for it again, which with <code class="docutils literal notranslate"><span class="pre">cache=False</span></code> used to
-rebuild it.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Vector</span></code></span></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="slv.inversion.pipelines.SLVMethaneInversion.get_forward_operator">
-<span class="sig-name descname"><span class="pre">get_forward_operator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prior</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/slv/inversion/pipelines.html#SLVMethaneInversion.get_forward_operator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#slv.inversion.pipelines.SLVMethaneInversion.get_forward_operator" title="Link to this definition">#</a></dt>
-<dd><p>Get the forward operator, optionally including bias Jacobian.</p>
-<p>Returns a single-block flux Jacobian if bias_std is None, otherwise
-returns a multi-block [flux_jac | bias_jac] operator.</p>
-<p>Only the flux Jacobian is cached. The bias block is a cheap one-hot map indexed
-by the obs, which change with the obs filters the cache key leaves out, so it is
-rebuilt every run (a cached bias block went stale when those filters changed).</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">ForwardOperator</span></code></span></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="slv.inversion.pipelines.SLVMethaneInversion.get_prior_error">
-<span class="sig-name descname"><span class="pre">get_prior_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prior</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/slv/inversion/pipelines.html#SLVMethaneInversion.get_prior_error"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#slv.inversion.pipelines.SLVMethaneInversion.get_prior_error" title="Link to this definition">#</a></dt>
-<dd><p>Get prior error covariance, optionally including bias error.</p>
-<p>Returns a single-block flux error if bias_std is None, otherwise
-returns a multi-block [flux_err, bias_err] covariance.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">CovarianceMatrix</span></code></span></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="slv.inversion.pipelines.SLVMethaneInversion.obs_sites">
-<span class="sig-name descname"><span class="pre">obs_sites</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obs_index</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/slv/inversion/pipelines.html#SLVMethaneInversion.obs_sites"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#slv.inversion.pipelines.SLVMethaneInversion.obs_sites" title="Link to this definition">#</a></dt>
-<dd><p>The site of each obs, for site- and organization-keyed MDM and bias terms.</p>
-<p>A tower obs is keyed by its site; a mobile obs by its receptor’s PYSTILT location_id,
-which belongs to the (single) mobile site in <code class="docutils literal notranslate"><span class="pre">config.sites</span></code>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.Index.html#pandas.Index" title="(in pandas v3.0.6)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Index</span></code></a></span></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="slv.inversion.pipelines.SLVMethaneInversion.get_constant">
-<span class="sig-name descname"><span class="pre">get_constant</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/slv/inversion/pipelines.html#SLVMethaneInversion.get_constant"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#slv.inversion.pipelines.SLVMethaneInversion.get_constant" title="Link to this definition">#</a></dt>
-<dd><p>Background concentration for each obs (<code class="docutils literal notranslate"><span class="pre">config.background</span></code>).</p>
-<p>Obs whose background is missing (outside the ct_stilt product, rolling-baseline
-gaps) are dropped here rather than filled: fips vectors reject NaN, and
-<code class="docutils literal notranslate"><span class="pre">aggregate_obs_space</span></code> reduces the obs to match.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Vector</span></code></span></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="slv.inversion.pipelines.SLVMethaneInversion.filter_state_space">
-<span class="sig-name descname"><span class="pre">filter_state_space</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prior</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/slv/inversion/pipelines.html#SLVMethaneInversion.filter_state_space"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#slv.inversion.pipelines.SLVMethaneInversion.filter_state_space" title="Link to this definition">#</a></dt>
-<dd><p>Trim obs and prior to <code class="docutils literal notranslate"><span class="pre">config.time_range</span></code>, then run interval filter.</p>
-<p>This ensures that objects loaded from a wide-range cache are sliced
-down to the current run’s time window before any downstream builders
-(forward operator, covariances) see them.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Vector</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Vector</span></code>]</span></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="slv.inversion.pipelines.SLVMethaneInversion.aggregate_obs_space">
-<span class="sig-name descname"><span class="pre">aggregate_obs_space</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forward_operator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modeldata_mismatch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constant</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/slv/inversion/pipelines.html#SLVMethaneInversion.aggregate_obs_space"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#slv.inversion.pipelines.SLVMethaneInversion.aggregate_obs_space" title="Link to this definition">#</a></dt>
-<dd><p>Aggregates the observation space if specified in the config.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Vector</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ForwardOperator</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">CovarianceMatrix</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Vector</span></code> | <a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a>]</span></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="slv.inversion.pipelines.SLVMethaneInversion.run">
-<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">estimator_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/slv/inversion/pipelines.html#SLVMethaneInversion.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#slv.inversion.pipelines.SLVMethaneInversion.run" title="Link to this definition">#</a></dt>
-<dd><p>Build the inputs, solve, summarize and plot.</p>
-<p>Steps: <a class="reference internal" href="#slv.inversion.pipelines.SLVMethaneInversion.get_inputs" title="slv.inversion.pipelines.SLVMethaneInversion.get_inputs"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_inputs()</span></code></a> (cached components), the Jacobian coverage filter when
-<code class="docutils literal notranslate"><span class="pre">config.jacobian_coverage_percentile</span></code> is set, the solve (<code class="docutils literal notranslate"><span class="pre">config.gamma</span></code> scales
-the obs error), <code class="xref py py-meth docutils literal notranslate"><span class="pre">summarize()</span></code>, then the <code class="docutils literal notranslate"><span class="pre">plot_*</span></code> methods the config turns on.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>estimator_kwargs</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#dict" title="(in Python v3.14)"><em>dict</em></a><em>, </em><em>optional</em>) – Passed to <code class="docutils literal notranslate"><span class="pre">FluxProblem.solve</span></code>; overrides <code class="docutils literal notranslate"><span class="pre">gamma</span></code> from the config.</p></li>
-<li><p><strong>**kwargs</strong> – Passed to the <code class="docutils literal notranslate"><span class="pre">FluxProblem</span></code> constructor.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The solved problem (also kept as <code class="docutils literal notranslate"><span class="pre">self.problem</span></code>).</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>FluxProblem</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
 </section>
 
 
@@ -692,20 +667,20 @@ the obs error), <code class="xref py py-meth docutils literal notranslate"><span
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="slv.inversion.mdm.html"
+       href="slv.inversion.mdm.ModelDataMismatchMixin.get_modeldata_mismatch.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">slv.inversion.mdm</p>
+        <p class="prev-next-title">slv.inversion.mdm.ModelDataMismatchMixin.get_modeldata_mismatch</p>
       </div>
     </a>
     <a class="right-next"
-       href="slv.inversion.priors.html"
+       href="slv.inversion.pipelines.stack_jacobians.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">slv.inversion.priors</p>
+        <p class="prev-next-title">slv.inversion.pipelines.stack_jacobians</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -719,32 +694,6 @@ the obs error), <code class="xref py py-meth docutils literal notranslate"><span
                 <dialog id="pst-secondary-sidebar-modal"></dialog>
                 <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
 
-
-  <div class="sidebar-secondary-item">
-<div
-    id="pst-page-navigation-heading-2"
-    class="page-toc tocsection onthispage">
-    <i class="fa-solid fa-list"></i> On this page
-  </div>
-  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
-    <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#slv.inversion.pipelines.stack_jacobians"><code class="docutils literal notranslate"><span class="pre">stack_jacobians()</span></code></a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#slv.inversion.pipelines.SLVMethaneInversion"><code class="docutils literal notranslate"><span class="pre">SLVMethaneInversion</span></code></a><ul class="visible nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#slv.inversion.pipelines.SLVMethaneInversion.COMPONENT_DEPS"><code class="docutils literal notranslate"><span class="pre">SLVMethaneInversion.COMPONENT_DEPS</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#slv.inversion.pipelines.SLVMethaneInversion.get_inputs"><code class="docutils literal notranslate"><span class="pre">SLVMethaneInversion.get_inputs()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#slv.inversion.pipelines.SLVMethaneInversion.get_obs"><code class="docutils literal notranslate"><span class="pre">SLVMethaneInversion.get_obs()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#slv.inversion.pipelines.SLVMethaneInversion.get_prior"><code class="docutils literal notranslate"><span class="pre">SLVMethaneInversion.get_prior()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#slv.inversion.pipelines.SLVMethaneInversion.get_forward_operator"><code class="docutils literal notranslate"><span class="pre">SLVMethaneInversion.get_forward_operator()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#slv.inversion.pipelines.SLVMethaneInversion.get_prior_error"><code class="docutils literal notranslate"><span class="pre">SLVMethaneInversion.get_prior_error()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#slv.inversion.pipelines.SLVMethaneInversion.obs_sites"><code class="docutils literal notranslate"><span class="pre">SLVMethaneInversion.obs_sites()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#slv.inversion.pipelines.SLVMethaneInversion.get_constant"><code class="docutils literal notranslate"><span class="pre">SLVMethaneInversion.get_constant()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#slv.inversion.pipelines.SLVMethaneInversion.filter_state_space"><code class="docutils literal notranslate"><span class="pre">SLVMethaneInversion.filter_state_space()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#slv.inversion.pipelines.SLVMethaneInversion.aggregate_obs_space"><code class="docutils literal notranslate"><span class="pre">SLVMethaneInversion.aggregate_obs_space()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#slv.inversion.pipelines.SLVMethaneInversion.run"><code class="docutils literal notranslate"><span class="pre">SLVMethaneInversion.run()</span></code></a></li>
-</ul>
-</li>
-</ul>
-  </nav></div>
 
   <div class="sidebar-secondary-item">
   <div role="note" aria-label="source link">

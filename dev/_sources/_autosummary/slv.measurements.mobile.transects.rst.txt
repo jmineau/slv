@@ -2,22 +2,37 @@ slv.measurements.mobile.transects
 =================================
 
 .. automodule:: slv.measurements.mobile.transects
+   :no-members:
 
-   
-   .. rubric:: Module Attributes
 
-   .. autosummary::
-   
-      NETWORK_DIR
-   
-   .. rubric:: Functions
+.. rubric:: Attributes
 
-   .. autosummary::
-   
-      assign_lines
-      build_network_transects
-      build_trax_transects
-      load_network_transects
-      load_transects
-      network_transects_dir
-   
+.. autosummary::
+   :toctree:
+   :nosignatures:
+
+   NETWORK_DIR
+
+
+
+.. rubric:: Functions
+
+.. autosummary::
+   :toctree:
+   :nosignatures:
+
+   assign_lines
+   build_network_transects
+   build_trax_transects
+   load_network_transects
+   load_transects
+   network_transects_dir
+
+
+
+
+
+
+
+
+

@@ -39,7 +39,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../../../_static/documentation_options.js?v=4dc2ff04"></script>
+    <script src="../../../../_static/documentation_options.js?v=3dcb0a44"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -56,7 +56,7 @@
     <link rel="search" title="Search" href="../../../../search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.9.2.dev67+gd2401dbd1" />
+  <meta name="docsearch:version" content="2026.9.2.dev68+g6a74a2716" />
   </head>
   
   
@@ -436,7 +436,7 @@
 
 
 <div class="viewcode-block" id="load_trax_uncalibrated_windows">
-<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.calibration.html#slv.measurements.mobile.load_trax_uncalibrated_windows">[docs]</a>
+<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.calibration.load_trax_uncalibrated_windows.html#slv.measurements.mobile.calibration.load_trax_uncalibrated_windows">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">load_trax_uncalibrated_windows</span><span class="p">(</span>
     <span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">enabled_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
@@ -466,7 +466,7 @@
 
 
 <div class="viewcode-block" id="load_trax_epoch_offsets">
-<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.calibration.html#slv.measurements.mobile.load_trax_epoch_offsets">[docs]</a>
+<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.calibration.load_trax_epoch_offsets.html#slv.measurements.mobile.calibration.load_trax_epoch_offsets">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">load_trax_epoch_offsets</span><span class="p">(</span>
     <span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">enabled_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
@@ -503,7 +503,7 @@
 
 
 <div class="viewcode-block" id="epoch_offset_column">
-<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.calibration.html#slv.measurements.mobile.epoch_offset_column">[docs]</a>
+<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.calibration.epoch_offset_column.html#slv.measurements.mobile.calibration.epoch_offset_column">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">epoch_offset_column</span><span class="p">(</span><span class="n">times</span><span class="p">,</span> <span class="n">offsets</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The epoch offset (ppm) in force at each time, 0.0 outside every epoch.</span>
@@ -524,7 +524,7 @@
 
 
 <div class="viewcode-block" id="apply_epoch_offset">
-<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.calibration.html#slv.measurements.mobile.apply_epoch_offset">[docs]</a>
+<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.calibration.apply_epoch_offset.html#slv.measurements.mobile.calibration.apply_epoch_offset">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">apply_epoch_offset</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">apply</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Subtract the analyzer-epoch offset from ``CH4_ppm`` (no-op when ``apply`` is False).</span>
@@ -549,7 +549,7 @@
 
 
 <div class="viewcode-block" id="select_uncalibrated">
-<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.calibration.html#slv.measurements.mobile.select_uncalibrated">[docs]</a>
+<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.calibration.select_uncalibrated.html#slv.measurements.mobile.calibration.select_uncalibrated">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">select_uncalibrated</span><span class="p">(</span>
     <span class="n">qaqc</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">windows</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">exclude_times</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Index</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
@@ -575,7 +575,7 @@
 
 
 <div class="viewcode-block" id="filter_cal_source">
-<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.calibration.html#slv.measurements.mobile.filter_cal_source">[docs]</a>
+<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.calibration.filter_cal_source.html#slv.measurements.mobile.calibration.filter_cal_source">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">filter_cal_source</span><span class="p">(</span>
     <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">include_uncalibrated</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>

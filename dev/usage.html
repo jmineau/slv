@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="_static/documentation_options.js?v=4dc2ff04"></script>
+    <script src="_static/documentation_options.js?v=3dcb0a44"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -59,7 +59,7 @@
     <link rel="prev" title="Installation" href="installation.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.9.2.dev67+gd2401dbd1" />
+  <meta name="docsearch:version" content="2026.9.2.dev68+g6a74a2716" />
   </head>
   
   
@@ -421,7 +421,7 @@
 <h1>Usage<a class="headerlink" href="#usage" title="Link to this heading">#</a></h1>
 <section id="a-map-of-the-valley">
 <h2>A map of the valley<a class="headerlink" href="#a-map-of-the-valley" title="Link to this heading">#</a></h2>
-<p><a class="reference internal" href="_autosummary/slv.basemap.html#slv.basemap.SaltLake" title="slv.basemap.SaltLake"><code class="xref py py-class docutils literal notranslate"><span class="pre">SaltLake</span></code></a> makes a cartopy map of the valley; each <code class="docutils literal notranslate"><span class="pre">add_*</span></code>
+<p><a class="reference internal" href="_autosummary/slv.basemap.SaltLake.html#slv.basemap.SaltLake" title="slv.basemap.SaltLake"><code class="xref py py-class docutils literal notranslate"><span class="pre">SaltLake</span></code></a> makes a cartopy map of the valley; each <code class="docutils literal notranslate"><span class="pre">add_*</span></code>
 method adds a layer and returns the map, so calls chain.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">slv.basemap</span><span class="w"> </span><span class="kn">import</span> <span class="n">SaltLake</span>
 
@@ -454,8 +454,8 @@ cartopy axes, and your own data to any <code class="docutils literal notranslate
 </section>
 <section id="a-methane-inversion">
 <h2>A methane inversion<a class="headerlink" href="#a-methane-inversion" title="Link to this heading">#</a></h2>
-<p>An <a class="reference internal" href="_autosummary/slv.inversion.config.html#slv.inversion.config.InversionConfig" title="slv.inversion.config.InversionConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">InversionConfig</span></code></a> describes the run and
-<a class="reference internal" href="_autosummary/slv.inversion.pipelines.html#slv.inversion.pipelines.SLVMethaneInversion" title="slv.inversion.pipelines.SLVMethaneInversion"><code class="xref py py-class docutils literal notranslate"><span class="pre">SLVMethaneInversion</span></code></a> builds the inputs (obs,
+<p>An <a class="reference internal" href="_autosummary/slv.inversion.config.InversionConfig.html#slv.inversion.config.InversionConfig" title="slv.inversion.config.InversionConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">InversionConfig</span></code></a> describes the run and
+<a class="reference internal" href="_autosummary/slv.inversion.pipelines.SLVMethaneInversion.html#slv.inversion.pipelines.SLVMethaneInversion" title="slv.inversion.pipelines.SLVMethaneInversion"><code class="xref py py-class docutils literal notranslate"><span class="pre">SLVMethaneInversion</span></code></a> builds the inputs (obs,
 background, prior, Jacobian from the PYSTILT footprints, covariances) and solves.
 Components are cached under <code class="docutils literal notranslate"><span class="pre">cache</span></code> keyed on the settings they depend on, so a
 second run that changes only, say, <code class="docutils literal notranslate"><span class="pre">prior_base_std</span></code> reuses the obs and the Jacobian.</p>
@@ -483,7 +483,7 @@ on a login node.</p>
 </section>
 <section id="sweeping-hyperparameters">
 <h2>Sweeping hyperparameters<a class="headerlink" href="#sweeping-hyperparameters" title="Link to this heading">#</a></h2>
-<p><a class="reference internal" href="_autosummary/slv.inversion.sweep.html#slv.inversion.sweep.Sweep" title="slv.inversion.sweep.Sweep"><code class="xref py py-class docutils literal notranslate"><span class="pre">Sweep</span></code></a> runs one inversion per combination of the listed
+<p><a class="reference internal" href="_autosummary/slv.inversion.sweep.Sweep.html#slv.inversion.sweep.Sweep" title="slv.inversion.sweep.Sweep"><code class="xref py py-class docutils literal notranslate"><span class="pre">Sweep</span></code></a> runs one inversion per combination of the listed
 values, sharing the cache, and collects the fit metrics.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">slv.inversion</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sweep</span>
 
@@ -498,7 +498,7 @@ values, sharing the cache, and collects the fit metrics.</p>
 </pre></div>
 </div>
 <p>For a SLURM job array, write the grid with <code class="docutils literal notranslate"><span class="pre">sweep.run(results_dir,</span> <span class="pre">n_jobs=0)</span></code> and
-call <a class="reference internal" href="_autosummary/slv.inversion.sweep.html#slv.inversion.sweep.run_sweep_job" title="slv.inversion.sweep.run_sweep_job"><code class="xref py py-func docutils literal notranslate"><span class="pre">run_sweep_job()</span></code></a> in each array task; it runs the config
+call <a class="reference internal" href="_autosummary/slv.inversion.sweep.run_sweep_job.html#slv.inversion.sweep.run_sweep_job" title="slv.inversion.sweep.run_sweep_job"><code class="xref py py-func docutils literal notranslate"><span class="pre">run_sweep_job()</span></code></a> in each array task; it runs the config
 at <code class="docutils literal notranslate"><span class="pre">$SLURM_ARRAY_TASK_ID</span></code>.</p>
 </section>
 <section id="trax-receptors">
@@ -524,7 +524,7 @@ over a 2-km track segment, and one point receptor per hour a train sits parked.<
 </pre></div>
 </div>
 <p>The observation for each receptor comes from
-<a class="reference internal" href="_autosummary/slv.measurements.mobile.html#slv.measurements.mobile.trax_receptor_observations" title="slv.measurements.mobile.trax_receptor_observations"><code class="xref py py-func docutils literal notranslate"><span class="pre">trax_receptor_observations()</span></code></a>, and the inversion reads
+<code class="xref py py-func docutils literal notranslate"><span class="pre">trax_receptor_observations()</span></code>, and the inversion reads
 them through <code class="docutils literal notranslate"><span class="pre">InversionConfig(mobile_obs=...)</span></code>.</p>
 </section>
 </section>

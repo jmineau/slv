@@ -1,0 +1,6 @@
+slv.basemap.SaltLake.add\_interstates
+=====================================
+
+.. currentmodule:: slv.basemap
+
+.. automethod:: SaltLake.add_interstates

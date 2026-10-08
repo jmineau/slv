@@ -39,7 +39,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../../_static/documentation_options.js?v=4dc2ff04"></script>
+    <script src="../../../_static/documentation_options.js?v=3dcb0a44"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -56,7 +56,7 @@
     <link rel="search" title="Search" href="../../../search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.9.2.dev67+gd2401dbd1" />
+  <meta name="docsearch:version" content="2026.9.2.dev68+g6a74a2716" />
   </head>
   
   
@@ -609,7 +609,7 @@
 
 
 <div class="viewcode-block" id="config_id">
-<a class="viewcode-back" href="../../../_autosummary/slv.inversion.sweep.html#slv.inversion.config_id">[docs]</a>
+<a class="viewcode-back" href="../../../_autosummary/slv.inversion.sweep.config_id.html#slv.inversion.sweep.config_id">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">config_id</span><span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="n">InversionConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Return a stable 16-char hex identifier for a config.</span>
@@ -633,7 +633,7 @@
 
 
 <div class="viewcode-block" id="Sweep">
-<a class="viewcode-back" href="../../../_autosummary/slv.inversion.sweep.html#slv.inversion.Sweep">[docs]</a>
+<a class="viewcode-back" href="../../../_autosummary/slv.inversion.sweep.Sweep.html#slv.inversion.sweep.Sweep">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">Sweep</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Object-oriented interface for parameter sweeps.</span>
@@ -677,8 +677,6 @@
 <span class="sd">        # sbatch --array=0-N job.sh</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="Sweep.__init__">
-<a class="viewcode-back" href="../../../_autosummary/slv.inversion.sweep.html#slv.inversion.Sweep.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">cache</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
@@ -712,8 +710,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">configs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">InversionConfig</span><span class="p">,</span> <span class="nb">type</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_config_map</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">InversionConfig</span><span class="p">,</span> <span class="nb">type</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_build_configs</span><span class="p">(</span><span class="n">grid_path</span><span class="p">)</span></div>
-
+        <span class="bp">self</span><span class="o">.</span><span class="n">_build_configs</span><span class="p">(</span><span class="n">grid_path</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_build_configs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">grid_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Build configs from grid (if exists) and/or sweep_kwargs.&quot;&quot;&quot;</span>
@@ -796,7 +793,7 @@
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Sweep initialized with </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">configs</span><span class="p">)</span><span class="si">}</span><span class="s2"> total configs&quot;</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Sweep.run">
-<a class="viewcode-back" href="../../../_autosummary/slv.inversion.sweep.html#slv.inversion.Sweep.run">[docs]</a>
+<a class="viewcode-back" href="../../../_autosummary/slv.inversion.sweep.Sweep.run.html#slv.inversion.sweep.Sweep.run">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">results_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
@@ -966,7 +963,7 @@
             <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Sweep.get_problem">
-<a class="viewcode-back" href="../../../_autosummary/slv.inversion.sweep.html#slv.inversion.Sweep.get_problem">[docs]</a>
+<a class="viewcode-back" href="../../../_autosummary/slv.inversion.sweep.Sweep.get_problem.html#slv.inversion.sweep.Sweep.get_problem">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_problem</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Reconstruct and run a single config by ID.</span>
@@ -996,12 +993,9 @@
         <span class="k">return</span> <span class="n">pipeline</span><span class="o">.</span><span class="n">run</span><span class="p">()</span></div>
 
 
-<div class="viewcode-block" id="Sweep.__len__">
-<a class="viewcode-back" href="../../../_autosummary/slv.inversion.sweep.html#slv.inversion.Sweep.__len__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return number of configs in sweep.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">configs</span><span class="p">)</span></div>
-
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">configs</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Sweep(</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="si">}</span><span class="s2"> configs, pipeline=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">pipeline_cls</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">)&quot;</span></div>
@@ -1014,7 +1008,7 @@
 
 
 <div class="viewcode-block" id="collect_metrics">
-<a class="viewcode-back" href="../../../_autosummary/slv.inversion.sweep.html#slv.inversion.collect_metrics">[docs]</a>
+<a class="viewcode-back" href="../../../_autosummary/slv.inversion.sweep.collect_metrics.html#slv.inversion.sweep.collect_metrics">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">collect_metrics</span><span class="p">(</span>
     <span class="n">problem</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
     <span class="n">config</span><span class="p">:</span> <span class="n">InversionConfig</span><span class="p">,</span>
@@ -1130,7 +1124,7 @@
 
 
 <div class="viewcode-block" id="run_sweep_job">
-<a class="viewcode-back" href="../../../_autosummary/slv.inversion.sweep.html#slv.inversion.run_sweep_job">[docs]</a>
+<a class="viewcode-back" href="../../../_autosummary/slv.inversion.sweep.run_sweep_job.html#slv.inversion.sweep.run_sweep_job">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">run_sweep_job</span><span class="p">(</span><span class="n">results_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Run a single config from a pre-serialised sweep grid (SLURM job arrays).</span>
@@ -1233,7 +1227,7 @@
 
 
 <div class="viewcode-block" id="SweepResults">
-<a class="viewcode-back" href="../../../_autosummary/slv.inversion.sweep.html#slv.inversion.SweepResults">[docs]</a>
+<a class="viewcode-back" href="../../../_autosummary/slv.inversion.sweep.SweepResults.html#slv.inversion.sweep.SweepResults">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">SweepResults</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Wraps ``sweep_results.csv`` for post-sweep analysis.</span>
@@ -1270,12 +1264,9 @@
 <span class="sd">        cfg, cls = results.to_config(results.best().iloc[0])</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="SweepResults.__init__">
-<a class="viewcode-back" href="../../../_autosummary/slv.inversion.sweep.html#slv.inversion.SweepResults.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_reload</span><span class="p">()</span></div>
-
+        <span class="bp">self</span><span class="o">.</span><span class="n">_reload</span><span class="p">()</span>
 
     <span class="c1"># ------------------------------------------------------------------</span>
     <span class="c1"># I/O</span>
@@ -1292,7 +1283,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s2">&quot;chi2_distance&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
 <div class="viewcode-block" id="SweepResults.reload">
-<a class="viewcode-back" href="../../../_autosummary/slv.inversion.sweep.html#slv.inversion.SweepResults.reload">[docs]</a>
+<a class="viewcode-back" href="../../../_autosummary/slv.inversion.sweep.SweepResults.reload.html#slv.inversion.sweep.SweepResults.reload">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">reload</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SweepResults</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Re-read from disk (useful while a sweep is still running).&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_reload</span><span class="p">()</span>
@@ -1304,7 +1295,7 @@
     <span class="c1"># ------------------------------------------------------------------</span>
 
 <div class="viewcode-block" id="SweepResults.best">
-<a class="viewcode-back" href="../../../_autosummary/slv.inversion.sweep.html#slv.inversion.SweepResults.best">[docs]</a>
+<a class="viewcode-back" href="../../../_autosummary/slv.inversion.sweep.SweepResults.best.html#slv.inversion.sweep.SweepResults.best">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">best</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">tol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.1</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Return rows where ``|reduced_chi2 - target| &lt; tol``, best first.</span>
@@ -1324,7 +1315,7 @@
 
 
 <div class="viewcode-block" id="SweepResults.failed">
-<a class="viewcode-back" href="../../../_autosummary/slv.inversion.sweep.html#slv.inversion.SweepResults.failed">[docs]</a>
+<a class="viewcode-back" href="../../../_autosummary/slv.inversion.sweep.SweepResults.failed.html#slv.inversion.sweep.SweepResults.failed">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">failed</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Return rows that errored during the sweep.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="s2">&quot;error&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
@@ -1337,7 +1328,7 @@
     <span class="c1"># ------------------------------------------------------------------</span>
 
 <div class="viewcode-block" id="SweepResults.stability">
-<a class="viewcode-back" href="../../../_autosummary/slv.inversion.sweep.html#slv.inversion.SweepResults.stability">[docs]</a>
+<a class="viewcode-back" href="../../../_autosummary/slv.inversion.sweep.SweepResults.stability.html#slv.inversion.sweep.SweepResults.stability">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">stability</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">groupby_params</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
@@ -1366,7 +1357,7 @@
 
 
 <div class="viewcode-block" id="SweepResults.sensitivity">
-<a class="viewcode-back" href="../../../_autosummary/slv.inversion.sweep.html#slv.inversion.SweepResults.sensitivity">[docs]</a>
+<a class="viewcode-back" href="../../../_autosummary/slv.inversion.sweep.SweepResults.sensitivity.html#slv.inversion.sweep.SweepResults.sensitivity">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">sensitivity</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">metric</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;reduced_chi2&quot;</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
@@ -1415,7 +1406,7 @@
     <span class="c1"># ------------------------------------------------------------------</span>
 
 <div class="viewcode-block" id="SweepResults.plot_chi2">
-<a class="viewcode-back" href="../../../_autosummary/slv.inversion.sweep.html#slv.inversion.SweepResults.plot_chi2">[docs]</a>
+<a class="viewcode-back" href="../../../_autosummary/slv.inversion.sweep.SweepResults.plot_chi2.html#slv.inversion.sweep.SweepResults.plot_chi2">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">plot_chi2</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">param</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -1457,7 +1448,7 @@
 
 
 <div class="viewcode-block" id="SweepResults.plot_heatmap">
-<a class="viewcode-back" href="../../../_autosummary/slv.inversion.sweep.html#slv.inversion.SweepResults.plot_heatmap">[docs]</a>
+<a class="viewcode-back" href="../../../_autosummary/slv.inversion.sweep.SweepResults.plot_heatmap.html#slv.inversion.sweep.SweepResults.plot_heatmap">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">plot_heatmap</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">param_x</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -1505,7 +1496,7 @@
 
 
 <div class="viewcode-block" id="SweepResults.plot_sensitivity">
-<a class="viewcode-back" href="../../../_autosummary/slv.inversion.sweep.html#slv.inversion.SweepResults.plot_sensitivity">[docs]</a>
+<a class="viewcode-back" href="../../../_autosummary/slv.inversion.sweep.SweepResults.plot_sensitivity.html#slv.inversion.sweep.SweepResults.plot_sensitivity">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">plot_sensitivity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">metric</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;reduced_chi2&quot;</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Horizontal bar chart of parameter sensitivity (range of group means).</span>
@@ -1538,7 +1529,7 @@
     <span class="c1"># ------------------------------------------------------------------</span>
 
 <div class="viewcode-block" id="SweepResults.to_config">
-<a class="viewcode-back" href="../../../_autosummary/slv.inversion.sweep.html#slv.inversion.SweepResults.to_config">[docs]</a>
+<a class="viewcode-back" href="../../../_autosummary/slv.inversion.sweep.SweepResults.to_config.html#slv.inversion.sweep.SweepResults.to_config">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">to_config</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">row</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span>

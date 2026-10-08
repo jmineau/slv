@@ -39,7 +39,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../../../_static/documentation_options.js?v=4dc2ff04"></script>
+    <script src="../../../../_static/documentation_options.js?v=3dcb0a44"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -56,7 +56,7 @@
     <link rel="search" title="Search" href="../../../../search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.9.2.dev67+gd2401dbd1" />
+  <meta name="docsearch:version" content="2026.9.2.dev68+g6a74a2716" />
   </head>
   
   
@@ -495,7 +495,7 @@
 
 
 <div class="viewcode-block" id="load_trax_network_points">
-<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.receptors.html#slv.measurements.mobile.load_trax_network_points">[docs]</a>
+<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.receptors.load_trax_network_points.html#slv.measurements.mobile.receptors.load_trax_network_points">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">load_trax_network_points</span><span class="p">(</span>
     <span class="n">spacing</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">50</span><span class="p">,</span>
     <span class="n">segment_spacing</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2000</span><span class="p">,</span>
@@ -557,7 +557,7 @@
 
 
 <div class="viewcode-block" id="load_trax_fixes">
-<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.receptors.html#slv.measurements.mobile.load_trax_fixes">[docs]</a>
+<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.receptors.load_trax_fixes.html#slv.measurements.mobile.receptors.load_trax_fixes">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">load_trax_fixes</span><span class="p">(</span>
     <span class="n">cache</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">location</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="s2">&quot;on_track&quot;</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
@@ -591,7 +591,7 @@
 
 
 <div class="viewcode-block" id="find_segment_crossings">
-<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.receptors.html#slv.measurements.mobile.find_segment_crossings">[docs]</a>
+<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.receptors.find_segment_crossings.html#slv.measurements.mobile.receptors.find_segment_crossings">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">find_segment_crossings</span><span class="p">(</span>
     <span class="n">fixes</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
     <span class="n">points</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -726,7 +726,7 @@
 
 
 <div class="viewcode-block" id="release_points">
-<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.receptors.html#slv.measurements.mobile.release_points">[docs]</a>
+<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.receptors.release_points.html#slv.measurements.mobile.receptors.release_points">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">release_points</span><span class="p">(</span><span class="n">points</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span> <span class="n">segment</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">lines</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Index</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Index of the segment&#39;s points on every line in ``lines`` (all of them if ``lines`` is empty).</span>
@@ -760,7 +760,7 @@
 
 
 <div class="viewcode-block" id="find_dwells">
-<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.receptors.html#slv.measurements.mobile.find_dwells">[docs]</a>
+<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.receptors.find_dwells.html#slv.measurements.mobile.receptors.find_dwells">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">find_dwells</span><span class="p">(</span>
     <span class="n">fixes</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
     <span class="n">radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">150.0</span><span class="p">,</span>
@@ -825,7 +825,7 @@
 
 
 <div class="viewcode-block" id="label_dwell_site">
-<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.receptors.html#slv.measurements.mobile.label_dwell_site">[docs]</a>
+<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.receptors.label_dwell_site.html#slv.measurements.mobile.receptors.label_dwell_site">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">label_dwell_site</span><span class="p">(</span>
     <span class="n">dwells</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
     <span class="n">points</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -873,7 +873,7 @@
 
 
 <div class="viewcode-block" id="build_dwell_receptors">
-<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.receptors.html#slv.measurements.mobile.build_dwell_receptors">[docs]</a>
+<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.receptors.build_dwell_receptors.html#slv.measurements.mobile.receptors.build_dwell_receptors">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">build_dwell_receptors</span><span class="p">(</span>
     <span class="n">fixes</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
     <span class="n">dwells</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
@@ -954,7 +954,7 @@
 
 
 <div class="viewcode-block" id="filter_receptor_hours">
-<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.receptors.html#slv.measurements.mobile.filter_receptor_hours">[docs]</a>
+<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.receptors.filter_receptor_hours.html#slv.measurements.mobile.receptors.filter_receptor_hours">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">filter_receptor_hours</span><span class="p">(</span>
     <span class="n">rec</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">hours</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">utc_offset</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">UTC_OFFSET</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
@@ -973,7 +973,7 @@
 
 
 <div class="viewcode-block" id="build_trax_receptors">
-<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.receptors.html#slv.measurements.mobile.build_trax_receptors">[docs]</a>
+<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.receptors.build_trax_receptors.html#slv.measurements.mobile.receptors.build_trax_receptors">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">build_trax_receptors</span><span class="p">(</span>
     <span class="n">crossings</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
     <span class="n">points</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>

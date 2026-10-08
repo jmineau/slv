@@ -1,0 +1,28 @@
+slv.inversion.report.ReportingMixin
+===================================
+
+.. currentmodule:: slv.inversion.report
+
+.. autoclass:: ReportingMixin
+   :no-members:
+
+
+
+
+
+
+.. rubric:: Methods
+
+.. autosummary::
+   :toctree:
+
+   ~ReportingMixin.calculate_total_flux
+   ~ReportingMixin.desroziers_diagnostic
+   ~ReportingMixin.fluxes_as_inventory
+   ~ReportingMixin.plot_diagnostics
+   ~ReportingMixin.plot_inputs
+   ~ReportingMixin.plot_results
+   ~ReportingMixin.summarize
+
+
+

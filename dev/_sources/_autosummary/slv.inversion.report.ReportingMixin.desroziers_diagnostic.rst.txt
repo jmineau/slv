@@ -1,0 +1,6 @@
+slv.inversion.report.ReportingMixin.desroziers\_diagnostic
+==========================================================
+
+.. currentmodule:: slv.inversion.report
+
+.. automethod:: ReportingMixin.desroziers_diagnostic

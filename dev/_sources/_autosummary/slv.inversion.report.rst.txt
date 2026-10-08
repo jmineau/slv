@@ -2,11 +2,24 @@ slv.inversion.report
 ====================
 
 .. automodule:: slv.inversion.report
+   :no-members:
 
-   
-   .. rubric:: Classes
 
-   .. autosummary::
-   
-      ReportingMixin
-   
+
+
+
+
+.. rubric:: Classes
+
+.. autosummary::
+   :toctree:
+   :nosignatures:
+
+   ReportingMixin
+
+
+
+
+
+
+

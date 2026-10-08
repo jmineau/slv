@@ -39,7 +39,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../../../_static/documentation_options.js?v=4dc2ff04"></script>
+    <script src="../../../../_static/documentation_options.js?v=3dcb0a44"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -56,7 +56,7 @@
     <link rel="search" title="Search" href="../../../../search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.9.2.dev67+gd2401dbd1" />
+  <meta name="docsearch:version" content="2026.9.2.dev68+g6a74a2716" />
   </head>
   
   
@@ -437,7 +437,7 @@
 
 
 <div class="viewcode-block" id="group_dir">
-<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.network.html#slv.measurements.mobile.group_dir">[docs]</a>
+<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.network.group_dir.html#slv.measurements.mobile.network.group_dir">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">group_dir</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;``$LINGROUP_DATA_DIR``, the lin-group data library.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="n">get_data_dir</span><span class="p">(</span><span class="s2">&quot;LINGROUP_DATA_DIR&quot;</span><span class="p">))</span></div>
@@ -445,7 +445,7 @@
 
 
 <div class="viewcode-block" id="user_dir">
-<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.network.html#slv.measurements.mobile.user_dir">[docs]</a>
+<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.network.user_dir.html#slv.measurements.mobile.network.user_dir">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">user_dir</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;``$SLV_USER_DATA_DIR``, where slv keeps derived data and caches.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="n">get_data_dir</span><span class="p">(</span><span class="s2">&quot;SLV_USER_DATA_DIR&quot;</span><span class="p">))</span></div>
@@ -477,7 +477,7 @@
 
 
 <div class="viewcode-block" id="get_geodf">
-<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.network.html#slv.measurements.mobile.get_geodf">[docs]</a>
+<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.network.get_geodf.html#slv.measurements.mobile.network.get_geodf">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_geodf</span><span class="p">(</span>
     <span class="n">obj</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span> <span class="o">|</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
@@ -504,7 +504,7 @@
 
 
 <div class="viewcode-block" id="load_trax_lines">
-<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.network.html#slv.measurements.mobile.load_trax_lines">[docs]</a>
+<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.network.load_trax_lines.html#slv.measurements.mobile.network.load_trax_lines">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">load_trax_lines</span><span class="p">(</span><span class="n">meters</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The TRAX lines (``UTA_TRAX.geojson`` under ``$LINGROUP_DATA_DIR``), one row per</span>
@@ -521,7 +521,7 @@
 
 
 <div class="viewcode-block" id="load_trax_points">
-<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.network.html#slv.measurements.mobile.load_trax_points">[docs]</a>
+<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.network.load_trax_points.html#slv.measurements.mobile.network.load_trax_points">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">load_trax_points</span><span class="p">(</span>
     <span class="n">spacing</span><span class="o">=</span><span class="mi">2000</span><span class="p">,</span> <span class="n">meters</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">resolution_factor</span><span class="o">=</span><span class="kc">None</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
@@ -578,7 +578,7 @@
 
 
 <div class="viewcode-block" id="filter_near_routes">
-<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.network.html#slv.measurements.mobile.filter_near_routes">[docs]</a>
+<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.network.filter_near_routes.html#slv.measurements.mobile.network.filter_near_routes">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">filter_near_routes</span><span class="p">(</span>
     <span class="n">gps</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span> <span class="n">routes</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span> <span class="n">buffer</span><span class="p">:</span> <span class="nb">float</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
@@ -599,7 +599,7 @@
 
 
 <div class="viewcode-block" id="load_depot_footprint">
-<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.network.html#slv.measurements.mobile.load_depot_footprint">[docs]</a>
+<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.network.load_depot_footprint.html#slv.measurements.mobile.network.load_depot_footprint">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">load_depot_footprint</span><span class="p">(</span><span class="n">meters</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Packaged shed footprints at the service centers (``trax_depots.geojson``).</span>
@@ -617,7 +617,7 @@
 
 
 <div class="viewcode-block" id="load_storage_polygons">
-<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.network.html#slv.measurements.mobile.load_storage_polygons">[docs]</a>
+<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.network.load_storage_polygons.html#slv.measurements.mobile.network.load_storage_polygons">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">load_storage_polygons</span><span class="p">(</span><span class="n">meters</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;All storage yards in :data:`storage_locations`, one row each with a ``name``.&quot;&quot;&quot;</span>
     <span class="n">rows</span> <span class="o">=</span> <span class="p">[]</span>

@@ -1,0 +1,6 @@
+slv.basemap.load\_mesowest
+==========================
+
+.. currentmodule:: slv.basemap
+
+.. autofunction:: load_mesowest

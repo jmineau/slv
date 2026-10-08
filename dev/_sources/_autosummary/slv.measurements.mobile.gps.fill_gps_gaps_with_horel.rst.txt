@@ -1,0 +1,6 @@
+slv.measurements.mobile.gps.fill\_gps\_gaps\_with\_horel
+========================================================
+
+.. currentmodule:: slv.measurements.mobile.gps
+
+.. autofunction:: fill_gps_gaps_with_horel

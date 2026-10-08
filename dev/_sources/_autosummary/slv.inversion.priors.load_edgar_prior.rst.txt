@@ -1,0 +1,6 @@
+slv.inversion.priors.load\_edgar\_prior
+=======================================
+
+.. currentmodule:: slv.inversion.priors
+
+.. autofunction:: load_edgar_prior

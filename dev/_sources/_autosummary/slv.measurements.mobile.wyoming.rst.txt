@@ -2,17 +2,30 @@ slv.measurements.mobile.wyoming
 ===============================
 
 .. automodule:: slv.measurements.mobile.wyoming
+   :no-members:
 
-   
-   .. rubric:: Functions
 
-   .. autosummary::
-   
-      calculate_enhancements
-      enhanced_R_and_ratio
-      merge_aeris_met
-      plot_windbarbs
-      read_aeris
-      read_met
-      wyomingMap
-   
+
+
+.. rubric:: Functions
+
+.. autosummary::
+   :toctree:
+   :nosignatures:
+
+   calculate_enhancements
+   enhanced_R_and_ratio
+   merge_aeris_met
+   plot_windbarbs
+   read_aeris
+   read_met
+   wyomingMap
+
+
+
+
+
+
+
+
+
