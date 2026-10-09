@@ -14,11 +14,10 @@ from lair.geo import write_rio_crs
 from slv.domain import UTC_OFFSET, XMAX, XMIN, YMAX, YMIN
 from slv.measurements.sites import load_site_config
 
-# CHPC location of the paper-1 PYSTILT project (fallback when SLV_STILT_DIR is unset). It is
-# frozen in PYSTILT's old layout (simulations/by-id/); paper 2 writes to a shared output
-# directory ($STILT_OUTPUT_DIR) that this module does not read yet.
+# CHPC location of the paper-1 PYSTILT project (fallback when SLV_STILT_DIR is unset). Its
+# results are in the shared output directory ($STILT_OUTPUT_DIR) that its config.yaml names.
 DEFAULT_STILT_PROJECT = (
-    "/uufs/chpc.utah.edu/common/home/lin-group27/jkm/stilt/projects/paper1_wbb"
+    "/uufs/chpc.utah.edu/common/home/lin-group27/jkm/stilt/projects/paper1"
 )
 
 
@@ -40,7 +39,7 @@ def stilt_project_dir() -> Path:
     """
     The paper-1 PYSTILT project: ``$SLV_STILT_DIR`` if set, else
     :data:`DEFAULT_STILT_PROJECT`. Use this in scripts instead of spelling the path out;
-    ``stilt_project_dir() / "simulations" / "by-id"`` is the per-receptor tree.
+    ``stilt.Project(stilt_project_dir())`` opens it.
     """
     return Path(os.environ.get("SLV_STILT_DIR", DEFAULT_STILT_PROJECT))
 
@@ -277,8 +276,6 @@ class InversionConfig:
         Components to rebuild (e.g. ``["obs"]``), or ``"all"``.
     num_processes : int
         Workers for obs loading and the Jacobian build.
-    timeout : int
-        Per-task timeout, s, of the parallel Jacobian build.
     plot_inputs, plot_results, plot_diagnostics : bool
         Which plots :meth:`~slv.inversion.pipelines.SLVMethaneInversion.run` draws.
     output_units : str
@@ -444,7 +441,6 @@ class InversionConfig:
 
     # --- Compute ---
     num_processes: int = 8
-    timeout: int = 100  # seconds (to avoid hanging processes; avg process is ~2s)
 
     # --- Plotting ---
     plot_inputs: bool = True

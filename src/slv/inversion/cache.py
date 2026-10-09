@@ -76,8 +76,8 @@ DEFAULT_COMPONENT_DEPS: dict[str, frozenset[str]] = {
         "stilt_project",
         "sparse_jacobian",
         "variant",
-        # num_processes and timeout intentionally excluded: they are
-        # computational knobs that do not change the Jacobian result.
+        # num_processes intentionally excluded: a computational knob
+        # that does not change the Jacobian result.
     },
     "prior_error": _PRIOR_DEPS
     | {

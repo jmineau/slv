@@ -12,6 +12,7 @@ import numpy as np
 import pandas as pd
 import pytest
 from fips import ForwardOperator, MatrixBlock
+from stilt.footprint import Jacobian
 
 import slv.inversion.pipelines as pl
 from slv.inversion.config import InversionConfig
@@ -172,37 +173,56 @@ def test_no_project_matching_the_obs_raises(monkeypatch):
 # --------------------------------------------------------------------------- per project
 
 
-class _FakeBuilder:
-    """Records what the per-project build asked for."""
+class _FakeProject:
+    """A ``stilt.Project`` that records what the per-project build asked for."""
 
     calls: list = []
 
-    def __init__(self, model):
-        self.model = model
+    def __init__(self, path, locations, variants, when):
+        self.path = Path(path)
+        self.simulations = pd.DataFrame(
+            {
+                "receptor": [f"r{i}" for i in range(len(locations))] * len(variants),
+                "variant": [n for n in variants for _ in locations],
+                "time": [when] * len(locations) * len(variants),
+                "location": list(locations) * len(variants),
+            }
+        )
+        self.variants = {
+            n: SimpleNamespace(footprint=object() if has else None)
+            for n, has in variants.items()
+        }
 
-    def build_from_target(self, target, **kw):
-        _FakeBuilder.calls.append({"project": self.model.path, **kw})
-        return _block(sorted(kw["location_ids"]), [TIMES[0]] * len(kw["location_ids"]))
+    def jacobian(self, sel, target, time_bins, workers=None):
+        from scipy import sparse
+
+        _FakeProject.calls.append(
+            {
+                "project": self.path,
+                "variant": set(sel["variant"]),
+                "locations": set(sel["location"]),
+            }
+        )
+        columns = pd.MultiIndex.from_product(
+            [time_bins.left, [-111.95], [40.65]], names=["time", "lon", "lat"]
+        )
+        data = sparse.csr_matrix(np.ones((len(sel), len(columns))))
+        return Jacobian(data, pd.Index(sel["receptor"]), columns, [], [])
 
 
 def _fake_stilt(monkeypatch, projects):
     """``projects``: path -> (receptor location ids, {variant: has a footprint})."""
     import stilt
 
-    def model(path):
-        locations, variants = projects[Path(path)]
-        return SimpleNamespace(
-            path=Path(path),
-            receptors=[SimpleNamespace(location_id=lid) for lid in locations],
-            variants={
-                n: SimpleNamespace(group=n, footprint=object() if has else None)
-                for n, has in variants.items()
-            },
-        )
+    cfg = InversionConfig(cache=False)
+    when = cfg.flux_time_bins[0].left + pd.Timedelta(hours=cfg.subset_hours_utc[0])
 
-    monkeypatch.setattr(stilt, "Model", model)
-    monkeypatch.setattr(pl, "JacobianBuilder", _FakeBuilder)
-    _FakeBuilder.calls = []
+    def project(path):
+        locations, variants = projects[Path(path)]
+        return _FakeProject(path, locations, variants, when)
+
+    monkeypatch.setattr(stilt, "Project", project)
+    _FakeProject.calls = []
 
 
 def test_project_jacobian_keeps_only_sims_matching_the_obs(monkeypatch):
@@ -217,7 +237,7 @@ def test_project_jacobian_keeps_only_sims_matching_the_obs(monkeypatch):
     )
     p = _pipeline(stilt_project="/trax", location_site_map={"x": "y"})
     H = p._project_jacobian(Path("/trax"), {"multi_aaaaaaaaaa"})
-    assert _FakeBuilder.calls[0]["location_ids"] == {"multi_aaaaaaaaaa"}
+    assert _FakeProject.calls[0]["locations"] == {"multi_aaaaaaaaaa"}
     assert H is not None
 
 
@@ -228,7 +248,7 @@ def test_project_with_no_matching_sims_returns_none(monkeypatch):
     )
     p = _pipeline(stilt_project="/prod", location_site_map={"x": "y"})
     assert p._project_jacobian(Path("/prod"), {"wbb"}) is None
-    assert _FakeBuilder.calls == []
+    assert _FakeProject.calls == []
 
 
 def test_variant_none_picks_the_one_variant_with_a_footprint(monkeypatch):
@@ -239,7 +259,7 @@ def test_variant_none_picks_the_one_variant_with_a_footprint(monkeypatch):
     )
     p = _pipeline(stilt_project="/prod", location_site_map={"x": "y"})
     p._project_jacobian(Path("/prod"), {"multi_aaaaaaaaaa"})
-    assert _FakeBuilder.calls[0]["variant"] == "hrrr"
+    assert _FakeProject.calls[0]["variant"] == {"hrrr"}
 
 
 def test_variant_none_with_several_footprint_variants_raises(monkeypatch):
@@ -259,3 +279,96 @@ def test_named_variant_missing_from_a_project_raises(monkeypatch):
     )
     with pytest.raises(ValueError, match="not in the STILT project"):
         p._project_jacobian(Path("/trax"), {"multi_aaaaaaaaaa"})
+
+
+def test_project_jacobian_drops_sims_outside_the_window_or_hours(monkeypatch):
+    _fake_stilt(monkeypatch, {Path("/prod"): (["loc_a"], {"hrrr": True})})
+    p = _pipeline(stilt_project="/prod", location_site_map={"loc_a": "wbb"})
+    inside = _FakeProject(
+        "/prod", ["loc_a"], {"hrrr": True}, pd.Timestamp("2000-01-01")
+    ).simulations
+    good = p.config.flux_time_bins[0].left + pd.Timedelta(
+        hours=p.config.subset_hours_utc[0]
+    )
+    sims = pd.concat(
+        [
+            inside.assign(receptor="early"),  # before the flux window
+            inside.assign(receptor="night", time=good.floor("D")),  # hour not kept
+            inside.assign(receptor="kept", time=good),
+        ]
+    )
+
+    def project(path):
+        fake = _FakeProject(path, [], {"hrrr": True}, good)
+        fake.simulations = sims
+        return fake
+
+    import stilt
+
+    monkeypatch.setattr(stilt, "Project", project)
+    H = p._project_jacobian(Path("/prod"), {"wbb"})
+    assert list(H.data.index) == [("wbb", good)]
+
+
+# --------------------------------------------------------------------------- project_jacobian
+
+
+def _stilt_jacobian(data, receptors):
+    from scipy import sparse
+
+    columns = pd.MultiIndex.from_product(
+        [TIMES, [-111.95, -111.85], [40.65]], names=["time", "lon", "lat"]
+    )
+    return Jacobian(
+        sparse.csr_matrix(np.asarray(data, dtype=float)),
+        pd.Index(receptors, name="receptor"),
+        columns,
+        [],
+        [],
+    )
+
+
+def test_project_jacobian_labels_rows_by_location_and_time():
+    sel = pd.DataFrame(
+        {
+            "receptor": ["r0", "r1", "r2"],
+            "variant": "hrrr",
+            "time": TIMES[[0, 0, 1]],
+            "location": ["loc_a", "multi_aaaaaaaaaa", "loc_a"],
+        }
+    )
+    J = _stilt_jacobian(
+        [[1, 0, 0, 2], [0, 1e-20, 0, 0], [0, 3, 0, 0]], ["r0", "r1", "r2"]
+    )
+    project = SimpleNamespace(jacobian=lambda *a, **k: J)
+    H = pl.project_jacobian(
+        project, sel, None, None, location_mapper={"loc_a": "wbb"}, sparse=False
+    )
+    # r1 is below the threshold everywhere, so it has no row
+    assert list(H.data.index) == [("wbb", TIMES[0]), ("wbb", TIMES[1])]
+    assert H.data.index.names == ["obs_location", "obs_time"]
+    assert H.data.columns.names == ["lon", "lat", "time"]
+    assert H.data.loc[("wbb", TIMES[0]), (-111.95, 40.65, TIMES[0])] == 1
+    assert H.data.loc[("wbb", TIMES[0]), (-111.85, 40.65, TIMES[1])] == 2
+    assert H.data.loc[("wbb", TIMES[1]), (-111.85, 40.65, TIMES[0])] == 3
+
+
+def test_project_jacobian_stays_sparse():
+    sel = pd.DataFrame(
+        {"receptor": ["r0"], "variant": "hrrr", "time": TIMES[:1], "location": ["a"]}
+    )
+    J = _stilt_jacobian([[1, 0, 0, 0]], ["r0"])
+    H = pl.project_jacobian(
+        SimpleNamespace(jacobian=lambda *a, **k: J), sel, None, None
+    )
+    assert H.is_sparse
+    assert H.data.sum().sum() == 1
+
+
+def test_project_jacobian_with_no_rows_is_none():
+    sel = pd.DataFrame(
+        {"receptor": ["r0"], "variant": "hrrr", "time": TIMES[:1], "location": ["a"]}
+    )
+    J = _stilt_jacobian([[0, 0, 0, 0]], ["r0"])
+    project = SimpleNamespace(jacobian=lambda *a, **k: J)
+    assert pl.project_jacobian(project, sel, None, None) is None

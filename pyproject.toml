@@ -36,8 +36,8 @@ dependencies = [
 
 [project.optional-dependencies]
 inversion = [
-    "fips[flux]>=0.1.0b8",  # JacobianBuilder.build_from_target(variant=...)
-    "pystilt>=0.1.0a21",  # variants: one footprint per simulation
+    "fips[flux]>=0.1.0b8",
+    "pystilt>=0.1.0a23",  # Project.jacobian, the shared output layout
     "joblib>=1.5.3",
     "seaborn",
     # "xesmf",
