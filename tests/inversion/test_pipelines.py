@@ -608,25 +608,29 @@ def test_auto_location_map_is_not_written_to_config(monkeypatch):
     import slv.inversion.pipelines as pipelines_module
     from slv.inversion.sweep import config_id
 
-    class FakeModel:
-        def __init__(self, project):
-            self.receptors = [SimpleNamespace(location_id="loc_a")]
-            self.variants = {"hrrr": SimpleNamespace(group="hrrr", footprint=object())}
-
     seen = {}
 
-    class FakeBuilder:
-        def __init__(self, model):
-            pass
+    def fake_project(path):
+        bins = pipeline.config.flux_time_bins
+        when = bins[0].left + pd.Timedelta(hours=pipeline.config.subset_hours_utc[0])
+        return SimpleNamespace(
+            simulations=pd.DataFrame(
+                {
+                    "receptor": ["r0"],
+                    "variant": "hrrr",
+                    "time": [when],
+                    "location": "loc_a",
+                }
+            ),
+            variants={"hrrr": SimpleNamespace(footprint=object())},
+        )
 
-        def build_from_target(self, target, **kwargs):
-            seen.update(kwargs)
-            return MatrixBlock(
-                jacobian()[0], row_block="concentration", col_block="flux"
-            )
+    def fake_project_jacobian(project, sel, target, bins, **kwargs):
+        seen.update(kwargs)
+        return MatrixBlock(jacobian()[0], row_block="concentration", col_block="flux")
 
-    monkeypatch.setattr(stilt, "Model", FakeModel)
-    monkeypatch.setattr(pipelines_module, "JacobianBuilder", FakeBuilder)
+    monkeypatch.setattr(stilt, "Project", fake_project)
+    monkeypatch.setattr(pipelines_module, "project_jacobian", fake_project_jacobian)
     monkeypatch.setattr(
         config_module,
         "build_location_site_map",

@@ -181,7 +181,7 @@ DAQ_DIR = get_data_dir("SLV_DAQ_DIR")
 ```
 
 One exception: `InversionConfig.stilt_project` defaults to `SLV_STILT_DIR` if set,
-else `DEFAULT_STILT_PROJECT` (the CHPC paper-1 PYSTILT project, frozen), so the config
+else `DEFAULT_STILT_PROJECT` (the CHPC paper-1 PYSTILT project), so the config
 stays usable without the env var.
 
 Raises `OSError` with a clear message if `env_var` is unset — don't paper

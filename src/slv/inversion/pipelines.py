@@ -15,7 +15,7 @@ import pandas as pd
 from fips import Block, CovarianceMatrix, ForwardOperator, MatrixBlock, Vector
 from fips.aggregators import ObsAggregator
 from fips.covariance import DiagonalError
-from fips.problems.flux import FluxInversionPipeline, JacobianBuilder
+from fips.problems.flux import FluxInversionPipeline
 from fips.problems.flux.problem import FluxProblem
 
 from slv.inversion.background import get_slv_background
@@ -67,6 +67,60 @@ def stack_jacobians(
     aligned = [f.reindex(columns=cols, fill_value=0.0) for f in frames]
     return MatrixBlock(
         pd.concat(aligned, axis=0),
+        name="jacobian",
+        row_block="concentration",
+        col_block="flux",
+        sparse=sparse,
+    )
+
+
+def project_jacobian(
+    project: Any,
+    sel: pd.DataFrame,
+    target: Any,
+    flux_bins: pd.IntervalIndex,
+    *,
+    location_mapper: dict[str, str] | None = None,
+    workers: int | None = None,
+    threshold: float | None = 1e-15,
+    sparse: bool = True,
+) -> MatrixBlock | None:
+    """
+    One STILT project's flux Jacobian, from ``stilt.Project.jacobian``.
+
+    ``sel`` is the rows of ``project.simulations`` to use, all of one variant. Each
+    footprint is summed onto ``target`` per flux bin. Rows are ``(obs_location,
+    obs_time)``: the receptor's location id, renamed by ``location_mapper`` when it names a
+    site, and its time. Columns are the target's cells and the bins' left edges
+    (``(lon, lat, time)`` for a longitude/latitude grid). A receptor whose footprint is
+    empty or misses the target gets no row, and entries below ``threshold`` are zero.
+    Returns None when no receptor has a row.
+    """
+    from stilt.footprint import Jacobian
+
+    J = project.jacobian(sel, target, flux_bins, workers=workers)
+    if J.missing:
+        print(f"  {len(J.missing)} receptors have no footprint yet; skipped")
+    data = J.data.tocsr(copy=True)
+    if threshold is not None:
+        data.data[np.abs(data.data) < threshold] = 0.0
+        data.eliminate_zeros()
+    keep = np.flatnonzero(data.getnnz(axis=1))
+    if not len(keep):
+        return None
+    kept = Jacobian(data[keep], J.receptors[keep], J.columns, J.empty, J.missing)
+    frame = kept.to_frame(sparse=sparse)
+
+    info = sel.drop_duplicates("receptor").set_index("receptor").loc[kept.receptors]
+    mapper = location_mapper or {}
+    locations = [mapper.get(lid, lid) for lid in info["location"].astype(str)]
+    frame.index = pd.MultiIndex.from_arrays(
+        [locations, pd.DatetimeIndex(info["time"])], names=["obs_location", "obs_time"]
+    )
+    cells = [n for n in J.columns.names if n != "time"]
+    frame.columns = J.columns.reorder_levels([*cells, "time"])
+    return MatrixBlock(
+        frame,
         name="jacobian",
         row_block="concentration",
         col_block="flux",
@@ -218,17 +272,18 @@ class SLVMethaneInversion(
         One project's Jacobian rows for the obs in ``obs_locations``, or None if it has
         no simulation matching any of them.
         """
-        from stilt import Model
+        import stilt
 
         from slv.inversion.config import build_location_site_map
 
-        model = Model(project)
-        sim_locations = {str(r.location_id) for r in model.receptors}
+        proj = stilt.Project(project)
+        sims = proj.simulations
+        sim_locations = set(sims["location"].astype(str))
 
         # Build location mapper from all simulations in the project.
         # Must happen before filtering so stationary sites can be resolved.
-        # Mobile location_ids won't appear in the mapper (no site_config entry),
-        # so mapper.get(lid, lid) returns the location_id itself for mobile sims.
+        # Mobile location ids won't appear in the mapper (no site_config entry),
+        # so mapper.get(lid, lid) returns the location id itself for mobile sims.
         # The auto-built mapper is not written back to the config: it is only built on a
         # cache miss, and a config changed mid-run would change its sweep config_id.
         location_mapper = self.config.location_site_map
@@ -242,8 +297,8 @@ class SLVMethaneInversion(
             )
 
         # Filter to simulations relevant for this obs set.
-        # For stationary sims: mapper resolves location_id → site name → in obs.
-        # For mobile sims: location_id not in mapper → falls back to location_id
+        # For stationary sims: mapper resolves location id → site name → in obs.
+        # For mobile sims: location id not in mapper → falls back to the location id
         #   itself, which IS the obs_location for mobile sites.
         relevant_location_ids = {
             lid
@@ -254,29 +309,39 @@ class SLVMethaneInversion(
             print(f"  {project.name}: no simulations match the obs; skipped")
             return None
 
-        variant = self._resolve_variant(model, project)
-        jacobian_builder = JacobianBuilder(model)
-        return jacobian_builder.build_from_target(
+        variant = self._resolve_variant(proj, project)
+        bins = self.config.flux_time_bins
+        times = pd.DatetimeIndex(sims["time"])
+        keep = (
+            (sims["variant"] == variant).to_numpy()
+            & sims["location"].astype(str).isin(relevant_location_ids).to_numpy()
+            & (times >= bins[0].left)
+            & (times <= bins[-1].right)
+            & times.hour.isin(self.config.subset_hours_utc)
+        )
+        sel = sims[keep]
+        if sel.empty:
+            print(f"  {project.name}: no simulations in the time range; skipped")
+            return None
+        return project_jacobian(
+            proj,
+            sel,
             self.config.state_grid,
-            flux_times=self.config.flux_time_bins,
-            variant=variant,
-            location_ids=relevant_location_ids,
-            subset_hours=self.config.subset_hours_utc,
+            bins,
             location_mapper=location_mapper,
-            num_processes=self.config.num_processes,
-            timeout=self.config.timeout,
+            workers=self.config.num_processes,
             sparse=self.config.sparse_jacobian,
         )
 
-    def _resolve_variant(self, model, project: Path) -> str:
+    def _resolve_variant(self, proj, project: Path) -> str:
         """
         ``config.variant`` if set (this project must define it), else the project's one
         variant with a footprint.
         """
-        variants = model.variants
+        variants = proj.variants
         variant = self.config.variant
         if variant is not None:
-            names = set(variants) | {v.group for v in variants.values()}
+            names = set(variants)
             if variant not in names:
                 raise ValueError(
                     f"Variant {variant!r} is not in the STILT project {project} "

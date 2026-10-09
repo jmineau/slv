@@ -39,6 +39,13 @@ versions are calendar-based (YYYY.M.PATCH).
 
 ### Changed
 
+- **Requires PYSTILT 0.1.0a23** (breaking). The Jacobian comes from PYSTILT's
+  `Project.jacobian` (`project_jacobian` wraps it as fips's `MatrixBlock`, with the same
+  `(obs_location, obs_time)` rows and `(lon, lat, time)` columns as before), since fips
+  dropped its STILT `JacobianBuilder`. `stilt_project` must be a 0.1.0a23 project: the
+  default is now `projects/paper1`, whose results are in the shared output, not the
+  frozen `paper1_wbb`. `InversionConfig.timeout` is gone (the build is threads, with no
+  per-task timeout). A Jacobian over an ensemble variant needs one realization picked.
 - The API reference has a page for each class, with tables of its attributes and
   methods, and a page for each member, as in pandas. A subclass links to the
   members it inherits, and a package's page lists the public names it

@@ -138,7 +138,7 @@ def get_ct_stilt_background(
 
     Reads the daily CT-STILT background product (built by sampling the
     CarbonTracker-CH4 field at STILT trajectory endpoints -- see
-    ``lair.noaa.CarbonTracker.background`` + ``stilt.Trajectories.endpoints``) and
+    ``lair.noaa.CarbonTracker.background`` + PYSTILT's ``particles.stilt.endpoints()``) and
     aligns it to ``obs_times`` by date. ``csv_path`` is passed explicitly (e.g. via
     ``background_kwargs``) so the package stays decoupled from any workspace layout.
     Obs whose date is absent from the product get NaN.
