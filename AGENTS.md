@@ -24,8 +24,8 @@ PyPI/import name: `slv`. Source in `src/slv/`.
   user's everyday SLV workflows reproducible: defining the domain, loading
   measurements and inventories, running flux inversions (via `fips`),
   building figures.
-- Depends directly on the user's own packages — `lair[science,geo]` (pinned to
-  a release tag) and `uataq` (from main) are git-installed; `fips[flux]` (which pulls in
+- Depends directly on the user's own packages — `lair[science,geo]` and `uataq` (each pinned
+  to a release tag) are git-installed; `fips[flux]` (which pulls in
   `pystilt`) lives in the `inversion` extra.
 
 ## Module layout
@@ -280,9 +280,9 @@ the branch. Never edit gh-pages by hand.
   `XMIN`/`XMAX`/`YMIN`/`YMAX` elsewhere; import from `slv.domain`.
 - **Data paths via `get_data_dir`**, not raw `os.environ.get`. The
   error message tells users which env var to set.
-- **Upstream pins**: `lair` is pinned to a release tag (`@vYYYY.MM.PATCH` in
-  `pyproject.toml` and `ci/environment.yml`; bump both and relock), `uataq` is
-  pulled from git main (no version pin). Bumping behavior in those repos can
+- **Upstream pins**: `lair` and `uataq` are pinned to release tags (`@vYYYY.MM.PATCH`
+  and `@vYYYY.M.PATCH`, in `pyproject.toml` and `ci/environment.yml`; bump both files
+  and relock). Bumping behavior in those repos can
   silently change `slv` results — coordinate changes. `load_epa_prior` reads EPA's
   express product either way (`EPAv2(express=True, scale_by_month=not express)`), so the
   monthly default and paper 1's annual `express=True` hold the same emissions (27 sectors

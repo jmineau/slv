@@ -880,19 +880,18 @@ wheels = [
 
 [[package]]
 name = "fips"
-version = "0.1.0b8"
+version = "0.1.0b9"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "joblib" },
     { name = "numpy" },
     { name = "pandas" },
     { name = "scipy" },
-    { name = "typing-extensions" },
     { name = "xarray" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/2d/7d/d5708d2b6d99c716b76def28a0944c5b5fb37b1d543c2e69b9c2e8407cbb/fips-0.1.0b8.tar.gz", hash = "sha256:83e9bddf1226c64b7d0d8e86978b4daf07345af9abf44e192f9a0f6782878735", size = 92290, upload-time = "2026-09-29T19:23:19.363Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/00/93/f4a58d186055a45d5faeac23d0bf2c69e068e06044dbf59c59bce88eb666/fips-0.1.0b9.tar.gz", hash = "sha256:29ec86236c41529ac4d37ebd45edd94305fcbcae04020b045c3180a7d60a9732", size = 1192101, upload-time = "2026-10-10T02:34:45.075Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/7c/71/390e642e72d7295683efead0ffbbc8fa00e8989669c92ae32d7596706b83/fips-0.1.0b8-py3-none-any.whl", hash = "sha256:2eb27f3a94c8bdee342399cdcaf8668bbdda38057101b59c9af25f74afbb95b3", size = 65359, upload-time = "2026-09-29T19:23:17.656Z" },
+    { url = "https://files.pythonhosted.org/packages/4f/38/982b11321c9d31bb07d4b3bc2765387b2781bd275e2298aa8ccb7a7ac5b1/fips-0.1.0b9-py3-none-any.whl", hash = "sha256:7580cf534d121512d02314b7485d4755b32f21d80f87dd7f51102b8ad0a1e23b", size = 58757, upload-time = "2026-10-10T02:34:43.533Z" },
 ]
 
 [package.optional-dependencies]
@@ -900,7 +899,6 @@ flux = [
     { name = "cartopy" },
     { name = "h5py" },
     { name = "matplotlib" },
-    { name = "pystilt" },
 ]
 
 [[package]]
@@ -1409,8 +1407,8 @@ wheels = [
 
 [[package]]
 name = "lair"
-version = "2026.12.7"
-source = { git = "https://github.com/jmineau/lair?rev=v2026.12.7#5ba966e45f2010e0e790e03a5e208dd18028463a" }
+version = "2026.12.8"
+source = { git = "https://github.com/jmineau/lair?rev=v2026.12.8#27e8857eb381fa2a342f20aceffda245ce4af260" }
 dependencies = [
     { name = "cf-xarray" },
     { name = "dask" },
@@ -1420,7 +1418,6 @@ dependencies = [
     { name = "pandas" },
     { name = "pint" },
     { name = "pint-xarray" },
-    { name = "typing-extensions" },
     { name = "xarray" },
 ]
 
@@ -3437,13 +3434,13 @@ requires-dist = [
     { name = "fips", extras = ["flux"], marker = "extra == 'inversion'", specifier = ">=0.1.0b8" },
     { name = "geopandas" },
     { name = "joblib", marker = "extra == 'inversion'", specifier = ">=1.5.3" },
-    { name = "lair", extras = ["geo", "science"], git = "https://github.com/jmineau/lair?rev=v2026.12.7" },
+    { name = "lair", extras = ["geo", "science"], git = "https://github.com/jmineau/lair?rev=v2026.12.8" },
     { name = "matplotlib" },
     { name = "pandas" },
     { name = "pystilt", marker = "extra == 'inversion'", specifier = ">=0.1.0a24" },
     { name = "seaborn", marker = "extra == 'inversion'" },
     { name = "siphon", specifier = ">=0.10.0" },
-    { name = "uataq", git = "https://github.com/jmineau/uataq" },
+    { name = "uataq", git = "https://github.com/jmineau/uataq?rev=v2026.10.0" },
     { name = "xarray" },
 ]
 provides-extras = ["inversion"]
@@ -3907,8 +3904,8 @@ wheels = [
 
 [[package]]
 name = "uataq"
-version = "2025.11.0"
-source = { git = "https://github.com/jmineau/uataq#a4dbfa672fa5d3a5979b36775571c2cb006284c9" }
+version = "2026.10.0"
+source = { git = "https://github.com/jmineau/uataq?rev=v2026.10.0#cafd86e4431c0cafe59d8f55bb9a215425705db8" }
 dependencies = [
     { name = "geopandas" },
     { name = "numpy" },

@@ -40,5 +40,5 @@ dependencies:
       - pystilt>=0.1.0a24
       # git-only deps not on conda-forge
       # geo extra: lair.geo, imported by slv.inversion.config
-      - lair[science,geo] @ git+https://github.com/jmineau/lair@v2026.12.7
-      - uataq @ git+https://github.com/jmineau/uataq
+      - lair[science,geo] @ git+https://github.com/jmineau/lair@v2026.12.8
+      - uataq @ git+https://github.com/jmineau/uataq@v2026.10.0
