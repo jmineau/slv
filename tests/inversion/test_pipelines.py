@@ -497,6 +497,18 @@ class TestPkgRev:
         finally:
             sys.modules.pop("slvtest_installed_pkg", None)
 
+    def test_installed_release_is_named_as_its_tag(self, tmp_path, monkeypatch):
+        # A release names one cache folder, installed (metadata "9.9.9") or checked
+        # out (git describe "v9.9.9").
+        site = tmp_path / ".venv" / "lib" / "python3.12" / "site-packages"
+        _repo_with_package(tmp_path, site, "slvtest_release_pkg", "v0.0.1")
+        monkeypatch.syspath_prepend(str(site))
+        monkeypatch.setattr("slv.inversion.cache._dist_version", lambda name: "9.9.9")
+        try:
+            assert _pkg_rev("slvtest_release_pkg", "slvtest-release-pkg") == "v9.9.9"
+        finally:
+            sys.modules.pop("slvtest_release_pkg", None)
+
     def test_source_checkout_uses_git_describe(self, tmp_path, monkeypatch):
         src = tmp_path / "src"
         _repo_with_package(tmp_path, src, "slvtest_checkout_pkg", "v1.2.3")

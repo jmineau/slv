@@ -224,7 +224,9 @@ def _pkg_rev(import_name: str, dist_name: str) -> str:
     For an editable git checkout (the dev setup), ``git describe`` yields a tag +
     commits-since + short SHA (+ ``-dirty``), so any commit *or* uncommitted edit
     to the package busts the cache automatically -- no reinstall or version bump
-    needed.  Falls back to the installed metadata version for a regular install.
+    needed.  A regular install gives its metadata version, written as the release's
+    tag (``v0.1.0b9``), so a release names the same cache folder whether it is
+    installed or checked out.
 
     A regular install lives under ``site-packages``, and git must not be asked about
     it: a venv inside another repo (slv's own ``.venv``) would answer with *that*
@@ -253,7 +255,7 @@ def _pkg_rev(import_name: str, dist_name: str) -> str:
         except (OSError, subprocess.SubprocessError):
             pass
     try:
-        return _dist_version(dist_name)
+        return f"v{_dist_version(dist_name)}"
     except PackageNotFoundError:
         return "unknown"
 
