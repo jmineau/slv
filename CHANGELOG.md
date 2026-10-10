@@ -6,6 +6,8 @@ versions are calendar-based (YYYY.M.PATCH).
 
 ## [Unreleased]
 
+## [2026.10.0] - 2026-10-09
+
 ### Added
 
 - TRAX dwell receptors: `find_dwells` picks out the periods a train sits parked at one
