@@ -166,7 +166,7 @@ src/slv/
   py.typed           ships type hints
 tests/               pytest
 docs/                Sphinx
-ci/environment.yml   conda env (for the xesmf install path)
+pixi.lock            the environment with xesmf, locked (`[tool.pixi]` in pyproject.toml)
 .claude/             local Claude Code settings (`settings.local.json`)
 ```
 
@@ -218,10 +218,9 @@ Two paths depending on `xesmf` (regridding) needs:
 uv sync                        # slv, the inversion extra (via the dev group), dev tools
 uv sync --no-dev               # slv alone; add --extra inversion for fips[flux] etc.
 
-# With xesmf (needs conda-built ESMF)
-conda env create -f ci/environment.yml
-conda activate slv
-pip install --no-deps -e .
+# With xesmf (needs conda-built ESMF): pixi installs it beside everything else
+pixi install                   # .pixi/envs/default, from pixi.lock
+pixi run pytest                # or call .pixi/envs/default/bin/python
 ```
 
 The `inversion` extra is what unlocks `slv.inversion` (it depends on
@@ -249,9 +248,11 @@ CI (`.github/workflows/`): `tests.yml`, `quality.yml` and `docs.yml` install
 `uv.lock` and run the recipes above, on Linux and Python 3.11 to 3.14; `publish.yml`
 makes the GitHub Release from a tag (Zenodo archives it). xesmf is not in `uv.lock`
 (conda-forge only), so there the tests that need it skip; the Tests workflow's
-`conda` job runs the whole suite in `ci/environment.yml`, which carries the conda
-deps of slv and its inversion extra because slv is installed `--no-deps` (keep its
-pins in step with `pyproject.toml`; add new extras there too). No CHPC data roots are
+`pixi` job runs the whole suite in the pixi environment (`[tool.pixi]` in
+`pyproject.toml`, locked in `pixi.lock`): conda-forge supplies ESMF and xesmf, and
+everything else comes from the dependencies in `pyproject.toml`, so nothing is listed
+twice. After changing a dependency, run `pixi lock` as well as `uv lock`; the job
+fails on a `pixi.lock` that is out of date. No CHPC data roots are
 set in CI: tests must not read group data. Warnings are errors in the tests; a test
 that expects one asserts it with `pytest.warns`, and a third-party one is ignored by
 message in `[tool.pytest]`. pyrefly fails on any error not in `pyrefly-baseline.json`
@@ -281,8 +282,8 @@ the branch. Never edit gh-pages by hand.
 - **Data paths via `get_data_dir`**, not raw `os.environ.get`. The
   error message tells users which env var to set.
 - **Upstream pins**: `lair` and `uataq` are pinned to release tags (`@vYYYY.MM.PATCH`
-  and `@vYYYY.M.PATCH`, in `pyproject.toml` and `ci/environment.yml`; bump both files
-  and relock). Bumping behavior in those repos can
+  and `@vYYYY.M.PATCH`, in `pyproject.toml`; bump them and relock with `uv lock` and
+  `pixi lock`). Bumping behavior in those repos can
   silently change `slv` results — coordinate changes. `load_epa_prior` reads EPA's
   express product either way (`EPAv2(express=True, scale_by_month=not express)`), so the
   monthly default and paper 1's annual `express=True` hold the same emissions (27 sectors
@@ -299,9 +300,10 @@ the branch. Never edit gh-pages by hand.
   the `git describe` rev of the editable fips/pystilt checkouts (`_version_tag` /
   `_pkg_rev`) — so committing or editing those packages busts the cache
   automatically, no reinstall needed. A copy under `site-packages` (the uv `.venv`,
-  which sits inside the slv repo) uses its metadata version instead: `git describe`
-  there would answer with slv's rev. The conda `slv` env imports fips/PYSTILT from
-  their checkouts. `get_inputs` raises when the prior's cells and the Jacobian's
+  which sits inside the slv repo, or the pixi env) uses its metadata version instead,
+  written as the release's tag (`v0.1.0b9`): `git describe` there would answer with
+  slv's rev, and a release names the same folder installed or checked out.
+  `get_inputs` raises when the prior's cells and the Jacobian's
   columns differ (stale caches after a grid change). Components other than
   the Jacobian also hash the *release* of lair / uataq (`COMPONENT_PACKAGES`,
   `_release`: an editable checkout's static pyproject version or latest git tag, else
@@ -389,9 +391,9 @@ results = run_sweep_job(sweep)
   `object.__new__(SLVMethaneInversion)` with only `config` set (no fips `__init__`, no
   data); viz tests stub `GeoAxes.add_image` so no tiles are fetched; the TRAX loaders run
   on a synthetic two-line network (`tests/measurements/mobile/test_network.py`). Tests
-  needing xesmf (lair cell areas) `importorskip` it: they run in the conda env / CI only.
-  CI pins the no-MPI ESMF build (`esmf=*=nompi*`): with the MPICH build, the MPI
-  start-up on `import xesmf` sometimes killed the whole pytest process (exit 143, no
+  needing xesmf (lair cell areas) `importorskip` it: they run in the pixi env / CI only.
+  The pixi env pins the no-MPI ESMF build (`build = "nompi*"`): with the MPICH build,
+  the MPI start-up on `import xesmf` sometimes killed the whole pytest process (exit 143, no
   traceback), about half the runs until 2026-10-05.
   Measure coverage with `--cov=slv`: `--cov=slv.inversion.viz` imports numpy twice and
   fails collection.

@@ -20,10 +20,8 @@ the orientation file it should read.
    # Using uv (installs the `dev` dependency group, which includes the inversion extra):
    uv sync
 
-   # OR using conda (needed for xesmf, i.e. the EPA / EDGAR priors):
-   conda env create -f ci/environment.yml
-   conda activate slv
-   pip install --no-deps -e .
+   # OR using pixi (needed for xesmf, i.e. the EPA / EDGAR priors):
+   pixi install
    ```
 
 4. Install pre-commit hooks:
@@ -104,8 +102,9 @@ slv is not published to PyPI; it is installed from GitHub.
 
 Dependabot opens one pull request a month per kind of pin: GitHub Actions,
 pre-commit hooks, and `uv.lock` (it never raises the minimum versions in
-`pyproject.toml`). Merge it when CI passes. Keep `ci/environment.yml` in step
-with `pyproject.toml` by hand.
+`pyproject.toml`). Merge it when CI passes. `pixi.lock` (the
+environment with xesmf) is separate: after changing a dependency in
+`pyproject.toml`, run `pixi lock` as well as `uv lock`.
 
 ## Template
 

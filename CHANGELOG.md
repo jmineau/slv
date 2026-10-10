@@ -6,6 +6,15 @@ versions are calendar-based (YYYY.M.PATCH).
 
 ## [Unreleased]
 
+### Changed
+
+- The environment with `xesmf` is built by [pixi](https://pixi.sh) from `pyproject.toml`
+  and `pixi.lock` (`pixi install`). `ci/environment.yml` is gone, so slv's dependencies
+  are listed in one place
+- A released fips or PYSTILT names the inversion cache folder as a checkout at that
+  release does (`fips-v0.1.0b9_pystilt-v0.1.0a24`): the installed version gets the tag's
+  `v`. A cache made from a released install before this is in the folder without it
+
 ## [2026.10.0] - 2026-10-09
 
 ### Added
