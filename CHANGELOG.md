@@ -39,6 +39,12 @@ versions are calendar-based (YYYY.M.PATCH).
 
 ### Changed
 
+- uataq is pinned to a release tag, v2026.10.0 (it was installed from uataq's `main`), and
+  lair to v2026.12.8. uataq 2026.10.0 locates mobile rows with their own group's GPS, reads
+  Horel GPS speed in m/s, and gives Horel raw GPS the receiver's time, which
+  `read_horel_cr1000` uses; rebuild the TRAX `obs.parquet` after updating
+- The lock moves fips to 0.1.0b9, which no longer has its STILT `JacobianBuilder` (slv has built
+  the Jacobian from PYSTILT since the 0.1.0a23 change)
 - **Requires PYSTILT 0.1.0a24** (breaking). The Jacobian comes from PYSTILT's
   `Project.jacobian` (`project_jacobian` wraps it as fips's `MatrixBlock`, with the same
   `(obs_location, obs_time)` rows and `(lon, lat, time)` columns as before), since fips

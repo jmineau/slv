@@ -26,11 +26,11 @@ classifiers = [
 dependencies = [
     "cartopy",
     "geopandas",
-    "lair[science,geo] @ git+https://github.com/jmineau/lair@v2026.12.7",  # geo: lair.geo (rasterio/rioxarray/shapely)
+    "lair[science,geo] @ git+https://github.com/jmineau/lair@v2026.12.8",  # geo: lair.geo (rasterio/rioxarray/shapely)
     "matplotlib",
     "pandas",
     "siphon>=0.10.0",
-    "uataq @ git+https://github.com/jmineau/uataq",
+    "uataq @ git+https://github.com/jmineau/uataq@v2026.10.0",
     "xarray",
 ]
 
@@ -106,9 +106,6 @@ log_level = "INFO"  # show captured logs for failing tests
 # third-party warning with e.g. "ignore:some message:DeprecationWarning:pkg".
 filterwarnings = [
     "error",
-    # uataq sets pandas' copy_on_write option on import; pandas 3 always copies
-    # on write and deprecates the option.
-    "ignore:The 'mode.copy_on_write' option is deprecated:pandas.errors.Pandas4Warning",
     # seaborn's boxplot passes matplotlib the old `vert` argument.
     "ignore:vert. bool:PendingDeprecationWarning:seaborn",
     "ignore:vert. bool:DeprecationWarning:seaborn",
