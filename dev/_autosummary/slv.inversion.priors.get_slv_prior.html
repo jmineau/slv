@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=3dcb0a44"></script>
+    <script src="../_static/documentation_options.js?v=9dbf9aef"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -59,7 +59,7 @@
     <link rel="prev" title="slv.inversion.priors.build_constant_prior" href="slv.inversion.priors.build_constant_prior.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.9.2.dev68+g6a74a2716" />
+  <meta name="docsearch:version" content="2026.9.2.dev70+g14d1eed99" />
   </head>
   
   
@@ -447,6 +447,7 @@
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="slv.inversion.pipelines.html">slv.inversion.pipelines</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.pipelines.project_jacobian.html">slv.inversion.pipelines.project_jacobian</a></li>
 <li class="toctree-l4"><a class="reference internal" href="slv.inversion.pipelines.stack_jacobians.html">slv.inversion.pipelines.stack_jacobians</a></li>
 <li class="toctree-l4"><a class="reference internal" href="slv.inversion.pipelines.SLVMethaneInversion.html">slv.inversion.pipelines.SLVMethaneInversion</a></li>
 </ul>
@@ -642,14 +643,14 @@
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>prior</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a>) – <code class="docutils literal notranslate"><span class="pre">&quot;epa&quot;</span></code> (<a class="reference internal" href="slv.inversion.priors.load_epa_prior.html#slv.inversion.priors.load_epa_prior" title="slv.inversion.priors.load_epa_prior"><code class="xref py py-func docutils literal notranslate"><span class="pre">load_epa_prior()</span></code></a>), <code class="docutils literal notranslate"><span class="pre">&quot;edgar&quot;</span></code> (<a class="reference internal" href="slv.inversion.priors.load_edgar_prior.html#slv.inversion.priors.load_edgar_prior" title="slv.inversion.priors.load_edgar_prior"><code class="xref py py-func docutils literal notranslate"><span class="pre">load_edgar_prior()</span></code></a>) or
+<li><p><strong>prior</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a>) – <code class="docutils literal notranslate"><span class="pre">&quot;epa&quot;</span></code> (<a class="reference internal" href="slv.inversion.priors.load_epa_prior.html#slv.inversion.priors.load_epa_prior" title="slv.inversion.priors.load_epa_prior"><code class="xref py py-func docutils literal notranslate"><span class="pre">load_epa_prior()</span></code></a>), <code class="docutils literal notranslate"><span class="pre">&quot;edgar&quot;</span></code> (<a class="reference internal" href="slv.inversion.priors.load_edgar_prior.html#slv.inversion.priors.load_edgar_prior" title="slv.inversion.priors.load_edgar_prior"><code class="xref py py-func docutils literal notranslate"><span class="pre">load_edgar_prior()</span></code></a>) or
 <code class="docutils literal notranslate"><span class="pre">&quot;constant&quot;</span></code> (<a class="reference internal" href="slv.inversion.priors.build_constant_prior.html#slv.inversion.priors.build_constant_prior" title="slv.inversion.priors.build_constant_prior"><code class="xref py py-func docutils literal notranslate"><span class="pre">build_constant_prior()</span></code></a>); case-insensitive.</p></li>
 <li><p><strong>out_grid</strong> (<em>xr.DataArray</em>) – Target lon/lat grid (<code class="docutils literal notranslate"><span class="pre">InversionConfig.grid</span></code>).</p></li>
 <li><p><strong>flux_times</strong> (<em>pd.DatetimeIndex</em>) – Start of each flux interval.</p></li>
-<li><p><strong>flux_freq</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.14)"><em>str</em></a><em>, </em><em>optional</em>) – Flux interval (e.g. <code class="docutils literal notranslate"><span class="pre">&quot;MS&quot;</span></code>); a coarser interval than the inventory’s is
+<li><p><strong>flux_freq</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a><em>, </em><em>optional</em>) – Flux interval (e.g. <code class="docutils literal notranslate"><span class="pre">&quot;MS&quot;</span></code>); a coarser interval than the inventory’s is
 averaged to.</p></li>
-<li><p><strong>bbox</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.14)"><em>tuple</em></a><em>, </em><em>optional</em>) – Clip the inventory before regridding.</p></li>
-<li><p><strong>extent</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.14)"><em>tuple</em></a><em>, </em><em>optional</em>) – Clip the inventory before regridding.</p></li>
+<li><p><strong>bbox</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)"><em>tuple</em></a><em>, </em><em>optional</em>) – Clip the inventory before regridding.</p></li>
+<li><p><strong>extent</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)"><em>tuple</em></a><em>, </em><em>optional</em>) – Clip the inventory before regridding.</p></li>
 <li><p><strong>**kwargs</strong> – Passed to the loader (e.g. <code class="docutils literal notranslate"><span class="pre">express=True</span></code> for EPA, <code class="docutils literal notranslate"><span class="pre">value=</span></code> for constant).</p></li>
 </ul>
 </dd>

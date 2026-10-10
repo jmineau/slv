@@ -39,7 +39,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../../_static/documentation_options.js?v=3dcb0a44"></script>
+    <script src="../../../_static/documentation_options.js?v=9dbf9aef"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -56,7 +56,7 @@
     <link rel="search" title="Search" href="../../../search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.9.2.dev68+g6a74a2716" />
+  <meta name="docsearch:version" content="2026.9.2.dev70+g14d1eed99" />
   </head>
   
   
@@ -426,11 +426,10 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">slv.domain</span><span class="w"> </span><span class="kn">import</span> <span class="n">UTC_OFFSET</span><span class="p">,</span> <span class="n">XMAX</span><span class="p">,</span> <span class="n">XMIN</span><span class="p">,</span> <span class="n">YMAX</span><span class="p">,</span> <span class="n">YMIN</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">slv.measurements.sites</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_site_config</span>
 
-<span class="c1"># CHPC location of the paper-1 PYSTILT project (fallback when SLV_STILT_DIR is unset). It is</span>
-<span class="c1"># frozen in PYSTILT&#39;s old layout (simulations/by-id/); paper 2 writes to a shared output</span>
-<span class="c1"># directory ($STILT_OUTPUT_DIR) that this module does not read yet.</span>
+<span class="c1"># CHPC location of the paper-1 PYSTILT project (fallback when SLV_STILT_DIR is unset). Its</span>
+<span class="c1"># results are in the shared output directory ($STILT_OUTPUT_DIR) that its config.yaml names.</span>
 <span class="n">DEFAULT_STILT_PROJECT</span> <span class="o">=</span> <span class="p">(</span>
-    <span class="s2">&quot;/uufs/chpc.utah.edu/common/home/lin-group27/jkm/stilt/projects/paper1_wbb&quot;</span>
+    <span class="s2">&quot;/uufs/chpc.utah.edu/common/home/lin-group27/jkm/stilt/projects/paper1&quot;</span>
 <span class="p">)</span>
 
 
@@ -454,7 +453,7 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    The paper-1 PYSTILT project: ``$SLV_STILT_DIR`` if set, else</span>
 <span class="sd">    :data:`DEFAULT_STILT_PROJECT`. Use this in scripts instead of spelling the path out;</span>
-<span class="sd">    ``stilt_project_dir() / &quot;simulations&quot; / &quot;by-id&quot;`` is the per-receptor tree.</span>
+<span class="sd">    ``stilt.Project(stilt_project_dir())`` opens it.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;SLV_STILT_DIR&quot;</span><span class="p">,</span> <span class="n">DEFAULT_STILT_PROJECT</span><span class="p">))</span></div>
 
@@ -700,8 +699,6 @@
 <span class="sd">        Components to rebuild (e.g. ``[&quot;obs&quot;]``), or ``&quot;all&quot;``.</span>
 <span class="sd">    num_processes : int</span>
 <span class="sd">        Workers for obs loading and the Jacobian build.</span>
-<span class="sd">    timeout : int</span>
-<span class="sd">        Per-task timeout, s, of the parallel Jacobian build.</span>
 <span class="sd">    plot_inputs, plot_results, plot_diagnostics : bool</span>
 <span class="sd">        Which plots :meth:`~slv.inversion.pipelines.SLVMethaneInversion.run` draws.</span>
 <span class="sd">    output_units : str</span>
@@ -870,7 +867,6 @@
 
     <span class="c1"># --- Compute ---</span>
     <span class="n">num_processes</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">8</span>
-    <span class="n">timeout</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span>  <span class="c1"># seconds (to avoid hanging processes; avg process is ~2s)</span>
 
     <span class="c1"># --- Plotting ---</span>
     <span class="n">plot_inputs</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>

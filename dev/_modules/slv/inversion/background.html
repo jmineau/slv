@@ -39,7 +39,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../../_static/documentation_options.js?v=3dcb0a44"></script>
+    <script src="../../../_static/documentation_options.js?v=9dbf9aef"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -56,7 +56,7 @@
     <link rel="search" title="Search" href="../../../search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.9.2.dev68+g6a74a2716" />
+  <meta name="docsearch:version" content="2026.9.2.dev70+g14d1eed99" />
   </head>
   
   
@@ -561,7 +561,7 @@
 
 <span class="sd">    Reads the daily CT-STILT background product (built by sampling the</span>
 <span class="sd">    CarbonTracker-CH4 field at STILT trajectory endpoints -- see</span>
-<span class="sd">    ``lair.noaa.CarbonTracker.background`` + ``stilt.Trajectories.endpoints``) and</span>
+<span class="sd">    ``lair.noaa.CarbonTracker.background`` + PYSTILT&#39;s ``particles.stilt.endpoints()``) and</span>
 <span class="sd">    aligns it to ``obs_times`` by date. ``csv_path`` is passed explicitly (e.g. via</span>
 <span class="sd">    ``background_kwargs``) so the package stays decoupled from any workspace layout.</span>
 <span class="sd">    Obs whose date is absent from the product get NaN.</span>

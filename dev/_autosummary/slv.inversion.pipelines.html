@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../_static/documentation_options.js?v=3dcb0a44"></script>
+    <script src="../_static/documentation_options.js?v=9dbf9aef"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -55,11 +55,11 @@
         </script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="slv.inversion.pipelines.stack_jacobians" href="slv.inversion.pipelines.stack_jacobians.html" />
+    <link rel="next" title="slv.inversion.pipelines.project_jacobian" href="slv.inversion.pipelines.project_jacobian.html" />
     <link rel="prev" title="slv.inversion.mdm.ModelDataMismatchMixin.get_modeldata_mismatch" href="slv.inversion.mdm.ModelDataMismatchMixin.get_modeldata_mismatch.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.9.2.dev68+g6a74a2716" />
+  <meta name="docsearch:version" content="2026.9.2.dev70+g14d1eed99" />
   </head>
   
   
@@ -447,6 +447,7 @@
 </ul>
 </details></li>
 <li class="toctree-l3 current active has-children"><a class="current reference internal" href="#">slv.inversion.pipelines</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.pipelines.project_jacobian.html">slv.inversion.pipelines.project_jacobian</a></li>
 <li class="toctree-l4"><a class="reference internal" href="slv.inversion.pipelines.stack_jacobians.html">slv.inversion.pipelines.stack_jacobians</a></li>
 <li class="toctree-l4"><a class="reference internal" href="slv.inversion.pipelines.SLVMethaneInversion.html">slv.inversion.pipelines.SLVMethaneInversion</a></li>
 </ul>
@@ -639,7 +640,10 @@ in their own modules (<a class="reference internal" href="slv.inversion.mdm.html
 <p class="rubric">Functions</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="slv.inversion.pipelines.stack_jacobians.html#slv.inversion.pipelines.stack_jacobians" title="slv.inversion.pipelines.stack_jacobians"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stack_jacobians</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="slv.inversion.pipelines.project_jacobian.html#slv.inversion.pipelines.project_jacobian" title="slv.inversion.pipelines.project_jacobian"><code class="xref py py-obj docutils literal notranslate"><span class="pre">project_jacobian</span></code></a></p></td>
+<td><p>One STILT project's flux Jacobian, from <code class="docutils literal notranslate"><span class="pre">stilt.Project.jacobian</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="slv.inversion.pipelines.stack_jacobians.html#slv.inversion.pipelines.stack_jacobians" title="slv.inversion.pipelines.stack_jacobians"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stack_jacobians</span></code></a></p></td>
 <td><p>Row-stack the per-project flux Jacobians into one.</p></td>
 </tr>
 </tbody>
@@ -676,11 +680,11 @@ in their own modules (<a class="reference internal" href="slv.inversion.mdm.html
       </div>
     </a>
     <a class="right-next"
-       href="slv.inversion.pipelines.stack_jacobians.html"
+       href="slv.inversion.pipelines.project_jacobian.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">slv.inversion.pipelines.stack_jacobians</p>
+        <p class="prev-next-title">slv.inversion.pipelines.project_jacobian</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
