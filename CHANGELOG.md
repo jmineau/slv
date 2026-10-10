@@ -39,10 +39,12 @@ versions are calendar-based (YYYY.M.PATCH).
 
 ### Changed
 
-- **Requires PYSTILT 0.1.0a23** (breaking). The Jacobian comes from PYSTILT's
+- **Requires PYSTILT 0.1.0a24** (breaking). The Jacobian comes from PYSTILT's
   `Project.jacobian` (`project_jacobian` wraps it as fips's `MatrixBlock`, with the same
   `(obs_location, obs_time)` rows and `(lon, lat, time)` columns as before), since fips
-  dropped its STILT `JacobianBuilder`. `stilt_project` must be a 0.1.0a23 project: the
+  dropped its STILT `JacobianBuilder`. PYSTILT 0.1.0a24 builds it one footprint per
+  thread, in about 1 GB for a year of afternoons at one site (0.1.0a23 took 18.8 GB).
+  `stilt_project` must be a project in the layout 0.1.0a23 introduced: the
   default is now `projects/paper1`, whose results are in the shared output, not the
   frozen `paper1_wbb`. `InversionConfig.timeout` is gone (the build is threads, with no
   per-task timeout). A Jacobian over an ensemble variant needs one realization picked.

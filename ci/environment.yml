@@ -37,7 +37,7 @@ dependencies:
   - pip:
       # inversion extra, from PyPI as in pyproject.toml
       - fips[flux]>=0.1.0b8
-      - pystilt>=0.1.0a21
+      - pystilt>=0.1.0a24
       # git-only deps not on conda-forge
       # geo extra: lair.geo, imported by slv.inversion.config
       - lair[science,geo] @ git+https://github.com/jmineau/lair@v2026.12.7
