@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Installation &#8212; slv 2026.10.0</title>
+    <title>Installation &#8212; slv dev</title>
   
   
   
@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="_static/documentation_options.js?v=c1b729fb"></script>
+    <script src="_static/documentation_options.js?v=235023e0"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -49,7 +49,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://jmineau.github.io/slv/switcher.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '2026.10.0';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             true;
         </script>
@@ -59,7 +59,7 @@
     <link rel="prev" title="Salt Lake Valley py" href="index.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.10.0" />
+  <meta name="docsearch:version" content="2026.10.1.dev2+g217b03356" />
   </head>
   
   
@@ -121,7 +121,7 @@
   
   
   
-    <p class="title logo__title">slv 2026.10.0</p>
+    <p class="title logo__title">slv dev</p>
   
 </a></div>
     
@@ -436,12 +436,12 @@ docs tools.</p>
 <section id="with-xesmf-epa-edgar-priors">
 <h2>With <code class="docutils literal notranslate"><span class="pre">xesmf</span></code> (EPA / EDGAR priors)<a class="headerlink" href="#with-xesmf-epa-edgar-priors" title="Link to this heading">#</a></h2>
 <p>The EPA and EDGAR priors are regridded with <code class="docutils literal notranslate"><span class="pre">xesmf</span></code>, which needs a compiled ESMF
-library from conda-forge. Use the conda environment instead:</p>
+library from conda-forge. <a class="reference external" href="https://pixi.sh">pixi</a> installs it beside everything else,
+from <code class="docutils literal notranslate"><span class="pre">pixi.lock</span></code>:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/jmineau/slv.git
 <span class="nb">cd</span><span class="w"> </span>slv
-conda<span class="w"> </span>env<span class="w"> </span>create<span class="w"> </span>-f<span class="w"> </span>ci/environment.yml
-conda<span class="w"> </span>activate<span class="w"> </span>slv
-pip<span class="w"> </span>install<span class="w"> </span>--no-deps<span class="w"> </span>-e<span class="w"> </span>.
+pixi<span class="w"> </span>install<span class="w">     </span><span class="c1"># builds .pixi/envs/default</span>
+pixi<span class="w"> </span>run<span class="w"> </span>python<span class="w">  </span><span class="c1"># or: pixi shell</span>
 </pre></div>
 </div>
 </section>

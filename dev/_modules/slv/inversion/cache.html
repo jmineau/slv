@@ -7,7 +7,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>slv.inversion.cache &#8212; slv 2026.10.0</title>
+    <title>slv.inversion.cache &#8212; slv dev</title>
   
   
   
@@ -39,7 +39,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../../_static/documentation_options.js?v=c1b729fb"></script>
+    <script src="../../../_static/documentation_options.js?v=235023e0"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -48,7 +48,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://jmineau.github.io/slv/switcher.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '2026.10.0';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             true;
         </script>
@@ -56,7 +56,7 @@
     <link rel="search" title="Search" href="../../../search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.10.0" />
+  <meta name="docsearch:version" content="2026.10.1.dev2+g217b03356" />
   </head>
   
   
@@ -118,7 +118,7 @@
   
   
   
-    <p class="title logo__title">slv 2026.10.0</p>
+    <p class="title logo__title">slv dev</p>
   
 </a></div>
     
@@ -636,7 +636,9 @@
 <span class="sd">    For an editable git checkout (the dev setup), ``git describe`` yields a tag +</span>
 <span class="sd">    commits-since + short SHA (+ ``-dirty``), so any commit *or* uncommitted edit</span>
 <span class="sd">    to the package busts the cache automatically -- no reinstall or version bump</span>
-<span class="sd">    needed.  Falls back to the installed metadata version for a regular install.</span>
+<span class="sd">    needed.  A regular install gives its metadata version, written as the release&#39;s</span>
+<span class="sd">    tag (``v0.1.0b9``), so a release names the same cache folder whether it is</span>
+<span class="sd">    installed or checked out.</span>
 
 <span class="sd">    A regular install lives under ``site-packages``, and git must not be asked about</span>
 <span class="sd">    it: a venv inside another repo (slv&#39;s own ``.venv``) would answer with *that*</span>
@@ -665,7 +667,7 @@
         <span class="k">except</span> <span class="p">(</span><span class="ne">OSError</span><span class="p">,</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">SubprocessError</span><span class="p">):</span>
             <span class="k">pass</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">_dist_version</span><span class="p">(</span><span class="n">dist_name</span><span class="p">)</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;v</span><span class="si">{</span><span class="n">_dist_version</span><span class="p">(</span><span class="n">dist_name</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
     <span class="k">except</span> <span class="n">PackageNotFoundError</span><span class="p">:</span>
         <span class="k">return</span> <span class="s2">&quot;unknown&quot;</span>
 
