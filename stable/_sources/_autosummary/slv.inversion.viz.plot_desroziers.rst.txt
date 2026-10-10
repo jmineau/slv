@@ -1,0 +1,6 @@
+slv.inversion.viz.plot\_desroziers
+==================================
+
+.. currentmodule:: slv.inversion.viz
+
+.. autofunction:: plot_desroziers

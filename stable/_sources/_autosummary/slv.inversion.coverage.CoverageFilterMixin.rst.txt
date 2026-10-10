@@ -1,0 +1,22 @@
+slv.inversion.coverage.CoverageFilterMixin
+==========================================
+
+.. currentmodule:: slv.inversion.coverage
+
+.. autoclass:: CoverageFilterMixin
+   :no-members:
+
+
+
+
+
+
+.. rubric:: Methods
+
+.. autosummary::
+   :toctree:
+
+   ~CoverageFilterMixin.reconstruct_posterior
+
+
+

@@ -1,0 +1,6 @@
+slv.measurements.mobile.gps.ALTITUDE\_RANGE\_MSL
+================================================
+
+.. currentmodule:: slv.measurements.mobile.gps
+
+.. autodata:: ALTITUDE_RANGE_MSL

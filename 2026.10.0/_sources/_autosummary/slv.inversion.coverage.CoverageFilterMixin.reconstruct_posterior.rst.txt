@@ -1,0 +1,6 @@
+slv.inversion.coverage.CoverageFilterMixin.reconstruct\_posterior
+=================================================================
+
+.. currentmodule:: slv.inversion.coverage
+
+.. automethod:: CoverageFilterMixin.reconstruct_posterior

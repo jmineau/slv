@@ -1,0 +1,22 @@
+slv.inversion.mdm.ModelDataMismatchMixin
+========================================
+
+.. currentmodule:: slv.inversion.mdm
+
+.. autoclass:: ModelDataMismatchMixin
+   :no-members:
+
+
+
+
+
+
+.. rubric:: Methods
+
+.. autosummary::
+   :toctree:
+
+   ~ModelDataMismatchMixin.get_modeldata_mismatch
+
+
+

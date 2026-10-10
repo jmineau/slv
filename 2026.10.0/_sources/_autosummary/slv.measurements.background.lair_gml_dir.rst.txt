@@ -1,0 +1,6 @@
+slv.measurements.background.lair\_gml\_dir
+==========================================
+
+.. currentmodule:: slv.measurements.background
+
+.. autofunction:: lair_gml_dir

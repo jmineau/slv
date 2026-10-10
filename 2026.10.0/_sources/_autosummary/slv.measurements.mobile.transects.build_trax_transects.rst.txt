@@ -1,0 +1,6 @@
+slv.measurements.mobile.transects.build\_trax\_transects
+========================================================
+
+.. currentmodule:: slv.measurements.mobile.transects
+
+.. autofunction:: build_trax_transects

@@ -1,0 +1,6 @@
+slv.inversion.cache.DEFAULT\_COMPONENT\_DEPS
+============================================
+
+.. currentmodule:: slv.inversion.cache
+
+.. autodata:: DEFAULT_COMPONENT_DEPS

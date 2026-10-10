@@ -1,0 +1,828 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>slv.inversion.report &#8212; slv 2026.10.0</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=ba117b66" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../_static/documentation_options.js?v=c1b729fb"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/slv/inversion/report';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://jmineau.github.io/slv/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '2026.10.0';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            true;
+        </script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="2026.10.0" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">slv 2026.10.0</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../usage.html">
+    Usage
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api.html">
+    API Reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../contributing.html">
+    Contributing
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/jmineau/slv" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../usage.html">
+    Usage
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../api.html">
+    API Reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../contributing.html">
+    Contributing
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-3"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-3"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-3"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-3">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/jmineau/slv" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="../../slv.html" class="nav-link">slv</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">slv.inversion.report</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for slv.inversion.report</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Domain totals, the summary report and plots for</span>
+<span class="sd">:class:`~slv.inversion.pipelines.SLVMethaneInversion`.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fips.problems.flux.problem</span><span class="w"> </span><span class="kn">import</span> <span class="n">FluxProblem</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">lair</span><span class="w"> </span><span class="kn">import</span> <span class="n">inventories</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">slv.inversion</span><span class="w"> </span><span class="kn">import</span> <span class="n">viz</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">slv.inversion.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">InversionConfig</span>
+
+
+<div class="viewcode-block" id="ReportingMixin">
+<a class="viewcode-back" href="../../../_autosummary/slv.inversion.report.ReportingMixin.html#slv.inversion.report.ReportingMixin">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ReportingMixin</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Domain-total emissions, the printed summary, Desroziers diagnostics and plots.&quot;&quot;&quot;</span>
+
+    <span class="n">config</span><span class="p">:</span> <span class="n">InversionConfig</span>
+    <span class="n">problem</span><span class="p">:</span> <span class="n">FluxProblem</span>
+
+<div class="viewcode-block" id="ReportingMixin.fluxes_as_inventory">
+<a class="viewcode-back" href="../../../_autosummary/slv.inversion.report.ReportingMixin.fluxes_as_inventory.html#slv.inversion.report.ReportingMixin.fluxes_as_inventory">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fluxes_as_inventory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fluxes</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">inventories</span><span class="o">.</span><span class="n">Inventory</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Converts a flux vector to an inventory format for easier analysis.&quot;&quot;&quot;</span>
+        <span class="n">ds</span> <span class="o">=</span> <span class="n">fluxes</span><span class="o">.</span><span class="n">to_xarray</span><span class="p">()</span><span class="o">.</span><span class="n">to_dataset</span><span class="p">()</span>
+
+        <span class="kn">from</span><span class="w"> </span><span class="nn">slv.inversion.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">FLUX_FREQ_TIME_STEPS</span>
+
+        <span class="n">time_step</span> <span class="o">=</span> <span class="n">FLUX_FREQ_TIME_STEPS</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">flux_freq</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">inventories</span><span class="o">.</span><span class="n">Inventory</span><span class="p">(</span>
+            <span class="n">ds</span><span class="p">,</span> <span class="n">pollutant</span><span class="o">=</span><span class="s2">&quot;CH4&quot;</span><span class="p">,</span> <span class="n">src_units</span><span class="o">=</span><span class="s2">&quot;umol/m2/s&quot;</span><span class="p">,</span> <span class="n">time_step</span><span class="o">=</span><span class="n">time_step</span>
+        <span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_total_units</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Unit of :meth:`calculate_total_flux`: it integrates each flux interval over its</span>
+<span class="sd">        cells and its duration, so the mass part of ``output_units`` per interval.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">units</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">output_units</span> <span class="ow">or</span> <span class="s2">&quot;umol/m2/s&quot;</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">units</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> per </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">flux_freq</span><span class="si">}</span><span class="s2"> interval&quot;</span>
+
+<div class="viewcode-block" id="ReportingMixin.calculate_total_flux">
+<a class="viewcode-back" href="../../../_autosummary/slv.inversion.report.ReportingMixin.calculate_total_flux.html#slv.inversion.report.ReportingMixin.calculate_total_flux">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">calculate_total_flux</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fluxes</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Domain-total emission per flux interval.</span>
+
+<span class="sd">        The flux field is integrated over its cells&#39; areas and each interval&#39;s duration</span>
+<span class="sd">        (lair ``absolute_emissions``), so the result is a mass per interval, e.g. Gg per</span>
+<span class="sd">        ``MS`` interval for ``units=&quot;Gg/m2/s&quot;``.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        fluxes : pd.Series</span>
+<span class="sd">            Flux in umol/m2/s indexed by (time, lat, lon); its ``name`` must be set.</span>
+<span class="sd">        units : str, optional</span>
+<span class="sd">            Convert to these flux units before integrating (e.g. ``&quot;Gg/m2/s&quot;``).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        pd.Series</span>
+<span class="sd">            Total per flux time.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">inventory</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fluxes_as_inventory</span><span class="p">(</span><span class="n">fluxes</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">units</span><span class="p">:</span>
+            <span class="n">inventory</span> <span class="o">=</span> <span class="n">inventory</span><span class="o">.</span><span class="n">convert_units</span><span class="p">(</span><span class="n">units</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="n">inventory</span><span class="o">.</span><span class="n">absolute_emissions</span><span class="p">[</span><span class="n">fluxes</span><span class="o">.</span><span class="n">name</span><span class="p">]</span>
+            <span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;lat&quot;</span><span class="p">,</span> <span class="s2">&quot;lon&quot;</span><span class="p">))</span>
+            <span class="o">.</span><span class="n">to_series</span><span class="p">()</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ReportingMixin.desroziers_diagnostic">
+<a class="viewcode-back" href="../../../_autosummary/slv.inversion.report.ReportingMixin.desroziers_diagnostic.html#slv.inversion.report.ReportingMixin.desroziers_diagnostic">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">desroziers_diagnostic</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">groupby</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="s2">&quot;obs_location&quot;</span><span class="p">,</span>
+        <span class="n">freq</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compare Desroziers-diagnosed vs specified observation error variances.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        groupby : str, list of str, or None</span>
+<span class="sd">            Index level(s) to aggregate by. Default groups by site.</span>
+<span class="sd">            Use None for per-observation values.</span>
+<span class="sd">        freq : str, optional</span>
+<span class="sd">            Temporal resampling frequency (e.g. &#39;MS&#39;, &#39;QS&#39;, &#39;YS&#39;).</span>
+<span class="sd">            Groups obs_time into bins at this frequency in addition to</span>
+<span class="sd">            any levels in ``groupby``.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        pd.DataFrame</span>
+<span class="sd">            Columns: diagnosed, specified, ratio (diagnosed / specified).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">diagnosed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">problem</span><span class="o">.</span><span class="n">desroziers</span><span class="o">.</span><span class="n">variances</span><span class="o">.</span><span class="n">to_series</span><span class="p">()</span>
+        <span class="n">diagnosed</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;diagnosed&quot;</span>
+
+        <span class="n">specified</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">problem</span><span class="o">.</span><span class="n">modeldata_mismatch</span><span class="o">.</span><span class="n">variances</span><span class="o">.</span><span class="n">to_series</span><span class="p">()</span>
+        <span class="n">specified</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;specified&quot;</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">diagnosed</span><span class="p">,</span> <span class="n">specified</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">groupby</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">freq</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">groupers</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">if</span> <span class="n">groupby</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">groupby</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                    <span class="n">groupby</span> <span class="o">=</span> <span class="p">[</span><span class="n">groupby</span><span class="p">]</span>
+                <span class="n">groupers</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">groupby</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">freq</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">groupers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Grouper</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="s2">&quot;obs_time&quot;</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="n">freq</span><span class="p">))</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">groupers</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+
+        <span class="n">result</span><span class="p">[</span><span class="s2">&quot;ratio&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;diagnosed&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;specified&quot;</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">result</span></div>
+
+
+<div class="viewcode-block" id="ReportingMixin.summarize">
+<a class="viewcode-back" href="../../../_autosummary/slv.inversion.report.ReportingMixin.summarize.html#slv.inversion.report.ReportingMixin.summarize">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">summarize</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Print fips&#39; summary, then prior and posterior domain totals.</span>
+
+<span class="sd">        Totals are per flux interval (:meth:`calculate_total_flux`) in</span>
+<span class="sd">        ``config.output_units``. With the coverage filter on, the removed cells are put</span>
+<span class="sd">        back at their prior (:meth:`reconstruct_posterior`) so both totals cover the full</span>
+<span class="sd">        domain. With more than two intervals a linear trend of the posterior is printed.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">scipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">stats</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">summarize</span><span class="p">()</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
+        <span class="n">problem</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">problem</span>
+
+        <span class="n">prior_flux</span> <span class="o">=</span> <span class="n">problem</span><span class="o">.</span><span class="n">prior_fluxes</span>
+        <span class="n">post_flux</span> <span class="o">=</span> <span class="n">problem</span><span class="o">.</span><span class="n">posterior_fluxes</span>
+
+        <span class="c1"># --- Domain total emissions (requires inventory/regridding) ---</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_retained_cells</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">full_prior</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_full_prior</span><span class="p">[</span><span class="s2">&quot;flux&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+            <span class="n">full_prior</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">prior_flux</span><span class="o">.</span><span class="n">name</span>
+            <span class="n">reconstructed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reconstruct_posterior</span><span class="p">()</span>
+            <span class="n">total_prior</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calculate_total_flux</span><span class="p">(</span>
+                <span class="n">full_prior</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">output_units</span>
+            <span class="p">)</span>
+            <span class="n">total_post</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calculate_total_flux</span><span class="p">(</span>
+                <span class="n">reconstructed</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">output_units</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">total_prior</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calculate_total_flux</span><span class="p">(</span>
+                <span class="n">prior_flux</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">output_units</span>
+            <span class="p">)</span>
+            <span class="n">total_post</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calculate_total_flux</span><span class="p">(</span><span class="n">post_flux</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">output_units</span><span class="p">)</span>
+
+        <span class="n">units</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_total_units</span><span class="p">()</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;--------------------------------------------------&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;DOMAIN TOTAL EMISSIONS [</span><span class="si">{</span><span class="n">units</span><span class="si">}</span><span class="s2">]:&quot;</span><span class="p">)</span>
+        <span class="n">summary</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;prior&quot;</span><span class="p">:</span> <span class="n">total_prior</span><span class="p">,</span>
+                <span class="s2">&quot;posterior&quot;</span><span class="p">:</span> <span class="n">total_post</span><span class="p">,</span>
+                <span class="s2">&quot;change_%&quot;</span><span class="p">:</span> <span class="p">((</span><span class="n">total_post</span> <span class="o">/</span> <span class="n">total_prior</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">summary</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">float_format</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%.2f</span><span class="s2">&quot;</span><span class="p">))</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Mean Prior:     </span><span class="si">{</span><span class="n">total_prior</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Mean Posterior: </span><span class="si">{</span><span class="n">total_post</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;  Mean Change:    </span><span class="si">{</span><span class="p">((</span><span class="n">total_post</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">total_prior</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">100</span><span class="si">:</span><span class="s2">+.1f</span><span class="si">}</span><span class="s2">%&quot;</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">total_post</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">t</span> <span class="o">=</span> <span class="n">total_post</span><span class="o">.</span><span class="n">index</span>
+            <span class="n">t_years</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">year</span> <span class="o">+</span> <span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">day_of_year</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mf">365.25</span>
+            <span class="n">slope</span><span class="p">,</span> <span class="n">intercept</span><span class="p">,</span> <span class="n">r_value</span><span class="p">,</span> <span class="n">p_value</span><span class="p">,</span> <span class="n">std_err</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">linregress</span><span class="p">(</span>
+                <span class="n">t_years</span><span class="p">,</span> <span class="n">total_post</span><span class="o">.</span><span class="n">values</span>
+            <span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;  Trend:          </span><span class="si">{</span><span class="n">slope</span><span class="si">:</span><span class="s2">+.2f</span><span class="si">}</span><span class="s2"> [</span><span class="si">{</span><span class="n">units</span><span class="si">}</span><span class="s2">]/yr (R^2=</span><span class="si">{</span><span class="n">r_value</span><span class="o">**</span><span class="mi">2</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">, p=</span><span class="si">{</span><span class="n">p_value</span><span class="si">:</span><span class="s2">.3g</span><span class="si">}</span><span class="s2">)&quot;</span>
+            <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;==================================================&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ReportingMixin.plot_inputs">
+<a class="viewcode-back" href="../../../_autosummary/slv.inversion.report.ReportingMixin.plot_inputs.html#slv.inversion.report.ReportingMixin.plot_inputs">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">plot_inputs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">problem</span><span class="p">:</span> <span class="n">FluxProblem</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Plot the grid and sites, the obs time series and the prior fluxes.&quot;&quot;&quot;</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
+
+        <span class="c1"># --- Plot Grid ---</span>
+        <span class="n">viz</span><span class="o">.</span><span class="n">plot_grid</span><span class="p">(</span>
+            <span class="n">config</span><span class="o">.</span><span class="n">grid</span><span class="p">,</span>
+            <span class="n">extent</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">map_extent</span><span class="p">,</span>
+            <span class="n">tiler</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">tiler</span><span class="p">,</span>
+            <span class="n">zoom</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">tiler_zoom</span><span class="p">,</span>
+            <span class="n">sites</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">sites</span><span class="p">,</span>
+            <span class="n">site_config</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">site_config</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># --- Plot Concentrations ---</span>
+        <span class="n">viz</span><span class="o">.</span><span class="n">plot_concentrations</span><span class="p">(</span><span class="n">problem</span><span class="o">.</span><span class="n">concentrations</span><span class="p">)</span>
+
+        <span class="c1"># --- Plot Prior Fluxes ---</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_retained_cells</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">full_prior_xr</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_full_prior</span><span class="p">[</span><span class="s2">&quot;flux&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_xarray</span><span class="p">()</span>
+            <span class="n">viz</span><span class="o">.</span><span class="n">plot_prior_with_coverage</span><span class="p">(</span>
+                <span class="n">full_prior_xr</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_retained_cells</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_all_cells</span><span class="p">,</span>
+                <span class="n">dx</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">dx</span><span class="p">,</span>
+                <span class="n">dy</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">dy</span><span class="p">,</span>
+                <span class="n">extent</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">map_extent</span><span class="p">,</span>
+                <span class="n">tiler</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">tiler</span><span class="p">,</span>
+                <span class="n">zoom</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">tiler_zoom</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">viz</span><span class="o">.</span><span class="n">plot_inventory</span><span class="p">(</span>
+                <span class="n">problem</span><span class="o">.</span><span class="n">prior_fluxes</span><span class="o">.</span><span class="n">to_xarray</span><span class="p">(),</span>
+                <span class="n">extent</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">map_extent</span><span class="p">,</span>
+                <span class="n">tiler</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">tiler</span><span class="p">,</span>
+                <span class="n">zoom</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">tiler_zoom</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="ReportingMixin.plot_results">
+<a class="viewcode-back" href="../../../_autosummary/slv.inversion.report.ReportingMixin.plot_results.html#slv.inversion.report.ReportingMixin.plot_results">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">plot_results</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">problem</span><span class="p">:</span> <span class="n">FluxProblem</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Plot the posterior fluxes, the reconstructed full-domain posterior (with the</span>
+<span class="sd">        coverage filter on), domain totals over time, modelled vs observed</span>
+<span class="sd">        concentrations, residuals, and background and bias.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
+
+        <span class="c1"># --- Plot Fluxes (inversion domain only) ---</span>
+        <span class="n">viz</span><span class="o">.</span><span class="n">plot_fluxes</span><span class="p">(</span>
+            <span class="n">problem</span><span class="p">,</span>
+            <span class="n">tiler</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">tiler</span><span class="p">,</span>
+            <span class="n">zoom</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">tiler_zoom</span><span class="p">,</span>
+            <span class="n">add_sites</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">sites</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">sites</span><span class="p">,</span>
+            <span class="n">site_config</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">site_config</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># --- Plot Reconstructed Posterior (full domain) ---</span>
+        <span class="n">reconstructed</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_retained_cells</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">reconstructed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reconstruct_posterior</span><span class="p">()</span>
+            <span class="n">reconstructed_xr</span> <span class="o">=</span> <span class="n">reconstructed</span><span class="o">.</span><span class="n">to_xarray</span><span class="p">()</span>
+            <span class="n">viz</span><span class="o">.</span><span class="n">plot_reconstructed_posterior</span><span class="p">(</span>
+                <span class="n">reconstructed_xr</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_retained_cells</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_all_cells</span><span class="p">,</span>
+                <span class="n">dx</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">dx</span><span class="p">,</span>
+                <span class="n">dy</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">dy</span><span class="p">,</span>
+                <span class="n">extent</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">map_extent</span><span class="p">,</span>
+                <span class="n">tiler</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">tiler</span><span class="p">,</span>
+                <span class="n">zoom</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">tiler_zoom</span><span class="p">,</span>
+                <span class="n">sites</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">sites</span><span class="p">,</span>
+                <span class="n">site_config</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">site_config</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="c1"># --- Total Emissions (use full reconstructed domain) ---</span>
+        <span class="k">if</span> <span class="n">reconstructed</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">full_prior</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_full_prior</span><span class="p">[</span><span class="s2">&quot;flux&quot;</span><span class="p">]</span>
+            <span class="n">full_prior</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">problem</span><span class="o">.</span><span class="n">prior_fluxes</span><span class="o">.</span><span class="n">name</span>
+            <span class="n">total_prior</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calculate_total_flux</span><span class="p">(</span>
+                <span class="n">full_prior</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">output_units</span>
+            <span class="p">)</span>
+            <span class="n">total_posterior</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calculate_total_flux</span><span class="p">(</span>
+                <span class="n">reconstructed</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">output_units</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">total_prior</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calculate_total_flux</span><span class="p">(</span>
+                <span class="n">problem</span><span class="o">.</span><span class="n">prior_fluxes</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">output_units</span>
+            <span class="p">)</span>
+            <span class="n">total_posterior</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calculate_total_flux</span><span class="p">(</span>
+                <span class="n">problem</span><span class="o">.</span><span class="n">posterior_fluxes</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">output_units</span>
+            <span class="p">)</span>
+        <span class="n">viz</span><span class="o">.</span><span class="n">plot_total_fluxes_over_time</span><span class="p">(</span>
+            <span class="n">total_prior</span><span class="p">,</span> <span class="n">total_posterior</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_total_units</span><span class="p">()</span>
+        <span class="p">)</span>
+
+        <span class="c1"># --- Plot Concentrations ---</span>
+        <span class="n">problem</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">concentrations</span><span class="p">()</span>
+
+        <span class="c1"># --- Plot Residuals ---</span>
+        <span class="n">viz</span><span class="o">.</span><span class="n">plot_residuals</span><span class="p">(</span><span class="n">problem</span><span class="p">)</span>
+
+        <span class="c1"># --- Plot Background and Bias ---</span>
+        <span class="n">viz</span><span class="o">.</span><span class="n">plot_background_and_bias</span><span class="p">(</span><span class="n">problem</span><span class="p">)</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="ReportingMixin.plot_diagnostics">
+<a class="viewcode-back" href="../../../_autosummary/slv.inversion.report.ReportingMixin.plot_diagnostics.html#slv.inversion.report.ReportingMixin.plot_diagnostics">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">plot_diagnostics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">problem</span><span class="p">:</span> <span class="n">FluxProblem</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Plot fluxes per time step, the Desroziers diagnostics and, with the coverage</span>
+<span class="sd">        filter on, the removed cells&#39; contribution to the obs.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span>
+        <span class="c1"># --- Plot Fluxes by Timestep ---</span>
+        <span class="n">viz</span><span class="o">.</span><span class="n">plot_fluxes_by_timestep</span><span class="p">(</span>
+            <span class="n">problem</span><span class="p">,</span>
+            <span class="n">extent</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">map_extent</span><span class="p">,</span>
+            <span class="n">tiler</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">tiler</span><span class="p">,</span>
+            <span class="n">zoom</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">tiler_zoom</span><span class="p">,</span>
+            <span class="n">add_sites</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">sites</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">sites</span><span class="p">,</span>
+            <span class="n">site_config</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">site_config</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># --- Plot Desroziers Diagnostic ---</span>
+        <span class="n">viz</span><span class="o">.</span><span class="n">plot_desroziers</span><span class="p">(</span>
+            <span class="n">by_site</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">desroziers_diagnostic</span><span class="p">(),</span>
+            <span class="n">per_obs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">desroziers_diagnostic</span><span class="p">(</span><span class="n">groupby</span><span class="o">=</span><span class="kc">None</span><span class="p">),</span>
+            <span class="n">timeseries</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">desroziers_diagnostic</span><span class="p">(</span><span class="n">freq</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">flux_freq</span><span class="p">),</span>
+        <span class="p">)</span>
+
+        <span class="c1"># --- Plot Unconstrained Cells Contribution ---</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_removed_contribution&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">problem</span><span class="o">.</span><span class="n">constant</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">viz</span><span class="o">.</span><span class="n">plot_removed_contribution</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_removed_contribution</span><span class="p">,</span>
+                <span class="n">problem</span><span class="o">.</span><span class="n">constant</span><span class="p">[</span><span class="s2">&quot;concentration&quot;</span><span class="p">],</span>
+            <span class="p">)</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+</div>
+
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026, James Mineau.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

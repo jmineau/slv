@@ -1,0 +1,6 @@
+slv.inversion.viz.plot\_background\_and\_bias
+=============================================
+
+.. currentmodule:: slv.inversion.viz
+
+.. autofunction:: plot_background_and_bias

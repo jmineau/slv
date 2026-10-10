@@ -1,0 +1,28 @@
+slv.inversion.data
+==================
+
+.. automodule:: slv.inversion.data
+   :no-members:
+
+
+
+
+.. rubric:: Functions
+
+.. autosummary::
+   :toctree:
+   :nosignatures:
+
+   get_slv_observations
+   get_slv_subhour_std
+   load_mobile_obs
+   split_sites
+
+
+
+
+
+
+
+
+

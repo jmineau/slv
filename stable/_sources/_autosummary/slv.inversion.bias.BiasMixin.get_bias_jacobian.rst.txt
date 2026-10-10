@@ -1,0 +1,6 @@
+slv.inversion.bias.BiasMixin.get\_bias\_jacobian
+================================================
+
+.. currentmodule:: slv.inversion.bias
+
+.. automethod:: BiasMixin.get_bias_jacobian

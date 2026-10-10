@@ -1,0 +1,1135 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>slv.measurements.mobile.receptors &#8212; slv 2026.10.0</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css?v=ba117b66" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../../_static/documentation_options.js?v=c1b729fb"></script>
+    <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../../_static/copybutton.js?v=f281be69"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/slv/measurements/mobile/receptors';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://jmineau.github.io/slv/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '2026.10.0';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            true;
+        </script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="2026.10.0" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">slv 2026.10.0</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../usage.html">
+    Usage
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../api.html">
+    API Reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../contributing.html">
+    Contributing
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/jmineau/slv" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../usage.html">
+    Usage
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../api.html">
+    API Reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../contributing.html">
+    Contributing
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-3"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-3"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-3"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-3">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/jmineau/slv" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../../index.html" class="nav-link">Module code</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="../../../slv.html" class="nav-link">slv</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">slv.measurements.mobile.receptors</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for slv.measurements.mobile.receptors</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">STILT receptors for the TRAX record: one multipoint receptor per 2-km segment crossing.</span>
+
+<span class="sd">The paper-2 inversion samples TRAX CH4 at the staged 2-km network points</span>
+<span class="sd">(:func:`~slv.measurements.mobile.network.load_trax_points`). Each staged point owns a</span>
+<span class="sd">*segment*: the 50-m network points nearest to it. Both point sets are generated the same</span>
+<span class="sd">way, ``lair.geo.points_along_line`` on the UTA line network (:func:`load_trax_points`), so</span>
+<span class="sd">shared track is one row of points (:func:`load_trax_network_points`); a crossing on one</span>
+<span class="sd">line releases only from that line&#39;s points of the segment (:func:`release_points`).</span>
+<span class="sd">Every time the train crosses a segment</span>
+<span class="sd">(:func:`find_segment_crossings`) it gets one PYSTILT ``MultiPointReceptor`` that releases</span>
+<span class="sd">particles from all of the segment&#39;s 50-m points at the median crossing time</span>
+<span class="sd">(:func:`build_trax_receptors`). PYSTILT spreads ``numpar`` evenly over the release points</span>
+<span class="sd">and writes their mean footprint, so the 50-m footprints come out already aggregated to</span>
+<span class="sd">the 2-km point. The CH4 value that pairs with a receptor is the mean over the same 50-m</span>
+<span class="sd">points during the crossing (i.e. the transect-matrix row averaged over the segment).</span>
+
+<span class="sd">Segment membership is fixed by geometry alone: it does not depend on the inlet lag or on</span>
+<span class="sd">which periods pass calibration QC, so receptors can be built (and run) before those</span>
+<span class="sd">decisions are final; QC later selects which crossings enter the inversion. Crossings are</span>
+<span class="sd">found from the GPS positions of the on-track rows of ``obs.parquet``, so periods with no</span>
+<span class="sd">LGR data get no receptors.</span>
+
+<span class="sd">**Dwells.** Half the record is not a traverse at all: the train sits outdoors at a line</span>
+<span class="sd">terminus between runs or parked on a yard track, which is 39 % of the CH4 rows at the yards</span>
+<span class="sd">plus 31 % of the crossing time at the termini. Sitting still at a known outdoor position is</span>
+<span class="sd">a stationary measurement, so :func:`find_dwells` picks those periods out (the train stays</span>
+<span class="sd">within ``radius`` for at least ``min_duration``) and :func:`build_dwell_receptors` turns each</span>
+<span class="sd">hour of one into a single :class:`~stilt.PointReceptor` at the dwell&#39;s median position.</span>
+<span class="sd">Indoor shed air is excluded upstream by loading fixes with ``location=&quot;outdoor&quot;``.</span>
+
+<span class="sd">Both builders release **when the air was sampled** -- a crossing at its median fix time, a</span>
+<span class="sd">dwell hour at the median fix time inside that hour -- rather than on the hour, and both</span>
+<span class="sd">accept an ``hours`` window (local time) so a project can start with the afternoon and add</span>
+<span class="sd">the rest later without rebuilding what it already has.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sequence</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">geopandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gpd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">shapely</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pyproj</span><span class="w"> </span><span class="kn">import</span> <span class="n">Transformer</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.spatial</span><span class="w"> </span><span class="kn">import</span> <span class="n">cKDTree</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">slv.domain</span><span class="w"> </span><span class="kn">import</span> <span class="n">UTC_OFFSET</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">slv.measurements.mobile.network</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">UTM12</span><span class="p">,</span>
+    <span class="n">load_trax_lines</span><span class="p">,</span>
+    <span class="n">load_trax_points</span><span class="p">,</span>
+    <span class="n">user_dir</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">slv.measurements.mobile.obs</span><span class="w"> </span><span class="kn">import</span> <span class="n">LOCATION_SETS</span>
+
+<span class="c1">#: Letters of the TRAX lines as :func:`load_trax_points` tags them (bit i of a line mask).</span>
+<span class="n">LINE_LETTERS</span> <span class="o">=</span> <span class="s2">&quot;RGBS&quot;</span>
+<span class="c1">#: Column order of a PYSTILT receptor CSV (``r_idx`` groups rows into one receptor).</span>
+<span class="n">RECEPTOR_COLUMNS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;r_idx&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;time&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;longitude&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;latitude&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;altitude&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;altitude_ref&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+<span class="n">_DWELL_COLUMNS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;dwell&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;t_start&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;t_end&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;longitude&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;latitude&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;n_minutes&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;n_fix&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;spread_m&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="n">_TO_UTM</span> <span class="o">=</span> <span class="n">Transformer</span><span class="o">.</span><span class="n">from_crs</span><span class="p">(</span><span class="s2">&quot;EPSG:4326&quot;</span><span class="p">,</span> <span class="n">UTM12</span><span class="p">,</span> <span class="n">always_xy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">_TO_LONLAT</span> <span class="o">=</span> <span class="n">Transformer</span><span class="o">.</span><span class="n">from_crs</span><span class="p">(</span><span class="n">UTM12</span><span class="p">,</span> <span class="s2">&quot;EPSG:4326&quot;</span><span class="p">,</span> <span class="n">always_xy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="load_trax_network_points">
+<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.receptors.load_trax_network_points.html#slv.measurements.mobile.receptors.load_trax_network_points">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">load_trax_network_points</span><span class="p">(</span>
+    <span class="n">spacing</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">50</span><span class="p">,</span>
+    <span class="n">segment_spacing</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2000</span><span class="p">,</span>
+    <span class="n">meters</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">rebuild</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The 50-m network points with their 2-km segment membership.</span>
+
+<span class="sd">    Both point sets come from :func:`load_trax_points` (``lair.geo.points_along_line`` on</span>
+<span class="sd">    the UTA line network, so shared track is one row of points and every pair is at least</span>
+<span class="sd">    ``spacing`` apart; each point is tagged with the letters of the lines within</span>
+<span class="sd">    ``spacing/2`` of it). Columns: ``point`` (stable integer id), ``lines`` (e.g. ``&quot;BGR&quot;``</span>
+<span class="sd">    on the downtown trunk), ``segment`` (index of the nearest staged 2-km point),</span>
+<span class="sd">    ``segment_dist_m``, and ``s_R``/``s_G``/``s_B``/``s_S`` — distance along each line the</span>
+<span class="sd">    point sits on (metres from that line&#39;s start, NaN off it), which is what makes</span>
+<span class="sd">    &quot;how much of the segment did this crossing cover&quot; measurable along the track instead</span>
+<span class="sd">    of as a straight line (:func:`find_segment_crossings`). Cached as ``$SLV_USER_DATA_DIR/trax/points_&lt;spacing&gt;m_network.geojson``</span>
+<span class="sd">    (UTM 12 N); returned in lon/lat unless ``meters=True``. Generating the 50-m points the</span>
+<span class="sd">    first time takes ~1 h (pure-Python graph walk over a 5-m graph of the network; 1,397</span>
+<span class="sd">    points, 2026-09-17) — do it on a compute node; afterwards ``load_trax_points`` reads its</span>
+<span class="sd">    own cache in seconds.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">cache</span> <span class="o">=</span> <span class="n">user_dir</span><span class="p">()</span> <span class="o">/</span> <span class="s2">&quot;trax&quot;</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;points_</span><span class="si">{</span><span class="n">spacing</span><span class="si">}</span><span class="s2">m_network.geojson&quot;</span>
+    <span class="k">if</span> <span class="n">cache</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">rebuild</span><span class="p">:</span>
+        <span class="n">pts</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">read_file</span><span class="p">(</span><span class="n">cache</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">fine</span> <span class="o">=</span> <span class="n">load_trax_points</span><span class="p">(</span><span class="n">spacing</span><span class="p">,</span> <span class="n">meters</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">segs</span> <span class="o">=</span> <span class="n">load_trax_points</span><span class="p">(</span><span class="n">segment_spacing</span><span class="p">,</span> <span class="n">meters</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">xy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">c_</span><span class="p">[</span><span class="n">fine</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">fine</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">y</span><span class="p">]</span>
+        <span class="n">d</span><span class="p">,</span> <span class="n">seg</span> <span class="o">=</span> <span class="n">cKDTree</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">c_</span><span class="p">[</span><span class="n">segs</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">segs</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">y</span><span class="p">])</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">xy</span><span class="p">)</span>
+        <span class="n">pts</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;point&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">fine</span><span class="p">)),</span>
+                <span class="s2">&quot;lines&quot;</span><span class="p">:</span> <span class="n">fine</span><span class="p">[</span><span class="s2">&quot;lines&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+                <span class="s2">&quot;segment&quot;</span><span class="p">:</span> <span class="n">seg</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+                <span class="s2">&quot;segment_dist_m&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+            <span class="p">},</span>
+            <span class="n">geometry</span><span class="o">=</span><span class="n">fine</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+            <span class="n">crs</span><span class="o">=</span><span class="n">fine</span><span class="o">.</span><span class="n">crs</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">letter</span><span class="p">,</span> <span class="n">geom</span> <span class="ow">in</span> <span class="n">_line_geometries</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">on</span> <span class="o">=</span> <span class="n">pts</span><span class="p">[</span><span class="s2">&quot;lines&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="n">letter</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+            <span class="n">along</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">pts</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">on</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+                <span class="n">along</span><span class="p">[</span><span class="n">on</span><span class="p">]</span> <span class="o">=</span> <span class="n">shapely</span><span class="o">.</span><span class="n">line_locate_point</span><span class="p">(</span><span class="n">geom</span><span class="p">,</span> <span class="n">pts</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">on</span><span class="p">])</span>
+            <span class="n">pts</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;s_</span><span class="si">{</span><span class="n">letter</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">along</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">cache</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">pts</span><span class="o">.</span><span class="n">to_file</span><span class="p">(</span><span class="n">cache</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">pts</span> <span class="o">=</span> <span class="n">pts</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="n">UTM12</span><span class="p">)</span> <span class="k">if</span> <span class="n">pts</span><span class="o">.</span><span class="n">crs</span> <span class="o">!=</span> <span class="n">UTM12</span> <span class="k">else</span> <span class="n">pts</span>
+    <span class="k">return</span> <span class="n">pts</span> <span class="k">if</span> <span class="n">meters</span> <span class="k">else</span> <span class="n">pts</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="s2">&quot;EPSG:4326&quot;</span><span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_line_geometries</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">shapely</span><span class="o">.</span><span class="n">LineString</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;UTA route geometry per line letter, in :data:`UTM12` (metres).&quot;&quot;&quot;</span>
+    <span class="n">lines</span> <span class="o">=</span> <span class="n">load_trax_lines</span><span class="p">()</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="n">UTM12</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">{</span><span class="nb">str</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">line</span><span class="p">)</span><span class="o">.</span><span class="n">upper</span><span class="p">():</span> <span class="n">r</span><span class="o">.</span><span class="n">geometry</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">lines</span><span class="o">.</span><span class="n">itertuples</span><span class="p">()}</span>
+
+
+<div class="viewcode-block" id="load_trax_fixes">
+<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.receptors.load_trax_fixes.html#slv.measurements.mobile.receptors.load_trax_fixes">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">load_trax_fixes</span><span class="p">(</span>
+    <span class="n">cache</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">location</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="s2">&quot;on_track&quot;</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    ``Time_UTC``, ``Latitude_deg``, ``Longitude_deg`` of the ``location`` rows of the cached</span>
+<span class="sd">    TRAX record (``obs.parquet``), one row per distinct second, time-sorted.</span>
+
+<span class="sd">    Reads only those columns (pyarrow, filtered on ``state``) — the full parquet with CH4 is</span>
+<span class="sd">    ~6 GB in memory, the fixes alone ~1 GB.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">pyarrow.parquet</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pq</span>
+
+    <span class="n">cache</span> <span class="o">=</span> <span class="n">user_dir</span><span class="p">()</span> <span class="o">/</span> <span class="s2">&quot;trax&quot;</span> <span class="o">/</span> <span class="s2">&quot;obs.parquet&quot;</span> <span class="k">if</span> <span class="n">cache</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">Path</span><span class="p">(</span><span class="n">cache</span><span class="p">)</span>
+    <span class="n">states</span> <span class="o">=</span> <span class="n">LOCATION_SETS</span><span class="p">[</span><span class="n">location</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">location</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="n">location</span>
+    <span class="n">filters</span> <span class="o">=</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">states</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="p">[(</span><span class="s2">&quot;state&quot;</span><span class="p">,</span> <span class="s2">&quot;in&quot;</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">states</span><span class="p">))]</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">pq</span><span class="o">.</span><span class="n">read_table</span><span class="p">(</span>
+        <span class="n">cache</span><span class="p">,</span>
+        <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Time_UTC&quot;</span><span class="p">,</span> <span class="s2">&quot;Latitude_deg&quot;</span><span class="p">,</span> <span class="s2">&quot;Longitude_deg&quot;</span><span class="p">,</span> <span class="s2">&quot;state&quot;</span><span class="p">],</span>
+        <span class="n">filters</span><span class="o">=</span><span class="n">filters</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">to_pandas</span><span class="p">()</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="s2">&quot;state&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="s2">&quot;Time_UTC&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s2">&quot;Time_UTC&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_posix_seconds</span><span class="p">(</span><span class="n">times</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">(</span><span class="n">times</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">t</span><span class="o">.</span><span class="n">tz</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">tz_convert</span><span class="p">(</span><span class="s2">&quot;UTC&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">tz_localize</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">t</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;datetime64[s]&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;int64&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="find_segment_crossings">
+<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.receptors.find_segment_crossings.html#slv.measurements.mobile.receptors.find_segment_crossings">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">find_segment_crossings</span><span class="p">(</span>
+    <span class="n">fixes</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">points</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">max_gap</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span> <span class="o">=</span> <span class="s2">&quot;10min&quot;</span><span class="p">,</span>
+    <span class="n">max_point_dist</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">60.0</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Split the GPS record into crossings of the 2-km segments.</span>
+
+<span class="sd">    Each fix is snapped to the nearest 50-m network point (dropped if farther than</span>
+<span class="sd">    ``max_point_dist`` m) and inherits its segment; a crossing is a run of consecutive</span>
+<span class="sd">    fixes on one segment with no gap longer than ``max_gap``. One row per crossing:</span>
+
+<span class="sd">    ``crossing``, ``segment``, ``lines`` (letters common to every point hit — the line the</span>
+<span class="sd">    train was on, in ``LINE_LETTERS`` order; ``&quot;RGB&quot;`` when only shared trunk points were</span>
+<span class="sd">    hit), ``t_start``, ``t_end``,</span>
+<span class="sd">    ``t_median``, ``n_fix``, ``n_points`` (distinct 50-m points hit), ``n_segment_points``</span>
+<span class="sd">    (points the segment has on that line), ``span_m``, ``segment_extent_m`` and</span>
+<span class="sd">    ``coverage``.</span>
+
+<span class="sd">    ``span_m`` is measured **along the route** (the ``s_&lt;line&gt;`` coordinate of the points</span>
+<span class="sd">    hit, from :func:`load_trax_network_points`), not as a straight line from the first fix:</span>
+<span class="sd">    on a bent segment a full traverse can be 2.6 km of rail but only 1.8 km of chord, so a</span>
+<span class="sd">    chord would make the same coverage look different on straight and bent segments.</span>
+<span class="sd">    ``segment_extent_m`` is the along-route length of the release geometry</span>
+<span class="sd">    (:func:`release_points`) and ``coverage = span_m / segment_extent_m`` is the fraction of</span>
+<span class="sd">    it the train actually drove.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">points</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">points</span> <span class="o">=</span> <span class="n">load_trax_network_points</span><span class="p">(</span><span class="n">meters</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">letters</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">LINE_LETTERS</span> <span class="k">if</span> <span class="sa">f</span><span class="s2">&quot;s_</span><span class="si">{</span><span class="n">c</span><span class="si">}</span><span class="s2">&quot;</span> <span class="ow">in</span> <span class="n">points</span><span class="o">.</span><span class="n">columns</span><span class="p">]</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">letters</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;points must carry along-route coordinates (s_R/s_G/...); rebuild them with &quot;</span>
+            <span class="s2">&quot;load_trax_network_points(rebuild=True).&quot;</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">fixes</span><span class="o">.</span><span class="n">Time_UTC</span><span class="o">.</span><span class="n">is_monotonic_increasing</span><span class="p">:</span>
+        <span class="n">fixes</span> <span class="o">=</span> <span class="n">fixes</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s2">&quot;Time_UTC&quot;</span><span class="p">)</span>
+    <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">_TO_UTM</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">fixes</span><span class="o">.</span><span class="n">Longitude_deg</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">fixes</span><span class="o">.</span><span class="n">Latitude_deg</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+    <span class="n">d</span><span class="p">,</span> <span class="n">ip</span> <span class="o">=</span> <span class="n">cKDTree</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">c_</span><span class="p">[</span><span class="n">points</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">points</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">y</span><span class="p">])</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">c_</span><span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">])</span>
+    <span class="n">ok</span> <span class="o">=</span> <span class="n">d</span> <span class="o">&lt;=</span> <span class="n">max_point_dist</span>
+    <span class="n">ip</span> <span class="o">=</span> <span class="n">ip</span><span class="p">[</span><span class="n">ok</span><span class="p">]</span>
+    <span class="n">ts</span> <span class="o">=</span> <span class="n">_posix_seconds</span><span class="p">(</span><span class="n">fixes</span><span class="o">.</span><span class="n">Time_UTC</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">ok</span><span class="p">])</span>
+    <span class="n">seg</span> <span class="o">=</span> <span class="n">points</span><span class="p">[</span><span class="s2">&quot;segment&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">ip</span><span class="p">]</span>
+    <span class="n">pt</span> <span class="o">=</span> <span class="n">points</span><span class="p">[</span><span class="s2">&quot;point&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">ip</span><span class="p">]</span>
+    <span class="n">point_masks</span> <span class="o">=</span> <span class="n">_line_masks</span><span class="p">(</span><span class="n">points</span><span class="p">[</span><span class="s2">&quot;lines&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+    <span class="n">mask</span> <span class="o">=</span> <span class="n">point_masks</span><span class="p">[</span><span class="n">ip</span><span class="p">]</span>
+    <span class="n">gap_s</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">max_gap</span><span class="p">)</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span>
+    <span class="n">new</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ts</span><span class="p">),</span> <span class="nb">bool</span><span class="p">)</span>
+    <span class="n">new</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">ts</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">gap_s</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">seg</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">starts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">flatnonzero</span><span class="p">(</span><span class="n">new</span><span class="p">)</span>
+    <span class="c1"># lines common to every point hit in a crossing: bitwise AND over each run of fixes</span>
+    <span class="n">common</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">bitwise_and</span><span class="o">.</span><span class="n">reduceat</span><span class="p">(</span><span class="n">mask</span><span class="p">,</span> <span class="n">starts</span><span class="p">)</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ts</span><span class="p">)</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+
+    <span class="c1"># along-route coordinate of every fix, on the line its crossing was on</span>
+    <span class="n">S</span> <span class="o">=</span> <span class="n">points</span><span class="p">[[</span><span class="sa">f</span><span class="s2">&quot;s_</span><span class="si">{</span><span class="n">c</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">letters</span><span class="p">]]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+    <span class="n">bits</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">LINE_LETTERS</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">letters</span><span class="p">])</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_col</span><span class="p">(</span><span class="n">m</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Index into ``letters`` of the first line in bit mask ``m`` (-1 if none).&quot;&quot;&quot;</span>
+        <span class="n">hit</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">flatnonzero</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">bitwise_and</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="p">),</span> <span class="n">bits</span><span class="p">))</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">hit</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">hit</span><span class="p">)</span> <span class="k">else</span> <span class="o">-</span><span class="mi">1</span>
+
+    <span class="n">first_mask</span> <span class="o">=</span> <span class="n">mask</span><span class="p">[</span><span class="n">starts</span><span class="p">]</span>
+    <span class="c1"># a crossing whose points share no line (disjoint arms) falls back to its first point</span>
+    <span class="n">cross_col</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="n">c</span> <span class="k">if</span> <span class="p">(</span><span class="n">c</span> <span class="o">:=</span> <span class="n">_col</span><span class="p">(</span><span class="n">m</span><span class="p">))</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">_col</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">m</span><span class="p">,</span> <span class="n">f</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">common</span><span class="p">,</span> <span class="n">first_mask</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="p">],</span>
+        <span class="n">dtype</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">sizes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">r_</span><span class="p">[</span><span class="n">starts</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">ts</span><span class="p">)])</span>
+    <span class="n">s_fix</span> <span class="o">=</span> <span class="n">S</span><span class="p">[</span><span class="n">ip</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">cross_col</span><span class="p">,</span> <span class="n">sizes</span><span class="p">)]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ts</span><span class="p">)</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;crossing&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">new</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
+            <span class="s2">&quot;segment&quot;</span><span class="p">:</span> <span class="n">seg</span><span class="p">,</span>
+            <span class="s2">&quot;t&quot;</span><span class="p">:</span> <span class="n">ts</span><span class="p">,</span>
+            <span class="s2">&quot;point&quot;</span><span class="p">:</span> <span class="n">pt</span><span class="p">,</span>
+            <span class="s2">&quot;s&quot;</span><span class="p">:</span> <span class="n">s_fix</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+    <span class="n">g</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;crossing&quot;</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;segment&quot;</span><span class="p">:</span> <span class="n">g</span><span class="o">.</span><span class="n">segment</span><span class="o">.</span><span class="n">first</span><span class="p">()</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">),</span>
+            <span class="s2">&quot;lines&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">_mask_to_lines</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="p">))</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">common</span><span class="p">],</span>
+            <span class="s2">&quot;t_start&quot;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">t</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;s&quot;</span><span class="p">),</span>
+            <span class="s2">&quot;t_end&quot;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">t</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;s&quot;</span><span class="p">),</span>
+            <span class="s2">&quot;t_median&quot;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">t</span><span class="o">.</span><span class="n">median</span><span class="p">()</span><span class="o">.</span><span class="n">round</span><span class="p">()</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;int64&quot;</span><span class="p">),</span> <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;s&quot;</span><span class="p">),</span>
+            <span class="s2">&quot;n_fix&quot;</span><span class="p">:</span> <span class="n">g</span><span class="o">.</span><span class="n">size</span><span class="p">(),</span>
+            <span class="s2">&quot;n_points&quot;</span><span class="p">:</span> <span class="n">g</span><span class="o">.</span><span class="n">point</span><span class="o">.</span><span class="n">nunique</span><span class="p">(),</span>
+            <span class="s2">&quot;span_m&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">s</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">-</span> <span class="n">g</span><span class="o">.</span><span class="n">s</span><span class="o">.</span><span class="n">min</span><span class="p">())</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+    <span class="n">out</span><span class="p">[</span><span class="s2">&quot;lines&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">out</span><span class="p">[</span><span class="s2">&quot;lines&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>  <span class="c1"># an empty list would come out float64</span>
+    <span class="c1"># release-geometry extent, once per (segment, lines) pair</span>
+    <span class="n">extent</span><span class="p">,</span> <span class="n">n_rel</span> <span class="o">=</span> <span class="p">{},</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">segment</span><span class="p">,</span> <span class="n">lines</span> <span class="ow">in</span> <span class="p">(</span>
+        <span class="n">out</span><span class="p">[[</span><span class="s2">&quot;segment&quot;</span><span class="p">,</span> <span class="s2">&quot;lines&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">()</span><span class="o">.</span><span class="n">itertuples</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="p">):</span>
+        <span class="n">rel</span> <span class="o">=</span> <span class="n">points</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">release_points</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">segment</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">lines</span><span class="p">))]</span>
+        <span class="n">col</span> <span class="o">=</span> <span class="n">_col</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">_line_masks</span><span class="p">([</span><span class="n">lines</span><span class="p">])[</span><span class="mi">0</span><span class="p">]))</span>
+        <span class="n">vals</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">rel</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;s_</span><span class="si">{</span><span class="n">letters</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span> <span class="k">if</span> <span class="n">col</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">])</span>
+        <span class="p">)</span>
+        <span class="n">vals</span> <span class="o">=</span> <span class="n">vals</span><span class="p">[</span><span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">vals</span><span class="p">)]</span>
+        <span class="n">extent</span><span class="p">[(</span><span class="n">segment</span><span class="p">,</span> <span class="n">lines</span><span class="p">)]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">vals</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">-</span> <span class="n">vals</span><span class="o">.</span><span class="n">min</span><span class="p">()),</span> <span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">vals</span><span class="p">)</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="p">)</span>
+        <span class="n">n_rel</span><span class="p">[(</span><span class="n">segment</span><span class="p">,</span> <span class="n">lines</span><span class="p">)]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">rel</span><span class="p">)</span>
+    <span class="n">key</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">segment</span><span class="p">,</span> <span class="n">out</span><span class="o">.</span><span class="n">lines</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+    <span class="n">out</span><span class="p">[</span><span class="s2">&quot;segment_extent_m&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">extent</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">key</span><span class="p">]</span>
+    <span class="n">out</span><span class="p">[</span><span class="s2">&quot;n_segment_points&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">n_rel</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">key</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span><span class="p">)</span>
+    <span class="n">out</span><span class="p">[</span><span class="s2">&quot;coverage&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">span_m</span> <span class="o">/</span> <span class="n">out</span><span class="o">.</span><span class="n">segment_extent_m</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">out</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_line_masks</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Bit mask per point from its ``lines`` letters (R=1, G=2, B=4, S=8).&quot;&quot;&quot;</span>
+    <span class="n">bits</span> <span class="o">=</span> <span class="p">{</span><span class="n">c</span><span class="p">:</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">LINE_LETTERS</span><span class="p">)}</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+        <span class="p">[</span><span class="nb">sum</span><span class="p">(</span><span class="n">bits</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">if</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">bits</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int64</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_mask_to_lines</span><span class="p">(</span><span class="n">mask</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">return</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">c</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">LINE_LETTERS</span><span class="p">)</span> <span class="k">if</span> <span class="n">mask</span> <span class="o">&amp;</span> <span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">i</span><span class="p">))</span>
+
+
+<div class="viewcode-block" id="release_points">
+<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.receptors.release_points.html#slv.measurements.mobile.receptors.release_points">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">release_points</span><span class="p">(</span><span class="n">points</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span> <span class="n">segment</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">lines</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Index</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Index of the segment&#39;s points on every line in ``lines`` (all of them if ``lines`` is empty).</span>
+
+<span class="sd">    At a junction a staged 2-km point collects the arms of several lines (downtown,</span>
+<span class="sd">    segment 21 has 92 points on three arms); a train on one line only samples that line&#39;s</span>
+<span class="sd">    arms, so a receptor releases from the segment points whose ``lines`` contain every</span>
+<span class="sd">    letter the crossing&#39;s fixes had in common — the shared trunk plus that line&#39;s arm.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sel</span> <span class="o">=</span> <span class="n">points</span><span class="p">[</span><span class="s2">&quot;segment&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">==</span> <span class="n">segment</span>
+    <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">:</span>
+        <span class="n">sel</span> <span class="o">&amp;=</span> <span class="n">points</span><span class="p">[</span><span class="s2">&quot;lines&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">contains</span><span class="p">(</span><span class="n">c</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+    <span class="k">return</span> <span class="n">points</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="n">sel</span><span class="p">]</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_minute_positions</span><span class="p">(</span><span class="n">fixes</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Median projected position per minute: index ``minute``, columns ``x``, ``y``, ``n``.</span>
+
+<span class="sd">    Dwells are found at 1-minute resolution rather than per fix -- 46 M fixes is too many</span>
+<span class="sd">    for a run-detection loop and a dwell lasts tens of minutes, so nothing is lost.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">_TO_UTM</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">fixes</span><span class="o">.</span><span class="n">Longitude_deg</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">fixes</span><span class="o">.</span><span class="n">Latitude_deg</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">(</span><span class="n">fixes</span><span class="o">.</span><span class="n">Time_UTC</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">t</span><span class="o">.</span><span class="n">tz</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">tz_convert</span><span class="p">(</span><span class="s2">&quot;UTC&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">tz_localize</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;minute&quot;</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="s2">&quot;min&quot;</span><span class="p">),</span> <span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="n">x</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="n">y</span><span class="p">})</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;minute&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">agg</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;median&quot;</span><span class="p">),</span> <span class="n">y</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="s2">&quot;median&quot;</span><span class="p">),</span> <span class="n">n</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;size&quot;</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">out</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="find_dwells">
+<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.receptors.find_dwells.html#slv.measurements.mobile.receptors.find_dwells">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">find_dwells</span><span class="p">(</span>
+    <span class="n">fixes</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">radius</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">150.0</span><span class="p">,</span>
+    <span class="n">min_duration</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span> <span class="o">=</span> <span class="s2">&quot;20min&quot;</span><span class="p">,</span>
+    <span class="n">max_gap</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span> <span class="o">=</span> <span class="s2">&quot;10min&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Periods where the train stayed put: parked on a yard track or waiting at a terminus.</span>
+
+<span class="sd">    Walks the per-minute positions and opens a dwell at each minute, extending it while the</span>
+<span class="sd">    train stays within ``radius`` of the first minute of the run and no gap exceeds</span>
+<span class="sd">    ``max_gap``. Runs lasting at least ``min_duration`` are returned, one row each:</span>
+<span class="sd">    ``dwell``, ``t_start``, ``t_end``, ``longitude``, ``latitude`` (median over the dwell),</span>
+<span class="sd">    ``n_minutes``, ``n_fix``, ``spread_m`` (largest distance from the median position).</span>
+
+<span class="sd">    Pass fixes loaded with ``location=&quot;outdoor&quot;`` so yard-parked minutes are present and</span>
+<span class="sd">    indoor shed air is not.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">mins</span> <span class="o">=</span> <span class="n">_minute_positions</span><span class="p">(</span><span class="n">fixes</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">mins</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">_DWELL_COLUMNS</span><span class="p">)</span>
+    <span class="n">idx</span> <span class="o">=</span> <span class="n">mins</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+    <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">n</span> <span class="o">=</span> <span class="n">mins</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(),</span> <span class="n">mins</span><span class="o">.</span><span class="n">y</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(),</span> <span class="n">mins</span><span class="o">.</span><span class="n">n</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+    <span class="n">gap_min</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">max_gap</span><span class="p">)</span> <span class="o">/</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="s2">&quot;1min&quot;</span><span class="p">)</span>
+    <span class="n">min_min</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">min_duration</span><span class="p">)</span> <span class="o">/</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="s2">&quot;1min&quot;</span><span class="p">)</span>
+    <span class="n">step</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">timedelta64</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;m&quot;</span><span class="p">)</span>
+
+    <span class="n">runs</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="n">N</span> <span class="o">=</span> <span class="p">[],</span> <span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span>
+    <span class="k">while</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">N</span><span class="p">:</span>
+        <span class="n">j</span> <span class="o">=</span> <span class="n">i</span>
+        <span class="k">while</span> <span class="p">(</span>
+            <span class="n">j</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">&lt;</span> <span class="n">N</span>
+            <span class="ow">and</span> <span class="n">step</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">gap_min</span>
+            <span class="ow">and</span> <span class="n">np</span><span class="o">.</span><span class="n">hypot</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">x</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">y</span><span class="p">[</span><span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">y</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">&lt;=</span> <span class="n">radius</span>
+        <span class="p">):</span>
+            <span class="n">j</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">idx</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">-</span> <span class="n">idx</span><span class="p">[</span><span class="n">i</span><span class="p">])</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">timedelta64</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;m&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">&gt;=</span> <span class="n">min_min</span><span class="p">:</span>
+            <span class="n">runs</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">))</span>
+            <span class="n">i</span> <span class="o">=</span> <span class="n">j</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="n">rows</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">runs</span><span class="p">):</span>
+        <span class="n">sl</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">mx</span><span class="p">,</span> <span class="n">my</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">sl</span><span class="p">])),</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">y</span><span class="p">[</span><span class="n">sl</span><span class="p">]))</span>
+        <span class="n">lon</span><span class="p">,</span> <span class="n">lat</span> <span class="o">=</span> <span class="n">_TO_LONLAT</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">mx</span><span class="p">,</span> <span class="n">my</span><span class="p">)</span>
+        <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;dwell&quot;</span><span class="p">:</span> <span class="n">k</span><span class="p">,</span>
+                <span class="s2">&quot;t_start&quot;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="n">idx</span><span class="p">[</span><span class="n">a</span><span class="p">]),</span>
+                <span class="s2">&quot;t_end&quot;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="n">idx</span><span class="p">[</span><span class="n">b</span><span class="p">])</span> <span class="o">+</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">minutes</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+                <span class="s2">&quot;longitude&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">lon</span><span class="p">),</span> <span class="mi">6</span><span class="p">),</span>
+                <span class="s2">&quot;latitude&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">lat</span><span class="p">),</span> <span class="mi">6</span><span class="p">),</span>
+                <span class="s2">&quot;n_minutes&quot;</span><span class="p">:</span> <span class="n">b</span> <span class="o">-</span> <span class="n">a</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span>
+                <span class="s2">&quot;n_fix&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">n</span><span class="p">[</span><span class="n">sl</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()),</span>
+                <span class="s2">&quot;spread_m&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">hypot</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="n">sl</span><span class="p">]</span> <span class="o">-</span> <span class="n">mx</span><span class="p">,</span> <span class="n">y</span><span class="p">[</span><span class="n">sl</span><span class="p">]</span> <span class="o">-</span> <span class="n">my</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">()),</span> <span class="mi">1</span><span class="p">),</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">_DWELL_COLUMNS</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="label_dwell_site">
+<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.receptors.label_dwell_site.html#slv.measurements.mobile.receptors.label_dwell_site">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">label_dwell_site</span><span class="p">(</span>
+    <span class="n">dwells</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">points</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">max_dist</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">200.0</span><span class="p">,</span>
+    <span class="n">yard_buffer</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Where each dwell is: ``yard_name`` (JRRSC / MRSC, from the packaged storage polygons)</span>
+<span class="sd">    and ``segment`` (nearest 2-km segment, NaN beyond ``max_dist``).</span>
+
+<span class="sd">    A dwell is in a yard within ``yard_buffer`` m of its polygon (default the location</span>
+<span class="sd">    classifier&#39;s :data:`~slv.measurements.mobile.location.YARD_BUFFER`, so a train parked</span>
+<span class="sd">    just outside the drawn edge is labelled the same way by both).</span>
+
+<span class="sd">    Diagnostic only -- the receptor sits at the dwell&#39;s own median position. The yard label</span>
+<span class="sd">    is the one that matters for screening: a rail service center is a maintenance yard, so</span>
+<span class="sd">    those receptors carry hyper-local influence that a 0.01-degree footprint cannot resolve.</span>
+<span class="sd">    Note the two labels overlap: the Jordan River yard runs alongside the Green line, so</span>
+<span class="sd">    many of its parking spots are also within ``max_dist`` of a network point.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">points</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">points</span> <span class="o">=</span> <span class="n">load_trax_network_points</span><span class="p">(</span><span class="n">meters</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="n">dwells</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+    <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">_TO_UTM</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">dwells</span><span class="o">.</span><span class="n">longitude</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">dwells</span><span class="o">.</span><span class="n">latitude</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+    <span class="n">d</span><span class="p">,</span> <span class="n">ip</span> <span class="o">=</span> <span class="n">cKDTree</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">c_</span><span class="p">[</span><span class="n">points</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">points</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">y</span><span class="p">])</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">c_</span><span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">])</span>
+    <span class="n">seg</span> <span class="o">=</span> <span class="n">points</span><span class="p">[</span><span class="s2">&quot;segment&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()[</span><span class="n">ip</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+    <span class="n">seg</span><span class="p">[</span><span class="n">d</span> <span class="o">&gt;</span> <span class="n">max_dist</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+    <span class="n">out</span><span class="p">[</span><span class="s2">&quot;segment&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">seg</span>
+
+    <span class="kn">from</span><span class="w"> </span><span class="nn">slv.measurements.mobile.location</span><span class="w"> </span><span class="kn">import</span> <span class="n">YARD_BUFFER</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">slv.measurements.mobile.network</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_storage_polygons</span>
+
+    <span class="n">buffer</span> <span class="o">=</span> <span class="n">YARD_BUFFER</span> <span class="k">if</span> <span class="n">yard_buffer</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">yard_buffer</span>
+    <span class="n">yards</span> <span class="o">=</span> <span class="n">load_storage_polygons</span><span class="p">(</span><span class="n">meters</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">pts</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoSeries</span><span class="p">(</span><span class="n">gpd</span><span class="o">.</span><span class="n">points_from_xy</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">),</span> <span class="n">crs</span><span class="o">=</span><span class="n">UTM12</span><span class="p">)</span>
+    <span class="n">names</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">out</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">object</span><span class="p">)</span>
+    <span class="n">best</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">out</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">geom</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">yards</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">],</span> <span class="n">yards</span><span class="o">.</span><span class="n">geometry</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">pts</span><span class="o">.</span><span class="n">distance</span><span class="p">(</span><span class="n">geom</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>  <span class="c1"># 0 inside</span>
+        <span class="n">hit</span> <span class="o">=</span> <span class="p">(</span><span class="n">d</span> <span class="o">&lt;=</span> <span class="n">buffer</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">d</span> <span class="o">&lt;</span> <span class="n">best</span><span class="p">)</span>
+        <span class="n">names</span><span class="p">[</span><span class="n">hit</span><span class="p">],</span> <span class="n">best</span><span class="p">[</span><span class="n">hit</span><span class="p">]</span> <span class="o">=</span> <span class="n">name</span><span class="p">,</span> <span class="n">d</span><span class="p">[</span><span class="n">hit</span><span class="p">]</span>
+    <span class="n">out</span><span class="p">[</span><span class="s2">&quot;yard_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">names</span>
+    <span class="k">return</span> <span class="n">out</span></div>
+
+
+
+<div class="viewcode-block" id="build_dwell_receptors">
+<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.receptors.build_dwell_receptors.html#slv.measurements.mobile.receptors.build_dwell_receptors">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">build_dwell_receptors</span><span class="p">(</span>
+    <span class="n">fixes</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">dwells</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">freq</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;1h&quot;</span><span class="p">,</span>
+    <span class="n">min_minutes</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">30</span><span class="p">,</span>
+    <span class="n">altitude</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">4.0</span><span class="p">,</span>
+    <span class="n">altitude_ref</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;agl&quot;</span><span class="p">,</span>
+    <span class="n">hours</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">utc_offset</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">UTC_OFFSET</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    PYSTILT receptor table (:data:`RECEPTOR_COLUMNS`) for the dwell periods.</span>
+
+<span class="sd">    One single-point receptor per ``freq`` bin of each dwell that holds at least</span>
+<span class="sd">    ``min_minutes`` *distinct minutes* of data (counting minutes, not fixes, so the rule</span>
+<span class="sd">    means the same thing in the 1-s and 10-s sampling eras), at the dwell&#39;s median position, released at the median fix time</span>
+<span class="sd">    inside the bin (rounded to the minute). A parked train is a stationary site, so the bin</span>
+<span class="sd">    is an hour by default, exactly as the towers are treated; the release time follows the</span>
+<span class="sd">    data rather than the bin edge because the train may only be there for part of it.</span>
+
+<span class="sd">    ``r_idx`` is ``dwell_&lt;dwell&gt;_&lt;YYYYMMDDHH of the bin&gt;``, which</span>
+<span class="sd">    :mod:`.receptor_obs` parses back into a one-hour sample window, so ``freq`` must be</span>
+<span class="sd">    exactly an hour: a shorter bin would give two receptors one ``r_idx``, and a longer</span>
+<span class="sd">    one would release the footprint at the median of the whole bin while the obs</span>
+<span class="sd">    averages only its first hour.</span>
+
+<span class="sd">    ``hours`` restricts output to those local-time hours (see</span>
+<span class="sd">    :func:`filter_receptor_hours`), e.g. ``range(12, 17)`` for the afternoon.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">step</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">date_range</span><span class="p">(</span><span class="s2">&quot;2000-01-01&quot;</span><span class="p">,</span> <span class="n">periods</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="n">freq</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">step</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">step</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">hours</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;freq=</span><span class="si">{</span><span class="n">freq</span><span class="si">!r}</span><span class="s2">: dwell receptors are hourly (the r_idx names the hour, and &quot;</span>
+            <span class="s2">&quot;receptor_obs averages the obs over that hour).&quot;</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="n">dwells</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">RECEPTOR_COLUMNS</span><span class="p">)</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">(</span><span class="n">fixes</span><span class="o">.</span><span class="n">Time_UTC</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">t</span><span class="o">.</span><span class="n">tz</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">tz_convert</span><span class="p">(</span><span class="s2">&quot;UTC&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">tz_localize</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+    <span class="n">order</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+    <span class="n">ts</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">order</span><span class="p">]</span>
+
+    <span class="n">frames</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">dwells</span><span class="o">.</span><span class="n">itertuples</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="n">lo</span><span class="p">,</span> <span class="n">hi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="n">ts</span><span class="p">,</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">datetime64</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">t_start</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">datetime64</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">t_end</span><span class="p">)])</span>
+        <span class="k">if</span> <span class="n">hi</span> <span class="o">&lt;=</span> <span class="n">lo</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">sub</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">(</span><span class="n">ts</span><span class="p">[</span><span class="n">lo</span><span class="p">:</span><span class="n">hi</span><span class="p">])</span>
+        <span class="n">frame</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+            <span class="p">{</span><span class="s2">&quot;t&quot;</span><span class="p">:</span> <span class="n">sub</span><span class="p">,</span> <span class="s2">&quot;bin&quot;</span><span class="p">:</span> <span class="n">sub</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">freq</span><span class="p">),</span> <span class="s2">&quot;minute&quot;</span><span class="p">:</span> <span class="n">sub</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="s2">&quot;min&quot;</span><span class="p">)}</span>
+        <span class="p">)</span>
+        <span class="c1"># minutes with data, not fixes: the record is 1-s before 2022 and 10-s after</span>
+        <span class="n">agg</span> <span class="o">=</span> <span class="n">frame</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;bin&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">agg</span><span class="p">(</span>
+            <span class="n">n</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;minute&quot;</span><span class="p">,</span> <span class="s2">&quot;nunique&quot;</span><span class="p">),</span> <span class="n">t_median</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;t&quot;</span><span class="p">,</span> <span class="s2">&quot;median&quot;</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">agg</span> <span class="o">=</span> <span class="n">agg</span><span class="p">[</span><span class="n">agg</span><span class="o">.</span><span class="n">n</span> <span class="o">&gt;=</span> <span class="n">min_minutes</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">agg</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">frames</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">agg</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">dwell</span><span class="o">=</span><span class="n">d</span><span class="o">.</span><span class="n">dwell</span><span class="p">,</span> <span class="n">longitude</span><span class="o">=</span><span class="n">d</span><span class="o">.</span><span class="n">longitude</span><span class="p">,</span> <span class="n">latitude</span><span class="o">=</span><span class="n">d</span><span class="o">.</span><span class="n">latitude</span><span class="p">)</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">frames</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">RECEPTOR_COLUMNS</span><span class="p">)</span>
+
+    <span class="n">rec</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">frames</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">names</span><span class="o">=</span><span class="s2">&quot;bin&quot;</span><span class="p">)</span>
+    <span class="n">time</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">(</span><span class="n">rec</span><span class="o">.</span><span class="n">t_median</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="s2">&quot;1min&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">tz_localize</span><span class="p">(</span><span class="s2">&quot;UTC&quot;</span><span class="p">)</span>
+    <span class="n">rec</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">time</span>
+    <span class="n">rec</span> <span class="o">=</span> <span class="n">filter_receptor_hours</span><span class="p">(</span><span class="n">rec</span><span class="p">,</span> <span class="n">hours</span><span class="p">,</span> <span class="n">utc_offset</span><span class="p">)</span>
+    <span class="n">rec</span> <span class="o">=</span> <span class="n">rec</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">([</span><span class="s2">&quot;longitude&quot;</span><span class="p">,</span> <span class="s2">&quot;latitude&quot;</span><span class="p">,</span> <span class="s2">&quot;time&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">rec</span><span class="p">[</span><span class="s2">&quot;r_idx&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="sa">f</span><span class="s2">&quot;dwell_</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">d</span><span class="p">)</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">b</span><span class="si">:</span><span class="s2">%Y%m%d%H</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">d</span><span class="p">,</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">rec</span><span class="o">.</span><span class="n">dwell</span><span class="p">,</span> <span class="n">rec</span><span class="o">.</span><span class="n">bin</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="p">]</span>
+    <span class="n">rec</span><span class="p">[</span><span class="s2">&quot;altitude&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">altitude</span><span class="p">)</span>
+    <span class="n">rec</span><span class="p">[</span><span class="s2">&quot;altitude_ref&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">altitude_ref</span>
+    <span class="k">return</span> <span class="n">rec</span><span class="p">[</span><span class="n">RECEPTOR_COLUMNS</span><span class="p">]</span></div>
+
+
+
+<div class="viewcode-block" id="filter_receptor_hours">
+<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.receptors.filter_receptor_hours.html#slv.measurements.mobile.receptors.filter_receptor_hours">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">filter_receptor_hours</span><span class="p">(</span>
+    <span class="n">rec</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">hours</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">utc_offset</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">UTC_OFFSET</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Keep rows whose ``time`` falls in those local-time hours (``None`` keeps all).</span>
+
+<span class="sd">    ``utc_offset`` is a fixed offset, by default ``slv.domain.UTC_OFFSET`` (MST, no DST), so</span>
+<span class="sd">    the window is the same standard-time hours all year; in summer the wall clock (MDT)</span>
+<span class="sd">    reads one hour later.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">hours</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">rec</span>
+    <span class="n">local</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">(</span><span class="n">rec</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">])</span> <span class="o">+</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">hours</span><span class="o">=</span><span class="n">utc_offset</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">rec</span><span class="p">[</span><span class="n">local</span><span class="o">.</span><span class="n">hour</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">hours</span><span class="p">))]</span></div>
+
+
+
+<div class="viewcode-block" id="build_trax_receptors">
+<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.receptors.build_trax_receptors.html#slv.measurements.mobile.receptors.build_trax_receptors">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">build_trax_receptors</span><span class="p">(</span>
+    <span class="n">crossings</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">points</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">min_coverage</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span>
+    <span class="n">min_span_m</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+    <span class="n">max_duration</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="s2">&quot;15min&quot;</span><span class="p">,</span>
+    <span class="n">altitude</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">4.0</span><span class="p">,</span>
+    <span class="n">altitude_ref</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;agl&quot;</span><span class="p">,</span>
+    <span class="n">time_round</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;1min&quot;</span><span class="p">,</span>
+    <span class="n">hours</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">utc_offset</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">UTC_OFFSET</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    PYSTILT receptor table (:data:`RECEPTOR_COLUMNS`) from a crossings table.</span>
+
+<span class="sd">    One ``r_idx`` (= ``crossing``) per crossing that drove at least ``min_coverage`` of its</span>
+<span class="sd">    release geometry along the route (and at least ``min_span_m`` of it in metres, if set),</span>
+<span class="sd">    with one row per 50-m point of the segment on the crossing&#39;s line</span>
+<span class="sd">    (:func:`release_points`; every such point, not only those with a fix, so a</span>
+<span class="sd">    segment × line receptor geometry is always the same and its PYSTILT location id</span>
+<span class="sd">    stable). ``time`` is the crossing&#39;s median fix time rounded to ``time_round`` (UTC);</span>
+<span class="sd">    crossings of one segment and line that round to the same minute are kept once.</span>
+<span class="sd">    ``altitude`` is the roof inlet height in m AGL.</span>
+
+<span class="sd">    ``hours`` restricts output to those local-time hours (see</span>
+<span class="sd">    :func:`filter_receptor_hours`). ``max_duration`` drops passes that are not traverses: at the five line termini the</span>
+<span class="sd">    train dwells inside one segment between runs, so the pass can read 20 min or more and</span>
+<span class="sd">    its median fix time is not the time it drove the track. ``None`` keeps them.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">points</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">points</span> <span class="o">=</span> <span class="n">load_trax_network_points</span><span class="p">(</span><span class="n">meters</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">lon</span><span class="p">,</span> <span class="n">lat</span> <span class="o">=</span> <span class="n">_TO_LONLAT</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">points</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">points</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">y</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+    <span class="n">pts</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;segment&quot;</span><span class="p">:</span> <span class="n">points</span><span class="p">[</span><span class="s2">&quot;segment&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+            <span class="s2">&quot;point&quot;</span><span class="p">:</span> <span class="n">points</span><span class="p">[</span><span class="s2">&quot;point&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>
+            <span class="s2">&quot;longitude&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">lon</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span>
+            <span class="s2">&quot;latitude&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">lat</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span>
+        <span class="p">},</span>
+        <span class="n">index</span><span class="o">=</span><span class="n">points</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">keep</span> <span class="o">=</span> <span class="p">(</span><span class="n">crossings</span><span class="o">.</span><span class="n">coverage</span> <span class="o">&gt;=</span> <span class="n">min_coverage</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">crossings</span><span class="o">.</span><span class="n">span_m</span> <span class="o">&gt;=</span> <span class="n">min_span_m</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">max_duration</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">dur</span> <span class="o">=</span> <span class="p">(</span><span class="n">crossings</span><span class="o">.</span><span class="n">t_end</span> <span class="o">-</span> <span class="n">crossings</span><span class="o">.</span><span class="n">t_start</span><span class="p">)</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span>
+        <span class="n">keep</span> <span class="o">&amp;=</span> <span class="n">dur</span> <span class="o">&lt;=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">max_duration</span><span class="p">)</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="n">crossings</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">keep</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;crossing&quot;</span><span class="p">,</span> <span class="s2">&quot;segment&quot;</span><span class="p">,</span> <span class="s2">&quot;lines&quot;</span><span class="p">,</span> <span class="s2">&quot;t_median&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">t_median</span><span class="p">)</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">tz_localize</span><span class="p">(</span><span class="s2">&quot;UTC&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">t</span><span class="o">.</span><span class="n">tz</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">t</span><span class="o">.</span><span class="n">tz_convert</span><span class="p">(</span><span class="s2">&quot;UTC&quot;</span><span class="p">)</span>
+    <span class="n">c</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">time_round</span><span class="p">)</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="n">filter_receptor_hours</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">hours</span><span class="p">,</span> <span class="n">utc_offset</span><span class="p">)</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">([</span><span class="s2">&quot;segment&quot;</span><span class="p">,</span> <span class="s2">&quot;lines&quot;</span><span class="p">,</span> <span class="s2">&quot;time&quot;</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">RECEPTOR_COLUMNS</span><span class="p">)</span>
+    <span class="n">sets</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">pts</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">release_points</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">segment</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">lines</span><span class="p">))]</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">lines</span><span class="o">=</span><span class="n">lines</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">segment</span><span class="p">,</span> <span class="n">lines</span> <span class="ow">in</span> <span class="n">c</span><span class="p">[[</span><span class="s2">&quot;segment&quot;</span><span class="p">,</span> <span class="s2">&quot;lines&quot;</span><span class="p">]]</span>
+        <span class="o">.</span><span class="n">drop_duplicates</span><span class="p">()</span>
+        <span class="o">.</span><span class="n">itertuples</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="p">]</span>
+    <span class="n">rel</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">sets</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="k">if</span> <span class="n">sets</span> <span class="k">else</span> <span class="n">pts</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">lines</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="n">rec</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">c</span><span class="p">[[</span><span class="s2">&quot;crossing&quot;</span><span class="p">,</span> <span class="s2">&quot;segment&quot;</span><span class="p">,</span> <span class="s2">&quot;lines&quot;</span><span class="p">,</span> <span class="s2">&quot;time&quot;</span><span class="p">]]</span>
+        <span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">rel</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;segment&quot;</span><span class="p">,</span> <span class="s2">&quot;lines&quot;</span><span class="p">],</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;inner&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">sort_values</span><span class="p">([</span><span class="s2">&quot;crossing&quot;</span><span class="p">,</span> <span class="s2">&quot;point&quot;</span><span class="p">])</span>
+        <span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;crossing&quot;</span><span class="p">:</span> <span class="s2">&quot;r_idx&quot;</span><span class="p">})</span>
+    <span class="p">)</span>
+    <span class="n">rec</span><span class="p">[</span><span class="s2">&quot;altitude&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">altitude</span><span class="p">)</span>
+    <span class="n">rec</span><span class="p">[</span><span class="s2">&quot;altitude_ref&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">altitude_ref</span>
+    <span class="k">return</span> <span class="n">rec</span><span class="p">[</span><span class="n">RECEPTOR_COLUMNS</span><span class="p">]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;LINE_LETTERS&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;RECEPTOR_COLUMNS&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;build_dwell_receptors&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;build_trax_receptors&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;filter_receptor_hours&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;find_dwells&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;find_segment_crossings&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;load_trax_fixes&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;label_dwell_site&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;load_trax_network_points&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;release_points&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026, James Mineau.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

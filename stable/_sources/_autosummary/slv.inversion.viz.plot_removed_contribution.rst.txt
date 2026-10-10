@@ -1,0 +1,6 @@
+slv.inversion.viz.plot\_removed\_contribution
+=============================================
+
+.. currentmodule:: slv.inversion.viz
+
+.. autofunction:: plot_removed_contribution

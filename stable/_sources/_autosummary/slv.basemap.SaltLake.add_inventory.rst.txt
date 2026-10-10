@@ -1,0 +1,6 @@
+slv.basemap.SaltLake.add\_inventory
+===================================
+
+.. currentmodule:: slv.basemap
+
+.. automethod:: SaltLake.add_inventory

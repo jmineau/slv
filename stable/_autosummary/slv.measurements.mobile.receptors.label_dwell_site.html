@@ -1,0 +1,781 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>slv.measurements.mobile.receptors.label_dwell_site &#8212; slv 2026.10.0</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=ba117b66" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../_static/documentation_options.js?v=c1b729fb"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_autosummary/slv.measurements.mobile.receptors.label_dwell_site';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://jmineau.github.io/slv/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '2026.10.0';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            true;
+        </script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="slv.measurements.mobile.receptors.load_trax_fixes" href="slv.measurements.mobile.receptors.load_trax_fixes.html" />
+    <link rel="prev" title="slv.measurements.mobile.receptors.find_segment_crossings" href="slv.measurements.mobile.receptors.find_segment_crossings.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="2026.10.0" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">slv 2026.10.0</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../usage.html">
+    Usage
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../api.html">
+    API Reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../contributing.html">
+    Contributing
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/jmineau/slv" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../usage.html">
+    Usage
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../api.html">
+    API Reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../contributing.html">
+    Contributing
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-3"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-3"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-3"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-3">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/jmineau/slv" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="slv.html">slv</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="slv.get_data_dir.html">slv.get_data_dir</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="slv.basemap.html">slv.basemap</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="slv.basemap.TRAX_COLORS.html">slv.basemap.TRAX_COLORS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="slv.basemap.STADIA_ATTRIBUTION.html">slv.basemap.STADIA_ATTRIBUTION</a></li>
+<li class="toctree-l3"><a class="reference internal" href="slv.basemap.load_borders.html">slv.basemap.load_borders</a></li>
+<li class="toctree-l3"><a class="reference internal" href="slv.basemap.load_interstates.html">slv.basemap.load_interstates</a></li>
+<li class="toctree-l3"><a class="reference internal" href="slv.basemap.load_mesowest.html">slv.basemap.load_mesowest</a></li>
+<li class="toctree-l3"><a class="reference internal" href="slv.basemap.load_population.html">slv.basemap.load_population</a></li>
+<li class="toctree-l3"><a class="reference internal" href="slv.basemap.stadia_tiles.html">slv.basemap.stadia_tiles</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="slv.basemap.SaltLake.html">slv.basemap.SaltLake</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.basemap.SaltLake.fig.html">slv.basemap.SaltLake.fig</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.basemap.SaltLake.add_borders.html">slv.basemap.SaltLake.add_borders</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.basemap.SaltLake.add_inset.html">slv.basemap.SaltLake.add_inset</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.basemap.SaltLake.add_interstates.html">slv.basemap.SaltLake.add_interstates</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.basemap.SaltLake.add_inventory.html">slv.basemap.SaltLake.add_inventory</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.basemap.SaltLake.add_legend.html">slv.basemap.SaltLake.add_legend</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.basemap.SaltLake.add_mesowest.html">slv.basemap.SaltLake.add_mesowest</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.basemap.SaltLake.add_north_arrow.html">slv.basemap.SaltLake.add_north_arrow</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.basemap.SaltLake.add_points.html">slv.basemap.SaltLake.add_points</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.basemap.SaltLake.add_population.html">slv.basemap.SaltLake.add_population</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.basemap.SaltLake.add_sites.html">slv.basemap.SaltLake.add_sites</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.basemap.SaltLake.add_trax.html">slv.basemap.SaltLake.add_trax</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="slv.domain.html">slv.domain</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="slv.emissions.html">slv.emissions</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="slv.emissions.point_sources.html">slv.emissions.point_sources</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.emissions.point_sources.load_point_sources.html">slv.emissions.point_sources.load_point_sources</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.emissions.point_sources.plot_point_sources.html">slv.emissions.point_sources.plot_point_sources</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="slv.inversion.html">slv.inversion</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="slv.inversion.background.html">slv.inversion.background</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.background.get_ct_stilt_background.html">slv.inversion.background.get_ct_stilt_background</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.background.get_gml_background.html">slv.inversion.background.get_gml_background</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.background.get_rolling_background.html">slv.inversion.background.get_rolling_background</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.background.get_slv_background.html">slv.inversion.background.get_slv_background</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="slv.inversion.bias.html">slv.inversion.bias</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.bias.BiasMixin.html">slv.inversion.bias.BiasMixin</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="slv.inversion.cache.html">slv.inversion.cache</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.cache.DEFAULT_COMPONENT_DEPS.html">slv.inversion.cache.DEFAULT_COMPONENT_DEPS</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.cache.DEFAULT_COMPONENT_PACKAGES.html">slv.inversion.cache.DEFAULT_COMPONENT_PACKAGES</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.cache.fips_cache.html">slv.inversion.cache.fips_cache</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="slv.inversion.config.html">slv.inversion.config</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.config.FLUX_FREQ_TIME_STEPS.html">slv.inversion.config.FLUX_FREQ_TIME_STEPS</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.config.build_location_site_map.html">slv.inversion.config.build_location_site_map</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.config.get_mdm_comp_configs.html">slv.inversion.config.get_mdm_comp_configs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.config.stilt_project_dir.html">slv.inversion.config.stilt_project_dir</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.config.InversionConfig.html">slv.inversion.config.InversionConfig</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="slv.inversion.covariances.html">slv.inversion.covariances</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.covariances.build_mdm_error.html">slv.inversion.covariances.build_mdm_error</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.covariances.build_prior_error.html">slv.inversion.covariances.build_prior_error</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.covariances.normalize_duration.html">slv.inversion.covariances.normalize_duration</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="slv.inversion.coverage.html">slv.inversion.coverage</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.coverage.check_state_cells.html">slv.inversion.coverage.check_state_cells</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.coverage.CoverageFilterMixin.html">slv.inversion.coverage.CoverageFilterMixin</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="slv.inversion.data.html">slv.inversion.data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.data.get_slv_observations.html">slv.inversion.data.get_slv_observations</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.data.get_slv_subhour_std.html">slv.inversion.data.get_slv_subhour_std</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.data.load_mobile_obs.html">slv.inversion.data.load_mobile_obs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.data.split_sites.html">slv.inversion.data.split_sites</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="slv.inversion.mdm.html">slv.inversion.mdm</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.mdm.ModelDataMismatchMixin.html">slv.inversion.mdm.ModelDataMismatchMixin</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="slv.inversion.pipelines.html">slv.inversion.pipelines</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.pipelines.project_jacobian.html">slv.inversion.pipelines.project_jacobian</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.pipelines.stack_jacobians.html">slv.inversion.pipelines.stack_jacobians</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.pipelines.SLVMethaneInversion.html">slv.inversion.pipelines.SLVMethaneInversion</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="slv.inversion.priors.html">slv.inversion.priors</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.priors.align_to_flux_times.html">slv.inversion.priors.align_to_flux_times</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.priors.build_constant_prior.html">slv.inversion.priors.build_constant_prior</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.priors.get_slv_prior.html">slv.inversion.priors.get_slv_prior</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.priors.load_edgar_prior.html">slv.inversion.priors.load_edgar_prior</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.priors.load_epa_prior.html">slv.inversion.priors.load_epa_prior</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="slv.inversion.report.html">slv.inversion.report</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.report.ReportingMixin.html">slv.inversion.report.ReportingMixin</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="slv.inversion.sweep.html">slv.inversion.sweep</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.sweep.collect_metrics.html">slv.inversion.sweep.collect_metrics</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.sweep.config_id.html">slv.inversion.sweep.config_id</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.sweep.run_sweep_job.html">slv.inversion.sweep.run_sweep_job</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.sweep.Sweep.html">slv.inversion.sweep.Sweep</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.sweep.SweepResults.html">slv.inversion.sweep.SweepResults</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="slv.inversion.viz.html">slv.inversion.viz</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.viz.plot_background_and_bias.html">slv.inversion.viz.plot_background_and_bias</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.viz.plot_concentrations.html">slv.inversion.viz.plot_concentrations</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.viz.plot_desroziers.html">slv.inversion.viz.plot_desroziers</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.viz.plot_fluxes.html">slv.inversion.viz.plot_fluxes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.viz.plot_fluxes_by_timestep.html">slv.inversion.viz.plot_fluxes_by_timestep</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.viz.plot_grid.html">slv.inversion.viz.plot_grid</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.viz.plot_inventory.html">slv.inversion.viz.plot_inventory</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.viz.plot_mdm_components.html">slv.inversion.viz.plot_mdm_components</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.viz.plot_prior_with_coverage.html">slv.inversion.viz.plot_prior_with_coverage</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.viz.plot_reconstructed_posterior.html">slv.inversion.viz.plot_reconstructed_posterior</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.viz.plot_removed_contribution.html">slv.inversion.viz.plot_removed_contribution</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.viz.plot_residuals.html">slv.inversion.viz.plot_residuals</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.viz.plot_sites.html">slv.inversion.viz.plot_sites</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.viz.plot_total_fluxes_over_time.html">slv.inversion.viz.plot_total_fluxes_over_time</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.viz.shade_removed_cells.html">slv.inversion.viz.shade_removed_cells</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="slv.measurements.html">slv.measurements</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3 has-children"><a class="reference internal" href="slv.measurements.aggregate.html">slv.measurements.aggregate</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.measurements.aggregate.aggregate_obs.html">slv.measurements.aggregate.aggregate_obs</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="slv.measurements.background.html">slv.measurements.background</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.measurements.background.lair_gml_dir.html">slv.measurements.background.lair_gml_dir</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.measurements.background.user_gml_dir.html">slv.measurements.background.user_gml_dir</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.measurements.background.CarbonTrackerCH4.html">slv.measurements.background.CarbonTrackerCH4</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.measurements.background.GMLDiscrete.html">slv.measurements.background.GMLDiscrete</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.measurements.background.UATAQCH4.html">slv.measurements.background.UATAQCH4</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.measurements.background.UTAFlask.html">slv.measurements.background.UTAFlask</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="slv.measurements.concentrations.html">slv.measurements.concentrations</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.measurements.concentrations.generate_stilt_receptors.html">slv.measurements.concentrations.generate_stilt_receptors</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.measurements.concentrations.load_concentrations.html">slv.measurements.concentrations.load_concentrations</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="slv.measurements.instruments.html">slv.measurements.instruments</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.measurements.instruments.Instrument.html">slv.measurements.instruments.Instrument</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.measurements.instruments.LGR_UGGA.html">slv.measurements.instruments.LGR_UGGA</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.measurements.instruments.LGR_UGGA_Manual_Cal.html">slv.measurements.instruments.LGR_UGGA_Manual_Cal</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.measurements.instruments.Picarro_G2307.html">slv.measurements.instruments.Picarro_G2307</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.measurements.instruments.Picarro_G2401.html">slv.measurements.instruments.Picarro_G2401</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 current active has-children"><a class="reference internal" href="slv.measurements.mobile.html">slv.measurements.mobile</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="slv.measurements.mobile.calibration.html">slv.measurements.mobile.calibration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.measurements.mobile.gps.html">slv.measurements.mobile.gps</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.measurements.mobile.location.html">slv.measurements.mobile.location</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.measurements.mobile.network.html">slv.measurements.mobile.network</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.measurements.mobile.obs.html">slv.measurements.mobile.obs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.measurements.mobile.receptor_obs.html">slv.measurements.mobile.receptor_obs</a></li>
+<li class="toctree-l4 current active"><a class="reference internal" href="slv.measurements.mobile.receptors.html">slv.measurements.mobile.receptors</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.measurements.mobile.transects.html">slv.measurements.mobile.transects</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.measurements.mobile.wyoming.html">slv.measurements.mobile.wyoming</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="slv.measurements.pollutants.html">slv.measurements.pollutants</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.measurements.pollutants.normalize_pollutant.html">slv.measurements.pollutants.normalize_pollutant</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="slv.measurements.sites.html">slv.measurements.sites</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.measurements.sites.get_site_coordinates.html">slv.measurements.sites.get_site_coordinates</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.measurements.sites.load_site_config.html">slv.measurements.sites.load_site_config</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="slv.meteorology.html">slv.meteorology</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="slv.meteorology.mesowest.html">slv.meteorology.mesowest</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.meteorology.mesowest.load_station_metadata.html">slv.meteorology.mesowest.load_station_metadata</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.meteorology.mesowest.mesowest_dir.html">slv.meteorology.mesowest.mesowest_dir</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.meteorology.mesowest.nearest_station.html">slv.meteorology.mesowest.nearest_station</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.meteorology.mesowest.station_hourly.html">slv.meteorology.mesowest.station_hourly</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.meteorology.mesowest.wind_sector.html">slv.meteorology.mesowest.wind_sector</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="slv.meteorology.pcaps.html">slv.meteorology.pcaps</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.meteorology.pcaps.filter_pcap_events.html">slv.meteorology.pcaps.filter_pcap_events</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.meteorology.pcaps.get_pcap_events.html">slv.meteorology.pcaps.get_pcap_events</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.meteorology.pcaps.get_soundings.html">slv.meteorology.pcaps.get_soundings</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="slv.meteorology.vhd.html">slv.meteorology.vhd</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.meteorology.vhd.load_vhd.html">slv.meteorology.vhd.load_vhd</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../api.html" class="nav-link">API Reference</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="slv.html" class="nav-link">slv</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="slv.measurements.html" class="nav-link">slv.measurements</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="slv.measurements.mobile.html" class="nav-link">slv.measurements.mobile</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="slv.measurements.mobile.receptors.html" class="nav-link">slv.measurements.mobile.receptors</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">slv.measurements.mobile.receptors.label_dwell_site</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="slv-measurements-mobile-receptors-label-dwell-site">
+<h1>slv.measurements.mobile.receptors.label_dwell_site<a class="headerlink" href="#slv-measurements-mobile-receptors-label-dwell-site" title="Link to this heading">#</a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="slv.measurements.mobile.receptors.label_dwell_site">
+<span class="sig-prename descclassname"><span class="pre">slv.measurements.mobile.receptors.</span></span><span class="sig-name descname"><span class="pre">label_dwell_site</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dwells</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_dist</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">200.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yard_buffer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/slv/measurements/mobile/receptors.html#label_dwell_site"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#slv.measurements.mobile.receptors.label_dwell_site" title="Link to this definition">#</a></dt>
+<dd><p>Where each dwell is: <code class="docutils literal notranslate"><span class="pre">yard_name</span></code> (JRRSC / MRSC, from the packaged storage polygons)
+and <code class="docutils literal notranslate"><span class="pre">segment</span></code> (nearest 2-km segment, NaN beyond <code class="docutils literal notranslate"><span class="pre">max_dist</span></code>).</p>
+<p>A dwell is in a yard within <code class="docutils literal notranslate"><span class="pre">yard_buffer</span></code> m of its polygon (default the location
+classifier’s <a class="reference internal" href="slv.measurements.mobile.location.YARD_BUFFER.html#slv.measurements.mobile.location.YARD_BUFFER" title="slv.measurements.mobile.location.YARD_BUFFER"><code class="xref py py-data docutils literal notranslate"><span class="pre">YARD_BUFFER</span></code></a>, so a train parked
+just outside the drawn edge is labelled the same way by both).</p>
+<p>Diagnostic only – the receptor sits at the dwell’s own median position. The yard label
+is the one that matters for screening: a rail service center is a maintenance yard, so
+those receptors carry hyper-local influence that a 0.01-degree footprint cannot resolve.
+Note the two labels overlap: the Jordan River yard runs alongside the Green line, so
+many of its parking spots are also within <code class="docutils literal notranslate"><span class="pre">max_dist</span></code> of a network point.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.6)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a></span></p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="slv.measurements.mobile.receptors.find_segment_crossings.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">slv.measurements.mobile.receptors.find_segment_crossings</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="slv.measurements.mobile.receptors.load_trax_fixes.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">slv.measurements.mobile.receptors.load_trax_fixes</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#slv.measurements.mobile.receptors.label_dwell_site"><code class="docutils literal notranslate"><span class="pre">label_dwell_site()</span></code></a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/_autosummary/slv.measurements.mobile.receptors.label_dwell_site.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026, James Mineau.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

@@ -1,0 +1,6 @@
+slv.inversion.config.InversionConfig.time\_range
+================================================
+
+.. currentmodule:: slv.inversion.config
+
+.. autoproperty:: InversionConfig.time_range

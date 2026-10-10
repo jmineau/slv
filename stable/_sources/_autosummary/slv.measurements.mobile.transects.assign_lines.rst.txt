@@ -1,0 +1,6 @@
+slv.measurements.mobile.transects.assign\_lines
+===============================================
+
+.. currentmodule:: slv.measurements.mobile.transects
+
+.. autofunction:: assign_lines

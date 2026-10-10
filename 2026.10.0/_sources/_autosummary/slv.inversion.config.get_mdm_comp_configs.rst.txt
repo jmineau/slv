@@ -1,0 +1,6 @@
+slv.inversion.config.get\_mdm\_comp\_configs
+============================================
+
+.. currentmodule:: slv.inversion.config
+
+.. autofunction:: get_mdm_comp_configs

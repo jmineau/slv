@@ -1,0 +1,6 @@
+slv.measurements.mobile.calibration.CAL\_SOURCES
+================================================
+
+.. currentmodule:: slv.measurements.mobile.calibration
+
+.. autodata:: CAL_SOURCES

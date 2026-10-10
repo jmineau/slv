@@ -1,0 +1,6 @@
+slv.inversion.pipelines.SLVMethaneInversion.filter\_state\_space
+================================================================
+
+.. currentmodule:: slv.inversion.pipelines
+
+.. automethod:: SLVMethaneInversion.filter_state_space

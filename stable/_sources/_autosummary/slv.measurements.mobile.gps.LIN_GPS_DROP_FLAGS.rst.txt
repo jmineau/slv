@@ -1,0 +1,6 @@
+slv.measurements.mobile.gps.LIN\_GPS\_DROP\_FLAGS
+=================================================
+
+.. currentmodule:: slv.measurements.mobile.gps
+
+.. autodata:: LIN_GPS_DROP_FLAGS

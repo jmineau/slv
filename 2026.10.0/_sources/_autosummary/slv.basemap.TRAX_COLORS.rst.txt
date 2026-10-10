@@ -1,0 +1,6 @@
+slv.basemap.TRAX\_COLORS
+========================
+
+.. currentmodule:: slv.basemap
+
+.. autodata:: TRAX_COLORS

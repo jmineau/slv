@@ -1,0 +1,39 @@
+slv.basemap.SaltLake
+====================
+
+.. currentmodule:: slv.basemap
+
+.. autoclass:: SaltLake
+   :no-members:
+
+
+
+
+.. rubric:: Attributes
+
+.. autosummary::
+   :toctree:
+
+   ~SaltLake.fig
+
+
+
+.. rubric:: Methods
+
+.. autosummary::
+   :toctree:
+
+   ~SaltLake.add_borders
+   ~SaltLake.add_inset
+   ~SaltLake.add_interstates
+   ~SaltLake.add_inventory
+   ~SaltLake.add_legend
+   ~SaltLake.add_mesowest
+   ~SaltLake.add_north_arrow
+   ~SaltLake.add_points
+   ~SaltLake.add_population
+   ~SaltLake.add_sites
+   ~SaltLake.add_trax
+
+
+

@@ -1,0 +1,6 @@
+slv.measurements.mobile.network.get\_geodf
+==========================================
+
+.. currentmodule:: slv.measurements.mobile.network
+
+.. autofunction:: get_geodf

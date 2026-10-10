@@ -1,0 +1,6 @@
+slv.basemap.SaltLake.add\_trax
+==============================
+
+.. currentmodule:: slv.basemap
+
+.. automethod:: SaltLake.add_trax

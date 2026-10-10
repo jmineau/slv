@@ -1,0 +1,25 @@
+slv.inversion.mdm
+=================
+
+.. automodule:: slv.inversion.mdm
+   :no-members:
+
+
+
+
+
+
+.. rubric:: Classes
+
+.. autosummary::
+   :toctree:
+   :nosignatures:
+
+   ModelDataMismatchMixin
+
+
+
+
+
+
+

@@ -1,0 +1,1173 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>slv.measurements.mobile.obs &#8212; slv 2026.10.0</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css?v=ba117b66" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../../_static/documentation_options.js?v=c1b729fb"></script>
+    <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../../_static/copybutton.js?v=f281be69"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/slv/measurements/mobile/obs';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://jmineau.github.io/slv/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '2026.10.0';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            true;
+        </script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="2026.10.0" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">slv 2026.10.0</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../usage.html">
+    Usage
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../api.html">
+    API Reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../contributing.html">
+    Contributing
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/jmineau/slv" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../usage.html">
+    Usage
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../api.html">
+    API Reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../contributing.html">
+    Contributing
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-3"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-3"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-3"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-3">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/jmineau/slv" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../../index.html" class="nav-link">Module code</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="../../../slv.html" class="nav-link">slv</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">slv.measurements.mobile.obs</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for slv.measurements.mobile.obs</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">The georeferenced TRAX CH4 observation record: build it from the pipeline levels,</span>
+<span class="sd">tag every row with calibration provenance and location, cache it, and load it with a</span>
+<span class="sd">location filter.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">geopandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gpd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">uataq</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">slv.measurements.mobile.calibration</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">apply_epoch_offset</span><span class="p">,</span>
+    <span class="n">epoch_offset_column</span><span class="p">,</span>
+    <span class="n">filter_cal_source</span><span class="p">,</span>
+    <span class="n">load_trax_uncalibrated_windows</span><span class="p">,</span>
+    <span class="n">select_uncalibrated</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">slv.measurements.mobile.gps</span><span class="w"> </span><span class="kn">import</span> <span class="n">merge_with_gps</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">slv.measurements.mobile.network</span><span class="w"> </span><span class="kn">import</span> <span class="n">user_dir</span>
+
+<span class="c1">#: Named sets of location states kept by :func:`load_trax_obs`.</span>
+<span class="c1">#: ``on_track`` reproduces the old route-buffer behaviour (minus shed multipath ejecta,</span>
+<span class="c1">#: plus pass-bys at the yards); ``outdoor`` adds minutes parked outside in a yard;</span>
+<span class="c1">#: ``all`` keeps everything, including indoor (shed) and unknown minutes.</span>
+<span class="n">LOCATION_SETS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;on_track&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;route&quot;</span><span class="p">,</span> <span class="s2">&quot;line&quot;</span><span class="p">,</span> <span class="s2">&quot;stopped&quot;</span><span class="p">),</span>
+    <span class="s2">&quot;outdoor&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;route&quot;</span><span class="p">,</span> <span class="s2">&quot;line&quot;</span><span class="p">,</span> <span class="s2">&quot;stopped&quot;</span><span class="p">,</span> <span class="s2">&quot;yard&quot;</span><span class="p">),</span>
+    <span class="s2">&quot;all&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">}</span>
+
+
+<div class="viewcode-block" id="filter_location">
+<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.obs.filter_location.html#slv.measurements.mobile.obs.filter_location">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">filter_location</span><span class="p">(</span>
+    <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">location</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="s2">&quot;on_track&quot;</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Keep rows whose ``state`` is in ``location`` (a :data:`LOCATION_SETS` name or a</span>
+<span class="sd">    tuple of states). ``None``/``&quot;all&quot;`` keeps every row.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">location</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="s2">&quot;state&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">df</span>
+    <span class="n">states</span> <span class="o">=</span> <span class="n">LOCATION_SETS</span><span class="p">[</span><span class="n">location</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">location</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">location</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">states</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">df</span>
+    <span class="k">return</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;state&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">states</span><span class="p">)]</span></div>
+
+
+
+<div class="viewcode-block" id="label_trax_location">
+<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.obs.label_trax_location.html#slv.measurements.mobile.obs.label_trax_location">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">label_trax_location</span><span class="p">(</span>
+    <span class="n">obs</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">site</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;trx01&quot;</span><span class="p">,</span>
+    <span class="n">time_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">states</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Add ``state``, ``indoor`` and ``yard_name`` to a georeferenced TRAX obs frame.</span>
+
+<span class="sd">    Uses :mod:`slv.measurements.mobile.location`: per-minute states from the best GPS</span>
+<span class="sd">    source for the era (``states`` may be passed in to reuse a classification).</span>
+<span class="sd">    Observations are matched on ``Time_UTC`` floored to the minute; minutes without a</span>
+<span class="sd">    classification come back ``unknown`` / NA.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">slv.measurements.mobile.gps</span><span class="w"> </span><span class="kn">import</span> <span class="n">read_trax_gps</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">slv.measurements.mobile.location</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+        <span class="n">classify_location</span><span class="p">,</span>
+        <span class="n">label_observations</span><span class="p">,</span>
+        <span class="n">location_features</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">states</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">time_range</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">t</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">obs</span><span class="p">[</span><span class="s2">&quot;Time_UTC&quot;</span><span class="p">])</span>
+            <span class="n">time_range</span> <span class="o">=</span> <span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="s2">&quot;D&quot;</span><span class="p">),</span> <span class="n">t</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="s2">&quot;D&quot;</span><span class="p">))</span>
+        <span class="n">gps</span> <span class="o">=</span> <span class="n">read_trax_gps</span><span class="p">(</span><span class="n">time_range</span><span class="p">,</span> <span class="n">site</span><span class="o">=</span><span class="n">site</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">gps</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">states</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">feat</span> <span class="o">=</span> <span class="n">location_features</span><span class="p">(</span><span class="n">gps</span><span class="p">,</span> <span class="n">cr1000</span><span class="o">=</span><span class="n">gps</span><span class="p">)</span>
+            <span class="n">states</span> <span class="o">=</span> <span class="n">classify_location</span><span class="p">(</span><span class="n">feat</span><span class="p">)</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">obs</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">states</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">states</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">out</span><span class="p">[</span><span class="s2">&quot;state&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;unknown&quot;</span>
+        <span class="n">out</span><span class="p">[</span><span class="s2">&quot;indoor&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">pd</span><span class="o">.</span><span class="n">NA</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">out</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;boolean&quot;</span><span class="p">)</span>
+        <span class="n">out</span><span class="p">[</span><span class="s2">&quot;yard_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">out</span>
+    <span class="n">out</span><span class="p">[</span><span class="s2">&quot;state&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">label_observations</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">states</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">object</span><span class="p">)</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="s2">&quot;unknown&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+    <span class="p">)</span>
+    <span class="n">minute</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">out</span><span class="p">[</span><span class="s2">&quot;Time_UTC&quot;</span><span class="p">]))</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="s2">&quot;min&quot;</span><span class="p">)</span>
+    <span class="n">out</span><span class="p">[</span><span class="s2">&quot;indoor&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">states</span><span class="p">[</span><span class="s2">&quot;indoor&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">reindex</span><span class="p">(</span><span class="n">minute</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">out</span><span class="p">[</span><span class="s2">&quot;yard_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">states</span><span class="p">[</span><span class="s2">&quot;yard_name&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">reindex</span><span class="p">(</span><span class="n">minute</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+        <span class="k">if</span> <span class="s2">&quot;yard_name&quot;</span> <span class="ow">in</span> <span class="n">states</span><span class="o">.</span><span class="n">columns</span>
+        <span class="k">else</span> <span class="kc">None</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">out</span></div>
+
+
+
+<span class="c1">#: Cavity-pressure band (torr) inside which manual-cal rows flagged −63 (pressure outside the</span>
+<span class="c1">#: pipeline&#39;s 135–145 window) are kept and tagged ``low_pressure``. LGR 13-0221 ran at 131–134 torr</span>
+<span class="c1">#: in Jan–Mar 2025 and 102–110 torr from Jul 2026 with CH4 within 0.02 ppm of its normal-pressure</span>
+<span class="c1">#: behaviour (measurements/trax/record/outputs/pressure_flag_check.md); the 5–30 torr pressure</span>
+<span class="c1">#: collapses of 2016/2017/2019 stay excluded.</span>
+<span class="n">LOW_PRESSURE_BAND</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">100.0</span><span class="p">,</span> <span class="mf">145.0</span><span class="p">)</span>
+
+
+<span class="c1">#: Cavity-pressure band (torr) the LGR is specified for; the pipeline&#39;s own ``-63`` flag uses the</span>
+<span class="c1">#: same bounds. It has to be re-checked in the loader because ``lgr_ugga_qaqc.r`` assigns flags in</span>
+<span class="c1">#: sequence, so ``-64`` (cavity T out of range) OVERWRITES ``-63`` on a row that fails both — and</span>
+<span class="c1">#: ``-64`` is an accepted flag. 360 on-track minutes at 100-135 torr reached obs.parquet that way</span>
+<span class="c1">#: (2016-12-30/31 and 2017-01-08, the sample line starving; low tail -0.10 ppm).</span>
+<span class="n">PRESSURE_BAND</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mf">135.0</span><span class="p">,</span> <span class="mf">145.0</span><span class="p">)</span>
+
+<span class="c1">#: An atmosphere row below this (ppm) is a CH4 laser dropout, not air: the global background is</span>
+<span class="c1">#: ~1.85-2.0 ppm and the pipeline&#39;s valid range starts at 1.70, so the shoulder of a dropout passes</span>
+<span class="c1">#: QC. Measured bias of the surviving rows: -0.29 ppm one minute out, -0.22 within 8 min, gone by 15.</span>
+<span class="n">DROPOUT_CH4_PPM</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.70</span>
+
+<span class="c1">#: Minutes either side of a dropout row that are dropped with it (:func:`apply_dropout_rule`).</span>
+<span class="n">DROPOUT_WINDOW_MIN</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">8</span>
+
+<span class="c1">#: Calibrated rows whose slope ``CH4d_m`` deviates more than this fraction from the day&#39;s median</span>
+<span class="c1">#: slope are dropped. One bad reference period (a restart with air still in the line, a dying</span>
+<span class="c1">#: tank) is interpolated over the next hour by the pipeline&#39;s single-tank calibration; the</span>
+<span class="c1">#: ±100 ppm tolerances never catch it (measurements/trax/record/outputs/trax_cal_audit.txt).</span>
+<span class="n">SLOPE_TOL</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="mf">0.05</span>
+
+
+<div class="viewcode-block" id="apply_slope_guard">
+<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.obs.apply_slope_guard.html#slv.measurements.mobile.obs.apply_slope_guard">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">apply_slope_guard</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">tol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">SLOPE_TOL</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Set ``CH4`` to NaN where ``CH4d_m`` differs from the same UTC day&#39;s median slope by more</span>
+<span class="sd">    than ``tol`` (fraction). ``df`` needs ``Time_UTC``, ``CH4`` and ``CH4d_m``; ``tol=None`` is a</span>
+<span class="sd">    no-op. Days with fewer than 100 sloped rows are left alone (no robust median).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">tol</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="s2">&quot;CH4d_m&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">df</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="c1"># force plain float64 whatever uataq returned (object / Arrow strings with multiprocess reads)</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">out</span><span class="p">[</span><span class="s2">&quot;CH4d_m&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">object</span><span class="p">),</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">na_value</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+        <span class="p">),</span>
+        <span class="n">index</span><span class="o">=</span><span class="n">out</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">day</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">out</span><span class="p">[</span><span class="s2">&quot;Time_UTC&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="s2">&quot;D&quot;</span><span class="p">)</span>
+    <span class="n">med</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">day</span><span class="p">)</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="s2">&quot;median&quot;</span><span class="p">)</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">notna</span><span class="p">()</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">day</span><span class="p">)</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="s2">&quot;sum&quot;</span><span class="p">)</span>
+    <span class="n">bad</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">notna</span><span class="p">()</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">n</span> <span class="o">&gt;=</span> <span class="mi">100</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">((</span><span class="n">m</span> <span class="o">/</span> <span class="n">med</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">abs</span><span class="p">()</span> <span class="o">&gt;</span> <span class="n">tol</span><span class="p">)</span>
+    <span class="n">out</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">bad</span><span class="p">,</span> <span class="s2">&quot;CH4&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+    <span class="k">return</span> <span class="n">out</span></div>
+
+
+
+<div class="viewcode-block" id="dropout_times">
+<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.obs.dropout_times.html#slv.measurements.mobile.obs.dropout_times">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">dropout_times</span><span class="p">(</span>
+    <span class="n">support</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">DROPOUT_CH4_PPM</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Times of atmosphere rows whose *unvalidated* CH4 is below ``threshold`` — laser dropouts.</span>
+
+<span class="sd">    ``support`` is a :func:`_read_support` frame (``Time_UTC``, ``CH4_raw``, ``ID_CH4``).</span>
+<span class="sd">    Rows at or above the pipeline&#39;s 1.70 ppm valid minimum are the ones that survive QC, so the</span>
+<span class="sd">    dropouts themselves have to be found before validation and used to mask their neighbours</span>
+<span class="sd">    (:func:`apply_dropout_rule`).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">support</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;datetime64[ns]&quot;</span><span class="p">)</span>
+    <span class="n">atm</span> <span class="o">=</span> <span class="n">support</span><span class="p">[</span><span class="s2">&quot;ID_CH4&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span> <span class="o">|</span> <span class="p">(</span><span class="n">support</span><span class="p">[</span><span class="s2">&quot;ID_CH4&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="o">-</span><span class="mi">10</span><span class="p">)</span>
+    <span class="n">bad</span> <span class="o">=</span> <span class="n">atm</span> <span class="o">&amp;</span> <span class="n">support</span><span class="p">[</span><span class="s2">&quot;CH4_raw&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">lt</span><span class="p">(</span><span class="n">threshold</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">support</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">bad</span><span class="p">,</span> <span class="s2">&quot;Time_UTC&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">())</span></div>
+
+
+
+<div class="viewcode-block" id="apply_dropout_rule">
+<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.obs.apply_dropout_rule.html#slv.measurements.mobile.obs.apply_dropout_rule">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">apply_dropout_rule</span><span class="p">(</span>
+    <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">dropouts</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="n">window_min</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">DROPOUT_WINDOW_MIN</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Drop rows within ``window_min`` minutes of a CH4 laser dropout.</span>
+
+<span class="sd">    The analyzer does not fail cleanly: on the way into (and out of) a dropout it reads a few</span>
+<span class="sd">    per cent to 25 % low for minutes to hours, and everything it reports above 1.70 ppm passes</span>
+<span class="sd">    QC. ``dropouts`` comes from :func:`dropout_times`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">df</span><span class="o">.</span><span class="n">empty</span> <span class="ow">or</span> <span class="n">dropouts</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">dropouts</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">df</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;Time_UTC&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="s2">&quot;datetime64[m]&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;int64&quot;</span><span class="p">)</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">dropouts</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="s2">&quot;datetime64[m]&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;int64&quot;</span><span class="p">))</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>
+    <span class="n">prev</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">t</span> <span class="o">-</span> <span class="n">d</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)])</span>
+    <span class="n">nxt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)]</span> <span class="o">-</span> <span class="n">t</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">prev</span><span class="p">,</span> <span class="n">nxt</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">window_min</span><span class="p">])</span></div>
+
+
+
+<div class="viewcode-block" id="apply_pressure_rule">
+<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.obs.apply_pressure_rule.html#slv.measurements.mobile.obs.apply_pressure_rule">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">apply_pressure_rule</span><span class="p">(</span>
+    <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+    <span class="n">pressure</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span>
+    <span class="n">band</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">PRESSURE_BAND</span><span class="p">,</span>
+    <span class="n">sources</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;pipeline&quot;</span><span class="p">,</span> <span class="s2">&quot;uncalibrated&quot;</span><span class="p">),</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Drop ``sources`` rows whose cavity pressure is outside ``band`` (see :data:`PRESSURE_BAND`).</span>
+
+<span class="sd">    ``pressure`` is indexed by ``Time_UTC``. Rows with no pressure reading are kept. The</span>
+<span class="sd">    ``manual_cal`` rows are left alone by default: they are governed by</span>
+<span class="sd">    :func:`apply_low_pressure_rule`, which deliberately keeps 100-135 torr for the analyzers that</span>
+<span class="sd">    ran there (validated against UOU).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">band</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">df</span><span class="o">.</span><span class="n">empty</span> <span class="ow">or</span> <span class="n">pressure</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">pressure</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">df</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">pressure</span><span class="p">[</span><span class="o">~</span><span class="n">pressure</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">duplicated</span><span class="p">()]</span>
+    <span class="n">val</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span>
+        <span class="n">p</span><span class="o">.</span><span class="n">reindex</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;Time_UTC&quot;</span><span class="p">])),</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+    <span class="n">in_band</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="o">|</span> <span class="p">((</span><span class="n">val</span> <span class="o">&gt;=</span> <span class="n">band</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">val</span> <span class="o">&lt;=</span> <span class="n">band</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+    <span class="n">keep</span> <span class="o">=</span> <span class="n">in_band</span> <span class="o">|</span> <span class="o">~</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;cal_source&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">sources</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">keep</span><span class="p">])</span></div>
+
+
+
+<div class="viewcode-block" id="recover_hot_rows">
+<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.obs.recover_hot_rows.html#slv.measurements.mobile.obs.recover_hot_rows">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">recover_hot_rows</span><span class="p">(</span>
+    <span class="n">cal</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">support</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">flag</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="o">-</span><span class="mi">64</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calibrate the rows the pipeline flagged ``-64`` (cavity T outside 5-45 C) itself.</span>
+
+<span class="sd">    ``lgr_ugga_calibrate`` fits the slope for these rows (``CH4d_m`` is there) but blanks</span>
+<span class="sd">    ``CH4d_ppm_cal``, so ~645 on-track hours of summer afternoons — the best-mixed hours of the</span>
+<span class="sd">    record — never reach obs.parquet. The value is simply the qaqc reading over the fitted slope.</span>
+<span class="sd">    Hot-cavity CH4 is unbiased: on the same days, the 10th percentile above 45 C differs from</span>
+<span class="sd">    below by -0.002 ppm (IQR -0.008..+0.010, 65 days; measurements/trax/audit).</span>
+
+<span class="sd">    Returns the recovered rows (``Time_UTC``, ``CH4``), which the caller appends to the</span>
+<span class="sd">    calibrated ones.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">need</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;Time_UTC&quot;</span><span class="p">,</span> <span class="s2">&quot;CH4d_m&quot;</span><span class="p">,</span> <span class="s2">&quot;QAQC_Flag&quot;</span><span class="p">}</span>
+    <span class="k">if</span> <span class="n">cal</span><span class="o">.</span><span class="n">empty</span> <span class="ow">or</span> <span class="n">support</span><span class="o">.</span><span class="n">empty</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">need</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span><span class="n">cal</span><span class="o">.</span><span class="n">columns</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+            <span class="p">{</span><span class="s2">&quot;Time_UTC&quot;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">([]),</span> <span class="s2">&quot;CH4&quot;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)}</span>
+        <span class="p">)</span>
+    <span class="n">hot</span> <span class="o">=</span> <span class="n">cal</span><span class="p">[(</span><span class="n">cal</span><span class="p">[</span><span class="s2">&quot;QAQC_Flag&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">flag</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">cal</span><span class="p">[</span><span class="s2">&quot;CH4&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">()]</span>
+    <span class="k">if</span> <span class="n">hot</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+            <span class="p">{</span><span class="s2">&quot;Time_UTC&quot;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">([]),</span> <span class="s2">&quot;CH4&quot;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)}</span>
+        <span class="p">)</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">hot</span><span class="p">[</span><span class="s2">&quot;CH4d_m&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">object</span><span class="p">),</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span>
+    <span class="p">)</span>
+    <span class="n">raw</span> <span class="o">=</span> <span class="n">support</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="s2">&quot;Time_UTC&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&quot;Time_UTC&quot;</span><span class="p">)[</span><span class="s2">&quot;CH4_raw&quot;</span><span class="p">]</span>
+    <span class="n">val</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">raw</span><span class="o">.</span><span class="n">reindex</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">hot</span><span class="p">[</span><span class="s2">&quot;Time_UTC&quot;</span><span class="p">])),</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">)</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;Time_UTC&quot;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">hot</span><span class="p">[</span><span class="s2">&quot;Time_UTC&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(),</span>
+            <span class="s2">&quot;CH4&quot;</span><span class="p">:</span> <span class="n">val</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span> <span class="o">/</span> <span class="n">m</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(),</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">out</span><span class="p">[</span><span class="n">out</span><span class="p">[</span><span class="s2">&quot;CH4&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">between</span><span class="p">(</span><span class="mf">1.7</span><span class="p">,</span> <span class="mi">300</span><span class="p">)]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_read_support</span><span class="p">(</span><span class="n">site</span><span class="p">,</span> <span class="n">instrument</span><span class="p">,</span> <span class="n">time_range</span><span class="p">,</span> <span class="n">num_processes</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Unvalidated qaqc columns the rules need: CH4 as reported, flag, cavity pressure, ID.</span>
+
+<span class="sd">    Deliberately skips :func:`~slv.measurements.pollutants.normalize_pollutant`: the dropout rule</span>
+<span class="sd">    has to see the sub-1.70 ppm rows that validation removes, and the pressure rule has to see</span>
+<span class="sd">    rows whose ``-63`` was overwritten by ``-64``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">uataq</span><span class="o">.</span><span class="n">read_data</span><span class="p">(</span>
+            <span class="n">site</span><span class="p">,</span>
+            <span class="n">instruments</span><span class="o">=</span><span class="n">instrument</span><span class="p">,</span>
+            <span class="n">lvl</span><span class="o">=</span><span class="s2">&quot;qaqc&quot;</span><span class="p">,</span>
+            <span class="n">time_range</span><span class="o">=</span><span class="n">time_range</span><span class="p">,</span>
+            <span class="n">num_processes</span><span class="o">=</span><span class="n">num_processes</span><span class="p">,</span>
+        <span class="p">)[</span><span class="n">instrument</span><span class="p">]</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">FileNotFoundError</span><span class="p">,</span> <span class="ne">KeyError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">,</span> <span class="n">uataq</span><span class="o">.</span><span class="n">errors</span><span class="o">.</span><span class="n">ReaderError</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;Time_UTC&quot;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">([]),</span>
+                <span class="s2">&quot;CH4_raw&quot;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span>
+                <span class="s2">&quot;QAQC_Flag&quot;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span>
+                <span class="s2">&quot;Cavity_P_torr&quot;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span>
+                <span class="s2">&quot;ID_CH4&quot;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+    <span class="k">if</span> <span class="s2">&quot;Time_UTC&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;Internal_P_torr&quot;</span><span class="p">:</span> <span class="s2">&quot;Cavity_P_torr&quot;</span><span class="p">,</span> <span class="s2">&quot;CH4d_ppm&quot;</span><span class="p">:</span> <span class="s2">&quot;CH4_raw&quot;</span><span class="p">})</span>
+    <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;CH4_raw&quot;</span><span class="p">,</span> <span class="s2">&quot;QAQC_Flag&quot;</span><span class="p">,</span> <span class="s2">&quot;Cavity_P_torr&quot;</span><span class="p">,</span> <span class="s2">&quot;ID_CH4&quot;</span><span class="p">):</span>
+        <span class="n">df</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">c</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+        <span class="n">df</span><span class="p">[[</span><span class="s2">&quot;Time_UTC&quot;</span><span class="p">,</span> <span class="s2">&quot;CH4_raw&quot;</span><span class="p">,</span> <span class="s2">&quot;QAQC_Flag&quot;</span><span class="p">,</span> <span class="s2">&quot;Cavity_P_torr&quot;</span><span class="p">,</span> <span class="s2">&quot;ID_CH4&quot;</span><span class="p">]]</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_pressure_series</span><span class="p">(</span><span class="n">support</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Cavity pressure indexed by ``Time_UTC`` (for :func:`apply_pressure_rule`).&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">support</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">support</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Cavity_P_torr&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="s2">&quot;Time_UTC&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span>
+        <span class="n">s</span><span class="p">[</span><span class="s2">&quot;Cavity_P_torr&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(),</span> <span class="n">index</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">s</span><span class="p">[</span><span class="s2">&quot;Time_UTC&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_read_lgr</span><span class="p">(</span>
+    <span class="n">site</span><span class="p">,</span>
+    <span class="n">instrument</span><span class="p">,</span>
+    <span class="n">lvl</span><span class="p">,</span>
+    <span class="n">value_col</span><span class="p">,</span>
+    <span class="n">time_range</span><span class="p">,</span>
+    <span class="n">num_processes</span><span class="p">,</span>
+    <span class="n">keep</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(),</span>
+    <span class="n">valid_flags</span><span class="p">:</span> <span class="nb">set</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Read one LGR level via uataq, validate CH4, return Time_UTC + CH4 (+ ``keep`` columns).</span>
+
+<span class="sd">    Only the needed columns are retained, so the full-width uataq frame is released as soon</span>
+<span class="sd">    as this returns.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">slv.measurements.pollutants</span><span class="w"> </span><span class="kn">import</span> <span class="n">normalize_pollutant</span>
+
+    <span class="n">df</span> <span class="o">=</span> <span class="n">uataq</span><span class="o">.</span><span class="n">read_data</span><span class="p">(</span>
+        <span class="n">site</span><span class="p">,</span>
+        <span class="n">instruments</span><span class="o">=</span><span class="n">instrument</span><span class="p">,</span>
+        <span class="n">lvl</span><span class="o">=</span><span class="n">lvl</span><span class="p">,</span>
+        <span class="n">time_range</span><span class="o">=</span><span class="n">time_range</span><span class="p">,</span>
+        <span class="n">num_processes</span><span class="o">=</span><span class="n">num_processes</span><span class="p">,</span>
+    <span class="p">)[</span><span class="n">instrument</span><span class="p">]</span>
+    <span class="k">if</span> <span class="s2">&quot;Time_UTC&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+    <span class="c1"># uataq names the cavity pressure Internal_P_torr; the pipeline files say Cavity_P_torr</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="n">value_col</span><span class="p">:</span> <span class="s2">&quot;CH4&quot;</span><span class="p">,</span> <span class="s2">&quot;Internal_P_torr&quot;</span><span class="p">:</span> <span class="s2">&quot;Cavity_P_torr&quot;</span><span class="p">})</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;CH4&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">normalize_pollutant</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="s2">&quot;CH4&quot;</span><span class="p">,</span> <span class="n">valid_flags</span><span class="o">=</span><span class="n">valid_flags</span><span class="p">)</span>
+    <span class="n">cols</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Time_UTC&quot;</span><span class="p">,</span> <span class="s2">&quot;CH4&quot;</span><span class="p">,</span> <span class="o">*</span><span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">keep</span> <span class="k">if</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">]]</span>
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">cols</span><span class="p">])</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="apply_low_pressure_rule">
+<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.obs.apply_low_pressure_rule.html#slv.measurements.mobile.obs.apply_low_pressure_rule">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">apply_low_pressure_rule</span><span class="p">(</span>
+    <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">band</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">LOW_PRESSURE_BAND</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Keep rows flagged −63 whose ``Cavity_P_torr`` lies inside ``band`` and tag them.</span>
+
+<span class="sd">    ``df`` must carry ``CH4`` (already validated with −63 among the accepted flags),</span>
+<span class="sd">    ``QAQC_Flag`` and ``Cavity_P_torr``. Rows flagged −63 outside the band (or with no</span>
+<span class="sd">    pressure) get ``CH4 = NaN``; every row gets a boolean ``low_pressure`` column</span>
+<span class="sd">    (True for the kept −63 rows). ``band=None`` drops all −63 rows.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">is63</span> <span class="o">=</span> <span class="n">out</span><span class="p">[</span><span class="s2">&quot;QAQC_Flag&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="o">-</span><span class="mi">63</span>
+    <span class="k">if</span> <span class="n">band</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">inside</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">out</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">out</span><span class="p">[</span><span class="s2">&quot;Cavity_P_torr&quot;</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">)</span>
+        <span class="n">inside</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">between</span><span class="p">(</span><span class="n">band</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">band</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">out</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">is63</span> <span class="o">&amp;</span> <span class="o">~</span><span class="n">inside</span><span class="p">,</span> <span class="s2">&quot;CH4&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+    <span class="n">out</span><span class="p">[</span><span class="s2">&quot;low_pressure&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">is63</span> <span class="o">&amp;</span> <span class="n">inside</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">out</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_build_chunk</span><span class="p">(</span>
+    <span class="n">site</span><span class="p">,</span>
+    <span class="n">t0</span><span class="p">,</span>
+    <span class="n">t1</span><span class="p">,</span>
+    <span class="n">num_processes</span><span class="p">,</span>
+    <span class="n">windows</span><span class="p">,</span>
+    <span class="n">classify</span><span class="p">,</span>
+    <span class="n">low_pressure</span><span class="p">,</span>
+    <span class="n">slope_tol</span><span class="p">,</span>
+    <span class="n">gps_kwargs</span><span class="p">,</span>
+    <span class="n">last</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">pressure_band</span><span class="o">=</span><span class="n">PRESSURE_BAND</span><span class="p">,</span>
+    <span class="n">dropout_window</span><span class="o">=</span><span class="n">DROPOUT_WINDOW_MIN</span><span class="p">,</span>
+    <span class="n">recover_hot</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    One time chunk of :func:`build_trax_obs` (see there); returns a plain DataFrame.</span>
+
+<span class="sd">    uataq time ranges include both ends, so unless this is the ``last`` chunk, LGR rows at</span>
+<span class="sd">    exactly ``t1`` are left to the next chunk.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">slv.measurements.pollutants</span><span class="w"> </span><span class="kn">import</span> <span class="n">defaults</span>
+
+    <span class="n">time_range</span> <span class="o">=</span> <span class="p">(</span><span class="n">t0</span><span class="p">,</span> <span class="n">t1</span><span class="p">)</span>
+    <span class="n">empty</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+        <span class="p">{</span><span class="s2">&quot;Time_UTC&quot;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">([]),</span> <span class="s2">&quot;CH4&quot;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)}</span>
+    <span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">t0</span><span class="si">:</span><span class="s2">%Y-%m-%d</span><span class="si">}</span><span class="s2"> -&gt; </span><span class="si">{</span><span class="n">t1</span><span class="si">:</span><span class="s2">%Y-%m-%d</span><span class="si">}</span><span class="s2">] qaqc support (dropouts, pressure) ...&quot;</span><span class="p">,</span>
+        <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">support</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="n">_read_support</span><span class="p">(</span><span class="n">site</span><span class="p">,</span> <span class="s2">&quot;lgr_ugga&quot;</span><span class="p">,</span> <span class="n">time_range</span><span class="p">,</span> <span class="n">num_processes</span><span class="p">),</span>
+            <span class="n">_read_support</span><span class="p">(</span><span class="n">site</span><span class="p">,</span> <span class="s2">&quot;lgr_ugga_manual_cal&quot;</span><span class="p">,</span> <span class="n">time_range</span><span class="p">,</span> <span class="n">num_processes</span><span class="p">),</span>
+        <span class="p">],</span>
+        <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">drops</span> <span class="o">=</span> <span class="n">dropout_times</span><span class="p">(</span><span class="n">support</span><span class="p">)</span> <span class="k">if</span> <span class="n">dropout_window</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">t0</span><span class="si">:</span><span class="s2">%Y-%m-%d</span><span class="si">}</span><span class="s2"> -&gt; </span><span class="si">{</span><span class="n">t1</span><span class="si">:</span><span class="s2">%Y-%m-%d</span><span class="si">}</span><span class="s2">] calibrated LGR ...&quot;</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">cal</span> <span class="o">=</span> <span class="n">_read_lgr</span><span class="p">(</span>
+            <span class="n">site</span><span class="p">,</span>
+            <span class="s2">&quot;lgr_ugga&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;calibrated&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;CH4d_ppm_cal&quot;</span><span class="p">,</span>
+            <span class="n">time_range</span><span class="p">,</span>
+            <span class="n">num_processes</span><span class="p">,</span>
+            <span class="n">keep</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;CH4d_m&quot;</span><span class="p">,</span> <span class="s2">&quot;QAQC_Flag&quot;</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="n">cal</span> <span class="o">=</span> <span class="n">apply_slope_guard</span><span class="p">(</span><span class="n">cal</span><span class="p">,</span> <span class="n">slope_tol</span><span class="p">)</span>
+        <span class="n">hot</span> <span class="o">=</span> <span class="n">recover_hot_rows</span><span class="p">(</span><span class="n">cal</span><span class="p">,</span> <span class="n">support</span><span class="p">)</span> <span class="k">if</span> <span class="n">recover_hot</span> <span class="k">else</span> <span class="n">empty</span>
+        <span class="n">cal</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">cal</span><span class="p">[</span><span class="n">cal</span><span class="o">.</span><span class="n">CH4</span><span class="o">.</span><span class="n">notna</span><span class="p">()][[</span><span class="s2">&quot;Time_UTC&quot;</span><span class="p">,</span> <span class="s2">&quot;CH4&quot;</span><span class="p">]],</span> <span class="n">hot</span><span class="p">[[</span><span class="s2">&quot;Time_UTC&quot;</span><span class="p">,</span> <span class="s2">&quot;CH4&quot;</span><span class="p">]]],</span>
+            <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">cal_source</span><span class="o">=</span><span class="s2">&quot;pipeline&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">hot</span><span class="p">):</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  recovered </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">hot</span><span class="p">)</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> flag -64 rows (hot cavity)&quot;</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">FileNotFoundError</span><span class="p">,</span> <span class="ne">KeyError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">,</span> <span class="n">uataq</span><span class="o">.</span><span class="n">errors</span><span class="o">.</span><span class="n">ReaderError</span><span class="p">):</span>
+        <span class="n">cal</span> <span class="o">=</span> <span class="n">empty</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">cal_source</span><span class="o">=</span><span class="s2">&quot;pipeline&quot;</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">t0</span><span class="si">:</span><span class="s2">%Y-%m-%d</span><span class="si">}</span><span class="s2"> -&gt; </span><span class="si">{</span><span class="n">t1</span><span class="si">:</span><span class="s2">%Y-%m-%d</span><span class="si">}</span><span class="s2">] manual-cal LGR ...&quot;</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">flags</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="o">*</span><span class="n">defaults</span><span class="p">[</span><span class="s2">&quot;CH4&quot;</span><span class="p">][</span><span class="s2">&quot;valid_flags&quot;</span><span class="p">]}</span>
+    <span class="k">if</span> <span class="n">low_pressure</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">flags</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="o">-</span><span class="mi">63</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">man</span> <span class="o">=</span> <span class="n">_read_lgr</span><span class="p">(</span>
+            <span class="n">site</span><span class="p">,</span>
+            <span class="s2">&quot;lgr_ugga_manual_cal&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;qaqc&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;CH4d_ppm&quot;</span><span class="p">,</span>
+            <span class="n">time_range</span><span class="p">,</span>
+            <span class="n">num_processes</span><span class="p">,</span>
+            <span class="n">keep</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;QAQC_Flag&quot;</span><span class="p">,</span> <span class="s2">&quot;Cavity_P_torr&quot;</span><span class="p">),</span>
+            <span class="n">valid_flags</span><span class="o">=</span><span class="n">flags</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="s2">&quot;QAQC_Flag&quot;</span> <span class="ow">in</span> <span class="n">man</span><span class="o">.</span><span class="n">columns</span> <span class="ow">and</span> <span class="s2">&quot;Cavity_P_torr&quot;</span> <span class="ow">in</span> <span class="n">man</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="n">man</span> <span class="o">=</span> <span class="n">apply_low_pressure_rule</span><span class="p">(</span><span class="n">man</span><span class="p">,</span> <span class="n">low_pressure</span><span class="p">)</span>
+        <span class="n">man</span> <span class="o">=</span> <span class="n">man</span><span class="p">[</span><span class="n">man</span><span class="o">.</span><span class="n">CH4</span><span class="o">.</span><span class="n">notna</span><span class="p">()]</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">cal_source</span><span class="o">=</span><span class="s2">&quot;manual_cal&quot;</span><span class="p">)</span>
+        <span class="n">man</span> <span class="o">=</span> <span class="n">man</span><span class="p">[</span>
+            <span class="p">[</span>
+                <span class="s2">&quot;Time_UTC&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;CH4&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;cal_source&quot;</span><span class="p">,</span>
+                <span class="o">*</span><span class="p">([</span><span class="s2">&quot;low_pressure&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="s2">&quot;low_pressure&quot;</span> <span class="ow">in</span> <span class="n">man</span> <span class="k">else</span> <span class="p">[]),</span>
+            <span class="p">]</span>
+        <span class="p">]</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">FileNotFoundError</span><span class="p">,</span> <span class="ne">KeyError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">,</span> <span class="n">uataq</span><span class="o">.</span><span class="n">errors</span><span class="o">.</span><span class="n">ReaderError</span><span class="p">):</span>
+        <span class="n">man</span> <span class="o">=</span> <span class="n">empty</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">cal_source</span><span class="o">=</span><span class="s2">&quot;manual_cal&quot;</span><span class="p">)</span>
+
+    <span class="n">parts</span> <span class="o">=</span> <span class="p">[</span><span class="n">cal</span><span class="p">,</span> <span class="n">man</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span>
+        <span class="nb">zip</span><span class="p">(</span><span class="n">windows</span><span class="p">[</span><span class="s2">&quot;start&quot;</span><span class="p">],</span> <span class="n">windows</span><span class="p">[</span><span class="s2">&quot;end&quot;</span><span class="p">],</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="p">):</span>
+        <span class="n">ws</span><span class="p">,</span> <span class="n">we</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">t0</span><span class="p">),</span> <span class="nb">min</span><span class="p">(</span><span class="n">end</span><span class="p">,</span> <span class="n">t1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ws</span> <span class="o">&gt;=</span> <span class="n">we</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">t0</span><span class="si">:</span><span class="s2">%Y-%m-%d</span><span class="si">}</span><span class="s2"> -&gt; </span><span class="si">{</span><span class="n">t1</span><span class="si">:</span><span class="s2">%Y-%m-%d</span><span class="si">}</span><span class="s2">] uncalibrated window </span><span class="si">{</span><span class="n">ws</span><span class="o">.</span><span class="n">date</span><span class="p">()</span><span class="si">}</span><span class="s2"> -&gt; </span><span class="si">{</span><span class="n">we</span><span class="o">.</span><span class="n">date</span><span class="p">()</span><span class="si">}</span><span class="s2"> ...&quot;</span><span class="p">,</span>
+            <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">q</span> <span class="o">=</span> <span class="n">_read_lgr</span><span class="p">(</span><span class="n">site</span><span class="p">,</span> <span class="s2">&quot;lgr_ugga&quot;</span><span class="p">,</span> <span class="s2">&quot;qaqc&quot;</span><span class="p">,</span> <span class="s2">&quot;CH4d_ppm&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">ws</span><span class="p">,</span> <span class="n">we</span><span class="p">),</span> <span class="n">num_processes</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">FileNotFoundError</span><span class="p">,</span> <span class="ne">KeyError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">,</span> <span class="n">uataq</span><span class="o">.</span><span class="n">errors</span><span class="o">.</span><span class="n">ReaderError</span><span class="p">):</span>
+            <span class="k">continue</span>
+        <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">select_uncalibrated</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">windows</span><span class="o">.</span><span class="n">iloc</span><span class="p">[[</span><span class="n">i</span><span class="p">]],</span> <span class="n">exclude_times</span><span class="o">=</span><span class="n">cal</span><span class="o">.</span><span class="n">Time_UTC</span><span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="c1"># stable sort: of rows sharing a time the first kept is the higher-priority source, in</span>
+    <span class="c1"># the order of ``parts`` (pipeline &gt; manual_cal &gt; uncalibrated)</span>
+    <span class="n">obs</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">parts</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s2">&quot;Time_UTC&quot;</span><span class="p">,</span> <span class="n">kind</span><span class="o">=</span><span class="s2">&quot;stable&quot;</span><span class="p">)</span>
+    <span class="n">obs</span> <span class="o">=</span> <span class="n">obs</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="s2">&quot;Time_UTC&quot;</span><span class="p">,</span> <span class="n">keep</span><span class="o">=</span><span class="s2">&quot;first&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+        <span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;CH4&quot;</span><span class="p">:</span> <span class="s2">&quot;CH4_ppm&quot;</span><span class="p">}</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="s2">&quot;low_pressure&quot;</span> <span class="ow">in</span> <span class="n">obs</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">obs</span><span class="p">[</span><span class="s2">&quot;low_pressure&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">obs</span><span class="p">[</span><span class="s2">&quot;low_pressure&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">obs</span><span class="p">[</span><span class="s2">&quot;low_pressure&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">last</span><span class="p">:</span>
+        <span class="n">obs</span> <span class="o">=</span> <span class="n">obs</span><span class="p">[</span><span class="n">obs</span><span class="p">[</span><span class="s2">&quot;Time_UTC&quot;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">t1</span><span class="p">]</span>
+
+    <span class="n">n0</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">obs</span><span class="p">)</span>
+    <span class="n">obs</span> <span class="o">=</span> <span class="n">apply_pressure_rule</span><span class="p">(</span><span class="n">obs</span><span class="p">,</span> <span class="n">_pressure_series</span><span class="p">(</span><span class="n">support</span><span class="p">),</span> <span class="n">pressure_band</span><span class="p">)</span>
+    <span class="n">n1</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">obs</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">dropout_window</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">obs</span> <span class="o">=</span> <span class="n">apply_dropout_rule</span><span class="p">(</span><span class="n">obs</span><span class="p">,</span> <span class="n">drops</span><span class="p">,</span> <span class="n">dropout_window</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">n0</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;  pressure rule dropped </span><span class="si">{</span><span class="n">n0</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">n1</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2">; dropout rule dropped </span><span class="si">{</span><span class="n">n1</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="n">obs</span><span class="p">)</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="n">obs</span><span class="p">[</span><span class="s2">&quot;epoch_offset_ppm&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">epoch_offset_column</span><span class="p">(</span><span class="n">obs</span><span class="p">[</span><span class="s2">&quot;Time_UTC&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+    <span class="k">del</span> <span class="n">parts</span><span class="p">,</span> <span class="n">cal</span><span class="p">,</span> <span class="n">man</span><span class="p">,</span> <span class="n">support</span>
+    <span class="k">if</span> <span class="n">obs</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">obs</span>
+
+    <span class="n">data</span> <span class="o">=</span> <span class="n">merge_with_gps</span><span class="p">(</span>
+        <span class="n">site</span><span class="p">,</span>
+        <span class="s2">&quot;UATAQ&quot;</span><span class="p">,</span>
+        <span class="n">obs</span><span class="p">,</span>
+        <span class="n">time_range</span><span class="o">=</span><span class="n">time_range</span><span class="p">,</span>
+        <span class="n">num_processes</span><span class="o">=</span><span class="n">num_processes</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">gps_kwargs</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">classify</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;[</span><span class="si">{</span><span class="n">t0</span><span class="si">:</span><span class="s2">%Y-%m-%d</span><span class="si">}</span><span class="s2"> -&gt; </span><span class="si">{</span><span class="n">t1</span><span class="si">:</span><span class="s2">%Y-%m-%d</span><span class="si">}</span><span class="s2">] classifying location ...&quot;</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">label_trax_location</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">site</span><span class="o">=</span><span class="n">site</span><span class="p">,</span> <span class="n">time_range</span><span class="o">=</span><span class="n">time_range</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">data</span>
+
+
+<div class="viewcode-block" id="build_trax_obs">
+<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.obs.build_trax_obs.html#slv.measurements.mobile.obs.build_trax_obs">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">build_trax_obs</span><span class="p">(</span>
+    <span class="n">site</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;trx01&quot;</span><span class="p">,</span>
+    <span class="n">time_range</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">num_processes</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="n">windows</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">classify</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">low_pressure</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">LOW_PRESSURE_BAND</span><span class="p">,</span>
+    <span class="n">slope_tol</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">SLOPE_TOL</span><span class="p">,</span>
+    <span class="n">pressure_band</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">PRESSURE_BAND</span><span class="p">,</span>
+    <span class="n">dropout_window</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">DROPOUT_WINDOW_MIN</span><span class="p">,</span>
+    <span class="n">recover_hot</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">chunk</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;YS&quot;</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">gps_kwargs</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Build the georeferenced TRAX CH4 record from the pipeline levels.</span>
+
+<span class="sd">    Sources, each tagged in ``cal_source`` (see :data:`CAL_SOURCES`):</span>
+<span class="sd">    ``lgr_ugga`` calibrated → ``pipeline``; ``lgr_ugga_manual_cal`` qaqc → ``manual_cal``;</span>
+<span class="sd">    ``lgr_ugga`` qaqc inside the uncalibrated windows (default: the packaged table) →</span>
+<span class="sd">    ``uncalibrated``. QC via :func:`normalize_pollutant` (flags {0,1,2,-64,-140}, ID −10,</span>
+<span class="sd">    valid range). Manual-cal rows flagged −63 (cavity pressure outside 135–145 torr) are kept</span>
+<span class="sd">    when the pressure is inside ``low_pressure`` (default :data:`LOW_PRESSURE_BAND`) and</span>
+<span class="sd">    tagged ``low_pressure=True`` (:func:`apply_low_pressure_rule`); ``low_pressure=None``</span>
+<span class="sd">    drops them. Pipeline-calibrated rows whose slope deviates more than ``slope_tol`` from the</span>
+<span class="sd">    day&#39;s median slope are dropped (:func:`apply_slope_guard`; one bad reference period</span>
+<span class="sd">    otherwise miscalibrates the next hour by 20–100 %). Then merged with *every* GPS fix by :func:`merge_with_gps` (no route buffer,</span>
+<span class="sd">    no storage-yard removal) and, with ``classify``, labelled per minute by</span>
+<span class="sd">    :func:`label_trax_location` (``state``, ``indoor``, ``yard_name``) so that the location</span>
+<span class="sd">    filter is applied at load time (:func:`load_trax_obs`). Pass ``routes`` /</span>
+<span class="sd">    ``storage_polygon`` in ``gps_kwargs`` to restore the old pre-filtering.</span>
+
+<span class="sd">    The archive is processed in ``chunk``-sized pieces (pandas offset alias, default one</span>
+<span class="sd">    year) so that only one chunk of full-width pipeline files is in memory at a time (the</span>
+<span class="sd">    whole-archive read peaked at 250 GB). Still heavy — run on a compute node.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">windows</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">windows</span> <span class="o">=</span> <span class="n">load_trax_uncalibrated_windows</span><span class="p">()</span>
+    <span class="n">gps_kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;routes&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="n">gps_kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;storage_polygon&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">time_range</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">t0</span><span class="p">,</span> <span class="n">t1</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="s2">&quot;2014-12-01&quot;</span><span class="p">),</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="s2">&quot;D&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">t0</span><span class="p">,</span> <span class="n">t1</span> <span class="o">=</span> <span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">time_range</span><span class="p">)</span>
+    <span class="n">edges</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">date_range</span><span class="p">(</span><span class="n">t0</span><span class="p">,</span> <span class="n">t1</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="n">chunk</span><span class="p">)</span>
+    <span class="n">edges</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">([</span><span class="n">t0</span><span class="p">,</span> <span class="o">*</span><span class="n">edges</span><span class="p">[(</span><span class="n">edges</span> <span class="o">&gt;</span> <span class="n">t0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">edges</span> <span class="o">&lt;</span> <span class="n">t1</span><span class="p">)],</span> <span class="n">t1</span><span class="p">])</span>
+
+    <span class="n">parts</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">edges</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">edges</span><span class="p">[</span><span class="mi">1</span><span class="p">:],</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="n">part</span> <span class="o">=</span> <span class="n">_build_chunk</span><span class="p">(</span>
+            <span class="n">site</span><span class="p">,</span>
+            <span class="n">a</span><span class="p">,</span>
+            <span class="n">b</span><span class="p">,</span>
+            <span class="n">num_processes</span><span class="p">,</span>
+            <span class="n">windows</span><span class="p">,</span>
+            <span class="n">classify</span><span class="p">,</span>
+            <span class="n">low_pressure</span><span class="p">,</span>
+            <span class="n">slope_tol</span><span class="p">,</span>
+            <span class="n">gps_kwargs</span><span class="p">,</span>
+            <span class="n">last</span><span class="o">=</span><span class="n">b</span> <span class="o">==</span> <span class="n">edges</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+            <span class="n">pressure_band</span><span class="o">=</span><span class="n">pressure_band</span><span class="p">,</span>
+            <span class="n">dropout_window</span><span class="o">=</span><span class="n">dropout_window</span><span class="p">,</span>
+            <span class="n">recover_hot</span><span class="o">=</span><span class="n">recover_hot</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">part</span><span class="p">):</span>
+            <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">part</span><span class="p">))</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">parts</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="k">if</span> <span class="n">parts</span> <span class="k">else</span> <span class="n">_empty_obs</span><span class="p">(</span><span class="n">classify</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span>
+        <span class="n">data</span><span class="p">,</span>
+        <span class="n">geometry</span><span class="o">=</span><span class="n">gpd</span><span class="o">.</span><span class="n">points_from_xy</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">Longitude_deg</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">Latitude_deg</span><span class="p">),</span>
+        <span class="n">crs</span><span class="o">=</span><span class="s2">&quot;EPSG:4326&quot;</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_empty_obs</span><span class="p">(</span><span class="n">classify</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The columns :func:`build_trax_obs` always returns, with no rows.&quot;&quot;&quot;</span>
+    <span class="n">cols</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;Time_UTC&quot;</span><span class="p">:</span> <span class="s2">&quot;datetime64[ns]&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;CH4_ppm&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="s2">&quot;cal_source&quot;</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span>
+        <span class="s2">&quot;low_pressure&quot;</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+        <span class="s2">&quot;epoch_offset_ppm&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="s2">&quot;Latitude_deg&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+        <span class="s2">&quot;Longitude_deg&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="k">if</span> <span class="n">classify</span><span class="p">:</span>
+        <span class="n">cols</span> <span class="o">|=</span> <span class="p">{</span><span class="s2">&quot;state&quot;</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span> <span class="s2">&quot;indoor&quot;</span><span class="p">:</span> <span class="s2">&quot;boolean&quot;</span><span class="p">,</span> <span class="s2">&quot;yard_name&quot;</span><span class="p">:</span> <span class="nb">object</span><span class="p">}</span>
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="n">c</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="n">t</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span><span class="p">,</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">cols</span><span class="o">.</span><span class="n">items</span><span class="p">()})</span>
+
+
+<div class="viewcode-block" id="load_trax_obs">
+<a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.obs.load_trax_obs.html#slv.measurements.mobile.obs.load_trax_obs">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">load_trax_obs</span><span class="p">(</span>
+    <span class="n">cache</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">include_uncalibrated</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">include_low_pressure</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">epoch_offset</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">location</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="s2">&quot;on_track&quot;</span><span class="p">,</span>
+    <span class="n">rebuild</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">time_range</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">build_kwargs</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load the cached TRAX CH4 record (``$SLV_USER_DATA_DIR/trax/obs.parquet``), building it if needed.</span>
+
+<span class="sd">    ``include_uncalibrated=False`` drops the tank-out windows so their effect can be tested;</span>
+<span class="sd">    the ``cal_source`` column is always present for finer filtering. ``location`` selects</span>
+<span class="sd">    where the train was (:data:`LOCATION_SETS`): ``&quot;on_track&quot;`` (default) keeps</span>
+<span class="sd">    route / line / stopped, ``&quot;outdoor&quot;`` also keeps yard-parked minutes, ``&quot;all&quot;`` keeps</span>
+<span class="sd">    everything (indoor shed air and untrusted positions included); the ``state``,</span>
+<span class="sd">    ``indoor`` and ``yard_name`` columns are always present. ``include_low_pressure=False``</span>
+<span class="sd">    drops the manual-cal rows kept under the low-cavity-pressure rule (``low_pressure`` column,</span>
+<span class="sd">    see :func:`build_trax_obs`). ``time_range=(start, end)`` reads only ``start &lt;= Time_UTC &lt;</span>
+<span class="sd">    end`` from the cache (a parquet row-group filter: the file is time-ordered, so one year</span>
+<span class="sd">    of the 92 M rows costs a few seconds and a few GB rather than the whole record).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">cache</span> <span class="o">=</span> <span class="n">user_dir</span><span class="p">()</span> <span class="o">/</span> <span class="s2">&quot;trax&quot;</span> <span class="o">/</span> <span class="s2">&quot;obs.parquet&quot;</span> <span class="k">if</span> <span class="n">cache</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">Path</span><span class="p">(</span><span class="n">cache</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">cache</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">rebuild</span><span class="p">:</span>
+        <span class="n">filters</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">time_range</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">t0</span><span class="p">,</span> <span class="n">t1</span> <span class="o">=</span> <span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">time_range</span><span class="p">)</span>
+            <span class="n">filters</span> <span class="o">=</span> <span class="p">[(</span><span class="s2">&quot;Time_UTC&quot;</span><span class="p">,</span> <span class="s2">&quot;&gt;=&quot;</span><span class="p">,</span> <span class="n">t0</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;Time_UTC&quot;</span><span class="p">,</span> <span class="s2">&quot;&lt;&quot;</span><span class="p">,</span> <span class="n">t1</span><span class="p">)]</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="n">cache</span><span class="p">,</span> <span class="n">filters</span><span class="o">=</span><span class="n">filters</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">c</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">columns</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;cal_source&quot;</span><span class="p">,</span> <span class="s2">&quot;state&quot;</span><span class="p">,</span> <span class="s2">&quot;low_pressure&quot;</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cache</span><span class="si">}</span><span class="s2"> predates cal_source / location / low_pressure tagging; call with rebuild=True&quot;</span>
+            <span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span>
+            <span class="n">data</span><span class="p">,</span>
+            <span class="n">geometry</span><span class="o">=</span><span class="n">gpd</span><span class="o">.</span><span class="n">points_from_xy</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">Longitude_deg</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">Latitude_deg</span><span class="p">),</span>
+            <span class="n">crs</span><span class="o">=</span><span class="s2">&quot;EPSG:4326&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">build_trax_obs</span><span class="p">(</span><span class="o">**</span><span class="n">build_kwargs</span><span class="p">)</span>
+        <span class="n">cache</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Caching TRAX obs to </span><span class="si">{</span><span class="n">cache</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="s2">&quot;geometry&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">to_parquet</span><span class="p">(</span><span class="n">cache</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">time_range</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">t0</span><span class="p">,</span> <span class="n">t1</span> <span class="o">=</span> <span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">time_range</span><span class="p">)</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[(</span><span class="n">data</span><span class="o">.</span><span class="n">Time_UTC</span> <span class="o">&gt;=</span> <span class="n">t0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">Time_UTC</span> <span class="o">&lt;</span> <span class="n">t1</span><span class="p">)]</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">apply_epoch_offset</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">epoch_offset</span><span class="p">)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">filter_cal_source</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">include_uncalibrated</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">include_low_pressure</span> <span class="ow">and</span> <span class="s2">&quot;low_pressure&quot;</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="o">~</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;low_pressure&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">)]</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">filter_location</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">location</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span><span class="n">data</span><span class="p">)</span></div>
+
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026, James Mineau.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

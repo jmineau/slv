@@ -1,0 +1,954 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>slv.measurements.mobile &#8212; slv 2026.10.0</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=ba117b66" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../_static/documentation_options.js?v=c1b729fb"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_autosummary/slv.measurements.mobile';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://jmineau.github.io/slv/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '2026.10.0';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            true;
+        </script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="slv.measurements.mobile.calibration" href="slv.measurements.mobile.calibration.html" />
+    <link rel="prev" title="slv.measurements.instruments.Picarro_G2401" href="slv.measurements.instruments.Picarro_G2401.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="2026.10.0" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">slv 2026.10.0</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../usage.html">
+    Usage
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../api.html">
+    API Reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../contributing.html">
+    Contributing
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/jmineau/slv" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../usage.html">
+    Usage
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../api.html">
+    API Reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../contributing.html">
+    Contributing
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-3"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-3"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-3"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-3">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/jmineau/slv" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="slv.html">slv</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="slv.get_data_dir.html">slv.get_data_dir</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="slv.basemap.html">slv.basemap</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="slv.basemap.TRAX_COLORS.html">slv.basemap.TRAX_COLORS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="slv.basemap.STADIA_ATTRIBUTION.html">slv.basemap.STADIA_ATTRIBUTION</a></li>
+<li class="toctree-l3"><a class="reference internal" href="slv.basemap.load_borders.html">slv.basemap.load_borders</a></li>
+<li class="toctree-l3"><a class="reference internal" href="slv.basemap.load_interstates.html">slv.basemap.load_interstates</a></li>
+<li class="toctree-l3"><a class="reference internal" href="slv.basemap.load_mesowest.html">slv.basemap.load_mesowest</a></li>
+<li class="toctree-l3"><a class="reference internal" href="slv.basemap.load_population.html">slv.basemap.load_population</a></li>
+<li class="toctree-l3"><a class="reference internal" href="slv.basemap.stadia_tiles.html">slv.basemap.stadia_tiles</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="slv.basemap.SaltLake.html">slv.basemap.SaltLake</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.basemap.SaltLake.fig.html">slv.basemap.SaltLake.fig</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.basemap.SaltLake.add_borders.html">slv.basemap.SaltLake.add_borders</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.basemap.SaltLake.add_inset.html">slv.basemap.SaltLake.add_inset</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.basemap.SaltLake.add_interstates.html">slv.basemap.SaltLake.add_interstates</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.basemap.SaltLake.add_inventory.html">slv.basemap.SaltLake.add_inventory</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.basemap.SaltLake.add_legend.html">slv.basemap.SaltLake.add_legend</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.basemap.SaltLake.add_mesowest.html">slv.basemap.SaltLake.add_mesowest</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.basemap.SaltLake.add_north_arrow.html">slv.basemap.SaltLake.add_north_arrow</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.basemap.SaltLake.add_points.html">slv.basemap.SaltLake.add_points</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.basemap.SaltLake.add_population.html">slv.basemap.SaltLake.add_population</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.basemap.SaltLake.add_sites.html">slv.basemap.SaltLake.add_sites</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.basemap.SaltLake.add_trax.html">slv.basemap.SaltLake.add_trax</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="slv.domain.html">slv.domain</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="slv.emissions.html">slv.emissions</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="slv.emissions.point_sources.html">slv.emissions.point_sources</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.emissions.point_sources.load_point_sources.html">slv.emissions.point_sources.load_point_sources</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.emissions.point_sources.plot_point_sources.html">slv.emissions.point_sources.plot_point_sources</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="slv.inversion.html">slv.inversion</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="slv.inversion.background.html">slv.inversion.background</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.background.get_ct_stilt_background.html">slv.inversion.background.get_ct_stilt_background</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.background.get_gml_background.html">slv.inversion.background.get_gml_background</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.background.get_rolling_background.html">slv.inversion.background.get_rolling_background</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.background.get_slv_background.html">slv.inversion.background.get_slv_background</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="slv.inversion.bias.html">slv.inversion.bias</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.bias.BiasMixin.html">slv.inversion.bias.BiasMixin</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="slv.inversion.cache.html">slv.inversion.cache</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.cache.DEFAULT_COMPONENT_DEPS.html">slv.inversion.cache.DEFAULT_COMPONENT_DEPS</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.cache.DEFAULT_COMPONENT_PACKAGES.html">slv.inversion.cache.DEFAULT_COMPONENT_PACKAGES</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.cache.fips_cache.html">slv.inversion.cache.fips_cache</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="slv.inversion.config.html">slv.inversion.config</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.config.FLUX_FREQ_TIME_STEPS.html">slv.inversion.config.FLUX_FREQ_TIME_STEPS</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.config.build_location_site_map.html">slv.inversion.config.build_location_site_map</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.config.get_mdm_comp_configs.html">slv.inversion.config.get_mdm_comp_configs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.config.stilt_project_dir.html">slv.inversion.config.stilt_project_dir</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.config.InversionConfig.html">slv.inversion.config.InversionConfig</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="slv.inversion.covariances.html">slv.inversion.covariances</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.covariances.build_mdm_error.html">slv.inversion.covariances.build_mdm_error</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.covariances.build_prior_error.html">slv.inversion.covariances.build_prior_error</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.covariances.normalize_duration.html">slv.inversion.covariances.normalize_duration</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="slv.inversion.coverage.html">slv.inversion.coverage</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.coverage.check_state_cells.html">slv.inversion.coverage.check_state_cells</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.coverage.CoverageFilterMixin.html">slv.inversion.coverage.CoverageFilterMixin</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="slv.inversion.data.html">slv.inversion.data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.data.get_slv_observations.html">slv.inversion.data.get_slv_observations</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.data.get_slv_subhour_std.html">slv.inversion.data.get_slv_subhour_std</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.data.load_mobile_obs.html">slv.inversion.data.load_mobile_obs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.data.split_sites.html">slv.inversion.data.split_sites</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="slv.inversion.mdm.html">slv.inversion.mdm</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.mdm.ModelDataMismatchMixin.html">slv.inversion.mdm.ModelDataMismatchMixin</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="slv.inversion.pipelines.html">slv.inversion.pipelines</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.pipelines.project_jacobian.html">slv.inversion.pipelines.project_jacobian</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.pipelines.stack_jacobians.html">slv.inversion.pipelines.stack_jacobians</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.pipelines.SLVMethaneInversion.html">slv.inversion.pipelines.SLVMethaneInversion</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="slv.inversion.priors.html">slv.inversion.priors</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.priors.align_to_flux_times.html">slv.inversion.priors.align_to_flux_times</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.priors.build_constant_prior.html">slv.inversion.priors.build_constant_prior</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.priors.get_slv_prior.html">slv.inversion.priors.get_slv_prior</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.priors.load_edgar_prior.html">slv.inversion.priors.load_edgar_prior</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.priors.load_epa_prior.html">slv.inversion.priors.load_epa_prior</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="slv.inversion.report.html">slv.inversion.report</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.report.ReportingMixin.html">slv.inversion.report.ReportingMixin</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="slv.inversion.sweep.html">slv.inversion.sweep</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.sweep.collect_metrics.html">slv.inversion.sweep.collect_metrics</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.sweep.config_id.html">slv.inversion.sweep.config_id</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.sweep.run_sweep_job.html">slv.inversion.sweep.run_sweep_job</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.sweep.Sweep.html">slv.inversion.sweep.Sweep</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.sweep.SweepResults.html">slv.inversion.sweep.SweepResults</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="slv.inversion.viz.html">slv.inversion.viz</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.viz.plot_background_and_bias.html">slv.inversion.viz.plot_background_and_bias</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.viz.plot_concentrations.html">slv.inversion.viz.plot_concentrations</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.viz.plot_desroziers.html">slv.inversion.viz.plot_desroziers</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.viz.plot_fluxes.html">slv.inversion.viz.plot_fluxes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.viz.plot_fluxes_by_timestep.html">slv.inversion.viz.plot_fluxes_by_timestep</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.viz.plot_grid.html">slv.inversion.viz.plot_grid</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.viz.plot_inventory.html">slv.inversion.viz.plot_inventory</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.viz.plot_mdm_components.html">slv.inversion.viz.plot_mdm_components</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.viz.plot_prior_with_coverage.html">slv.inversion.viz.plot_prior_with_coverage</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.viz.plot_reconstructed_posterior.html">slv.inversion.viz.plot_reconstructed_posterior</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.viz.plot_removed_contribution.html">slv.inversion.viz.plot_removed_contribution</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.viz.plot_residuals.html">slv.inversion.viz.plot_residuals</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.viz.plot_sites.html">slv.inversion.viz.plot_sites</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.viz.plot_total_fluxes_over_time.html">slv.inversion.viz.plot_total_fluxes_over_time</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.viz.shade_removed_cells.html">slv.inversion.viz.shade_removed_cells</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="slv.measurements.html">slv.measurements</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3 has-children"><a class="reference internal" href="slv.measurements.aggregate.html">slv.measurements.aggregate</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.measurements.aggregate.aggregate_obs.html">slv.measurements.aggregate.aggregate_obs</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="slv.measurements.background.html">slv.measurements.background</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.measurements.background.lair_gml_dir.html">slv.measurements.background.lair_gml_dir</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.measurements.background.user_gml_dir.html">slv.measurements.background.user_gml_dir</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.measurements.background.CarbonTrackerCH4.html">slv.measurements.background.CarbonTrackerCH4</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.measurements.background.GMLDiscrete.html">slv.measurements.background.GMLDiscrete</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.measurements.background.UATAQCH4.html">slv.measurements.background.UATAQCH4</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.measurements.background.UTAFlask.html">slv.measurements.background.UTAFlask</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="slv.measurements.concentrations.html">slv.measurements.concentrations</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.measurements.concentrations.generate_stilt_receptors.html">slv.measurements.concentrations.generate_stilt_receptors</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.measurements.concentrations.load_concentrations.html">slv.measurements.concentrations.load_concentrations</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="slv.measurements.instruments.html">slv.measurements.instruments</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.measurements.instruments.Instrument.html">slv.measurements.instruments.Instrument</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.measurements.instruments.LGR_UGGA.html">slv.measurements.instruments.LGR_UGGA</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.measurements.instruments.LGR_UGGA_Manual_Cal.html">slv.measurements.instruments.LGR_UGGA_Manual_Cal</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.measurements.instruments.Picarro_G2307.html">slv.measurements.instruments.Picarro_G2307</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.measurements.instruments.Picarro_G2401.html">slv.measurements.instruments.Picarro_G2401</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 current active has-children"><a class="current reference internal" href="#">slv.measurements.mobile</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.measurements.mobile.calibration.html">slv.measurements.mobile.calibration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.measurements.mobile.gps.html">slv.measurements.mobile.gps</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.measurements.mobile.location.html">slv.measurements.mobile.location</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.measurements.mobile.network.html">slv.measurements.mobile.network</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.measurements.mobile.obs.html">slv.measurements.mobile.obs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.measurements.mobile.receptor_obs.html">slv.measurements.mobile.receptor_obs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.measurements.mobile.receptors.html">slv.measurements.mobile.receptors</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.measurements.mobile.transects.html">slv.measurements.mobile.transects</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.measurements.mobile.wyoming.html">slv.measurements.mobile.wyoming</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="slv.measurements.pollutants.html">slv.measurements.pollutants</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.measurements.pollutants.normalize_pollutant.html">slv.measurements.pollutants.normalize_pollutant</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="slv.measurements.sites.html">slv.measurements.sites</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.measurements.sites.get_site_coordinates.html">slv.measurements.sites.get_site_coordinates</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.measurements.sites.load_site_config.html">slv.measurements.sites.load_site_config</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="slv.meteorology.html">slv.meteorology</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="slv.meteorology.mesowest.html">slv.meteorology.mesowest</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.meteorology.mesowest.load_station_metadata.html">slv.meteorology.mesowest.load_station_metadata</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.meteorology.mesowest.mesowest_dir.html">slv.meteorology.mesowest.mesowest_dir</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.meteorology.mesowest.nearest_station.html">slv.meteorology.mesowest.nearest_station</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.meteorology.mesowest.station_hourly.html">slv.meteorology.mesowest.station_hourly</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.meteorology.mesowest.wind_sector.html">slv.meteorology.mesowest.wind_sector</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="slv.meteorology.pcaps.html">slv.meteorology.pcaps</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.meteorology.pcaps.filter_pcap_events.html">slv.meteorology.pcaps.filter_pcap_events</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.meteorology.pcaps.get_pcap_events.html">slv.meteorology.pcaps.get_pcap_events</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.meteorology.pcaps.get_soundings.html">slv.meteorology.pcaps.get_soundings</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="slv.meteorology.vhd.html">slv.meteorology.vhd</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.meteorology.vhd.load_vhd.html">slv.meteorology.vhd.load_vhd</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../api.html" class="nav-link">API Reference</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="slv.html" class="nav-link">slv</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="slv.measurements.html" class="nav-link">slv.measurements</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">slv.measurements.mobile</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="module-slv.measurements.mobile">
+<span id="slv-measurements-mobile"></span><h1>slv.measurements.mobile<a class="headerlink" href="#module-slv.measurements.mobile" title="Link to this heading">#</a></h1>
+<p>Mobile-platform measurements: the TRAX light-rail trains and the Wyoming mobile lab.</p>
+<p>Submodules, one concern each:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="slv.measurements.mobile.network.html#module-slv.measurements.mobile.network" title="slv.measurements.mobile.network"><code class="xref py py-mod docutils literal notranslate"><span class="pre">network</span></code></a> — TRAX lines, staged points, storage yards (JRRSC, MRSC), shed
+footprints, route-buffer filter.</p></li>
+<li><p><a class="reference internal" href="slv.measurements.mobile.gps.html#module-slv.measurements.mobile.gps" title="slv.measurements.mobile.gps"><code class="xref py py-mod docutils literal notranslate"><span class="pre">gps</span></code></a> — GPS readers (lin-group air-trend, horel-group CR1000 logger,
+era-based <code class="xref py py-func docutils literal notranslate"><span class="pre">read_trax_gps()</span></code>) and <code class="xref py py-func docutils literal notranslate"><span class="pre">merge_with_gps()</span></code>.</p></li>
+<li><p><a class="reference internal" href="slv.measurements.mobile.location.html#module-slv.measurements.mobile.location" title="slv.measurements.mobile.location"><code class="xref py py-mod docutils literal notranslate"><span class="pre">location</span></code></a> — per-minute location classifier: indoor (shed) vs outdoor
+(yard / pass-by / route / stopped), <code class="docutils literal notranslate"><span class="pre">state</span></code> / <code class="docutils literal notranslate"><span class="pre">indoor</span></code> / <code class="docutils literal notranslate"><span class="pre">yard_name</span></code>.</p></li>
+<li><p><a class="reference internal" href="slv.measurements.mobile.calibration.html#module-slv.measurements.mobile.calibration" title="slv.measurements.mobile.calibration"><code class="xref py py-mod docutils literal notranslate"><span class="pre">calibration</span></code></a> — <code class="docutils literal notranslate"><span class="pre">cal_source</span></code> provenance and the uncalibrated windows.</p></li>
+<li><p><a class="reference internal" href="slv.measurements.mobile.obs.html#module-slv.measurements.mobile.obs" title="slv.measurements.mobile.obs"><code class="xref py py-mod docutils literal notranslate"><span class="pre">obs</span></code></a> — <code class="xref py py-func docutils literal notranslate"><span class="pre">build_trax_obs()</span></code> / <code class="xref py py-func docutils literal notranslate"><span class="pre">load_trax_obs()</span></code>, the cached CH4 record
+with both tag sets and a load-time <code class="docutils literal notranslate"><span class="pre">location</span></code> filter.</p></li>
+<li><p><a class="reference internal" href="slv.measurements.mobile.transects.html#module-slv.measurements.mobile.transects" title="slv.measurements.mobile.transects"><code class="xref py py-mod docutils literal notranslate"><span class="pre">transects</span></code></a> — transect matrices <code class="docutils literal notranslate"><span class="pre">obs[transect,</span> <span class="pre">point]</span></code>: the network builder
+(<code class="xref py py-func docutils literal notranslate"><span class="pre">build_network_transects()</span></code> / <code class="xref py py-func docutils literal notranslate"><span class="pre">build_trax_transects()</span></code> /
+<code class="xref py py-func docutils literal notranslate"><span class="pre">load_network_transects()</span></code>) and the archived per-line matrices (<code class="xref py py-func docutils literal notranslate"><span class="pre">load_transects()</span></code>).</p></li>
+<li><p><a class="reference internal" href="slv.measurements.mobile.receptors.html#module-slv.measurements.mobile.receptors" title="slv.measurements.mobile.receptors"><code class="xref py py-mod docutils literal notranslate"><span class="pre">receptors</span></code></a> — STILT receptors: 50-m network points, 2-km segment crossings,
+one PYSTILT multipoint receptor per crossing, and dwell (parked-train) receptors.</p></li>
+<li><p><a class="reference internal" href="slv.measurements.mobile.receptor_obs.html#module-slv.measurements.mobile.receptor_obs" title="slv.measurements.mobile.receptor_obs"><code class="xref py py-mod docutils literal notranslate"><span class="pre">receptor_obs</span></code></a> — the CH4 observation for each of those receptors, keyed
+<code class="docutils literal notranslate"><span class="pre">(obs_location,</span> <span class="pre">obs_time)</span></code> exactly as the inversion joins them to the footprints.</p></li>
+<li><p><a class="reference internal" href="slv.measurements.mobile.wyoming.html#module-slv.measurements.mobile.wyoming" title="slv.measurements.mobile.wyoming"><code class="xref py py-mod docutils literal notranslate"><span class="pre">wyoming</span></code></a> — the Wyoming mobile lab (Aeris + met readers, enhancement
+ratios, wind-barb map); not re-exported, import from the module.</p></li>
+</ul>
+<p>Every public function and table is re-exported here, so
+<code class="docutils literal notranslate"><span class="pre">from</span> <span class="pre">slv.measurements.mobile</span> <span class="pre">import</span> <span class="pre">X</span></code> works for all of them; the classifier thresholds
+(<a class="reference internal" href="slv.measurements.mobile.location.html#module-slv.measurements.mobile.location" title="slv.measurements.mobile.location"><code class="xref py py-mod docutils literal notranslate"><span class="pre">location</span></code></a>) and GPS column/flag constants (<a class="reference internal" href="slv.measurements.mobile.gps.html#module-slv.measurements.mobile.gps" title="slv.measurements.mobile.gps"><code class="xref py py-mod docutils literal notranslate"><span class="pre">gps</span></code></a>) stay in their modules.</p>
+<p class="rubric">Exported from submodules</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="slv.measurements.mobile.obs.apply_dropout_rule.html#slv.measurements.mobile.obs.apply_dropout_rule" title="slv.measurements.mobile.obs.apply_dropout_rule"><code class="xref py py-obj docutils literal notranslate"><span class="pre">apply_dropout_rule</span></code></a></p></td>
+<td><p>Drop rows within <code class="docutils literal notranslate"><span class="pre">window_min</span></code> minutes of a CH4 laser dropout.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="slv.measurements.mobile.calibration.apply_epoch_offset.html#slv.measurements.mobile.calibration.apply_epoch_offset" title="slv.measurements.mobile.calibration.apply_epoch_offset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">apply_epoch_offset</span></code></a></p></td>
+<td><p>Subtract the analyzer-epoch offset from <code class="docutils literal notranslate"><span class="pre">CH4_ppm</span></code> (no-op when <code class="docutils literal notranslate"><span class="pre">apply</span></code> is False).</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="slv.measurements.mobile.obs.apply_low_pressure_rule.html#slv.measurements.mobile.obs.apply_low_pressure_rule" title="slv.measurements.mobile.obs.apply_low_pressure_rule"><code class="xref py py-obj docutils literal notranslate"><span class="pre">apply_low_pressure_rule</span></code></a></p></td>
+<td><p>Keep rows flagged −63 whose <code class="docutils literal notranslate"><span class="pre">Cavity_P_torr</span></code> lies inside <code class="docutils literal notranslate"><span class="pre">band</span></code> and tag them.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="slv.measurements.mobile.obs.apply_pressure_rule.html#slv.measurements.mobile.obs.apply_pressure_rule" title="slv.measurements.mobile.obs.apply_pressure_rule"><code class="xref py py-obj docutils literal notranslate"><span class="pre">apply_pressure_rule</span></code></a></p></td>
+<td><p>Drop <code class="docutils literal notranslate"><span class="pre">sources</span></code> rows whose cavity pressure is outside <code class="docutils literal notranslate"><span class="pre">band</span></code> (see <code class="xref py py-data docutils literal notranslate"><span class="pre">PRESSURE_BAND</span></code>).</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="slv.measurements.mobile.obs.apply_slope_guard.html#slv.measurements.mobile.obs.apply_slope_guard" title="slv.measurements.mobile.obs.apply_slope_guard"><code class="xref py py-obj docutils literal notranslate"><span class="pre">apply_slope_guard</span></code></a></p></td>
+<td><p>Set <code class="docutils literal notranslate"><span class="pre">CH4</span></code> to NaN where <code class="docutils literal notranslate"><span class="pre">CH4d_m</span></code> differs from the same UTC day's median slope by more than <code class="docutils literal notranslate"><span class="pre">tol</span></code> (fraction).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="slv.measurements.mobile.transects.assign_lines.html#slv.measurements.mobile.transects.assign_lines" title="slv.measurements.mobile.transects.assign_lines"><code class="xref py py-obj docutils literal notranslate"><span class="pre">assign_lines</span></code></a></p></td>
+<td><p>The line letter each sample is on, resolved from the points around it in time.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="slv.measurements.mobile.receptors.build_dwell_receptors.html#slv.measurements.mobile.receptors.build_dwell_receptors" title="slv.measurements.mobile.receptors.build_dwell_receptors"><code class="xref py py-obj docutils literal notranslate"><span class="pre">build_dwell_receptors</span></code></a></p></td>
+<td><p>PYSTILT receptor table (<code class="xref py py-data docutils literal notranslate"><span class="pre">RECEPTOR_COLUMNS</span></code>) for the dwell periods.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="slv.measurements.mobile.obs.build_trax_obs.html#slv.measurements.mobile.obs.build_trax_obs" title="slv.measurements.mobile.obs.build_trax_obs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">build_trax_obs</span></code></a></p></td>
+<td><p>Build the georeferenced TRAX CH4 record from the pipeline levels.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="slv.measurements.mobile.receptors.build_trax_receptors.html#slv.measurements.mobile.receptors.build_trax_receptors" title="slv.measurements.mobile.receptors.build_trax_receptors"><code class="xref py py-obj docutils literal notranslate"><span class="pre">build_trax_receptors</span></code></a></p></td>
+<td><p>PYSTILT receptor table (<code class="xref py py-data docutils literal notranslate"><span class="pre">RECEPTOR_COLUMNS</span></code>) from a crossings table.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="slv.measurements.mobile.transects.build_network_transects.html#slv.measurements.mobile.transects.build_network_transects" title="slv.measurements.mobile.transects.build_network_transects"><code class="xref py py-obj docutils literal notranslate"><span class="pre">build_network_transects</span></code></a></p></td>
+<td><p>Build the <code class="docutils literal notranslate"><span class="pre">[transect,</span> <span class="pre">point]</span></code> matrix of one obs frame on the network points.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="slv.measurements.mobile.transects.build_trax_transects.html#slv.measurements.mobile.transects.build_trax_transects" title="slv.measurements.mobile.transects.build_trax_transects"><code class="xref py py-obj docutils literal notranslate"><span class="pre">build_trax_transects</span></code></a></p></td>
+<td><p>Build and write the network matrices, one NetCDF per calendar year.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="slv.measurements.mobile.location.classify_location.html#slv.measurements.mobile.location.classify_location" title="slv.measurements.mobile.location.classify_location"><code class="xref py py-obj docutils literal notranslate"><span class="pre">classify_location</span></code></a></p></td>
+<td><p>Classify each row of <code class="xref py py-func docutils literal notranslate"><span class="pre">location_features()</span></code> into one of <code class="xref py py-data docutils literal notranslate"><span class="pre">STATES</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="slv.measurements.mobile.gps.clock_checked_days.html#slv.measurements.mobile.gps.clock_checked_days" title="slv.measurements.mobile.gps.clock_checked_days"><code class="xref py py-obj docutils literal notranslate"><span class="pre">clock_checked_days</span></code></a></p></td>
+<td><p>Days whose Pi clock can be trusted to <code class="docutils literal notranslate"><span class="pre">max_clock_offset_s</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="slv.measurements.mobile.obs.dropout_times.html#slv.measurements.mobile.obs.dropout_times" title="slv.measurements.mobile.obs.dropout_times"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dropout_times</span></code></a></p></td>
+<td><p>Times of atmosphere rows whose <em>unvalidated</em> CH4 is below <code class="docutils literal notranslate"><span class="pre">threshold</span></code> — laser dropouts.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="slv.measurements.mobile.calibration.epoch_offset_column.html#slv.measurements.mobile.calibration.epoch_offset_column" title="slv.measurements.mobile.calibration.epoch_offset_column"><code class="xref py py-obj docutils literal notranslate"><span class="pre">epoch_offset_column</span></code></a></p></td>
+<td><p>The epoch offset (ppm) in force at each time, 0.0 outside every epoch.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="slv.measurements.mobile.gps.fill_gps_gaps_with_horel.html#slv.measurements.mobile.gps.fill_gps_gaps_with_horel" title="slv.measurements.mobile.gps.fill_gps_gaps_with_horel"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fill_gps_gaps_with_horel</span></code></a></p></td>
+<td><p>Georeference the rows the lin GPS could not, using the horel logger's 5-s fixes.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="slv.measurements.mobile.calibration.filter_cal_source.html#slv.measurements.mobile.calibration.filter_cal_source" title="slv.measurements.mobile.calibration.filter_cal_source"><code class="xref py py-obj docutils literal notranslate"><span class="pre">filter_cal_source</span></code></a></p></td>
+<td><p>Drop the <code class="docutils literal notranslate"><span class="pre">uncalibrated</span></code> rows when <code class="docutils literal notranslate"><span class="pre">include_uncalibrated</span></code> is False.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="slv.measurements.mobile.obs.filter_location.html#slv.measurements.mobile.obs.filter_location" title="slv.measurements.mobile.obs.filter_location"><code class="xref py py-obj docutils literal notranslate"><span class="pre">filter_location</span></code></a></p></td>
+<td><p>Keep rows whose <code class="docutils literal notranslate"><span class="pre">state</span></code> is in <code class="docutils literal notranslate"><span class="pre">location</span></code> (a <code class="xref py py-data docutils literal notranslate"><span class="pre">LOCATION_SETS</span></code> name or a tuple of states).</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="slv.measurements.mobile.network.filter_near_routes.html#slv.measurements.mobile.network.filter_near_routes" title="slv.measurements.mobile.network.filter_near_routes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">filter_near_routes</span></code></a></p></td>
+<td><p>Keep GPS points within <code class="docutils literal notranslate"><span class="pre">buffer</span></code> (in <code class="docutils literal notranslate"><span class="pre">routes</span></code>' CRS units) of any route.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="slv.measurements.mobile.receptors.filter_receptor_hours.html#slv.measurements.mobile.receptors.filter_receptor_hours" title="slv.measurements.mobile.receptors.filter_receptor_hours"><code class="xref py py-obj docutils literal notranslate"><span class="pre">filter_receptor_hours</span></code></a></p></td>
+<td><p>Keep rows whose <code class="docutils literal notranslate"><span class="pre">time</span></code> falls in those local-time hours (<code class="docutils literal notranslate"><span class="pre">None</span></code> keeps all).</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="slv.measurements.mobile.receptors.find_dwells.html#slv.measurements.mobile.receptors.find_dwells" title="slv.measurements.mobile.receptors.find_dwells"><code class="xref py py-obj docutils literal notranslate"><span class="pre">find_dwells</span></code></a></p></td>
+<td><p>Periods where the train stayed put: parked on a yard track or waiting at a terminus.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="slv.measurements.mobile.receptors.find_segment_crossings.html#slv.measurements.mobile.receptors.find_segment_crossings" title="slv.measurements.mobile.receptors.find_segment_crossings"><code class="xref py py-obj docutils literal notranslate"><span class="pre">find_segment_crossings</span></code></a></p></td>
+<td><p>Split the GPS record into crossings of the 2-km segments.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="slv.measurements.mobile.network.get_geodf.html#slv.measurements.mobile.network.get_geodf" title="slv.measurements.mobile.network.get_geodf"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_geodf</span></code></a></p></td>
+<td><p>Resolve a geometry argument: a GeoDataFrame, a path or packaged file to read, or <code class="docutils literal notranslate"><span class="pre">False</span></code> / <code class="docutils literal notranslate"><span class="pre">None</span></code> for no geometry (returns <code class="docutils literal notranslate"><span class="pre">None</span></code>).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="slv.measurements.mobile.receptor_obs.inlet_lag_seconds.html#slv.measurements.mobile.receptor_obs.inlet_lag_seconds" title="slv.measurements.mobile.receptor_obs.inlet_lag_seconds"><code class="xref py py-obj docutils literal notranslate"><span class="pre">inlet_lag_seconds</span></code></a></p></td>
+<td><p>Inlet lag in seconds at each of <code class="docutils literal notranslate"><span class="pre">times</span></code>, and where it came from.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="slv.measurements.mobile.receptors.label_dwell_site.html#slv.measurements.mobile.receptors.label_dwell_site" title="slv.measurements.mobile.receptors.label_dwell_site"><code class="xref py py-obj docutils literal notranslate"><span class="pre">label_dwell_site</span></code></a></p></td>
+<td><p>Where each dwell is: <code class="docutils literal notranslate"><span class="pre">yard_name</span></code> (JRRSC / MRSC, from the packaged storage polygons) and <code class="docutils literal notranslate"><span class="pre">segment</span></code> (nearest 2-km segment, NaN beyond <code class="docutils literal notranslate"><span class="pre">max_dist</span></code>).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="slv.measurements.mobile.location.label_observations.html#slv.measurements.mobile.location.label_observations" title="slv.measurements.mobile.location.label_observations"><code class="xref py py-obj docutils literal notranslate"><span class="pre">label_observations</span></code></a></p></td>
+<td><p>Per-observation <code class="docutils literal notranslate"><span class="pre">state</span></code> from the per-minute table (time floored to the minute).</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="slv.measurements.mobile.obs.label_trax_location.html#slv.measurements.mobile.obs.label_trax_location" title="slv.measurements.mobile.obs.label_trax_location"><code class="xref py py-obj docutils literal notranslate"><span class="pre">label_trax_location</span></code></a></p></td>
+<td><p>Add <code class="docutils literal notranslate"><span class="pre">state</span></code>, <code class="docutils literal notranslate"><span class="pre">indoor</span></code> and <code class="docutils literal notranslate"><span class="pre">yard_name</span></code> to a georeferenced TRAX obs frame.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="slv.measurements.mobile.gps.lin_clock_offset_by_day.html#slv.measurements.mobile.gps.lin_clock_offset_by_day" title="slv.measurements.mobile.gps.lin_clock_offset_by_day"><code class="xref py py-obj docutils literal notranslate"><span class="pre">lin_clock_offset_by_day</span></code></a></p></td>
+<td><p>Median GPS-minus-Pi clock offset (s) per UTC day, from a lin GPS frame.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="slv.measurements.mobile.network.load_depot_footprint.html#slv.measurements.mobile.network.load_depot_footprint" title="slv.measurements.mobile.network.load_depot_footprint"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_depot_footprint</span></code></a></p></td>
+<td><p>Packaged shed footprints at the service centers (<code class="docutils literal notranslate"><span class="pre">trax_depots.geojson</span></code>).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="slv.measurements.mobile.network.load_storage_polygons.html#slv.measurements.mobile.network.load_storage_polygons" title="slv.measurements.mobile.network.load_storage_polygons"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_storage_polygons</span></code></a></p></td>
+<td><p>All storage yards in <code class="xref py py-data docutils literal notranslate"><span class="pre">storage_locations</span></code>, one row each with a <code class="docutils literal notranslate"><span class="pre">name</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="slv.measurements.mobile.transects.load_network_transects.html#slv.measurements.mobile.transects.load_network_transects" title="slv.measurements.mobile.transects.load_network_transects"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_network_transects</span></code></a></p></td>
+<td><p>The network transect matrices of <code class="docutils literal notranslate"><span class="pre">years</span></code> (all on disk by default), concatenated along <code class="docutils literal notranslate"><span class="pre">transect</span></code> with a fresh 0..N-1 index.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="slv.measurements.mobile.transects.load_transects.html#slv.measurements.mobile.transects.load_transects" title="slv.measurements.mobile.transects.load_transects"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_transects</span></code></a></p></td>
+<td><p>Concatenate the archived transect matrices for one TRAX line into an xarray Dataset.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="slv.measurements.mobile.calibration.load_trax_epoch_offsets.html#slv.measurements.mobile.calibration.load_trax_epoch_offsets" title="slv.measurements.mobile.calibration.load_trax_epoch_offsets"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_trax_epoch_offsets</span></code></a></p></td>
+<td><p>Analyzer-epoch offsets of the uncalibrated (manual-cal) era, ppm.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="slv.measurements.mobile.receptors.load_trax_fixes.html#slv.measurements.mobile.receptors.load_trax_fixes" title="slv.measurements.mobile.receptors.load_trax_fixes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_trax_fixes</span></code></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Time_UTC</span></code>, <code class="docutils literal notranslate"><span class="pre">Latitude_deg</span></code>, <code class="docutils literal notranslate"><span class="pre">Longitude_deg</span></code> of the <code class="docutils literal notranslate"><span class="pre">location</span></code> rows of the cached TRAX record (<code class="docutils literal notranslate"><span class="pre">obs.parquet</span></code>), one row per distinct second, time-sorted.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="slv.measurements.mobile.network.load_trax_lines.html#slv.measurements.mobile.network.load_trax_lines" title="slv.measurements.mobile.network.load_trax_lines"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_trax_lines</span></code></a></p></td>
+<td><p>The TRAX lines (<code class="docutils literal notranslate"><span class="pre">UTA_TRAX.geojson</span></code> under <code class="docutils literal notranslate"><span class="pre">$LINGROUP_DATA_DIR</span></code>), one row per line with its letter in <code class="docutils literal notranslate"><span class="pre">line</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="slv.measurements.mobile.receptors.load_trax_network_points.html#slv.measurements.mobile.receptors.load_trax_network_points" title="slv.measurements.mobile.receptors.load_trax_network_points"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_trax_network_points</span></code></a></p></td>
+<td><p>The 50-m network points with their 2-km segment membership.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="slv.measurements.mobile.obs.load_trax_obs.html#slv.measurements.mobile.obs.load_trax_obs" title="slv.measurements.mobile.obs.load_trax_obs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_trax_obs</span></code></a></p></td>
+<td><p>Load the cached TRAX CH4 record (<code class="docutils literal notranslate"><span class="pre">$SLV_USER_DATA_DIR/trax/obs.parquet</span></code>), building it if needed.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="slv.measurements.mobile.network.load_trax_points.html#slv.measurements.mobile.network.load_trax_points" title="slv.measurements.mobile.network.load_trax_points"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_trax_points</span></code></a></p></td>
+<td><p>Points every <code class="docutils literal notranslate"><span class="pre">spacing</span></code> m along the TRAX lines, with the lines they serve.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="slv.measurements.mobile.calibration.load_trax_uncalibrated_windows.html#slv.measurements.mobile.calibration.load_trax_uncalibrated_windows" title="slv.measurements.mobile.calibration.load_trax_uncalibrated_windows"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_trax_uncalibrated_windows</span></code></a></p></td>
+<td><p>Windows where the LGR ran without a valid reference tank but the raw data are good.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="slv.measurements.mobile.location.location_features.html#slv.measurements.mobile.location.location_features" title="slv.measurements.mobile.location.location_features"><code class="xref py py-obj docutils literal notranslate"><span class="pre">location_features</span></code></a></p></td>
+<td><p>Per-<code class="docutils literal notranslate"><span class="pre">freq</span></code> GPS features that the classifier needs (plus power, if available).</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="slv.measurements.mobile.gps.merge_with_gps.html#slv.measurements.mobile.gps.merge_with_gps" title="slv.measurements.mobile.gps.merge_with_gps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">merge_with_gps</span></code></a></p></td>
+<td><p>Attach GPS positions to a mobile site's concentration records.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="slv.measurements.mobile.gps.read_horel_cr1000.html#slv.measurements.mobile.gps.read_horel_cr1000" title="slv.measurements.mobile.gps.read_horel_cr1000"><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_horel_cr1000</span></code></a></p></td>
+<td><p>Horel-group CR1000 logger record (5 s): GPS + battery voltage + roof T/RH.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="slv.measurements.mobile.gps.read_lin_gps.html#slv.measurements.mobile.gps.read_lin_gps" title="slv.measurements.mobile.gps.read_lin_gps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_lin_gps</span></code></a></p></td>
+<td><p>Lin-group (air-trend) GPS at 1 s from the pipeline <code class="docutils literal notranslate"><span class="pre">qaqc</span></code> level, Dec 2014 on.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="slv.measurements.mobile.gps.read_trax_gps.html#slv.measurements.mobile.gps.read_trax_gps" title="slv.measurements.mobile.gps.read_trax_gps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_trax_gps</span></code></a></p></td>
+<td><p>Best GPS source for classifying, by era: lin-group GPS before <code class="xref py py-data docutils literal notranslate"><span class="pre">HOREL_POST_PILOT</span></code>, horel logger (with battery/T/RH) after.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="slv.measurements.mobile.obs.recover_hot_rows.html#slv.measurements.mobile.obs.recover_hot_rows" title="slv.measurements.mobile.obs.recover_hot_rows"><code class="xref py py-obj docutils literal notranslate"><span class="pre">recover_hot_rows</span></code></a></p></td>
+<td><p>Calibrate the rows the pipeline flagged <code class="docutils literal notranslate"><span class="pre">-64</span></code> (cavity T outside 5-45 C) itself.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="slv.measurements.mobile.receptors.release_points.html#slv.measurements.mobile.receptors.release_points" title="slv.measurements.mobile.receptors.release_points"><code class="xref py py-obj docutils literal notranslate"><span class="pre">release_points</span></code></a></p></td>
+<td><p>Index of the segment's points on every line in <code class="docutils literal notranslate"><span class="pre">lines</span></code> (all of them if <code class="docutils literal notranslate"><span class="pre">lines</span></code> is empty).</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="slv.measurements.mobile.calibration.select_uncalibrated.html#slv.measurements.mobile.calibration.select_uncalibrated" title="slv.measurements.mobile.calibration.select_uncalibrated"><code class="xref py py-obj docutils literal notranslate"><span class="pre">select_uncalibrated</span></code></a></p></td>
+<td><p>Rows of a qaqc-level LGR frame that fall inside the uncalibrated windows.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="slv.measurements.mobile.location.state_intervals.html#slv.measurements.mobile.location.state_intervals" title="slv.measurements.mobile.location.state_intervals"><code class="xref py py-obj docutils literal notranslate"><span class="pre">state_intervals</span></code></a></p></td>
+<td><p>Run-length table of a per-minute state series: <code class="docutils literal notranslate"><span class="pre">start</span></code>, <code class="docutils literal notranslate"><span class="pre">end</span></code>, <code class="docutils literal notranslate"><span class="pre">state</span></code>, <code class="docutils literal notranslate"><span class="pre">minutes</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="slv.measurements.mobile.receptor_obs.trax_receptor_observations.html#slv.measurements.mobile.receptor_obs.trax_receptor_observations" title="slv.measurements.mobile.receptor_obs.trax_receptor_observations"><code class="xref py py-obj docutils literal notranslate"><span class="pre">trax_receptor_observations</span></code></a></p></td>
+<td><p>One CH4 observation per STILT receptor, keyed for the inversion.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p class="rubric">Modules</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="slv.measurements.mobile.calibration.html#module-slv.measurements.mobile.calibration" title="slv.measurements.mobile.calibration"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calibration</span></code></a></p></td>
+<td><p>Calibration provenance of the TRAX CH4 record: <code class="docutils literal notranslate"><span class="pre">cal_source</span></code> tags and the windows where the analyzer ran without a reference tank but its raw data are usable.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="slv.measurements.mobile.gps.html#module-slv.measurements.mobile.gps" title="slv.measurements.mobile.gps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">gps</span></code></a></p></td>
+<td><p>GPS records for the mobile platforms and the observation/GPS merge.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="slv.measurements.mobile.location.html#module-slv.measurements.mobile.location" title="slv.measurements.mobile.location"><code class="xref py py-obj docutils literal notranslate"><span class="pre">location</span></code></a></p></td>
+<td><p>Where is the TRAX train, minute by minute: indoor (shed), yard, pass-by, route, stopped?</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="slv.measurements.mobile.network.html#module-slv.measurements.mobile.network" title="slv.measurements.mobile.network"><code class="xref py py-obj docutils literal notranslate"><span class="pre">network</span></code></a></p></td>
+<td><p>The TRAX network and its yards: line geometry, staged points, storage polygons, shed footprints, and the route-buffer filter used by the GPS merge.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="slv.measurements.mobile.obs.html#module-slv.measurements.mobile.obs" title="slv.measurements.mobile.obs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">obs</span></code></a></p></td>
+<td><p>The georeferenced TRAX CH4 observation record: build it from the pipeline levels, tag every row with calibration provenance and location, cache it, and load it with a location filter.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="slv.measurements.mobile.receptor_obs.html#module-slv.measurements.mobile.receptor_obs" title="slv.measurements.mobile.receptor_obs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">receptor_obs</span></code></a></p></td>
+<td><p>TRAX CH4 observations paired one-to-one with the STILT receptors.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="slv.measurements.mobile.receptors.html#module-slv.measurements.mobile.receptors" title="slv.measurements.mobile.receptors"><code class="xref py py-obj docutils literal notranslate"><span class="pre">receptors</span></code></a></p></td>
+<td><p>STILT receptors for the TRAX record: one multipoint receptor per 2-km segment crossing.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="slv.measurements.mobile.transects.html#module-slv.measurements.mobile.transects" title="slv.measurements.mobile.transects"><code class="xref py py-obj docutils literal notranslate"><span class="pre">transects</span></code></a></p></td>
+<td><p>TRAX transect matrices: <code class="docutils literal notranslate"><span class="pre">obs[transect,</span> <span class="pre">point]</span></code> over the 50-m network points.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="slv.measurements.mobile.wyoming.html#module-slv.measurements.mobile.wyoming" title="slv.measurements.mobile.wyoming"><code class="xref py py-obj docutils literal notranslate"><span class="pre">wyoming</span></code></a></p></td>
+<td><p>Wyoming mobile lab: Aeris CH4/C2H6 and vehicle met readers, enhancements and C2/C1 ratios, and a wind-barb map of a drive.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="slv.measurements.instruments.Picarro_G2401.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">slv.measurements.instruments.Picarro_G2401</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="slv.measurements.mobile.calibration.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">slv.measurements.mobile.calibration</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/_autosummary/slv.measurements.mobile.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026, James Mineau.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>
