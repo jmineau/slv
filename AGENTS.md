@@ -240,7 +240,7 @@ Driven by `just` + `uv`; CI runs the same recipes (`just` lists them all).
 | `just type-check` | pyrefly |
 | `just docstr` | docstring coverage of the public API (95%) |
 | `just quality-check` | lint, type check, docstrings, tests |
-| `just build-docs` | clean Sphinx HTML build; warnings are errors (`just docs-serve` previews) |
+| `just build-docs` | clean Sphinx HTML build, running every example; warnings are errors (`just docs-serve` previews) |
 | `just pre-commit` | every pre-commit hook on every file |
 | `just changelog` / `just release X` | draft CHANGELOG entries / tag and push a release |
 | `just clean` | wipe build artifacts, caches, coverage, docs |
@@ -314,6 +314,57 @@ the branch. Never edit gh-pages by hand.
   (2) reinstall editable packages (`uv sync` / `pip install -e`) when you cut a
   version so `importlib.metadata` matches the source — this does not affect the
   cache key but keeps `pip show` and other version consumers honest.
+
+## Examples in the docs
+
+Examples run when the docs build, so they show real output, and the build fails
+when one breaks.
+
+- **A figure in a docstring:** put a `.. plot::` directive in the Examples
+  section. Its code runs (doctest `>>>` lines work), and the figure appears
+  under it.
+
+  ```rst
+  Examples
+  --------
+  .. plot::
+
+     >>> import matplotlib.pyplot as plt
+     >>> _ = plt.plot([0, 1, 2], [0, 1, 4])
+  ```
+
+- **Code in an `.rst` page:** a `.. ipython:: python` block runs, and shows each
+  line with its output, as in an IPython session. Changing a
+  `.. code-block:: python` to `.. ipython:: python` is enough to make it run. For
+  a figure, put `@savefig name.png` on the line above the plotting call.
+
+  ```rst
+  .. ipython:: python
+
+     import matplotlib.pyplot as plt
+     import slv
+
+     slv.__version__
+
+     @savefig squares.png width=5in
+     plt.plot([0, 1, 2], [0, 1, 4]);
+  ```
+
+  A block that raises or warns fails the build; `:okexcept:` or `:okwarning:`
+  under the directive allows one that is meant to. All `.rst` pages share one
+  session, so each page imports and defines what it uses.
+- **When they run:** `just build-docs` runs everything, as CI does;
+  `just docs-serve` reruns a page's blocks whenever that page is rebuilt.
+- **Notebooks, and code cells in Markdown pages,** are off in this project.
+  `copier update --data docs_notebooks=true` turns them on; it adds myst-nb, and
+  Jupyter with it, to the dev tools.
+- **Data:** the docs build on GitHub Actions, so an example uses synthetic data,
+  a small file in the repository, or a public download, never a machine-specific
+  path. Seed random numbers so the figures don't change from build to build.
+- **slv's real data is unpublished**, and the docs are public. An example uses
+  synthetic data and never real SLV results, measurements, or paths into the
+  workspace. xesmf needs conda's ESMF (the pixi environment), which the docs build
+  does not have, so an example never regrids.
 
 ## Conventions and tooling
 
