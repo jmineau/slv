@@ -39,7 +39,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
 
-    <script src="../../../_static/documentation_options.js?v=235023e0"></script>
+    <script src="../../../_static/documentation_options.js?v=056e4d61"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -56,7 +56,7 @@
     <link rel="search" title="Search" href="../../../search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.10.1.dev2+g217b03356" />
+  <meta name="docsearch:version" content="2026.10.1.dev4+g707cbb473" />
   </head>
   
   
@@ -457,6 +457,22 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;SLV_STILT_DIR&quot;</span><span class="p">,</span> <span class="n">DEFAULT_STILT_PROJECT</span><span class="p">))</span></div>
 
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_default_tiler</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">GoogleTiles</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Satellite tiles cached on disk: the default ``InversionConfig.tiler``.</span>
+
+<span class="sd">    cartopy checks that its cache folder is missing and then makes it with a plain</span>
+<span class="sd">    ``mkdir``. When another process makes the folder between the check and the</span>
+<span class="sd">    ``mkdir`` (parallel tests, or sweep jobs on one node that each build a config),</span>
+<span class="sd">    ``GoogleTiles`` raises ``FileExistsError``. The folder exists by then, so a second</span>
+<span class="sd">    attempt finds it and makes nothing.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">GoogleTiles</span><span class="p">(</span><span class="n">style</span><span class="o">=</span><span class="s2">&quot;satellite&quot;</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">FileExistsError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">GoogleTiles</span><span class="p">(</span><span class="n">style</span><span class="o">=</span><span class="s2">&quot;satellite&quot;</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
 
 <span class="c1"># Default MDM component parameters</span>
@@ -875,9 +891,7 @@
 
     <span class="n">output_units</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Gg/m2/s&quot;</span>
 
-    <span class="n">tiler</span><span class="p">:</span> <span class="n">GoogleTiles</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
-        <span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">GoogleTiles</span><span class="p">(</span><span class="n">style</span><span class="o">=</span><span class="s2">&quot;satellite&quot;</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="p">)</span>
+    <span class="n">tiler</span><span class="p">:</span> <span class="n">GoogleTiles</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">_default_tiler</span><span class="p">)</span>
     <span class="n">tiler_zoom</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span>
 
     <span class="nd">@property</span>
