@@ -24,6 +24,7 @@ methods only plot, so any of them also takes data you pass in.
 """
 
 import os
+from typing import Any
 
 import cartopy.crs as ccrs
 import cartopy.feature as cfeature
@@ -445,7 +446,9 @@ class SaltLake:
         """A legend of the layers added so far, in the order they were added."""
         handles = [h for h, _ in self._legend]
         labels = [label for _, label in self._legend]
-        style = {
+        # Keyword arguments of mixed types. Left to inference, the dict's values are one
+        # union, and matplotlib 3.11's stubs check that whole union against `loc`.
+        style: dict[str, Any] = {
             "loc": loc,
             "handlelength": 2.5,
             "handleheight": 2,
