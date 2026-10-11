@@ -11,6 +11,7 @@ import xarray as xr
 from cartopy.io.img_tiles import GoogleTiles
 from lair.geo import write_rio_crs
 
+from slv.basemap import cached_tiler
 from slv.domain import UTC_OFFSET, XMAX, XMIN, YMAX, YMIN
 from slv.measurements.sites import load_site_config
 
@@ -48,16 +49,11 @@ def _default_tiler() -> GoogleTiles:
     """
     Satellite tiles cached on disk: the default ``InversionConfig.tiler``.
 
-    cartopy checks that its cache folder is missing and then makes it with a plain
-    ``mkdir``. When another process makes the folder between the check and the
-    ``mkdir`` (parallel tests, or sweep jobs on one node that each build a config),
-    ``GoogleTiles`` raises ``FileExistsError``. The folder exists by then, so a second
-    attempt finds it and makes nothing.
+    Built by :func:`slv.basemap.cached_tiler`, so that parallel tests, or sweep jobs
+    on one node that each build a config, do not fail in a race for cartopy's cache
+    folder.
     """
-    try:
-        return GoogleTiles(style="satellite", cache=True)
-    except FileExistsError:
-        return GoogleTiles(style="satellite", cache=True)
+    return cached_tiler(GoogleTiles, style="satellite")
 
 
 # Default MDM component parameters
