@@ -38,7 +38,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
 
-    <script src="../../../_static/documentation_options.js?v=d3104dd1"></script>
+    <script src="../../../_static/documentation_options.js?v=28f1fa90"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -56,7 +56,7 @@
     <link rel="search" title="Search" href="../../../search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.10.1.dev5+g36cae876c" />
+  <meta name="docsearch:version" content="2026.10.1.dev6+g1a2265a92" />
   
     
     <script src="../../../_static/searchtools.js"></script>
@@ -441,6 +441,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">cartopy.io.img_tiles</span><span class="w"> </span><span class="kn">import</span> <span class="n">GoogleTiles</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">lair.geo</span><span class="w"> </span><span class="kn">import</span> <span class="n">write_rio_crs</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">slv.basemap</span><span class="w"> </span><span class="kn">import</span> <span class="n">cached_tiler</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">slv.domain</span><span class="w"> </span><span class="kn">import</span> <span class="n">UTC_OFFSET</span><span class="p">,</span> <span class="n">XMAX</span><span class="p">,</span> <span class="n">XMIN</span><span class="p">,</span> <span class="n">YMAX</span><span class="p">,</span> <span class="n">YMIN</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">slv.measurements.sites</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_site_config</span>
 
@@ -481,16 +482,11 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Satellite tiles cached on disk: the default ``InversionConfig.tiler``.</span>
 
-<span class="sd">    cartopy checks that its cache folder is missing and then makes it with a plain</span>
-<span class="sd">    ``mkdir``. When another process makes the folder between the check and the</span>
-<span class="sd">    ``mkdir`` (parallel tests, or sweep jobs on one node that each build a config),</span>
-<span class="sd">    ``GoogleTiles`` raises ``FileExistsError``. The folder exists by then, so a second</span>
-<span class="sd">    attempt finds it and makes nothing.</span>
+<span class="sd">    Built by :func:`slv.basemap.cached_tiler`, so that parallel tests, or sweep jobs</span>
+<span class="sd">    on one node that each build a config, do not fail in a race for cartopy&#39;s cache</span>
+<span class="sd">    folder.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">GoogleTiles</span><span class="p">(</span><span class="n">style</span><span class="o">=</span><span class="s2">&quot;satellite&quot;</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="k">except</span> <span class="ne">FileExistsError</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">GoogleTiles</span><span class="p">(</span><span class="n">style</span><span class="o">=</span><span class="s2">&quot;satellite&quot;</span><span class="p">,</span> <span class="n">cache</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">cached_tiler</span><span class="p">(</span><span class="n">GoogleTiles</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;satellite&quot;</span><span class="p">)</span>
 
 
 <span class="c1"># Default MDM component parameters</span>

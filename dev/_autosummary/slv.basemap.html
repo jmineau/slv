@@ -39,7 +39,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
 
-    <script src="../_static/documentation_options.js?v=d3104dd1"></script>
+    <script src="../_static/documentation_options.js?v=28f1fa90"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -59,7 +59,7 @@
     <link rel="prev" title="slv.get_data_dir" href="slv.get_data_dir.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.10.1.dev5+g36cae876c" />
+  <meta name="docsearch:version" content="2026.10.1.dev6+g1a2265a92" />
   
     
     <script src="../_static/searchtools.js"></script>
@@ -393,6 +393,7 @@
 <li class="toctree-l2 current active has-children"><a aria-current="page" class="current reference internal" href="#">slv.basemap</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="slv.basemap.TRAX_COLORS.html">slv.basemap.TRAX_COLORS</a></li>
 <li class="toctree-l3"><a class="reference internal" href="slv.basemap.STADIA_ATTRIBUTION.html">slv.basemap.STADIA_ATTRIBUTION</a></li>
+<li class="toctree-l3"><a class="reference internal" href="slv.basemap.cached_tiler.html">slv.basemap.cached_tiler</a></li>
 <li class="toctree-l3"><a class="reference internal" href="slv.basemap.load_borders.html">slv.basemap.load_borders</a></li>
 <li class="toctree-l3"><a class="reference internal" href="slv.basemap.load_interstates.html">slv.basemap.load_interstates</a></li>
 <li class="toctree-l3"><a class="reference internal" href="slv.basemap.load_mesowest.html">slv.basemap.load_mesowest</a></li>
@@ -692,19 +693,22 @@ methods only plot, so any of them also takes data you pass in.</p>
 <p class="rubric">Functions</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="slv.basemap.load_borders.html#slv.basemap.load_borders" title="slv.basemap.load_borders"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_borders</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="slv.basemap.cached_tiler.html#slv.basemap.cached_tiler" title="slv.basemap.cached_tiler"><code class="xref py py-obj docutils literal notranslate"><span class="pre">cached_tiler</span></code></a></p></td>
+<td><p>A cartopy tiler that caches its tiles on disk, safe to build in several processes at the same moment.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="slv.basemap.load_borders.html#slv.basemap.load_borders" title="slv.basemap.load_borders"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_borders</span></code></a></p></td>
 <td><p>2022 Census state or county boundaries from <code class="docutils literal notranslate"><span class="pre">$SLV_SPATIAL_DIR/administrative</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="slv.basemap.load_interstates.html#slv.basemap.load_interstates" title="slv.basemap.load_interstates"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_interstates</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="slv.basemap.load_interstates.html#slv.basemap.load_interstates" title="slv.basemap.load_interstates"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_interstates</span></code></a></p></td>
 <td><p>Interstates (UGRC road <code class="docutils literal notranslate"><span class="pre">CARTOCODE</span></code> &quot;1&quot;) from <code class="docutils literal notranslate"><span class="pre">$SLV_SPATIAL_DIR/transportation/roads</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="slv.basemap.load_mesowest.html#slv.basemap.load_mesowest" title="slv.basemap.load_mesowest"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_mesowest</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="slv.basemap.load_mesowest.html#slv.basemap.load_mesowest" title="slv.basemap.load_mesowest"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_mesowest</span></code></a></p></td>
 <td><p>MesoWest stations (<code class="docutils literal notranslate"><span class="pre">$SLV_USER_DATA_DIR/mesowest</span></code>), optionally filtered by <code class="docutils literal notranslate"><span class="pre">Status</span></code> and <code class="docutils literal notranslate"><span class="pre">Mesonet</span></code>; <code class="docutils literal notranslate"><span class="pre">None</span></code> keeps all.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="slv.basemap.load_population.html#slv.basemap.load_population" title="slv.basemap.load_population"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_population</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="slv.basemap.load_population.html#slv.basemap.load_population" title="slv.basemap.load_population"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_population</span></code></a></p></td>
 <td><p>Block-group population and density (people km⁻², over land area).</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="slv.basemap.stadia_tiles.html#slv.basemap.stadia_tiles" title="slv.basemap.stadia_tiles"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stadia_tiles</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="slv.basemap.stadia_tiles.html#slv.basemap.stadia_tiles" title="slv.basemap.stadia_tiles"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stadia_tiles</span></code></a></p></td>
 <td><p>A Stadia Maps tiler (<code class="docutils literal notranslate"><span class="pre">$STADIA_API_KEY</span></code>), cached on disk by cartopy.</p></td>
 </tr>
 </tbody>

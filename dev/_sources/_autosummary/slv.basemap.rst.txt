@@ -22,6 +22,7 @@ slv.basemap
    :toctree:
    :nosignatures:
 
+   cached_tiler
    load_borders
    load_interstates
    load_mesowest
