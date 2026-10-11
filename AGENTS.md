@@ -40,8 +40,9 @@ src/slv/
                      inventory, legend, inset, north_arrow). Data via load_* functions
                      ($SLV_SPATIAL_DIR group data; $SLV_USER_DATA_DIR census ACS 2022 +
                      mesowest/); tiles="terrain" = Stadia stamen_terrain ($STADIA_API_KEY,
-                     network when drawn; attribution added). Tests: tests/test_basemap.py,
-                     synthetic data, no network.
+                     network when drawn; attribution added). cached_tiler builds any
+                     cartopy tiler with a disk cache (see Gotchas). Tests:
+                     tests/test_basemap.py, synthetic data, no network.
                      (tiler, inventory, borders, TRAX, sites, ...)
   measurements/
     __init__.py      re-exports aggregate_obs, load_concentrations,
@@ -384,8 +385,11 @@ results = run_sweep_job(sweep)
 - cartopy's cached tilers (`GoogleTiles(cache=True)`) make their cache folder with a
   plain `mkdir` when they are built, so when two processes build one at the same
   moment (test workers, sweep jobs on one node) one of them raises `FileExistsError`.
-  `InversionConfig`'s default `tiler` is built by `config._default_tiler`, which tries
-  a second time: the folder exists by then.
+  Build a cached tiler with `basemap.cached_tiler(GoogleTiles, style=...)`, never with
+  `cache=True`: it tries a second time, and the folder exists by then. `stadia_tiles`
+  and `InversionConfig`'s default `tiler` (`config._default_tiler`) both use it. It is
+  in `slv.basemap`, which the base install has and which imports nothing from
+  `slv.inversion`.
 - Never change a config field's default spelling (e.g. `"32d"`) or a
   `COMPONENT_DEPS` set casually: both are hashed into cache keys (a forward_operator
   key change means a full Jacobian rebuild) and sweep config_ids. Normalize at the

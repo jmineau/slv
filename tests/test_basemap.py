@@ -4,11 +4,15 @@ import matplotlib
 
 matplotlib.use("Agg")
 
+from pathlib import Path
+
+import cartopy
 import geopandas as gpd
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import pytest
+from cartopy.io.img_tiles import StadiaMapsTiles
 from cartopy.mpl.geoaxes import GeoAxes
 from matplotlib.lines import Line2D
 from shapely.geometry import LineString, box
@@ -98,6 +102,35 @@ def test_stadia_tiles_need_a_key(monkeypatch):
     monkeypatch.delenv("STADIA_API_KEY", raising=False)
     with pytest.raises(OSError, match="STADIA_API_KEY"):
         SaltLake(tiles="terrain")
+
+
+def test_stadia_tiles_survive_a_race_for_the_cache_folder(tmp_path, monkeypatch):
+    """
+    Another process makes cartopy's tile cache folder between cartopy's check for it
+    and its own ``mkdir``: several jobs on one node, each drawing its first terrain
+    map. Building the tiler fetches nothing, so the key need not be a real one.
+    """
+    cache_dir = tmp_path / "cartopy_cache"
+    monkeypatch.setitem(cartopy.config, "cache_dir", cache_dir)
+    monkeypatch.setenv("STADIA_API_KEY", "not-a-key")
+    real_mkdir = Path.mkdir
+    raced = []
+
+    def mkdir_after_the_other_process(self, *args, **kwargs):
+        if not raced:
+            raced.append(self)
+            real_mkdir(self, parents=True, exist_ok=True)  # the other process wins
+        return real_mkdir(self, *args, **kwargs)
+
+    monkeypatch.setattr(Path, "mkdir", mkdir_after_the_other_process)
+
+    tiler = basemap.stadia_tiles()
+
+    # The folder cartopy lost the race for was its tile cache, so the race was run.
+    assert raced and raced[0].is_relative_to(cache_dir)
+    assert isinstance(tiler, StadiaMapsTiles)
+    assert tiler.cache_path == cache_dir
+    assert (tiler.apikey, tiler.style) == ("not-a-key", "stamen_terrain")
 
 
 # ----- layers (synthetic data) -----

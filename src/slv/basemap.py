@@ -24,7 +24,7 @@ methods only plot, so any of them also takes data you pass in.
 """
 
 import os
-from typing import Any
+from typing import Any, TypeVar
 
 import cartopy.crs as ccrs
 import cartopy.feature as cfeature
@@ -46,6 +46,8 @@ from slv import get_data_dir
 from slv.domain import MAP_BBOX
 
 PC = ccrs.PlateCarree()
+
+_Tiler = TypeVar("_Tiler", bound=cimgt.GoogleWTS)
 
 #: Colour of each TRAX line, keyed by its ``line`` letter in UTA_TRAX.geojson.
 TRAX_COLORS = {"R": "red", "G": "green", "B": "blue", "S": "gray"}
@@ -125,6 +127,40 @@ def load_borders(level="county", bbox=MAP_BBOX) -> gpd.GeoDataFrame:
     return gpd.read_file(shp, bbox=bbox).to_crs("EPSG:4326")
 
 
+def cached_tiler(tiles: type[_Tiler], **kwargs) -> _Tiler:
+    """
+    A cartopy tiler that caches its tiles on disk, safe to build in several processes
+    at the same moment.
+
+    The tiler is ``tiles(cache=True, **kwargs)``. cartopy checks that the tiler's cache
+    folder is missing and then makes it with a plain ``mkdir``. When another process
+    makes the folder between the check and the ``mkdir`` (parallel tests, or jobs on
+    one node that each draw their first map), the tiler raises ``FileExistsError``.
+    The folder exists by then, so a second attempt finds it and makes nothing.
+
+    Parameters
+    ----------
+    tiles : type
+        The tiler class, e.g. ``cartopy.io.img_tiles.GoogleTiles``.
+    **kwargs
+        Passed to ``tiles``, e.g. ``style="satellite"``.
+
+    Returns
+    -------
+    cartopy.io.img_tiles.GoogleWTS
+        The tiler, an instance of ``tiles``.
+
+    Examples
+    --------
+    >>> from cartopy.io.img_tiles import GoogleTiles
+    >>> tiler = cached_tiler(GoogleTiles, style="satellite")
+    """
+    try:
+        return tiles(cache=True, **kwargs)
+    except FileExistsError:
+        return tiles(cache=True, **kwargs)
+
+
 def stadia_tiles(style="stamen_terrain") -> cimgt.StadiaMapsTiles:
     """
     A Stadia Maps tiler (``$STADIA_API_KEY``), cached on disk by cartopy.
@@ -135,7 +171,7 @@ def stadia_tiles(style="stamen_terrain") -> cimgt.StadiaMapsTiles:
     key = os.environ.get("STADIA_API_KEY")
     if not key:
         raise OSError("Set $STADIA_API_KEY to use Stadia Maps tiles.")
-    return cimgt.StadiaMapsTiles(apikey=key, style=style, cache=True)
+    return cached_tiler(cimgt.StadiaMapsTiles, apikey=key, style=style)
 
 
 # ----- legend -----

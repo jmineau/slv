@@ -6,6 +6,12 @@ versions are calendar-based (YYYY.M.PATCH).
 
 ## [Unreleased]
 
+### Added
+
+- `slv.basemap.cached_tiler` builds a cartopy tiler that caches its tiles on disk and
+  can be built by several processes at the same moment. Use it for a tiler of your
+  own (`cached_tiler(GoogleTiles, style="street")`) in place of `cache=True`
+
 ### Changed
 
 - The environment with `xesmf` is built by [pixi](https://pixi.sh) from `pyproject.toml`
@@ -21,6 +27,10 @@ versions are calendar-based (YYYY.M.PATCH).
   process builds one at the same moment (parallel tests, sweep jobs on one node).
   cartopy makes the cache folder of the default `tiler` with a plain `mkdir`, and the
   process that lost the race for it raised (#21)
+- `SaltLake(tiles="terrain")` and `stadia_tiles` no longer fail with `FileExistsError`
+  when several processes draw their first terrain map at the same moment: the same
+  race, for the Stadia tiler's cache folder. Both tilers are now built by
+  `cached_tiler` (#22)
 
 ## [2026.10.0] - 2026-10-09
 
