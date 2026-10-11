@@ -15,6 +15,13 @@ versions are calendar-based (YYYY.M.PATCH).
   release does (`fips-v0.1.0b9_pystilt-v0.1.0a24`): the installed version gets the tag's
   `v`. A cache made from a released install before this is in the folder without it
 
+### Fixed
+
+- Building an `InversionConfig` no longer fails with `FileExistsError` when another
+  process builds one at the same moment (parallel tests, sweep jobs on one node).
+  cartopy makes the cache folder of the default `tiler` with a plain `mkdir`, and the
+  process that lost the race for it raised (#21)
+
 ## [2026.10.0] - 2026-10-09
 
 ### Added

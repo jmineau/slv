@@ -381,6 +381,11 @@ results = run_sweep_job(sweep)
   memoizes `_build_prior` per pipeline; `_multiplicative_scale` reuses both.
 - `InversionConfig.__post_init__` validates flux_freq / bias_grouping / background /
   prior / mdm_config / domain; setting any field drops the cached derived values.
+- cartopy's cached tilers (`GoogleTiles(cache=True)`) make their cache folder with a
+  plain `mkdir` when they are built, so when two processes build one at the same
+  moment (test workers, sweep jobs on one node) one of them raises `FileExistsError`.
+  `InversionConfig`'s default `tiler` is built by `config._default_tiler`, which tries
+  a second time: the folder exists by then.
 - Never change a config field's default spelling (e.g. `"32d"`) or a
   `COMPONENT_DEPS` set casually: both are hashed into cache keys (a forward_operator
   key change means a full Jacobian rebuild) and sweep config_ids. Normalize at the

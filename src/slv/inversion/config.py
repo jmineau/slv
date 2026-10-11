@@ -44,6 +44,22 @@ def stilt_project_dir() -> Path:
     return Path(os.environ.get("SLV_STILT_DIR", DEFAULT_STILT_PROJECT))
 
 
+def _default_tiler() -> GoogleTiles:
+    """
+    Satellite tiles cached on disk: the default ``InversionConfig.tiler``.
+
+    cartopy checks that its cache folder is missing and then makes it with a plain
+    ``mkdir``. When another process makes the folder between the check and the
+    ``mkdir`` (parallel tests, or sweep jobs on one node that each build a config),
+    ``GoogleTiles`` raises ``FileExistsError``. The folder exists by then, so a second
+    attempt finds it and makes nothing.
+    """
+    try:
+        return GoogleTiles(style="satellite", cache=True)
+    except FileExistsError:
+        return GoogleTiles(style="satellite", cache=True)
+
+
 # Default MDM component parameters
 # Notes:
 # - `std`: absolute standard deviation in ppm (can be float or dict[site][season])
@@ -449,9 +465,7 @@ class InversionConfig:
 
     output_units: str = "Gg/m2/s"
 
-    tiler: GoogleTiles = field(
-        default_factory=lambda: GoogleTiles(style="satellite", cache=True)
-    )
+    tiler: GoogleTiles = field(default_factory=_default_tiler)
     tiler_zoom: int = 10
 
     @property

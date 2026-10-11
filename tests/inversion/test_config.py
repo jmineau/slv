@@ -1,8 +1,12 @@
 """Tests for InversionConfig and MDM component configuration."""
 
+from pathlib import Path
+
+import cartopy
 import numpy as np
 import pandas as pd
 import pytest
+from cartopy.io.img_tiles import GoogleTiles
 
 from slv.inversion.config import (
     DEFAULT_MDM_CONFIG,
@@ -91,6 +95,33 @@ class TestInversionConfigDefaults:
     def test_bias_std_is_none_by_default(self):
         config = InversionConfig()
         assert config.bias_std is None
+
+
+def test_default_tiler_survives_a_race_for_the_cache_folder(tmp_path, monkeypatch):
+    """
+    Another process makes cartopy's tile cache folder between cartopy's check for it
+    and its own ``mkdir``: two test workers, or two sweep jobs on one node, each
+    building a config.
+    """
+    cache_dir = tmp_path / "cartopy_cache"
+    monkeypatch.setitem(cartopy.config, "cache_dir", cache_dir)
+    real_mkdir = Path.mkdir
+    raced = []
+
+    def mkdir_after_the_other_process(self, *args, **kwargs):
+        if not raced:
+            raced.append(self)
+            real_mkdir(self, parents=True, exist_ok=True)  # the other process wins
+        return real_mkdir(self, *args, **kwargs)
+
+    monkeypatch.setattr(Path, "mkdir", mkdir_after_the_other_process)
+
+    config = InversionConfig()
+
+    # The folder cartopy lost the race for was its tile cache, so the race was run.
+    assert raced and raced[0].is_relative_to(cache_dir)
+    assert isinstance(config.tiler, GoogleTiles)
+    assert config.tiler.cache_path == cache_dir
 
 
 # ---------------------------------------------------------------------------
