@@ -39,7 +39,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
 
-    <script src="../../../../_static/documentation_options.js?v=0901d279"></script>
+    <script src="../../../../_static/documentation_options.js?v=66d44c71"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -57,7 +57,7 @@
     <link rel="search" title="Search" href="../../../../search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.10.1.dev7+ga897d2c23" />
+  <meta name="docsearch:version" content="2026.10.1.dev9+g16e84c9a4" />
   
     
     <script src="../../../../_static/searchtools.js"></script>
@@ -537,7 +537,8 @@
 
 
 <span class="c1">#: Cavity-pressure band (torr) inside which manual-cal rows flagged −63 (pressure outside the</span>
-<span class="c1">#: pipeline&#39;s 135–145 window) are kept and tagged ``low_pressure``. LGR 13-0221 ran at 131–134 torr</span>
+<span class="c1">#: pipeline&#39;s 135–145 window) are kept. Manual-cal rows inside it and outside 135–145 torr are</span>
+<span class="c1">#: tagged ``low_pressure``, whatever their flag (:func:`apply_low_pressure_rule`). LGR 13-0221 ran at 131–134 torr</span>
 <span class="c1">#: in Jan–Mar 2025 and 102–110 torr from Jul 2026 with CH4 within 0.02 ppm of its normal-pressure</span>
 <span class="c1">#: behaviour (measurements/trax/record/outputs/pressure_flag_check.md); the 5–30 torr pressure</span>
 <span class="c1">#: collapses of 2016/2017/2019 stay excluded.</span>
@@ -793,22 +794,28 @@
     <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">band</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">LOW_PRESSURE_BAND</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Keep rows flagged −63 whose ``Cavity_P_torr`` lies inside ``band`` and tag them.</span>
+<span class="sd">    Keep rows flagged −63 whose ``Cavity_P_torr`` lies inside ``band``, and tag every row</span>
+<span class="sd">    whose cavity pressure is low.</span>
 
 <span class="sd">    ``df`` must carry ``CH4`` (already validated with −63 among the accepted flags),</span>
 <span class="sd">    ``QAQC_Flag`` and ``Cavity_P_torr``. Rows flagged −63 outside the band (or with no</span>
-<span class="sd">    pressure) get ``CH4 = NaN``; every row gets a boolean ``low_pressure`` column</span>
-<span class="sd">    (True for the kept −63 rows). ``band=None`` drops all −63 rows.</span>
+<span class="sd">    pressure) get ``CH4 = NaN``. Every row gets a boolean ``low_pressure`` column, True</span>
+<span class="sd">    where the pressure is inside ``band`` and the row is flagged −63 or its pressure is</span>
+<span class="sd">    outside :data:`PRESSURE_BAND`, whatever its flag: the pipeline writes −64 (hot</span>
+<span class="sd">    cavity) over −63, and −64 is an accepted flag, so a low-pressure row on a hot</span>
+<span class="sd">    afternoon is kept with no −63 to show for it. ``band=None`` drops all −63 rows and</span>
+<span class="sd">    tags none.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">out</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
     <span class="n">is63</span> <span class="o">=</span> <span class="n">out</span><span class="p">[</span><span class="s2">&quot;QAQC_Flag&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="o">-</span><span class="mi">63</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">out</span><span class="p">[</span><span class="s2">&quot;Cavity_P_torr&quot;</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">band</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">inside</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">out</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">p</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">out</span><span class="p">[</span><span class="s2">&quot;Cavity_P_torr&quot;</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">)</span>
         <span class="n">inside</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">between</span><span class="p">(</span><span class="n">band</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">band</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">off_normal</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">notna</span><span class="p">()</span> <span class="o">&amp;</span> <span class="o">~</span><span class="n">p</span><span class="o">.</span><span class="n">between</span><span class="p">(</span><span class="n">PRESSURE_BAND</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">PRESSURE_BAND</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
     <span class="n">out</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">is63</span> <span class="o">&amp;</span> <span class="o">~</span><span class="n">inside</span><span class="p">,</span> <span class="s2">&quot;CH4&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
-    <span class="n">out</span><span class="p">[</span><span class="s2">&quot;low_pressure&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">is63</span> <span class="o">&amp;</span> <span class="n">inside</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+    <span class="n">out</span><span class="p">[</span><span class="s2">&quot;low_pressure&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">inside</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">is63</span> <span class="o">|</span> <span class="n">off_normal</span><span class="p">))</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">out</span></div>
 
 
@@ -989,9 +996,10 @@
 <span class="sd">    ``lgr_ugga`` qaqc inside the uncalibrated windows (default: the packaged table) →</span>
 <span class="sd">    ``uncalibrated``. QC via :func:`normalize_pollutant` (flags {0,1,2,-64,-140}, ID −10,</span>
 <span class="sd">    valid range). Manual-cal rows flagged −63 (cavity pressure outside 135–145 torr) are kept</span>
-<span class="sd">    when the pressure is inside ``low_pressure`` (default :data:`LOW_PRESSURE_BAND`) and</span>
-<span class="sd">    tagged ``low_pressure=True`` (:func:`apply_low_pressure_rule`); ``low_pressure=None``</span>
-<span class="sd">    drops them. Pipeline-calibrated rows whose slope deviates more than ``slope_tol`` from the</span>
+<span class="sd">    when the pressure is inside ``low_pressure`` (default :data:`LOW_PRESSURE_BAND`), and</span>
+<span class="sd">    every manual-cal row whose measured pressure is inside that band and outside 135–145 torr is</span>
+<span class="sd">    tagged ``low_pressure=True``, whatever its flag (:func:`apply_low_pressure_rule`);</span>
+<span class="sd">    ``low_pressure=None`` drops the −63 rows and tags none. Pipeline-calibrated rows whose slope deviates more than ``slope_tol`` from the</span>
 <span class="sd">    day&#39;s median slope are dropped (:func:`apply_slope_guard`; one bad reference period</span>
 <span class="sd">    otherwise miscalibrates the next hour by 20–100 %). Then merged with *every* GPS fix by :func:`merge_with_gps` (no route buffer,</span>
 <span class="sd">    no storage-yard removal) and, with ``classify``, labelled per minute by</span>
@@ -1080,7 +1088,7 @@
 <span class="sd">    route / line / stopped, ``&quot;outdoor&quot;`` also keeps yard-parked minutes, ``&quot;all&quot;`` keeps</span>
 <span class="sd">    everything (indoor shed air and untrusted positions included); the ``state``,</span>
 <span class="sd">    ``indoor`` and ``yard_name`` columns are always present. ``include_low_pressure=False``</span>
-<span class="sd">    drops the manual-cal rows kept under the low-cavity-pressure rule (``low_pressure`` column,</span>
+<span class="sd">    drops the manual-cal rows measured at low cavity pressure (``low_pressure`` column,</span>
 <span class="sd">    see :func:`build_trax_obs`). ``time_range=(start, end)`` reads only ``start &lt;= Time_UTC &lt;</span>
 <span class="sd">    end`` from the cache (a parquet row-group filter: the file is time-ordered, so one year</span>
 <span class="sd">    of the 92 M rows costs a few seconds and a few GB rather than the whole record).</span>

@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
 
-    <script src="../_static/documentation_options.js?v=0901d279"></script>
+    <script src="../_static/documentation_options.js?v=66d44c71"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -60,7 +60,7 @@
     <link rel="prev" title="slv.measurements.mobile.obs.apply_dropout_rule" href="slv.measurements.mobile.obs.apply_dropout_rule.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.10.1.dev7+ga897d2c23" />
+  <meta name="docsearch:version" content="2026.10.1.dev9+g16e84c9a4" />
   
     
     <script src="../_static/searchtools.js"></script>
@@ -670,11 +670,16 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="slv.measurements.mobile.obs.apply_low_pressure_rule">
 <span class="sig-prename descclassname"><span class="pre">slv.measurements.mobile.obs.</span></span><span class="sig-name descname"><span class="pre">apply_low_pressure_rule</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">band</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(100.0,</span> <span class="pre">145.0)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/slv/measurements/mobile/obs.html#apply_low_pressure_rule"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#slv.measurements.mobile.obs.apply_low_pressure_rule" title="Link to this definition">#</a></dt>
-<dd><p>Keep rows flagged −63 whose <code class="docutils literal notranslate"><span class="pre">Cavity_P_torr</span></code> lies inside <code class="docutils literal notranslate"><span class="pre">band</span></code> and tag them.</p>
+<dd><p>Keep rows flagged −63 whose <code class="docutils literal notranslate"><span class="pre">Cavity_P_torr</span></code> lies inside <code class="docutils literal notranslate"><span class="pre">band</span></code>, and tag every row
+whose cavity pressure is low.</p>
 <p><code class="docutils literal notranslate"><span class="pre">df</span></code> must carry <code class="docutils literal notranslate"><span class="pre">CH4</span></code> (already validated with −63 among the accepted flags),
 <code class="docutils literal notranslate"><span class="pre">QAQC_Flag</span></code> and <code class="docutils literal notranslate"><span class="pre">Cavity_P_torr</span></code>. Rows flagged −63 outside the band (or with no
-pressure) get <code class="docutils literal notranslate"><span class="pre">CH4</span> <span class="pre">=</span> <span class="pre">NaN</span></code>; every row gets a boolean <code class="docutils literal notranslate"><span class="pre">low_pressure</span></code> column
-(True for the kept −63 rows). <code class="docutils literal notranslate"><span class="pre">band=None</span></code> drops all −63 rows.</p>
+pressure) get <code class="docutils literal notranslate"><span class="pre">CH4</span> <span class="pre">=</span> <span class="pre">NaN</span></code>. Every row gets a boolean <code class="docutils literal notranslate"><span class="pre">low_pressure</span></code> column, True
+where the pressure is inside <code class="docutils literal notranslate"><span class="pre">band</span></code> and the row is flagged −63 or its pressure is
+outside <a class="reference internal" href="slv.measurements.mobile.obs.PRESSURE_BAND.html#slv.measurements.mobile.obs.PRESSURE_BAND" title="slv.measurements.mobile.obs.PRESSURE_BAND"><code class="xref py py-data docutils literal notranslate"><span class="pre">PRESSURE_BAND</span></code></a>, whatever its flag: the pipeline writes −64 (hot
+cavity) over −63, and −64 is an accepted flag, so a low-pressure row on a hot
+afternoon is kept with no −63 to show for it. <code class="docutils literal notranslate"><span class="pre">band=None</span></code> drops all −63 rows and
+tags none.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.6)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a></span></p>

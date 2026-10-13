@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
 
-    <script src="../_static/documentation_options.js?v=0901d279"></script>
+    <script src="../_static/documentation_options.js?v=66d44c71"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -60,7 +60,7 @@
     <link rel="prev" title="slv.measurements.mobile.obs.LOCATION_SETS" href="slv.measurements.mobile.obs.LOCATION_SETS.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.10.1.dev7+ga897d2c23" />
+  <meta name="docsearch:version" content="2026.10.1.dev9+g16e84c9a4" />
   
     
     <script src="../_static/searchtools.js"></script>
@@ -671,7 +671,8 @@
 <dt class="sig sig-object py" id="slv.measurements.mobile.obs.LOW_PRESSURE_BAND">
 <span class="sig-prename descclassname"><span class="pre">slv.measurements.mobile.obs.</span></span><span class="sig-name descname"><span class="pre">LOW_PRESSURE_BAND</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)"><span class="pre">tuple</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><span class="pre">float</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><span class="pre">float</span></a><span class="p"><span class="pre">]</span></span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(100.0,</span> <span class="pre">145.0)</span></span><a class="headerlink" href="#slv.measurements.mobile.obs.LOW_PRESSURE_BAND" title="Link to this definition">#</a></dt>
 <dd><p>Cavity-pressure band (torr) inside which manual-cal rows flagged −63 (pressure outside the
-pipeline’s 135–145 window) are kept and tagged <code class="docutils literal notranslate"><span class="pre">low_pressure</span></code>. LGR 13-0221 ran at 131–134 torr
+pipeline’s 135–145 window) are kept. Manual-cal rows inside it and outside 135–145 torr are
+tagged <code class="docutils literal notranslate"><span class="pre">low_pressure</span></code>, whatever their flag (<a class="reference internal" href="slv.measurements.mobile.obs.apply_low_pressure_rule.html#slv.measurements.mobile.obs.apply_low_pressure_rule" title="slv.measurements.mobile.obs.apply_low_pressure_rule"><code class="xref py py-func docutils literal notranslate"><span class="pre">apply_low_pressure_rule()</span></code></a>). LGR 13-0221 ran at 131–134 torr
 in Jan–Mar 2025 and 102–110 torr from Jul 2026 with CH4 within 0.02 ppm of its normal-pressure
 behaviour (measurements/trax/record/outputs/pressure_flag_check.md); the 5–30 torr pressure
 collapses of 2016/2017/2019 stay excluded.</p>

@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
 
-    <script src="../_static/documentation_options.js?v=0901d279"></script>
+    <script src="../_static/documentation_options.js?v=66d44c71"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -60,7 +60,7 @@
     <link rel="prev" title="slv.measurements.mobile.network.user_dir" href="slv.measurements.mobile.network.user_dir.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.10.1.dev7+ga897d2c23" />
+  <meta name="docsearch:version" content="2026.10.1.dev9+g16e84c9a4" />
   
     
     <script src="../_static/searchtools.js"></script>
@@ -674,7 +674,7 @@ location filter.</p>
 <td><p>Named sets of location states kept by <a class="reference internal" href="slv.measurements.mobile.obs.load_trax_obs.html#slv.measurements.mobile.obs.load_trax_obs" title="slv.measurements.mobile.obs.load_trax_obs"><code class="xref py py-func docutils literal notranslate"><span class="pre">load_trax_obs()</span></code></a>.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="slv.measurements.mobile.obs.LOW_PRESSURE_BAND.html#slv.measurements.mobile.obs.LOW_PRESSURE_BAND" title="slv.measurements.mobile.obs.LOW_PRESSURE_BAND"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LOW_PRESSURE_BAND</span></code></a></p></td>
-<td><p>Cavity-pressure band (torr) inside which manual-cal rows flagged −63 (pressure outside the pipeline's 135–145 window) are kept and tagged <code class="docutils literal notranslate"><span class="pre">low_pressure</span></code>.</p></td>
+<td><p>Cavity-pressure band (torr) inside which manual-cal rows flagged −63 (pressure outside the pipeline's 135–145 window) are kept.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="slv.measurements.mobile.obs.PRESSURE_BAND.html#slv.measurements.mobile.obs.PRESSURE_BAND" title="slv.measurements.mobile.obs.PRESSURE_BAND"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PRESSURE_BAND</span></code></a></p></td>
 <td><p>Cavity-pressure band (torr) the LGR is specified for; the pipeline's own <code class="docutils literal notranslate"><span class="pre">-63</span></code> flag uses the same bounds.</p></td>
@@ -698,7 +698,7 @@ location filter.</p>
 <td><p>Drop rows within <code class="docutils literal notranslate"><span class="pre">window_min</span></code> minutes of a CH4 laser dropout.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="slv.measurements.mobile.obs.apply_low_pressure_rule.html#slv.measurements.mobile.obs.apply_low_pressure_rule" title="slv.measurements.mobile.obs.apply_low_pressure_rule"><code class="xref py py-obj docutils literal notranslate"><span class="pre">apply_low_pressure_rule</span></code></a></p></td>
-<td><p>Keep rows flagged −63 whose <code class="docutils literal notranslate"><span class="pre">Cavity_P_torr</span></code> lies inside <code class="docutils literal notranslate"><span class="pre">band</span></code> and tag them.</p></td>
+<td><p>Keep rows flagged −63 whose <code class="docutils literal notranslate"><span class="pre">Cavity_P_torr</span></code> lies inside <code class="docutils literal notranslate"><span class="pre">band</span></code>, and tag every row whose cavity pressure is low.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="slv.measurements.mobile.obs.apply_pressure_rule.html#slv.measurements.mobile.obs.apply_pressure_rule" title="slv.measurements.mobile.obs.apply_pressure_rule"><code class="xref py py-obj docutils literal notranslate"><span class="pre">apply_pressure_rule</span></code></a></p></td>
 <td><p>Drop <code class="docutils literal notranslate"><span class="pre">sources</span></code> rows whose cavity pressure is outside <code class="docutils literal notranslate"><span class="pre">band</span></code> (see <a class="reference internal" href="slv.measurements.mobile.obs.PRESSURE_BAND.html#slv.measurements.mobile.obs.PRESSURE_BAND" title="slv.measurements.mobile.obs.PRESSURE_BAND"><code class="xref py py-data docutils literal notranslate"><span class="pre">PRESSURE_BAND</span></code></a>).</p></td>

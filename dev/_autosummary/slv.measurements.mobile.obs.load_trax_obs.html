@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
 
-    <script src="../_static/documentation_options.js?v=0901d279"></script>
+    <script src="../_static/documentation_options.js?v=66d44c71"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -60,7 +60,7 @@
     <link rel="prev" title="slv.measurements.mobile.obs.label_trax_location" href="slv.measurements.mobile.obs.label_trax_location.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.10.1.dev7+ga897d2c23" />
+  <meta name="docsearch:version" content="2026.10.1.dev9+g16e84c9a4" />
   
     
     <script src="../_static/searchtools.js"></script>
@@ -677,7 +677,7 @@ where the train was (<a class="reference internal" href="slv.measurements.mobile
 route / line / stopped, <code class="docutils literal notranslate"><span class="pre">&quot;outdoor&quot;</span></code> also keeps yard-parked minutes, <code class="docutils literal notranslate"><span class="pre">&quot;all&quot;</span></code> keeps
 everything (indoor shed air and untrusted positions included); the <code class="docutils literal notranslate"><span class="pre">state</span></code>,
 <code class="docutils literal notranslate"><span class="pre">indoor</span></code> and <code class="docutils literal notranslate"><span class="pre">yard_name</span></code> columns are always present. <code class="docutils literal notranslate"><span class="pre">include_low_pressure=False</span></code>
-drops the manual-cal rows kept under the low-cavity-pressure rule (<code class="docutils literal notranslate"><span class="pre">low_pressure</span></code> column,
+drops the manual-cal rows measured at low cavity pressure (<code class="docutils literal notranslate"><span class="pre">low_pressure</span></code> column,
 see <a class="reference internal" href="slv.measurements.mobile.obs.build_trax_obs.html#slv.measurements.mobile.obs.build_trax_obs" title="slv.measurements.mobile.obs.build_trax_obs"><code class="xref py py-func docutils literal notranslate"><span class="pre">build_trax_obs()</span></code></a>). <code class="docutils literal notranslate"><span class="pre">time_range=(start,</span> <span class="pre">end)</span></code> reads only <code class="docutils literal notranslate"><span class="pre">start</span> <span class="pre">&lt;=</span> <span class="pre">Time_UTC</span> <span class="pre">&lt;</span>
 <span class="pre">end</span></code> from the cache (a parquet row-group filter: the file is time-ordered, so one year
 of the 92 M rows costs a few seconds and a few GB rather than the whole record).</p>
