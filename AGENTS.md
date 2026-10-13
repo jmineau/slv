@@ -87,7 +87,8 @@ src/slv/
                      cavity P read WITHOUT normalize_pollutant): apply_pressure_rule
                      (flag -64 overwrites -63 in lgr_ugga_qaqc.r, so pressure is
                      re-checked here; manual_cal rows exempt -- apply_low_pressure_rule
-                     owns them), apply_dropout_rule + dropout_times (+-8 min around any
+                     owns them and sets the low_pressure tag from the measured pressure,
+                     never from flag -63 alone, for the same reason), apply_dropout_rule + dropout_times (+-8 min around any
                      atmosphere row < 1.70 ppm: a laser dropout reads low for minutes to
                      hours and its shoulder passes QC), recover_hot_rows (flag -64 rows
                      have a fitted CH4d_m but a blanked CH4d_ppm_cal: qaqc value / slope)
