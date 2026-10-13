@@ -100,7 +100,8 @@ def label_trax_location(
 
 
 #: Cavity-pressure band (torr) inside which manual-cal rows flagged −63 (pressure outside the
-#: pipeline's 135–145 window) are kept and tagged ``low_pressure``. LGR 13-0221 ran at 131–134 torr
+#: pipeline's 135–145 window) are kept. Manual-cal rows inside it and outside 135–145 torr are
+#: tagged ``low_pressure``, whatever their flag (:func:`apply_low_pressure_rule`). LGR 13-0221 ran at 131–134 torr
 #: in Jan–Mar 2025 and 102–110 torr from Jul 2026 with CH4 within 0.02 ppm of its normal-pressure
 #: behaviour (measurements/trax/record/outputs/pressure_flag_check.md); the 5–30 torr pressure
 #: collapses of 2016/2017/2019 stay excluded.
@@ -339,22 +340,28 @@ def apply_low_pressure_rule(
     df: pd.DataFrame, band: tuple[float, float] | None = LOW_PRESSURE_BAND
 ) -> pd.DataFrame:
     """
-    Keep rows flagged −63 whose ``Cavity_P_torr`` lies inside ``band`` and tag them.
+    Keep rows flagged −63 whose ``Cavity_P_torr`` lies inside ``band``, and tag every row
+    whose cavity pressure is low.
 
     ``df`` must carry ``CH4`` (already validated with −63 among the accepted flags),
     ``QAQC_Flag`` and ``Cavity_P_torr``. Rows flagged −63 outside the band (or with no
-    pressure) get ``CH4 = NaN``; every row gets a boolean ``low_pressure`` column
-    (True for the kept −63 rows). ``band=None`` drops all −63 rows.
+    pressure) get ``CH4 = NaN``. Every row gets a boolean ``low_pressure`` column, True
+    where the pressure is inside ``band`` and the row is flagged −63 or its pressure is
+    outside :data:`PRESSURE_BAND`, whatever its flag: the pipeline writes −64 (hot
+    cavity) over −63, and −64 is an accepted flag, so a low-pressure row on a hot
+    afternoon is kept with no −63 to show for it. ``band=None`` drops all −63 rows and
+    tags none.
     """
     out = df.copy()
     is63 = out["QAQC_Flag"] == -63
+    p = pd.to_numeric(out["Cavity_P_torr"], errors="coerce")
     if band is None:
         inside = pd.Series(False, index=out.index)
     else:
-        p = pd.to_numeric(out["Cavity_P_torr"], errors="coerce")
         inside = p.between(band[0], band[1])
+    off_normal = p.notna() & ~p.between(PRESSURE_BAND[0], PRESSURE_BAND[1])
     out.loc[is63 & ~inside, "CH4"] = np.nan
-    out["low_pressure"] = (is63 & inside).to_numpy()
+    out["low_pressure"] = (inside & (is63 | off_normal)).to_numpy()
     return out
 
 
@@ -532,9 +539,10 @@ def build_trax_obs(
     ``lgr_ugga`` qaqc inside the uncalibrated windows (default: the packaged table) →
     ``uncalibrated``. QC via :func:`normalize_pollutant` (flags {0,1,2,-64,-140}, ID −10,
     valid range). Manual-cal rows flagged −63 (cavity pressure outside 135–145 torr) are kept
-    when the pressure is inside ``low_pressure`` (default :data:`LOW_PRESSURE_BAND`) and
-    tagged ``low_pressure=True`` (:func:`apply_low_pressure_rule`); ``low_pressure=None``
-    drops them. Pipeline-calibrated rows whose slope deviates more than ``slope_tol`` from the
+    when the pressure is inside ``low_pressure`` (default :data:`LOW_PRESSURE_BAND`), and
+    every manual-cal row whose measured pressure is inside that band and outside 135–145 torr is
+    tagged ``low_pressure=True``, whatever its flag (:func:`apply_low_pressure_rule`);
+    ``low_pressure=None`` drops the −63 rows and tags none. Pipeline-calibrated rows whose slope deviates more than ``slope_tol`` from the
     day's median slope are dropped (:func:`apply_slope_guard`; one bad reference period
     otherwise miscalibrates the next hour by 20–100 %). Then merged with *every* GPS fix by :func:`merge_with_gps` (no route buffer,
     no storage-yard removal) and, with ``classify``, labelled per minute by
@@ -620,7 +628,7 @@ def load_trax_obs(
     route / line / stopped, ``"outdoor"`` also keeps yard-parked minutes, ``"all"`` keeps
     everything (indoor shed air and untrusted positions included); the ``state``,
     ``indoor`` and ``yard_name`` columns are always present. ``include_low_pressure=False``
-    drops the manual-cal rows kept under the low-cavity-pressure rule (``low_pressure`` column,
+    drops the manual-cal rows measured at low cavity pressure (``low_pressure`` column,
     see :func:`build_trax_obs`). ``time_range=(start, end)`` reads only ``start <= Time_UTC <
     end`` from the cache (a parquet row-group filter: the file is time-ordered, so one year
     of the 92 M rows costs a few seconds and a few GB rather than the whole record).

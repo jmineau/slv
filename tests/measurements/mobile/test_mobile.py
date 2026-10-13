@@ -159,6 +159,65 @@ def test_low_pressure_rule_keeps_band_and_tags():
     assert not out2.low_pressure.any()
 
 
+def test_low_pressure_rule_tags_by_measured_pressure_whatever_the_flag():
+    """The pipeline writes -64 (hot cavity) over -63, so the tag follows the pressure."""
+    from slv.measurements.mobile.obs import LOW_PRESSURE_BAND, apply_low_pressure_rule
+
+    rows = [  # (flag, torr, kept, tagged)
+        (-63, 120.0, True, True),  # -63 inside the band, as before
+        (-63, np.nan, False, False),  # -63 with no pressure: dropped, as before
+        (-64, 108.0, True, True),  # hot cavity at low pressure: the miss
+        (-64, 140.0, True, False),  # hot cavity at normal pressure
+        (-64, np.nan, True, False),  # hot cavity, no pressure reading
+        (0, 120.0, True, True),  # any flag at low pressure
+        (0, 140.0, True, False),
+        (-64, 100.0, True, True),  # band edges are inclusive, as Series.between
+        (-64, 99.9, True, False),
+        (0, 134.9, True, True),  # the pipeline's own bounds (135, 145) are normal
+        (0, 135.0, True, False),
+        (0, 145.0, True, False),
+        (-64, 60.0, True, False),  # outside the band: not tagged
+    ]
+    flag, torr, kept, tagged = zip(*rows, strict=True)
+    df = pd.DataFrame(
+        {
+            "Time_UTC": pd.date_range("2026-08-01", periods=len(rows), freq="10s"),
+            "CH4": 2.0,
+            "QAQC_Flag": flag,
+            "Cavity_P_torr": torr,
+        }
+    )
+    out = apply_low_pressure_rule(df, LOW_PRESSURE_BAND)
+    assert out.CH4.notna().tolist() == list(kept)
+    assert out.low_pressure.tolist() == list(tagged)
+    # band=None tags nothing
+    assert not apply_low_pressure_rule(df, None).low_pressure.any()
+
+
+def test_load_without_low_pressure_drops_hot_cavity_rows_at_low_pressure(
+    monkeypatch, tmp_path
+):
+    from slv.measurements.mobile.obs import load_trax_obs
+
+    t = pd.date_range("2026-08-01 21:00", periods=4, freq="10s")
+    tables = {
+        ("lgr_ugga_manual_cal", "qaqc"): pd.DataFrame(
+            {
+                "Time_UTC": t,
+                "CH4": 2.0,
+                "QAQC_Flag": [0, -63, -64, -64],
+                "Cavity_P_torr": [140.0, 120.0, 108.0, 140.0],
+            }
+        )
+    }
+    out = _build(monkeypatch, tables, (t[0], t[-1]))
+    assert out.low_pressure.tolist() == [False, True, True, False]
+    cache = tmp_path / "obs.parquet"
+    pd.DataFrame(out.drop(columns="geometry")).assign(state="route").to_parquet(cache)
+    kept = load_trax_obs(cache, include_low_pressure=False, epoch_offset=False)
+    assert kept.Time_UTC.tolist() == [t[0], t[3]]
+
+
 def test_build_chunk_edges_cover_range():
     """The year chunking used by build_trax_obs covers the range without gaps or overlaps."""
     t0, t1 = pd.Timestamp("2014-12-09"), pd.Timestamp("2016-03-05")

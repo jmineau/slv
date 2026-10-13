@@ -31,6 +31,12 @@ versions are calendar-based (YYYY.M.PATCH).
   when several processes draw their first terrain map at the same moment: the same
   race, for the Stadia tiler's cache folder. Both tilers are now built by
   `cached_tiler` (#22)
+- The TRAX `low_pressure` tag follows the measured cavity pressure: a manual-cal row
+  inside `LOW_PRESSURE_BAND` and outside the pipeline's 135-145 torr is tagged whatever
+  its flag. It used to be tagged only when flagged -63, but the pipeline writes its
+  hot-cavity flag (-64, an accepted flag) over -63, so low-pressure rows on hot
+  afternoons were kept untagged and `load_trax_obs(include_low_pressure=False)` left
+  them in. Rebuild `obs.parquet` to pick this up
 
 ## [2026.10.0] - 2026-10-09
 
