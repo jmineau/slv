@@ -61,11 +61,11 @@ m.fig.savefig("slv.png", dpi=300)
 A methane inversion (builds the Jacobian from the PYSTILT footprints; run it through SLURM):
 
 ```python
-from slv.inversion import InversionConfig, SLVMethaneInversion
+from slv.inversion import InversionConfig, run
 
 config = InversionConfig(tstart="2016-01-01", tend="2024-01-01", flux_freq="MS",
                          sites=["wbb"], variant="hrrr", cache="./cache")
-problem = SLVMethaneInversion(config).run()
+post = run(config)  # a fips Posterior: post.estimate, post.variances, post.cov(W)
 ```
 
 The [usage guide](https://jmineau.github.io/slv/usage.html) also covers loading
