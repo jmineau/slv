@@ -10,6 +10,7 @@ import functools
 import hashlib
 import importlib
 import json
+import pickle
 import subprocess
 import tomllib
 from importlib.metadata import PackageNotFoundError
@@ -40,13 +41,13 @@ _OBS_DEPS: frozenset[str] = frozenset(
 #: forward_operator key avoids a needless (expensive) Jacobian rebuild when toggled.
 _OBS_FILTER_DEPS: frozenset[str] = frozenset({"filter_spikes", "spike_percentile"})
 #: State-filter deps: filter_state_space drops obs in flux intervals (months) with too
-#: few obs (min_obs_per_interval). fips reads min_sims_per_interval but does not apply
-#: it -- counting simulations needs the Jacobian, built after this filter -- so it only
-#: sits in the key. The obs-indexed MDM and constant are built AFTER that filter, so
-#: they must re-key on it -- otherwise a run at a lower threshold reuses the
-#: higher-threshold MDM and back-fills the recovered months
-#: with ZERO variance, giving a singular S_z. Not on forward_operator (receptor-based,
-#: reindexed) or obs (get_obs returns the full record; the filter is applied downstream).
+#: few obs (min_obs_per_interval). min_sims_per_interval is not applied -- counting
+#: simulations needs the Jacobian, built after this filter -- so it only sits in the
+#: key. The obs-indexed MDM and constant are built AFTER that filter, so they must
+#: re-key on it -- otherwise a run at a lower threshold would reuse the
+#: higher-threshold MDM, whose labels then miss the recovered months (the problem
+#: refuses it). Not on forward_operator (receptor-based, placed on the obs) or obs
+#: (get_obs returns the full record; the filter is applied downstream).
 _STATE_FILTER_DEPS: frozenset[str] = frozenset(
     {"min_obs_per_interval", "min_sims_per_interval"}
 )
@@ -276,29 +277,28 @@ def _version_tag() -> str:
     return f"fips-{_pkg_rev('fips', 'fips')}_pystilt-{_pkg_rev('stilt', 'pystilt')}"
 
 
-def fips_cache(cls, filename):
+def fips_cache(filename):
     """
-    Content-addressed cache decorator for pipeline methods.
+    Content-addressed cache decorator for the pipeline's component functions.
 
     Parameters
     ----------
-    cls :
-        The fips class to use for ``cls.from_file`` / ``result.to_file``.
     filename :
         Stage name / cache stem (e.g. ``"obs"``, ``"prior_error"``).
 
     Notes
     -----
-    Files are stored under
+    The decorated function takes the :class:`~slv.inversion.config.InversionConfig`
+    as its first argument; its result is pickled. Files are stored under
     ``{cache_dir}/.fips/{version_tag}/{component}/{hash}.pkl`` where
     ``version_tag`` pins the running fips/pystilt source revision (``git describe``
     of the editable checkout, else installed metadata; see ``_version_tag``) and
     ``hash`` is derived only from the config fields that actually affect that
-    component (see ``COMPONENT_DEPS``), plus the release versions of the packages it
-    is built with (lair / uataq, see ``COMPONENT_PACKAGES``; a new lair release rebuilds
-    the obs and prior, not the Jacobian).  Committing/bumping a package therefore
-    lands in a fresh tree rather than silently reusing a stale component.  This
-    means:
+    component (see :data:`DEFAULT_COMPONENT_DEPS`), plus the release versions of the
+    packages it is built with (lair / uataq, see :data:`DEFAULT_COMPONENT_PACKAGES`; a
+    new lair release rebuilds the obs and prior, not the Jacobian).  Committing/bumping
+    a package therefore lands in a fresh tree rather than silently reusing a stale
+    component (a pickle written by another fips does not load).  This means:
 
     * Changing ``prior_base_std`` reuses ``obs.pkl`` and ``forward_operator.pkl``
       untouched, and only regenerates ``prior_error.pkl``.
@@ -319,14 +319,14 @@ def fips_cache(cls, filename):
       are deleted and the component is recomputed fresh)
     """
 
-    def decorator(method):
-        @functools.wraps(method)
-        def wrapper(self, *args, **kwargs):
-            cache = getattr(self.config, "cache", False)
+    def decorator(func):
+        @functools.wraps(func)
+        def wrapper(config, *args, **kwargs):
+            cache = getattr(config, "cache", False)
             if not cache:
-                return method(self, *args, **kwargs)
+                return func(config, *args, **kwargs)
 
-            overwrite = getattr(self.config, "cache_overwrite", [])
+            overwrite = getattr(config, "cache_overwrite", [])
             if overwrite == "all":
                 should_overwrite = True
             elif isinstance(overwrite, str):
@@ -341,26 +341,23 @@ def fips_cache(cls, filename):
             fips_dir = cache_dir / ".fips" / _version_tag()
 
             # --- Content-addressed path ---
-            component_deps = getattr(self, "COMPONENT_DEPS", DEFAULT_COMPONENT_DEPS)
-            component_packages = getattr(
-                self, "COMPONENT_PACKAGES", DEFAULT_COMPONENT_PACKAGES
-            )
-            fields = component_deps.get(filename)
+            fields = DEFAULT_COMPONENT_DEPS.get(filename)
             if fields:
                 h = _component_hash(
-                    self.config, fields, component_packages.get(filename, ())
+                    config, fields, DEFAULT_COMPONENT_PACKAGES.get(filename, ())
                 )
                 component_dir = fips_dir / filename
                 path = component_dir / f"{h}.pkl"
             else:
-                # Fallback: flat file for components not listed in COMPONENT_DEPS
+                # Fallback: flat file for components not listed in DEFAULT_COMPONENT_DEPS
                 h = "flat"
                 component_dir = fips_dir
                 path = fips_dir / f"{filename}.pkl"
 
             if path.exists() and not should_overwrite:
                 print(f"Loading cached {filename} [{h}] from {path}")
-                return cls.from_file(path)
+                with open(path, "rb") as f:
+                    return pickle.load(f)
 
             if should_overwrite and fields and component_dir.exists():
                 # Remove all stale hashes for this component before recomputing
@@ -372,11 +369,12 @@ def fips_cache(cls, filename):
                         f"Cleared {len(stale)} stale cache file(s) for component '{filename}'"
                     )
 
-            result = method(self, *args, **kwargs)
+            result = func(config, *args, **kwargs)
 
             component_dir.mkdir(parents=True, exist_ok=True)
             print(f"Saving {filename} [{h}] to {path}")
-            result.to_file(path)
+            with open(path, "wb") as f:
+                pickle.dump(result, f, protocol=pickle.HIGHEST_PROTOCOL)
 
             return result
 

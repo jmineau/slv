@@ -198,7 +198,7 @@ def build_location_site_map(
 @dataclass
 class InversionConfig:
     """
-    Settings for one :class:`~slv.inversion.pipelines.SLVMethaneInversion` run.
+    Settings for one inversion (:func:`~slv.inversion.pipelines.run`).
 
     Invalid choices (``flux_freq``, ``background``, ``prior``, ``bias_grouping``, MDM
     component names, an empty domain) raise ``ValueError`` at construction. Cached
@@ -279,7 +279,7 @@ class InversionConfig:
     min_obs_per_interval : int
         Drop flux intervals with fewer obs.
     min_sims_per_interval : int
-        Read by fips but not applied.
+        Not applied (in the cache key only).
     gamma : float, optional
         Divides the obs error (``> 1`` fits the data more closely).
     cache : bool, str or Path
@@ -289,7 +289,7 @@ class InversionConfig:
     num_processes : int
         Workers for obs loading and the Jacobian build.
     plot_inputs, plot_results, plot_diagnostics : bool
-        Which plots :meth:`~slv.inversion.pipelines.SLVMethaneInversion.run` draws.
+        Which plots :func:`~slv.inversion.pipelines.run` draws.
     output_units : str
         Flux units for domain totals (e.g. ``"Gg/m2/s"`` gives Gg per interval).
     tiler, tiler_zoom
@@ -434,8 +434,8 @@ class InversionConfig:
 
     # --- Inversion Solver Settings ---
     min_obs_per_interval: int = 60
-    # Read by fips' filter_state_space but not applied: it filters on the obs count only
-    # (counting simulations needs the Jacobian, built after that filter).
+    # Not applied: filter_state_space filters on the obs count only (counting
+    # simulations needs the Jacobian, built after that filter).
     min_sims_per_interval: int = 70
 
     # Regularization parameter: scales observation error by 1/gamma.

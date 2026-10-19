@@ -1,43 +1,46 @@
 """
-The SLV methane inversion pipeline: builds the fips inputs and runs the solve.
+The SLV methane inversion: functions that build the fips :class:`~fips.Problem` and solve it.
 
-The model-data mismatch, bias block, coverage filter, reporting and component cache live
-in their own modules (:mod:`.mdm`, :mod:`.bias`, :mod:`.coverage`, :mod:`.report`,
-:mod:`.cache`); :class:`SLVMethaneInversion` combines them.
+:func:`build_problem` loads (or builds) each component -- the obs, the prior, the
+background, the flux Jacobian, the prior error and the model-data mismatch -- and puts
+them together as one problem; :func:`run` solves it and reports. Each ``get_*`` function
+takes the :class:`~slv.inversion.config.InversionConfig` first and is cached by
+:func:`~slv.inversion.cache.fips_cache`. The model-data mismatch, the coverage filter
+and the reports live in :mod:`.mdm`, :mod:`.coverage` and :mod:`.report`.
 """
 
 import time
 from pathlib import Path
 from typing import Any
 
+import fips
 import numpy as np
 import pandas as pd
-from fips import Block, CovarianceMatrix, ForwardOperator, MatrixBlock, Vector
-from fips.aggregators import ObsAggregator
-from fips.covariance import DiagonalError
-from fips.problems.flux import FluxInversionPipeline
-from fips.problems.flux.problem import FluxProblem
+import scipy.sparse as sp
+from fips import Covariance, Independent, Operator, Posterior, Problem, Space, Vector
 
+from slv.inversion import report
 from slv.inversion.background import get_slv_background
-from slv.inversion.bias import BiasMixin
-from slv.inversion.cache import (  # noqa: F401 -- re-exported for existing imports
-    DEFAULT_COMPONENT_DEPS,
-    _component_hash,
-    _pkg_rev,
-    _version_tag,
-    fips_cache,
-)
+from slv.inversion.cache import fips_cache
+from slv.inversion.config import InversionConfig
 from slv.inversion.covariances import build_prior_error
-from slv.inversion.coverage import CoverageFilterMixin, check_state_cells
+from slv.inversion.coverage import check_state_cells, covered_state, matrix
 from slv.inversion.data import get_slv_observations, split_sites
-from slv.inversion.mdm import ModelDataMismatchMixin
-from slv.inversion.priors import get_slv_prior
-from slv.inversion.report import ReportingMixin
+from slv.inversion.mdm import get_modeldata_mismatch
+
+#: Decimal places the float labels (the cells' lat and lon) are rounded to before the
+#: problem is built. The prior's cells come from a regrid and the Jacobian's from the
+#: PYSTILT grid, so the same cell can differ in its last digits; fips 0.1 rounded every
+#: float label to 6 decimals, and fips 0.2 rounds only on request.
+LABEL_DECIMALS = 6
 
 
-def stack_jacobians(
-    parts: list[tuple[Path, MatrixBlock]], sparse: bool = True
-) -> MatrixBlock:
+def _rounded(index: pd.Index) -> pd.Index:
+    """``index`` with its float levels rounded to :data:`LABEL_DECIMALS` places."""
+    return Space({"labels": index}).round_labels(LABEL_DECIMALS).select("labels")
+
+
+def stack_jacobians(parts: list[tuple[Path, Operator]]) -> Operator:
     """
     Row-stack the per-project flux Jacobians into one.
 
@@ -49,28 +52,33 @@ def stack_jacobians(
     means the same receptor was simulated in both, and there is no principled way to pick
     one footprint. Remove it from one project's receptors, or drop that project.
     """
-    frames = [H.data for _, H in parts]
-    rows = frames[0].index.append([f.index for f in frames[1:]])
-    dup = rows.duplicated(keep=False)
+    rows = [H.rows.select("concentration") for _, H in parts]
+    stacked = rows[0].append(rows[1:])
+    dup = stacked.duplicated(keep=False)
     if dup.any():
-        owners = [str(p) for (p, H) in parts for _ in range(len(H.data))]
-        clash = pd.Series(owners, index=rows)[dup]
+        owners = [str(p) for (p, H) in parts for _ in range(H.shape[0])]
+        clash = pd.Series(owners, index=stacked)[dup]
         example = clash.index[0]
         raise ValueError(
             f"{int(dup.sum() // 2)} obs have footprints in more than one STILT project, e.g. "
             f"{example} in {sorted(set(clash.loc[[example]]))}. Each obs must come from "
             "exactly one project."
         )
-    cols = frames[0].columns
-    for f in frames[1:]:
-        cols = cols.union(f.columns, sort=False)
-    aligned = [f.reindex(columns=cols, fill_value=0.0) for f in frames]
-    return MatrixBlock(
-        pd.concat(aligned, axis=0),
+    cols = parts[0][1].cols.select("flux")
+    for _, H in parts[1:]:
+        cols = cols.union(H.cols.select("flux"), sort=False)
+    blocks = []
+    for _, H in parts:
+        where = cols.get_indexer(H.cols.select("flux"))
+        m = sp.coo_array(matrix(H))
+        blocks.append(
+            sp.csr_array((m.data, (m.row, where[m.col])), shape=(H.shape[0], len(cols)))
+        )
+    return Operator(
+        sp.csr_array(sp.vstack(blocks)),
+        Space({"concentration": stacked}),
+        Space({"flux": cols}),
         name="jacobian",
-        row_block="concentration",
-        col_block="flux",
-        sparse=sparse,
     )
 
 
@@ -84,20 +92,18 @@ def project_jacobian(
     workers: int | None = None,
     threshold: float | None = 1e-15,
     sparse: bool = True,
-) -> MatrixBlock | None:
+) -> Operator | None:
     """
     One STILT project's flux Jacobian, from ``stilt.Project.jacobian``.
 
     ``sel`` is the rows of ``project.simulations`` to use, all of one variant. Each
     footprint is summed onto ``target`` per flux bin. Rows are ``(obs_location,
     obs_time)``: the receptor's location id, renamed by ``location_mapper`` when it names a
-    site, and its time. Columns are the target's cells and the bins' left edges
-    (``(lon, lat, time)`` for a longitude/latitude grid). A receptor whose footprint is
-    empty or misses the target gets no row, and entries below ``threshold`` are zero.
-    Returns None when no receptor has a row.
+    site, and its time; they are the one block ``concentration``. Columns are the target's
+    cells and the bins' left edges (``(lon, lat, time)`` for a longitude/latitude grid), the
+    one block ``flux``. A receptor whose footprint is empty or misses the target gets no
+    row, and entries below ``threshold`` are zero. Returns None when no receptor has a row.
     """
-    from stilt.footprint import Jacobian
-
     J = project.jacobian(sel, target, flux_bins, workers=workers)
     if J.missing:
         print(f"  {len(J.missing)} receptors have no footprint yet; skipped")
@@ -108,491 +114,529 @@ def project_jacobian(
     keep = np.flatnonzero(data.getnnz(axis=1))
     if not len(keep):
         return None
-    kept = Jacobian(data[keep], J.receptors[keep], J.columns, J.empty, J.missing)
-    frame = kept.to_frame(sparse=sparse)
+    receptors = np.asarray(J.receptors)[keep]
 
-    info = sel.drop_duplicates("receptor").set_index("receptor").loc[kept.receptors]
+    info = sel.drop_duplicates("receptor").set_index("receptor").loc[receptors]
     mapper = location_mapper or {}
     locations = [mapper.get(lid, lid) for lid in info["location"].astype(str)]
-    frame.index = pd.MultiIndex.from_arrays(
+    rows = pd.MultiIndex.from_arrays(
         [locations, pd.DatetimeIndex(info["time"])], names=["obs_location", "obs_time"]
     )
     cells = [n for n in J.columns.names if n != "time"]
-    frame.columns = J.columns.reorder_levels([*cells, "time"])
-    return MatrixBlock(
-        frame,
+    cols = J.columns.reorder_levels([*cells, "time"])
+    kept = sp.csr_array(data[keep])
+    return Operator(
+        kept if sparse else kept.toarray(),
+        Space({"concentration": rows}),
+        Space({"flux": cols}),
         name="jacobian",
-        row_block="concentration",
-        col_block="flux",
-        sparse=sparse,
     )
 
 
-class SLVMethaneInversion(
-    ReportingMixin,
-    CoverageFilterMixin,
-    BiasMixin,
-    ModelDataMismatchMixin,
-    FluxInversionPipeline,
-):
+@fips_cache("obs")
+def get_obs(config: InversionConfig) -> pd.Series:
     """
-    SLV-specific implementation of the flux inversion pipeline.
+    The observations (CH4, ppm), indexed by ``(obs_location, obs_time)``, named ``"obs"``.
 
-    Supports optional bias correction via config.bias_std and config.bias_grouping.
-    When bias_std is set, augments the state vector with bias terms that can be
-    grouped by time (default), site, or site organization.
+    Every obs the config's sites and filters give, over the config's whole time range;
+    :func:`filter_state_space` trims them afterwards.
     """
+    data = get_slv_observations(
+        sites=config.sites,
+        site_config=config.site_config,
+        time_range=config.time_range,
+        subset_hours=config.subset_hours,
+        filter_pcaps=config.filter_pcaps,
+        filter_spikes=config.filter_spikes,
+        spike_percentile=config.spike_percentile,
+        num_processes=config.num_processes,
+        mobile_obs=config.mobile_obs,
+        utc_offset=config.utc_offset,
+    )
+    return data["CH4"].rename("obs")
 
-    #: Maps each cache component to the InversionConfig fields it depends on. The bias
-    #: block is indexed by ``sites`` under the "site"/"site_group" groupings, so the
-    #: prior and prior error key on it too.
-    COMPONENT_DEPS: dict[str, frozenset[str]] = {
-        **DEFAULT_COMPONENT_DEPS,
-        "prior": DEFAULT_COMPONENT_DEPS["prior"]
-        | {"bias_std", "bias_grouping", "sites"},
-        "forward_operator": DEFAULT_COMPONENT_DEPS["forward_operator"]
-        | {"bias_std", "bias_grouping"},
-        "prior_error": DEFAULT_COMPONENT_DEPS["prior_error"]
-        | {"bias_std", "bias_grouping", "sites"},
+
+@fips_cache("prior")
+def get_prior(config: InversionConfig) -> pd.Series:
+    """The prior flux (umol/m2/s) on the config's grid and flux times, named ``"prior"``."""
+    from slv.inversion.priors import get_slv_prior
+
+    # get_slv_prior asks its loaders for no regridder, so it returns the Series; the
+    # loaders' return type is not typed per return_regridder
+    prior: pd.Series = get_slv_prior(  # pyrefly: ignore[bad-assignment]
+        prior=config.prior,
+        out_grid=config.grid,
+        flux_times=config.flux_times,
+        flux_freq=config.flux_freq,
+        bbox=config.bbox,
+        **config.prior_kwargs,
+    )
+    return prior.rename("prior")
+
+
+@fips_cache("forward_operator")
+def get_flux_jacobian(config: InversionConfig, obs: pd.Series) -> Operator:
+    """
+    The flux Jacobian from the PYSTILT footprints (cached as ``forward_operator``).
+
+    Its rows are the receptors (``(obs_location, obs_time)``) with a footprint at the
+    locations of ``obs``, the block ``concentration``; its columns the state grid's cells
+    and flux times, the block ``flux``. ``config.stilt_project`` may name several
+    projects (``config.stilt_projects``): the UOU and DAQ footprints live in the paper-1
+    project and the TRAX ones in their own. Each project contributes the rows for the
+    obs it has footprints for, and the rows are stacked into one Jacobian. All projects
+    are aggregated onto the same state grid and flux time bins, so their columns line up.
+    """
+    obs_locations = set(obs.index.get_level_values("obs_location"))
+    parts: list[tuple[Path, Operator]] = []
+    for project in config.stilt_projects:
+        H = _project_jacobian(config, project, obs_locations)
+        if H is not None:
+            parts.append((project, H))
+    if not parts:
+        raise ValueError(
+            f"None of the STILT projects {[str(p) for p in config.stilt_projects]} "
+            "has simulations matching the obs."
+        )
+    if len(parts) == 1:
+        return parts[0][1]
+    return stack_jacobians(parts)
+
+
+def _project_jacobian(
+    config: InversionConfig, project: Path, obs_locations: set
+) -> Operator | None:
+    """
+    One project's Jacobian rows for the obs in ``obs_locations``, or None if it has
+    no simulation matching any of them.
+    """
+    import stilt
+
+    from slv.inversion.config import build_location_site_map
+
+    proj = stilt.Project(project)
+    sims = proj.simulations
+    sim_locations = set(sims["location"].astype(str))
+
+    # Build location mapper from all simulations in the project.
+    # Must happen before filtering so stationary sites can be resolved.
+    # Mobile location ids won't appear in the mapper (no site_config entry),
+    # so mapper.get(lid, lid) returns the location id itself for mobile sims.
+    # The auto-built mapper is not written back to the config: it is only built on a
+    # cache miss, and a config changed mid-run would change its sweep config_id.
+    location_mapper = config.location_site_map
+    if not location_mapper:
+        location_mapper = build_location_site_map(
+            list(sim_locations), config.site_config
+        )
+        print(
+            f"  {project.name}: auto-generated location mapper for "
+            f"{len(location_mapper)} sites"
+        )
+
+    # Filter to simulations relevant for this obs set.
+    # For stationary sims: mapper resolves location id → site name → in obs.
+    # For mobile sims: location id not in mapper → falls back to the location id
+    #   itself, which IS the obs_location for mobile sites.
+    relevant_location_ids = {
+        lid for lid in sim_locations if location_mapper.get(lid, lid) in obs_locations
     }
+    if not relevant_location_ids:
+        print(f"  {project.name}: no simulations match the obs; skipped")
+        return None
 
-    def get_inputs(self) -> dict[str, Any]:
-        """The fips inputs, checked that the prior and the Jacobian share their cells."""
-        inputs = super().get_inputs()
-        check_state_cells(inputs["prior"], inputs["forward_operator"])
-        return inputs
+    variant = _resolve_variant(config, proj, project)
+    bins = config.flux_time_bins
+    times = pd.DatetimeIndex(sims["time"])
+    keep = (
+        (sims["variant"] == variant).to_numpy()
+        & sims["location"].astype(str).isin(relevant_location_ids).to_numpy()
+        & (times >= bins[0].left)
+        & (times <= bins[-1].right)
+        & times.hour.isin(config.subset_hours_utc)
+    )
+    sel = sims[keep]
+    if sel.empty:
+        print(f"  {project.name}: no simulations in the time range; skipped")
+        return None
+    return project_jacobian(
+        proj,
+        sel,
+        config.state_grid,
+        bins,
+        location_mapper=location_mapper,
+        workers=config.num_processes,
+        sparse=config.sparse_jacobian,
+    )
 
-    @fips_cache(Vector, "obs")
-    def get_obs(self) -> Vector:
-        """Passes just the obs attributes to the pure obs function."""
-        return Vector(
-            name="obs",
-            data=Block(
-                name="concentration",
-                data=get_slv_observations(
-                    sites=self.config.sites,
-                    site_config=self.config.site_config,
-                    time_range=self.config.time_range,
-                    subset_hours=self.config.subset_hours,
-                    filter_pcaps=self.config.filter_pcaps,
-                    filter_spikes=self.config.filter_spikes,
-                    spike_percentile=self.config.spike_percentile,
-                    num_processes=self.config.num_processes,
-                    mobile_obs=self.config.mobile_obs,
-                    utc_offset=self.config.utc_offset,
-                ),
-            ),
-        )
 
-    def get_prior(self) -> Vector:
-        """
-        Get the prior vector, optionally including bias terms.
-
-        Returns a single-block flux prior if bias_std is None, otherwise
-        returns a multi-block [flux, bias] prior. Built (or loaded) once per pipeline:
-        the multiplicative MDM asks for it again, which with ``cache=False`` used to
-        rebuild it.
-        """
-        if getattr(self, "_prior", None) is None:
-            self._prior = self._build_prior()
-        return self._prior
-
-    @fips_cache(Vector, "prior")
-    def _build_prior(self) -> Vector:
-        prior = get_slv_prior(
-            prior=self.config.prior,
-            out_grid=self.config.grid,
-            flux_times=self.config.flux_times,
-            flux_freq=self.config.flux_freq,
-            bbox=self.config.bbox,
-            **self.config.prior_kwargs,
-        )
-        flux_prior = Vector(name="prior", data=Block(name="flux", data=prior))
-
-        # Add bias block if enabled
-        if self.config.bias_std is None:
-            return flux_prior
-        bias_blk = Block(self.get_bias(), name="bias")
-        return Vector(name="prior", data=[flux_prior.blocks["flux"], bias_blk])
-
-    def get_forward_operator(self, obs: Vector, prior: Vector) -> ForwardOperator:
-        """
-        Get the forward operator, optionally including bias Jacobian.
-
-        Returns a single-block flux Jacobian if bias_std is None, otherwise
-        returns a multi-block [flux_jac | bias_jac] operator.
-
-        Only the flux Jacobian is cached. The bias block is a cheap one-hot map indexed
-        by the obs, which change with the obs filters the cache key leaves out, so it is
-        rebuilt every run (a cached bias block went stale when those filters changed).
-        """
-        flux = self._get_flux_jacobian(obs)
-        self._flux_jacobian = flux
-        if self.config.bias_std is None:
-            return flux
-        # a Jacobian cached before the bias block was split out still carries one
-        flux_blk = flux.blocks["concentration", "flux"]
-        bias_blk = MatrixBlock(
-            self.get_bias_jacobian(obs, prior), "concentration", "bias"
-        )
-        return ForwardOperator([flux_blk, bias_blk])
-
-    @fips_cache(ForwardOperator, "forward_operator")
-    def _get_flux_jacobian(self, obs: Vector) -> ForwardOperator:
-        """
-        The flux Jacobian from the PYSTILT footprints (cached as ``forward_operator``).
-
-        ``config.stilt_project`` may name several projects (``config.stilt_projects``): the
-        UOU and DAQ footprints live in the paper-1 project and the TRAX ones in their own.
-        Each project contributes the rows for the obs it has footprints for, and the rows are
-        stacked into one Jacobian. All projects are aggregated onto the same state grid and
-        flux time bins, so their columns line up.
-        """
-        obs_locations = set(obs.index.get_level_values("obs_location"))
-        parts: list[tuple[Path, MatrixBlock]] = []
-        for project in self.config.stilt_projects:
-            H = self._project_jacobian(project, obs_locations)
-            if H is not None:
-                parts.append((project, H))
-        if not parts:
+def _resolve_variant(config: InversionConfig, proj, project: Path) -> str:
+    """
+    ``config.variant`` if set (this project must define it), else the project's one
+    variant with a footprint.
+    """
+    variants = proj.variants
+    variant = config.variant
+    if variant is not None:
+        names = set(variants)
+        if variant not in names:
             raise ValueError(
-                f"None of the STILT projects {[str(p) for p in self.config.stilt_projects]} "
-                "has simulations matching the obs."
+                f"Variant {variant!r} is not in the STILT project {project} "
+                f"(it has {sorted(names)}). With several projects, config.variant must "
+                "name a variant every project has, or be None."
             )
-        if len(parts) == 1:
-            return ForwardOperator(parts[0][1])
-        return ForwardOperator(
-            stack_jacobians(parts, sparse=self.config.sparse_jacobian)
+        return variant
+    with_footprint = [n for n, v in variants.items() if v.footprint is not None]
+    if len(with_footprint) != 1:
+        raise ValueError(
+            f"The STILT project {project} has {len(with_footprint)} variants with a "
+            f"footprint ({with_footprint}); set InversionConfig.variant to pick one."
         )
+    print(f"  {project.name}: using variant {with_footprint[0]!r}")
+    return with_footprint[0]
 
-    def _project_jacobian(
-        self, project: Path, obs_locations: set
-    ) -> MatrixBlock | None:
-        """
-        One project's Jacobian rows for the obs in ``obs_locations``, or None if it has
-        no simulation matching any of them.
-        """
-        import stilt
 
-        from slv.inversion.config import build_location_site_map
+@fips_cache("prior_error")
+def get_prior_error(config: InversionConfig, prior: pd.Series) -> Covariance:
+    """
+    The prior flux error covariance on the labels of ``prior``, the block ``flux``.
 
-        proj = stilt.Project(project)
-        sims = proj.simulations
-        sim_locations = set(sims["location"].astype(str))
+    See :func:`~slv.inversion.covariances.build_prior_error`. A bias block is added by
+    :func:`build_problem`, per run.
+    """
+    return build_prior_error(
+        prior,
+        base_std=config.prior_base_std,
+        std_frac=config.prior_std_frac,
+        time_scale=config.prior_time_scale,
+        spatial_scale=config.prior_spatial_scale,
+    )
 
-        # Build location mapper from all simulations in the project.
-        # Must happen before filtering so stationary sites can be resolved.
-        # Mobile location ids won't appear in the mapper (no site_config entry),
-        # so mapper.get(lid, lid) returns the location id itself for mobile sims.
-        # The auto-built mapper is not written back to the config: it is only built on a
-        # cache miss, and a config changed mid-run would change its sweep config_id.
-        location_mapper = self.config.location_site_map
-        if not location_mapper:
-            location_mapper = build_location_site_map(
-                list(sim_locations), self.config.site_config
+
+def obs_sites(config: InversionConfig, locations: pd.Index) -> pd.Index:
+    """
+    The site of each obs location, for site- and organization-keyed MDM and bias terms.
+
+    A tower obs is keyed by its site; a mobile obs by its receptor's PYSTILT location_id,
+    which belongs to the (single) mobile site in ``config.sites``.
+    """
+    locations = pd.Index(locations)
+    known = locations.isin(config.site_config.index)
+    if known.all():
+        return locations
+    _, mobile = split_sites(config.sites, config.site_config)
+    if len(mobile) != 1:
+        raise ValueError(
+            f"{int((~known).sum())} obs are keyed by a location that is not a site, and "
+            f"config.sites has {len(mobile)} mobile sites ({mobile}) to assign them to; "
+            "exactly one is supported."
+        )
+    return pd.Index(np.where(known, locations, mobile[0]))
+
+
+@fips_cache("constant")
+def get_constant(config: InversionConfig, obs: pd.Series) -> pd.Series:
+    """
+    Background concentration for each obs (``config.background``), named ``"background"``.
+
+    Obs whose background is missing (outside the ct_stilt product, rolling-baseline
+    gaps) are left out rather than filled; :func:`build_problem` drops those obs.
+    """
+    obs_times = obs.index.get_level_values("obs_time").unique()
+    data = get_slv_background(
+        background=config.background,
+        obs_times=obs_times,
+        sites=config.sites,
+        site_config=config.site_config,
+        time_range=config.time_range,
+        filter_pcaps=config.filter_pcaps,
+        num_processes=config.num_processes,
+        **config.background_kwargs,
+    )
+
+    # Align background to obs index
+    data = (
+        obs.to_frame()
+        .reset_index()
+        .join(data, on="obs_time", lsuffix="_obs")
+        .set_index(["obs_location", "obs_time"])["concentration"]
+    )
+    return data.dropna().rename("background")
+
+
+def filter_state_space(
+    config: InversionConfig, obs: pd.Series, prior: pd.Series
+) -> tuple[pd.Series, pd.Series]:
+    """
+    Trim obs and prior to ``config.time_range``, then drop the obs of sparse intervals.
+
+    Objects loaded from a wide-range cache are sliced to the run's time window before
+    anything is built from them. With ``config.min_obs_per_interval`` above 1, the obs
+    of a flux interval with fewer obs than that are dropped (the interval's fluxes stay
+    in the state, constrained by the prior alone). ``min_sims_per_interval`` is not
+    applied: counting simulations needs the Jacobian, built after this filter.
+    """
+    tstart, tend = config.time_range
+    obs_times = obs.index.get_level_values("obs_time")
+    obs = obs[(obs_times >= tstart) & (obs_times < tend)]
+    prior_times = prior.index.get_level_values("time")
+    prior = prior[(prior_times >= tstart) & (prior_times < tend)]
+
+    if config.min_obs_per_interval > 1:
+        # The intervals run from each flux time to the next, closed on the right, as
+        # fips 0.1's FluxInversionPipeline made them
+        times = prior.index.get_level_values("time").unique().sort_values()
+        offset = pd.tseries.frequencies.to_offset(config.flux_freq)
+        bins = pd.interval_range(
+            start=times.min(), end=times.max() + offset, freq=config.flux_freq
+        )
+        interval = pd.Index(pd.cut(obs.index.get_level_values("obs_time"), bins=bins))
+        counts = (
+            pd.Series(1, index=obs.index)
+            .groupby(interval, observed=True)
+            .transform("count")
+        )
+        obs = obs[(counts >= config.min_obs_per_interval).to_numpy()]
+    return obs, prior
+
+
+def get_bias(config: InversionConfig, obs_space: Space) -> tuple[Vector, Operator]:
+    """
+    The bias block: one unknown offset per group of obs, by ``config.bias_grouping``.
+
+    ``None`` or ``"time"``: one per flux interval; ``"site"``: per interval and site;
+    ``"site_group"``: per interval and site organization. A mobile receptor belongs to
+    its mobile site (:func:`obs_sites`, after ``config.location_site_map``). Only groups
+    with obs get an offset; each is labeled by its interval's start (``obs_time``) and
+    its site (``obs_location``) or organization (``site_group``). Built every run from the
+    obs, which change with the obs filters the cache key leaves out.
+
+    Returns
+    -------
+    prior : Vector
+        Zeros, the one block ``bias``.
+    forward : Operator
+        The obs-by-bias block of the forward operator (1 where an obs has the offset).
+    """
+    grouping = config.bias_grouping
+    by: list[Any] = [config.flux_time_bins.rename("obs_time")]
+    if grouping in ("site", "site_group"):
+        locations = obs_space.select("concentration").get_level_values("obs_location")
+        unique = locations.unique()
+        mapper = config.location_site_map or {}
+        sites = obs_sites(config, unique.map(lambda loc: mapper.get(loc, loc)))
+        if grouping == "site":
+            by.append(pd.Series(sites, index=unique, name="obs_location"))
+        else:
+            organization = config.site_config.organization.to_dict()
+            groups = [organization.get(site, "unknown") for site in sites]
+            by.append(pd.Series(groups, index=unique, name="site_group"))
+    elif grouping not in (None, "time"):
+        raise ValueError(
+            f"Unknown bias_grouping: {grouping}. "
+            f"Expected None, 'time', 'site', or 'site_group'"
+        )
+    return fips.offset_block(obs_space, by=by, block="bias")
+
+
+def build_problem(config: InversionConfig) -> Problem:
+    """
+    The fips problem for ``config``: every component loaded or built, then put together.
+
+    Steps: the obs, prior and background (:func:`get_obs`, :func:`get_prior`,
+    :func:`get_constant`); :func:`filter_state_space`; the flux Jacobian
+    (:func:`get_flux_jacobian`), checked to cover the prior's cells
+    (:func:`~slv.inversion.coverage.check_state_cells`); the prior error; the obs without
+    a background are dropped; the model-data mismatch on the obs that are left; the
+    bias block when ``config.bias_std`` is set; and the means of the obs over
+    ``config.aggregate_obs`` (a day) when it is set. The Jacobian's rows for the obs are
+    placed on them (an obs without a footprint is a row of zeros), and the float labels
+    are rounded to :data:`LABEL_DECIMALS`.
+
+    Returns
+    -------
+    Problem
+        The state has the block ``flux`` (and ``bias``), the obs the block
+        ``concentration``; the background is the offset.
+    """
+    step_start = time.perf_counter()
+    print("Loading observations...")
+    obs = get_obs(config)
+    print(f"Observations loaded in {time.perf_counter() - step_start:.2f}s")
+
+    step_start = time.perf_counter()
+    print("Loading prior...")
+    full_prior = get_prior(config)
+    print(f"Prior loaded in {time.perf_counter() - step_start:.2f}s")
+
+    step_start = time.perf_counter()
+    print("Loading constant term (if any)...")
+    constant = get_constant(config, obs)
+    print(f"Constant term loaded in {time.perf_counter() - step_start:.2f}s")
+
+    step_start = time.perf_counter()
+    print("Optionally, filtering state space...")
+    obs, prior = filter_state_space(config, obs, full_prior)
+    print(
+        f"Optionally, state space filtered in {time.perf_counter() - step_start:.2f}s"
+    )
+
+    step_start = time.perf_counter()
+    print("Building forward operator...")
+    jacobian = get_flux_jacobian(config, obs)
+    check_state_cells(prior.index, jacobian.cols.index)
+    print(f"Forward operator built in {time.perf_counter() - step_start:.2f}s")
+
+    prior = prior.set_axis(_rounded(prior.index))
+    step_start = time.perf_counter()
+    print("Building prior error covariance...")
+    prior_error = get_prior_error(config, prior)
+    print(f"Prior error covariance built in {time.perf_counter() - step_start:.2f}s")
+
+    # The obs whose background is missing are dropped rather than given a zero one
+    have_bg = obs.index.isin(constant.index)
+    if not have_bg.all():
+        print(
+            f"  Dropping {int((~have_bg).sum())}/{len(have_bg)} obs "
+            "with missing background"
+        )
+        obs = obs[have_bg]
+
+    step_start = time.perf_counter()
+    print("Building model-data mismatch covariance...")
+    mdm = get_modeldata_mismatch(
+        config,
+        obs,
+        prior=full_prior,
+        jacobian=jacobian,
+        constant=constant,
+        obs_sites=obs_sites(config, obs.index.get_level_values("obs_location")),
+    )
+    print(
+        "Model-data mismatch covariance built in "
+        f"{time.perf_counter() - step_start:.2f}s"
+    )
+
+    obs_vector = Vector.from_series(obs, block="concentration")
+    state = Vector.from_series(prior, block="flux")
+    offset = Vector.from_series(constant.reindex(obs.index), block="concentration")
+    receptors = jacobian.rows.select("concentration")
+    in_obs = np.flatnonzero(receptors.isin(obs.index))
+    blocks: dict[tuple[str, str], Any] = {
+        ("concentration", "flux"): (
+            matrix(jacobian)[in_obs],
+            receptors[in_obs],
+            _rounded(jacobian.cols.select("flux")),
+        )
+    }
+    prior_cov: Any = prior_error
+    if config.bias_std is not None:
+        bias_prior, bias_forward = get_bias(config, obs_vector.space)
+        state = Vector.from_blocks({"flux": state, "bias": bias_prior}, name="prior")
+        blocks[("concentration", "bias")] = bias_forward
+        prior_cov = Covariance.block_diag(
+            flux=prior_error, bias=Independent().with_std(config.bias_std)
+        )
+    problem = Problem(
+        prior=state,
+        prior_cov=prior_cov,
+        obs=obs_vector,
+        obs_cov=mdm,
+        forward=Operator.from_blocks(
+            blocks, rows=obs_vector.space, cols=state.space, name="forward_operator"
+        ),
+        offset=offset,
+    )
+
+    step_start = time.perf_counter()
+    print("Optionally, aggregating observation space (if needed)...")
+    if config.aggregate_obs:
+        freq = config.aggregate_obs
+        if not isinstance(freq, str):
+            raise TypeError(
+                f"aggregate_obs is a pandas frequency such as '1D', got {freq!r}."
             )
-            print(
-                f"  {project.name}: auto-generated location mapper for "
-                f"{len(location_mapper)} sites"
-            )
-
-        # Filter to simulations relevant for this obs set.
-        # For stationary sims: mapper resolves location id → site name → in obs.
-        # For mobile sims: location id not in mapper → falls back to the location id
-        #   itself, which IS the obs_location for mobile sites.
-        relevant_location_ids = {
-            lid
-            for lid in sim_locations
-            if location_mapper.get(lid, lid) in obs_locations
-        }
-        if not relevant_location_ids:
-            print(f"  {project.name}: no simulations match the obs; skipped")
-            return None
-
-        variant = self._resolve_variant(proj, project)
-        bins = self.config.flux_time_bins
-        times = pd.DatetimeIndex(sims["time"])
-        keep = (
-            (sims["variant"] == variant).to_numpy()
-            & sims["location"].astype(str).isin(relevant_location_ids).to_numpy()
-            & (times >= bins[0].left)
-            & (times <= bins[-1].right)
-            & times.hour.isin(self.config.subset_hours_utc)
+        levels = [n for n in obs.index.names if n != "obs_time"]
+        W = fips.aggregate.mean(
+            problem.obs.space,
+            by=[*levels, pd.Grouper(level="obs_time", freq=freq)],
+            blocks="concentration",
         )
-        sel = sims[keep]
-        if sel.empty:
-            print(f"  {project.name}: no simulations in the time range; skipped")
-            return None
-        return project_jacobian(
-            proj,
-            sel,
-            self.config.state_grid,
-            bins,
-            location_mapper=location_mapper,
-            workers=self.config.num_processes,
-            sparse=self.config.sparse_jacobian,
-        )
+        problem = problem.aggregate(W)
+    print(
+        "Optionally, observation space aggregated in "
+        f"{time.perf_counter() - step_start:.2f}s"
+    )
+    return problem
 
-    def _resolve_variant(self, proj, project: Path) -> str:
-        """
-        ``config.variant`` if set (this project must define it), else the project's one
-        variant with a footprint.
-        """
-        variants = proj.variants
-        variant = self.config.variant
-        if variant is not None:
-            names = set(variants)
-            if variant not in names:
-                raise ValueError(
-                    f"Variant {variant!r} is not in the STILT project {project} "
-                    f"(it has {sorted(names)}). With several projects, config.variant must "
-                    "name a variant every project has, or be None."
-                )
-            return variant
-        with_footprint = [n for n, v in variants.items() if v.footprint is not None]
-        if len(with_footprint) != 1:
-            raise ValueError(
-                f"The STILT project {project} has {len(with_footprint)} variants with a "
-                f"footprint ({with_footprint}); set InversionConfig.variant to pick one."
-            )
-        print(f"  {project.name}: using variant {with_footprint[0]!r}")
-        return with_footprint[0]
 
-    @fips_cache(CovarianceMatrix, "prior_error")
-    def get_prior_error(self, prior: Vector) -> CovarianceMatrix:
-        """
-        Get prior error covariance, optionally including bias error.
+def run(config: InversionConfig, problem: Problem | None = None) -> Posterior:
+    """
+    Build the problem, solve it, summarize and plot.
 
-        Returns a single-block flux error if bias_std is None, otherwise
-        returns a multi-block [flux_err, bias_err] covariance.
-        """
-        # Build flux error
-        flux_prior = Vector(
-            prior.blocks["flux"] if self.config.bias_std is not None else prior.data
-        )
-        S_0 = build_prior_error(
-            flux_prior,
-            base_std=self.config.prior_base_std,
-            std_frac=self.config.prior_std_frac,
-            time_scale=self.config.prior_time_scale,
-            spatial_scale=self.config.prior_spatial_scale,
-        )
+    Steps: :func:`build_problem` (cached components), the Jacobian coverage filter when
+    ``config.jacobian_coverage_percentile`` is set (the poorly covered cells are held at
+    their prior: :func:`~slv.inversion.coverage.covered_state`), the solve
+    (``config.gamma`` scales the obs error), :func:`~slv.inversion.report.summarize`,
+    then the plots the config turns on.
 
-        # Return flux-only error if no bias
-        if self.config.bias_std is None:
-            return CovarianceMatrix(name="prior_error", data=S_0)
+    Parameters
+    ----------
+    config : InversionConfig
+        The inversion.
+    problem : Problem, optional
+        The problem to solve; :func:`build_problem` of ``config`` by default. Pass the
+        one you built to keep the whole state: with the coverage filter on, the
+        posterior's problem holds only the kept cells, and
+        ``post.estimate.combine_first(problem.prior)`` is the estimate on every cell.
 
-        # Add bias error
-        flux_err_blk = CovarianceMatrix(name="prior_error", data=S_0).blocks[
-            "flux", "flux"
-        ]
-        bias_index = prior["bias"].index
-        bias_err = DiagonalError(
-            name="bias_error", variances=self.config.bias_std**2
-        ).build(bias_index)
-        bias_err_blk = MatrixBlock(bias_err, "bias", "bias")
+    Returns
+    -------
+    Posterior
+        The solution; ``post.problem`` is the problem that was solved.
+    """
+    total_start = time.perf_counter()
+    print("Getting problem inputs...")
+    if problem is None:
+        problem = build_problem(config)
+    print(f"Inputs prepared in {time.perf_counter() - total_start:.2f}s")
 
-        return CovarianceMatrix(name="prior_error", data=[flux_err_blk, bias_err_blk])
-
-    def obs_sites(self, obs_index: pd.Index) -> pd.Index:
-        """
-        The site of each obs, for site- and organization-keyed MDM and bias terms.
-
-        A tower obs is keyed by its site; a mobile obs by its receptor's PYSTILT location_id,
-        which belongs to the (single) mobile site in ``config.sites``.
-        """
-        return self._resolve_sites(obs_index.get_level_values("obs_location"))
-
-    def _resolve_sites(self, locations) -> pd.Index:
-        """
-        Sites for obs locations: a site stays itself, anything else is a receptor of
-        the single mobile site in ``config.sites``.
-        """
-        locations = pd.Index(locations)
-        known = locations.isin(self.config.site_config.index)
-        if known.all():
-            return pd.Index(locations)
-        _, mobile = split_sites(self.config.sites, self.config.site_config)
-        if len(mobile) != 1:
-            raise ValueError(
-                f"{int((~known).sum())} obs are keyed by a location that is not a site, and "
-                f"config.sites has {len(mobile)} mobile sites ({mobile}) to assign them to; "
-                "exactly one is supported."
-            )
-        return pd.Index(np.where(known, locations, mobile[0]))
-
-    @fips_cache(Vector, "constant")
-    def get_constant(self, obs: Vector) -> Vector:
-        """
-        Background concentration for each obs (``config.background``).
-
-        Obs whose background is missing (outside the ct_stilt product, rolling-baseline
-        gaps) are dropped here rather than filled: fips vectors reject NaN, and
-        ``aggregate_obs_space`` reduces the obs to match.
-        """
-        obs_times = obs.data.index.get_level_values("obs_time").unique()
-        data = get_slv_background(
-            background=self.config.background,
-            obs_times=obs_times,
-            sites=self.config.sites,
-            site_config=self.config.site_config,
-            time_range=self.config.time_range,
-            filter_pcaps=self.config.filter_pcaps,
-            num_processes=self.config.num_processes,
-            **self.config.background_kwargs,
-        )
-
-        # Align background to obs index
-        data = (
-            obs.data.reset_index()
-            .join(data, on="obs_time", lsuffix="_obs")
-            .set_index(["obs_location", "obs_time"])["concentration"]
-        )
-
-        # Drop obs whose background is missing (e.g. days outside the ct_stilt
-        # product, or rolling-baseline edge gaps). fips Vectors reject NaN, and
-        # aggregate_obs_space reduces obs to match so these obs are dropped rather
-        # than back-filled to zero by the obs.index reindex downstream.
-        data = data.dropna()
-
-        return Vector(name="background", data=Block(name="concentration", data=data))
-
-    def filter_state_space(self, obs: Vector, prior: Vector) -> tuple[Vector, Vector]:
-        """
-        Trim obs and prior to ``config.time_range``, then run interval filter.
-
-        This ensures that objects loaded from a wide-range cache are sliced
-        down to the current run's time window before any downstream builders
-        (forward operator, covariances) see them.
-        """
-        tstart, tend = self.config.time_range
-
-        # --- Filter obs by obs_time ---
-        obs_series = obs.to_series()
-        obs_times = obs_series.index.get_level_values("obs_time")
-        obs_series = obs_series[(obs_times >= tstart) & (obs_times < tend)]
-        obs = Vector(obs_series, name=obs.name)
-
-        # --- Filter prior by time ---
-        prior_series = prior.to_series()
-        prior_times = prior_series.index.get_level_values("time")
-        prior_series = prior_series[(prior_times >= tstart) & (prior_times < tend)]
-        prior = Vector(prior_series, name=prior.name)
-
-        # Delegate min-obs / min-sims interval filtering to FluxInversionPipeline
-        return super().filter_state_space(obs, prior)
-
-    def aggregate_obs_space(
-        self,
-        obs: Vector,
-        forward_operator: ForwardOperator,
-        modeldata_mismatch: CovarianceMatrix,
-        constant: Vector | None,
-    ) -> tuple[Vector, ForwardOperator, CovarianceMatrix, Vector | None]:
-        """Aggregates the observation space if specified in the config."""
-        # Drop obs whose background is missing. get_constant returns a NaN-free
-        # (reduced) constant; reduce obs to match here -- before the aggregator and
-        # the InverseProblem reindex everything to obs.index -- so gap-day obs are
-        # dropped rather than back-filled to zero. Generalizes the old
-        # CTStiltBackgroundInversion obs-dropping to any background.
-        if constant is not None:
-            obs_series = obs.to_series()
-            bg_index = constant["concentration"].index
-            # obs carries a leading "block" index level that the background lacks;
-            # match on the levels the background is actually indexed by.
-            obs_key = obs_series.index
-            extra = [n for n in obs_key.names if n not in bg_index.names]
-            if extra:
-                obs_key = obs_key.droplevel(extra)
-            have_bg = obs_key.isin(bg_index)
-            if not have_bg.all():
-                print(
-                    f"  Dropping {int((~have_bg).sum())}/{len(have_bg)} obs "
-                    "with missing background"
-                )
-                obs = Vector(obs_series[have_bg], name=obs.name)
-
-        if self.config.aggregate_obs:
-            aggregator = ObsAggregator(
-                level="obs_time", freq=self.config.aggregate_obs, blocks="concentration"
-            )
-            obs, forward_operator, modeldata_mismatch, constant = aggregator.apply(
-                obs, forward_operator, modeldata_mismatch, constant
-            )
-        return obs, forward_operator, modeldata_mismatch, constant
-
-    def run(self, estimator_kwargs: dict | None = None, **kwargs) -> FluxProblem:
-        """
-        Build the inputs, solve, summarize and plot.
-
-        Steps: :meth:`get_inputs` (cached components), the Jacobian coverage filter when
-        ``config.jacobian_coverage_percentile`` is set, the solve (``config.gamma`` scales
-        the obs error), :meth:`summarize`, then the ``plot_*`` methods the config turns on.
-
-        Parameters
-        ----------
-        estimator_kwargs : dict, optional
-            Passed to ``FluxProblem.solve``; overrides ``gamma`` from the config.
-        **kwargs
-            Passed to the ``FluxProblem`` constructor.
-
-        Returns
-        -------
-        FluxProblem
-            The solved problem (also kept as ``self.problem``).
-        """
-        total_start = time.perf_counter()
-        print("Getting problem inputs...")
-        inputs = self.get_inputs()
-        print(f"Inputs prepared in {time.perf_counter() - total_start:.2f}s")
-
-        # Apply Jacobian-based cell filtering
-        if self.config.jacobian_coverage_percentile is not None:
-            step_start = time.perf_counter()
-            print("Filtering cells by Jacobian coverage...")
-            inputs = self._apply_jacobian_coverage_filter(inputs)
-            print(f"Cells filtered in {time.perf_counter() - step_start:.2f}s")
-
-        print("Initializing solver...")
+    solved = problem
+    if config.jacobian_coverage_percentile is not None:
         step_start = time.perf_counter()
-        self.problem = self._InverseProblem(
-            **inputs,
-            **kwargs,
-        )
-        print(f"Solver initialized in {time.perf_counter() - step_start:.2f}s")
+        print("Filtering cells by Jacobian coverage...")
+        keep = covered_state(problem, config.jacobian_coverage_percentile)
+        if len(keep) < len(problem.prior):
+            solved = problem.restrict(keep)
+        print(f"Cells filtered in {time.perf_counter() - step_start:.2f}s")
 
-        if self.config.plot_inputs:
-            step_start = time.perf_counter()
-            self.plot_inputs(self.problem)
-            print(f"Inputs plotted in {time.perf_counter() - step_start:.2f}s")
-
-        print("Solving...")
+    if config.plot_inputs:
         step_start = time.perf_counter()
-        # Build estimator kwargs: config gamma + explicit overrides
-        solve_kwargs = {}
-        if self.config.gamma is not None:
-            solve_kwargs["gamma"] = self.config.gamma
-        if estimator_kwargs:
-            solve_kwargs.update(estimator_kwargs)
-        self.problem.solve(estimator=self.estimator, **solve_kwargs)
-        print(f"Solve completed in {time.perf_counter() - step_start:.2f}s")
+        report.plot_inputs(config, problem, solved)
+        print(f"Inputs plotted in {time.perf_counter() - step_start:.2f}s")
 
-        # Print summary report
-        print("Calculating summary...")
+    print("Solving...")
+    step_start = time.perf_counter()
+    if config.gamma is None:
+        post = fips.solve(solved)
+    else:
+        post = fips.solve(solved, gamma=config.gamma)
+    print(f"Solve completed in {time.perf_counter() - step_start:.2f}s")
+
+    print("Calculating summary...")
+    step_start = time.perf_counter()
+    report.summarize(config, post, problem)
+    print(f"Summary calculated in {time.perf_counter() - step_start:.2f}s")
+
+    if config.plot_results:
         step_start = time.perf_counter()
-        self.summarize()
-        print(f"Summary calculated in {time.perf_counter() - step_start:.2f}s")
+        report.plot_results(config, post, problem)
+        print(f"Results plotted in {time.perf_counter() - step_start:.2f}s")
 
-        if self.config.plot_results:
-            step_start = time.perf_counter()
-            self.plot_results(self.problem)
-            print(f"Results plotted in {time.perf_counter() - step_start:.2f}s")
+    if config.plot_diagnostics:
+        step_start = time.perf_counter()
+        report.plot_diagnostics(config, post, problem)
+        print(f"Diagnostics plotted in {time.perf_counter() - step_start:.2f}s")
 
-        if self.config.plot_diagnostics:
-            step_start = time.perf_counter()
-            self.plot_diagnostics(self.problem)
-            print(f"Diagnostics plotted in {time.perf_counter() - step_start:.2f}s")
-
-        print(f"Total pipeline time: {time.perf_counter() - total_start:.2f}s")
-
-        return self.problem
+    print(f"Total pipeline time: {time.perf_counter() - total_start:.2f}s")
+    return post

@@ -2,18 +2,8 @@
 
 import numpy as np
 import pandas as pd
-from fips.covariance import (
-    BlockDecayError,
-    DiagonalError,
-    ErrorComponent,
-    KroneckerError,
-)
-from fips.kernels import (
-    ConstantCorrelation,
-    GridSpatialDecay,
-    GridTimeDecay,
-    RaggedTimeDecay,
-)
+from fips import Constant, Covariance, Exponential, Independent, Kronecker, Space
+from fips.covariance import CovarianceModel
 from lair.clock import SEASONS
 
 
@@ -28,34 +18,46 @@ def normalize_duration(value):
     return value
 
 
-def build_prior_error(prior, **kwargs) -> pd.DataFrame:
+def build_prior_error(
+    prior: pd.Series,
+    *,
+    time_scale: str,
+    spatial_scale: float,
+    base_std: float = 0.0,
+    std_frac: float = 0.0,
+) -> Covariance:
     """
-    Builds the S_0 Kronecker covariance matrix for the SLV flux prior.
+    The prior flux error covariance S_0: a Kronecker product of a time and a space decay.
+
+    Each cell's standard deviation is ``base_std + std_frac * prior``; the correlation
+    decays exponentially in time (``time_scale``) and with the great-circle distance
+    between cells (``spatial_scale``, km). The covariance is kept as its two factors.
+
+    Parameters
+    ----------
+    prior : pd.Series
+        The flux prior, indexed by (time, lat, lon) in any order of the levels.
+    time_scale : str
+        The e-folding time of the correlation (``"32d"``).
+    spatial_scale : float
+        The e-folding distance of the correlation, in km.
+    base_std, std_frac : float
+        The standard deviation's floor and its fraction of the prior.
+
+    Returns
+    -------
+    Covariance
+        S_0 on the prior's labels, as the one block ``flux``, kept as Kronecker factors.
     """
-    # Get configuration parameters for the prior covariance from kwargs, with defaults
-    base_std = kwargs.get("base_std", 0.0)
-    std_frac = kwargs.get("std_frac", 0.0)
-    time_scale = normalize_duration(kwargs.get("time_scale"))
-    spatial_scale = kwargs.get("spatial_scale")
-
-    # Calculate dynamic variances proportional to the prior flux
-    variances = (base_std + std_frac * prior.data) ** 2
-
-    # 2. Define the Kronecker marginals using the strict grid kernels
-    S_0 = KroneckerError(
-        name="prior_error",
-        variances=variances,
-        marginal_kernels=[
-            ("time", GridTimeDecay(scale=time_scale)),
-            (
-                ["lat", "lon"],
-                GridSpatialDecay(lat_dim="lat", lon_dim="lon", scale=spatial_scale),
-            ),
-        ],
+    # The variances are computed in the prior's own dtype (float32 for the EPA prior)
+    # and square-rooted, as slv and fips 0.1 did, so paper 1's S_0 is unchanged.
+    variances = (base_std + std_frac * prior) ** 2
+    std = np.sqrt(variances.to_numpy())
+    model = Kronecker(
+        Exponential("time", normalize_duration(time_scale)),
+        Exponential(["lat", "lon"], spatial_scale, metric="haversine"),
     )
-
-    # Build and return aligned to the prior's MultiIndex
-    return S_0.build(prior.index)
+    return model.with_std(std).build(Space({"flux": prior.index}), name="prior_error")
 
 
 def build_mdm_error(
@@ -69,14 +71,17 @@ def build_mdm_error(
     site_config=None,
     obs_sites=None,
     **kwargs,
-) -> ErrorComponent:
+) -> CovarianceModel:
     """
     Unified builder for Model-Data Mismatch covariance components.
+
+    Returns a covariance model, to build on the observations' space (whose labels must
+    be ``obs_index``, in that order: a per-observation ``std`` is read in that order).
 
     Parameters
     ----------
     name : str
-        Component name
+        Component name (used in error messages)
     obs_index : pd.MultiIndex
         Observation index with 'obs_location' and 'obs_time' levels
     std : float or dict
@@ -146,35 +151,25 @@ def build_mdm_error(
                         f"No std value found for organization='{org}' (site='{loc}') in component '{name}'"
                     ) from None
 
-        variances = pd.Series(std_values, index=obs_index) ** 2
+        std = np.asarray(std_values, dtype=float)
     elif isinstance(std, (np.ndarray, pd.Series, list, tuple)):
         # Per-observation std array, aligned to obs_index (e.g. a multiplicative
         # transport term f * |H x_prior| that scales with the modeled enhancement).
-        variances = pd.Series(np.asarray(std, dtype=float), index=obs_index) ** 2
-    else:
-        # Scalar std
-        variances = std**2
+        std = np.asarray(std, dtype=float)
+        if len(std) != len(obs_index):
+            raise ValueError(
+                f"Component '{name}' has {len(std)} stds for {len(obs_index)} obs."
+            )
 
     # Uncorrelated errors (diagonal)
     if not correlated:
-        # We don't need groupers or kernels, just drop it on the diagonal
-        return DiagonalError(name=name, variances=variances)
+        return Independent().with_std(std)
 
-    # Correlated errors (block-diagonal with optional time decay)
-    # Determine the mathematical kernel
-    if scale is None:
-        corr_func = ConstantCorrelation()
-    else:
-        corr_func = RaggedTimeDecay(time_dim=time_dim, scale=normalize_duration(scale))
-
-    # Determine the grouping structure
-    # Group by all non-time levels (e.g., 'obs_location')
-    groupers = [col for col in obs_index.names if col != time_dim]
-
+    # Correlated errors: within groups of all non-time levels (e.g. 'obs_location'),
+    # and within a day unless ``interday`` (to sever midnight correlations)
+    within = [level for level in obs_index.names if level != time_dim]
     if not interday:
-        # Append the date to the groupers to strictly sever midnight correlations
-        groupers.append(obs_index.get_level_values(time_dim).date)
-
-    return BlockDecayError(
-        name=name, variances=variances, groupers=groupers, corr_func=corr_func
-    )
+        within.append(f"{time_dim}.date")
+    if scale is None:
+        return Constant(within=within).with_std(std)
+    return Exponential(time_dim, normalize_duration(scale), within=within).with_std(std)
