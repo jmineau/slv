@@ -1,7 +1,7 @@
 """
 Parameter sweep harness for SLV methane inversions.
 
-Run many :class:`~slv.inversion.pipelines.SLVMethaneInversion` configurations
+Run many inversion configurations (:func:`~slv.inversion.pipelines.run`)
 in one pass, collect goodness-of-fit metrics (targeting reduced chi² ≈ 1), and
 analyse which parameter combinations produce stable, well-fitting inversions.
 
@@ -10,12 +10,10 @@ Quick start — single-node sweep
 .. code-block:: python
 
     from slv.inversion.sweep import Sweep, SweepResults
-    from slv.inversion.pipelines import SLVMethaneInversion
 
     # Create and run a parameter sweep
     sweep = Sweep(
         cache="/scratch/my_sweep/cache",
-        pipeline_cls=SLVMethaneInversion,
         prior_base_std=[0.01, 0.019, 0.03],
         prior_std_frac=[0.3, 0.5, 0.7],
         prior_time_scale=["16d", "32d", "64d"],
@@ -30,7 +28,7 @@ Quick start — single-node sweep
 
     best = results.best(tol=0.1)  # chi² ∈ [0.9, 1.1]
     results.plot_chi2("cfg_prior_base_std")
-    cfg, cls = results.to_config(best.iloc[0])
+    cfg, pipeline = results.to_config(best.iloc[0])
 
 SLURM job-array usage
 ----------------------
@@ -66,16 +64,21 @@ import os
 import sys
 import time
 import traceback
+from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
 import pandas as pd
+from fips import Posterior
 from joblib import Parallel, delayed
 
+from slv.inversion import pipelines
 from slv.inversion.config import InversionConfig
-from slv.inversion.pipelines import (
-    SLVMethaneInversion,
-)
+from slv.inversion.report import calculate_total_flux
+from slv.inversion.viz import block_series
+
+#: A pipeline: the function that solves one config, as :func:`~slv.inversion.pipelines.run`.
+Pipeline = Callable[[InversionConfig], Posterior]
 
 logger = logging.getLogger(__name__)
 
@@ -190,6 +193,12 @@ def _append_row(csv_path: Path, row: dict | None) -> None:
         )
 
 
+def _import_pipeline(name: str) -> Pipeline:
+    """The pipeline function a grid names by its dotted path (``module.function``)."""
+    module_path, func_name = name.rsplit(".", 1)
+    return getattr(importlib.import_module(module_path), func_name)
+
+
 # ---------------------------------------------------------------------------
 # Config identification
 # ---------------------------------------------------------------------------
@@ -228,13 +237,12 @@ class Sweep:
 
         sweep = Sweep(
             cache="./cache",
-            pipeline_cls=SLVMethaneInversion,
             base_config=base,
             prior_base_std=[0.01, 0.02],
             gamma=[1.0, 3.0],
         )
         results = sweep.run(results_dir="./my_sweep", n_jobs=40)
-        problem = sweep.get_problem(results.best().iloc[0]["config_id"])
+        post = sweep.get_posterior(results.best().iloc[0]["config_id"])
 
     **Resume/merge with existing grid:**
 
@@ -262,7 +270,7 @@ class Sweep:
     def __init__(
         self,
         cache: str | Path,
-        pipeline_cls: type[SLVMethaneInversion] = SLVMethaneInversion,
+        pipeline: Pipeline = pipelines.run,
         base_config: InversionConfig | None = None,
         grid_path: str | Path | None = None,
         **sweep_kwargs: list[Any],
@@ -274,8 +282,10 @@ class Sweep:
         ----------
         cache :
             Cache directory for inversion components.
-        pipeline_cls :
-            Pipeline class to use for inversions.
+        pipeline :
+            The function that solves one config (``InversionConfig -> Posterior``);
+            :func:`slv.inversion.pipelines.run` by default. It must be importable by
+            name (a module-level function), so the grid can name it.
         base_config :
             Base configuration for all configs.
         grid_path :
@@ -285,12 +295,12 @@ class Sweep:
             Parameter sweep ranges (e.g., ``prior_base_std=[0.01, 0.02]``).
         """
         self.cache = Path(cache)
-        self.pipeline_cls = pipeline_cls
+        self.pipeline = pipeline
         self.base_config = base_config
         self.sweep_kwargs = sweep_kwargs
 
-        self.configs: list[tuple[InversionConfig, type]] = []
-        self._config_map: dict[str, tuple[InversionConfig, type]] = {}
+        self.configs: list[tuple[InversionConfig, Pipeline]] = []
+        self._config_map: dict[str, tuple[InversionConfig, Pipeline]] = {}
 
         self._build_configs(grid_path)
 
@@ -316,12 +326,11 @@ class Sweep:
                         **{k: v for k, v in fields.items() if k in valid}
                     )
 
-                    module_path, cls_name = entry["pipeline_cls"].rsplit(".", 1)
-                    cls = getattr(importlib.import_module(module_path), cls_name)
+                    pipeline = _import_pipeline(entry["pipeline"])
 
                     cid = config_id(cfg)
-                    self.configs.append((cfg, cls))
-                    self._config_map[cid] = (cfg, cls)
+                    self.configs.append((cfg, pipeline))
+                    self._config_map[cid] = (cfg, pipeline)
                     existing_ids.add(cid)
 
                 print(f"Loaded {len(grid)} configs from {grid_path}")
@@ -359,8 +368,8 @@ class Sweep:
 
                 cid = config_id(cfg)
                 if cid not in existing_ids:
-                    self.configs.append((cfg, self.pipeline_cls))
-                    self._config_map[cid] = (cfg, self.pipeline_cls)
+                    self.configs.append((cfg, self.pipeline))
+                    self._config_map[cid] = (cfg, self.pipeline)
                     existing_ids.add(cid)
                     added += 1
 
@@ -475,14 +484,14 @@ class Sweep:
 
     def _run_single(
         self,
-        args: tuple[InversionConfig, type, str, list[str] | None, bool],
+        args: tuple[InversionConfig, Pipeline, str, list[str] | None, bool],
     ) -> dict[str, Any]:
         """
         Run one inversion and return a metrics dict.
 
         Catches all exceptions so a single failed run does not abort the whole sweep.
         """
-        config, pipeline_cls, results_dir, swept_params, suppress_output = args
+        config, pipeline, results_dir, swept_params, suppress_output = args
         cid = config_id(config)
 
         # Suppress plots in sweep runs
@@ -495,12 +504,10 @@ class Sweep:
             # Suppress stdout/stderr when running in parallel
             if suppress_output:
                 with _suppress_output():
-                    pipeline = pipeline_cls(config)
-                    problem = pipeline.run()
+                    post = pipeline(config)
             else:
-                pipeline = pipeline_cls(config)
-                problem = pipeline.run()
-            row = collect_metrics(problem, config, pipeline, swept_params=swept_params)
+                post = pipeline(config)
+            row = collect_metrics(post, config, swept_params=swept_params)
             row["runtime_seconds"] = round(time.perf_counter() - start, 1)
             return row
         except Exception as exc:
@@ -523,11 +530,11 @@ class Sweep:
     def _write_grid(self, path: Path) -> None:
         """Write configs to grid JSON for SLURM job arrays."""
         grid = []
-        for i, (cfg, cls) in enumerate(self.configs):
+        for i, (cfg, pipeline) in enumerate(self.configs):
             entry = {
                 "index": i,
                 "config_id": config_id(cfg),
-                "pipeline_cls": f"{cls.__module__}.{cls.__qualname__}",
+                "pipeline": f"{pipeline.__module__}.{pipeline.__qualname__}",
                 "fields": _to_json(
                     {
                         f.name: getattr(cfg, f.name)
@@ -541,7 +548,7 @@ class Sweep:
         with open(path, "w") as f:
             json.dump(grid, f, indent=2)
 
-    def get_problem(self, config_id: str):
+    def get_posterior(self, config_id: str) -> Posterior:
         """
         Reconstruct and run a single config by ID.
 
@@ -552,7 +559,7 @@ class Sweep:
 
         Returns
         -------
-        FluxProblem instance from running the pipeline.
+        The posterior the pipeline returns for that config.
 
         Raises
         ------
@@ -565,16 +572,15 @@ class Sweep:
                 f"Available IDs: {list(self._config_map.keys())[:10]}..."
             )
 
-        cfg, cls = self._config_map[config_id]
-        pipeline = cls(cfg)
-        return pipeline.run()
+        cfg, pipeline = self._config_map[config_id]
+        return pipeline(cfg)
 
     def __len__(self) -> int:
         """Return number of configs in sweep."""
         return len(self.configs)
 
     def __repr__(self) -> str:
-        return f"Sweep({len(self)} configs, pipeline={self.pipeline_cls.__name__})"
+        return f"Sweep({len(self)} configs, pipeline={self.pipeline.__name__})"
 
 
 # ---------------------------------------------------------------------------
@@ -583,25 +589,22 @@ class Sweep:
 
 
 def collect_metrics(
-    problem: Any,
+    post: Posterior,
     config: InversionConfig,
-    pipeline: SLVMethaneInversion,
     swept_params: list[str] | None = None,
 ) -> dict[str, Any]:
     """
-    Extract goodness-of-fit and flux metrics from a solved ``FluxProblem``.
+    Extract goodness-of-fit and flux metrics from a solved inversion.
 
     The primary target metric is ``reduced_chi2`` — ideally close to 1.0,
     which indicates the error covariances are well-specified.
 
     Parameters
     ----------
-    problem :
-        Solved ``FluxProblem`` returned by ``pipeline.run()``.
+    post :
+        The posterior the pipeline returned (:func:`~slv.inversion.pipelines.run`).
     config :
         :class:`InversionConfig` used for this run.
-    pipeline :
-        The pipeline instance (used for ``calculate_total_flux``).
     swept_params :
         Config field names to capture as ``cfg_*`` columns in the output row.
         If *None*, all non-scientific fields are excluded and the rest included.
@@ -610,28 +613,31 @@ def collect_metrics(
     -------
     Flat :class:`dict` ready to append as a row to the results CSV.
     """
-    est = problem.estimator
+    problem = post.problem
 
     metrics: dict[str, Any] = dict.fromkeys(_RESULT_COLUMNS)
     metrics |= {
         "config_id": config_id(config),
         # Primary chi² metric — target ≈ 1.0
-        "reduced_chi2": float(est.reduced_chi2),
-        "chi2_distance": abs(float(est.reduced_chi2) - 1.0),
+        "reduced_chi2": float(post.reduced_chi2),
+        "chi2_distance": abs(float(post.reduced_chi2) - 1.0),
         # Supplementary fit metrics
-        "R2": float(est.R2),
-        "RMSE": float(est.RMSE),
-        "DOFS": float(est.DOFS),
-        "uncertainty_reduction": float(est.uncertainty_reduction),
+        "R2": float(post.r2),
+        "RMSE": float(post.rmse),
+        "DOFS": float(post.dofs),
+        "uncertainty_reduction": float(post.uncertainty_reduction),
     }
+    prior_fluxes = block_series(problem.prior, "flux", "prior")
 
     # Domain-integrated flux totals
     try:
-        total_prior = pipeline.calculate_total_flux(
-            problem.prior_fluxes, units=config.output_units
+        total_prior = calculate_total_flux(
+            config, prior_fluxes, units=config.output_units
         )
-        total_posterior = pipeline.calculate_total_flux(
-            problem.posterior_fluxes, units=config.output_units
+        total_posterior = calculate_total_flux(
+            config,
+            block_series(post.estimate, "flux", "posterior"),
+            units=config.output_units,
         )
         metrics["prior_flux_mean"] = float(total_prior.mean())
         metrics["posterior_flux_mean"] = float(total_posterior.mean())
@@ -650,9 +656,15 @@ def collect_metrics(
 
     # Concentration residuals
     try:
-        obs_enh = problem.enhancement
-        prior_c = problem.prior_concentrations
-        post_c = problem.posterior_concentrations
+        # Enhancement minus modeled concentration, as before the move to fips 0.2:
+        # off by the background (jmineau/slv#27)
+        obs = block_series(problem.obs, "concentration")
+        background = 0.0
+        if problem.offset is not None:
+            background = block_series(problem.offset, "concentration")
+        obs_enh = obs - background
+        prior_c = block_series(problem.predict(problem.prior), "concentration")
+        post_c = block_series(post.modeled_obs, "concentration")
         rp = obs_enh - prior_c
         rq = obs_enh - post_c
         metrics["prior_conc_rmse"] = float((rp**2).mean() ** 0.5)
@@ -660,7 +672,7 @@ def collect_metrics(
         metrics["prior_conc_bias"] = float(rp.mean())
         metrics["posterior_conc_bias"] = float(rq.mean())
         metrics["n_obs"] = int(len(obs_enh))
-        metrics["n_state"] = int(problem.prior_fluxes.shape[0])
+        metrics["n_state"] = int(len(prior_fluxes))
     except Exception:
         logger.debug("collect_metrics: concentration residuals failed", exc_info=True)
 
@@ -747,9 +759,7 @@ def run_sweep_job(results_dir: str | Path) -> None:
     valid = {f.name for f in dataclasses.fields(InversionConfig) if f.name != "tiler"}
     cfg = InversionConfig(**{k: v for k, v in fields.items() if k in valid})
 
-    # Rehydrate pipeline class
-    module_path, cls_name = entry["pipeline_cls"].rsplit(".", 1)
-    pipeline_cls = getattr(importlib.import_module(module_path), cls_name)
+    pipeline = _import_pipeline(entry["pipeline"])
 
     cid = config_id(cfg)
     csv_path = results_dir / "sweep_results.csv"
@@ -768,9 +778,7 @@ def run_sweep_job(results_dir: str | Path) -> None:
 
     start = time.perf_counter()
     try:
-        pipeline = pipeline_cls(cfg)
-        problem = pipeline.run()
-        row = collect_metrics(problem, cfg, pipeline, swept_params=None)
+        row = collect_metrics(pipeline(cfg), cfg, swept_params=None)
     except Exception as exc:
         import traceback
 
@@ -1074,9 +1082,9 @@ class SweepResults:
     def to_config(
         self,
         row: pd.Series,
-        pipeline_cls: type = SLVMethaneInversion,
+        pipeline: Pipeline = pipelines.run,
         cache: str | Path | None = None,
-    ) -> tuple[InversionConfig, type]:
+    ) -> tuple[InversionConfig, Pipeline]:
         """
         Rehydrate an :class:`InversionConfig` from a results row.
 
@@ -1084,14 +1092,14 @@ class SweepResults:
         ----------
         row :
             A row from :attr:`df` (e.g. ``results.best().iloc[0]``).
-        pipeline_cls :
-            Pipeline class to associate.
+        pipeline :
+            The pipeline function to associate.
         cache :
             Override cache path.  If *None*, keeps the original run's cache.
 
         Returns
         -------
-        ``(InversionConfig, pipeline_cls)`` tuple ready to instantiate and run.
+        ``(InversionConfig, pipeline)``: ``pipeline(config)`` runs it.
         """
         valid = {f.name for f in dataclasses.fields(InversionConfig)}
         raw = {
@@ -1110,4 +1118,4 @@ class SweepResults:
         if cache is not None:
             parsed["cache"] = str(cache)
 
-        return InversionConfig(**parsed), pipeline_cls
+        return InversionConfig(**parsed), pipeline

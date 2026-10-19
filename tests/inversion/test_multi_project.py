@@ -11,12 +11,14 @@ from types import SimpleNamespace
 import numpy as np
 import pandas as pd
 import pytest
-from fips import ForwardOperator, MatrixBlock
+import scipy.sparse as sp
+from fips import Operator, Space
+from fips.linalg import SparseOperator
 from stilt.footprint import Jacobian
 
 import slv.inversion.pipelines as pl
 from slv.inversion.config import InversionConfig
-from slv.inversion.pipelines import SLVMethaneInversion, stack_jacobians
+from slv.inversion.pipelines import stack_jacobians
 
 TIMES = pd.to_datetime(["2024-06-01", "2024-07-01"])
 COLS = pd.MultiIndex.from_product(
@@ -34,19 +36,24 @@ def _block(locations, times, cols=COLS, value=None, sparse=False):
         if value is not None
         else rng.random((len(idx), len(cols)))
     )
-    return MatrixBlock(
-        pd.DataFrame(data, idx, cols),
+    return Operator(
+        sp.csr_array(data) if sparse else data,
+        Space({"concentration": idx}),
+        Space({"flux": cols}),
         name="jacobian",
-        row_block="concentration",
-        col_block="flux",
-        sparse=sparse,
     )
 
 
-def _pipeline(**cfg):
-    obj = object.__new__(SLVMethaneInversion)
-    obj.config = InversionConfig(cache=False, **cfg)
-    return obj
+def frame(H):
+    """An operator of one block on each axis as a DataFrame on the blocks' labels."""
+    df = H.to_frame()
+    df.index = df.index.droplevel("block")
+    df.columns = df.columns.droplevel("block")
+    return df
+
+
+def _config(**cfg):
+    return InversionConfig(cache=False, **cfg)
 
 
 def _obs(locations, times):
@@ -91,23 +98,25 @@ def test_adding_a_project_changes_the_forward_operator_cache_key():
 def test_stack_concatenates_disjoint_rows():
     a = _block(["wbb", "wbb"], TIMES)
     b = _block(["multi_aaaaaaaaaa"], TIMES[:1])
-    H = stack_jacobians([(Path("/prod"), a), (Path("/trax"), b)], sparse=False)
-    assert len(H.data) == 3
-    assert set(H.data.index.get_level_values("obs_location")) == {
+    H = frame(stack_jacobians([(Path("/prod"), a), (Path("/trax"), b)]))
+    assert len(H) == 3
+    assert set(H.index.get_level_values("obs_location")) == {
         "wbb",
         "multi_aaaaaaaaaa",
     }
-    pd.testing.assert_frame_equal(H.data.loc[a.data.index], a.data, check_names=False)
-    pd.testing.assert_frame_equal(H.data.loc[b.data.index], b.data, check_names=False)
+    for part in (a, b):
+        pd.testing.assert_frame_equal(
+            H.loc[frame(part).index], frame(part), check_names=False
+        )
 
 
 def test_stack_aligns_columns_and_zero_fills():
     a = _block(["wbb"], TIMES[:1], cols=COLS[:4])
     b = _block(["multi_aaaaaaaaaa"], TIMES[:1], cols=COLS[4:])
-    H = stack_jacobians([(Path("/prod"), a), (Path("/trax"), b)], sparse=False)
-    assert len(H.data.columns) == len(COLS)
-    assert (H.data.loc[a.data.index, COLS[4:]] == 0).all().all()
-    assert (H.data.loc[b.data.index, COLS[:4]] == 0).all().all()
+    H = frame(stack_jacobians([(Path("/prod"), a), (Path("/trax"), b)]))
+    assert len(H.columns) == len(COLS)
+    assert (H.loc[frame(a).index, COLS[4:]] == 0).all().all()
+    assert (H.loc[frame(b).index, COLS[:4]] == 0).all().all()
 
 
 def test_stack_rejects_an_obs_in_two_projects():
@@ -121,8 +130,8 @@ def test_stack_rejects_an_obs_in_two_projects():
 def test_stack_stays_sparse():
     a = _block(["wbb"], TIMES[:1], value=0.0, sparse=True)
     b = _block(["multi_aaaaaaaaaa"], TIMES[:1], value=0.0, sparse=True)
-    H = stack_jacobians([(Path("/prod"), a), (Path("/trax"), b)], sparse=True)
-    assert H.is_sparse
+    H = stack_jacobians([(Path("/prod"), a), (Path("/trax"), b)])
+    assert isinstance(H.data, SparseOperator)
 
 
 # --------------------------------------------------------------------------- pipeline
@@ -134,39 +143,33 @@ def test_flux_jacobian_stacks_every_contributing_project(monkeypatch):
         Path("/trax"): _block(["multi_aaaaaaaaaa"], TIMES[:1]),
         Path("/empty"): None,  # a project with no sims matching the obs is skipped
     }
-    monkeypatch.setattr(
-        SLVMethaneInversion, "_project_jacobian", lambda self, p, locs: built[p]
+    monkeypatch.setattr(pl, "_project_jacobian", lambda config, p, locs: built[p])
+    config = _config(stilt_project=["/prod", "/trax", "/empty"])
+    H = pl.get_flux_jacobian(
+        config, _obs(["wbb", "multi_aaaaaaaaaa"], TIMES[:1].repeat(2))
     )
-    p = _pipeline(stilt_project=["/prod", "/trax", "/empty"])
-    H = p._get_flux_jacobian(_obs(["wbb", "multi_aaaaaaaaaa"], TIMES[:1].repeat(2)))
-    assert isinstance(H, ForwardOperator)
-    rows = H.blocks["concentration", "flux"].data.index.get_level_values("obs_location")
+    assert isinstance(H, Operator)
+    rows = H.rows.select("concentration").get_level_values("obs_location")
     assert set(rows) == {"wbb", "multi_aaaaaaaaaa"}
 
 
 def test_single_project_is_passed_through_unstacked(monkeypatch):
     blk = _block(["wbb"], TIMES[:1])
-    monkeypatch.setattr(
-        SLVMethaneInversion, "_project_jacobian", lambda self, p, locs: blk
-    )
+    monkeypatch.setattr(pl, "_project_jacobian", lambda config, p, locs: blk)
     monkeypatch.setattr(
         pl,
         "stack_jacobians",
         lambda *a, **k: pytest.fail("should not stack one project"),
     )
-    H = _pipeline(stilt_project="/prod")._get_flux_jacobian(_obs(["wbb"], TIMES[:1]))
-    pd.testing.assert_frame_equal(
-        H.blocks["concentration", "flux"].data, blk.data, check_names=False
-    )
+    H = pl.get_flux_jacobian(_config(stilt_project="/prod"), _obs(["wbb"], TIMES[:1]))
+    assert H is blk
 
 
 def test_no_project_matching_the_obs_raises(monkeypatch):
-    monkeypatch.setattr(
-        SLVMethaneInversion, "_project_jacobian", lambda self, p, locs: None
-    )
+    monkeypatch.setattr(pl, "_project_jacobian", lambda config, p, locs: None)
     with pytest.raises(ValueError, match="None of the STILT projects"):
-        _pipeline(stilt_project=["/prod", "/trax"])._get_flux_jacobian(
-            _obs(["wbb"], TIMES[:1])
+        pl.get_flux_jacobian(
+            _config(stilt_project=["/prod", "/trax"]), _obs(["wbb"], TIMES[:1])
         )
 
 
@@ -235,8 +238,8 @@ def test_project_jacobian_keeps_only_sims_matching_the_obs(monkeypatch):
             ),
         },
     )
-    p = _pipeline(stilt_project="/trax", location_site_map={"x": "y"})
-    H = p._project_jacobian(Path("/trax"), {"multi_aaaaaaaaaa"})
+    p = _config(stilt_project="/trax", location_site_map={"x": "y"})
+    H = pl._project_jacobian(p, Path("/trax"), {"multi_aaaaaaaaaa"})
     assert _FakeProject.calls[0]["locations"] == {"multi_aaaaaaaaaa"}
     assert H is not None
 
@@ -246,8 +249,8 @@ def test_project_with_no_matching_sims_returns_none(monkeypatch):
         monkeypatch,
         {Path("/prod"): (["multi_cccccccccc"], {"hrrr": True})},
     )
-    p = _pipeline(stilt_project="/prod", location_site_map={"x": "y"})
-    assert p._project_jacobian(Path("/prod"), {"wbb"}) is None
+    p = _config(stilt_project="/prod", location_site_map={"x": "y"})
+    assert pl._project_jacobian(p, Path("/prod"), {"wbb"}) is None
     assert _FakeProject.calls == []
 
 
@@ -257,8 +260,8 @@ def test_variant_none_picks_the_one_variant_with_a_footprint(monkeypatch):
         monkeypatch,
         {Path("/prod"): (["multi_aaaaaaaaaa"], {"hrrr": True, "hrrr-err": False})},
     )
-    p = _pipeline(stilt_project="/prod", location_site_map={"x": "y"})
-    p._project_jacobian(Path("/prod"), {"multi_aaaaaaaaaa"})
+    p = _config(stilt_project="/prod", location_site_map={"x": "y"})
+    pl._project_jacobian(p, Path("/prod"), {"multi_aaaaaaaaaa"})
     assert _FakeProject.calls[0]["variant"] == {"hrrr"}
 
 
@@ -267,29 +270,27 @@ def test_variant_none_with_several_footprint_variants_raises(monkeypatch):
         monkeypatch,
         {Path("/prod"): (["multi_aaaaaaaaaa"], {"hrrr": True, "hrrr-zi08": True})},
     )
-    p = _pipeline(stilt_project="/prod", location_site_map={"x": "y"})
+    p = _config(stilt_project="/prod", location_site_map={"x": "y"})
     with pytest.raises(ValueError, match="set InversionConfig.variant"):
-        p._project_jacobian(Path("/prod"), {"multi_aaaaaaaaaa"})
+        pl._project_jacobian(p, Path("/prod"), {"multi_aaaaaaaaaa"})
 
 
 def test_named_variant_missing_from_a_project_raises(monkeypatch):
     _fake_stilt(monkeypatch, {Path("/trax"): (["multi_aaaaaaaaaa"], {"hrrr": True})})
-    p = _pipeline(
+    p = _config(
         stilt_project="/trax", variant="hrrr-zi08", location_site_map={"x": "y"}
     )
     with pytest.raises(ValueError, match="not in the STILT project"):
-        p._project_jacobian(Path("/trax"), {"multi_aaaaaaaaaa"})
+        pl._project_jacobian(p, Path("/trax"), {"multi_aaaaaaaaaa"})
 
 
 def test_project_jacobian_drops_sims_outside_the_window_or_hours(monkeypatch):
     _fake_stilt(monkeypatch, {Path("/prod"): (["loc_a"], {"hrrr": True})})
-    p = _pipeline(stilt_project="/prod", location_site_map={"loc_a": "wbb"})
+    p = _config(stilt_project="/prod", location_site_map={"loc_a": "wbb"})
     inside = _FakeProject(
         "/prod", ["loc_a"], {"hrrr": True}, pd.Timestamp("2000-01-01")
     ).simulations
-    good = p.config.flux_time_bins[0].left + pd.Timedelta(
-        hours=p.config.subset_hours_utc[0]
-    )
+    good = p.flux_time_bins[0].left + pd.Timedelta(hours=p.subset_hours_utc[0])
     sims = pd.concat(
         [
             inside.assign(receptor="early"),  # before the flux window
@@ -306,8 +307,8 @@ def test_project_jacobian_drops_sims_outside_the_window_or_hours(monkeypatch):
     import stilt
 
     monkeypatch.setattr(stilt, "Project", project)
-    H = p._project_jacobian(Path("/prod"), {"wbb"})
-    assert list(H.data.index) == [("wbb", good)]
+    H = pl._project_jacobian(p, Path("/prod"), {"wbb"})
+    assert list(H.rows.select("concentration")) == [("wbb", good)]
 
 
 # --------------------------------------------------------------------------- project_jacobian
@@ -345,12 +346,13 @@ def test_project_jacobian_labels_rows_by_location_and_time():
         project, sel, None, None, location_mapper={"loc_a": "wbb"}, sparse=False
     )
     # r1 is below the threshold everywhere, so it has no row
-    assert list(H.data.index) == [("wbb", TIMES[0]), ("wbb", TIMES[1])]
-    assert H.data.index.names == ["obs_location", "obs_time"]
-    assert H.data.columns.names == ["lon", "lat", "time"]
-    assert H.data.loc[("wbb", TIMES[0]), (-111.95, 40.65, TIMES[0])] == 1
-    assert H.data.loc[("wbb", TIMES[0]), (-111.85, 40.65, TIMES[1])] == 2
-    assert H.data.loc[("wbb", TIMES[1]), (-111.85, 40.65, TIMES[0])] == 3
+    df = frame(H)
+    assert list(df.index) == [("wbb", TIMES[0]), ("wbb", TIMES[1])]
+    assert df.index.names == ["obs_location", "obs_time"]
+    assert df.columns.names == ["lon", "lat", "time"]
+    assert df.loc[("wbb", TIMES[0]), (-111.95, 40.65, TIMES[0])] == 1
+    assert df.loc[("wbb", TIMES[0]), (-111.85, 40.65, TIMES[1])] == 2
+    assert df.loc[("wbb", TIMES[1]), (-111.85, 40.65, TIMES[0])] == 3
 
 
 def test_project_jacobian_stays_sparse():
@@ -361,8 +363,8 @@ def test_project_jacobian_stays_sparse():
     H = pl.project_jacobian(
         SimpleNamespace(jacobian=lambda *a, **k: J), sel, None, None
     )
-    assert H.is_sparse
-    assert H.data.sum().sum() == 1
+    assert isinstance(H.data, SparseOperator)
+    assert H.dense().sum() == 1
 
 
 def test_project_jacobian_with_no_rows_is_none():

@@ -1,74 +1,64 @@
-"""Tests for SLVMethaneInversion.run and the plot hooks, with every step stubbed."""
+"""Tests for run and the plot hooks, on the made-up inversion of conftest.py."""
 
-from types import SimpleNamespace
-
+import fips
+import numpy as np
 import pytest
 
-from slv.inversion import report
-from slv.inversion.config import InversionConfig
-from slv.inversion.pipelines import SLVMethaneInversion
+from slv.inversion import pipelines, report
+from slv.inversion.coverage import covered_state
 
 
-class FakeProblem:
-    def __init__(self, **kwargs):
-        self.init_kwargs = kwargs
-        self.solve_kwargs = None
-
-    def solve(self, **kwargs):
-        self.solve_kwargs = kwargs
-
-
-def pipeline(steps, **config):
-    """A pipeline whose steps record themselves in ``steps``."""
-    p = object.__new__(SLVMethaneInversion)
-    p.config = InversionConfig(tstart="2020-01-01", tend="2020-03-01", **config)
-    p._InverseProblem = FakeProblem
-    p.estimator = "bayesian"
-    p.get_inputs = lambda: steps.append("inputs") or {"prior": "full"}
-
-    def coverage_filter(inputs):
-        steps.append("filter")
-        return {**inputs, "prior": "filtered"}
-
-    p._apply_jacobian_coverage_filter = coverage_filter
-    p.summarize = lambda: steps.append("summarize")
-    for name in ("plot_inputs", "plot_results", "plot_diagnostics"):
-        setattr(p, name, lambda problem, _n=name: steps.append(_n))
-    return p
+@pytest.fixture
+def steps(monkeypatch):
+    """The report and plot steps of run, recorded instead of done."""
+    seen = []
+    for name in ("plot_inputs", "summarize", "plot_results", "plot_diagnostics"):
+        monkeypatch.setattr(report, name, lambda *a, _n=name, **k: seen.append((_n, a)))
+    return seen
 
 
-def test_run_builds_solves_and_summarizes():
-    steps = []
-    p = pipeline(steps, plot_inputs=False, plot_results=False)
-    problem = p.run(extra="x")
-    assert steps == ["inputs", "summarize"]
-    assert problem is p.problem
-    assert problem.init_kwargs == {"prior": "full", "extra": "x"}
-    assert problem.solve_kwargs == {"estimator": "bayesian"}
+def test_run_builds_solves_and_summarizes(synthetic, steps):
+    config = synthetic()
+    post = pipelines.run(config)
+    assert isinstance(post, fips.Posterior)
+    assert [s[0] for s in steps] == ["summarize"]
+    assert post.options.gamma == 1.0
+    _, (cfg, summarized, problem) = steps[0]
+    assert cfg is config and summarized is post and problem is post.problem
 
 
-def test_run_applies_the_filter_gamma_and_plots():
-    steps = []
-    p = pipeline(
-        steps, jacobian_coverage_percentile=10, gamma=3.0, plot_diagnostics=True
+def test_run_solves_the_problem_it_is_given(synthetic, steps):
+    config = synthetic()
+    problem = pipelines.build_problem(config)
+    post = pipelines.run(config, problem)
+    assert post.problem is problem
+
+
+def test_config_gamma_reaches_the_solver(synthetic, steps):
+    post = pipelines.run(synthetic(gamma=3.0))
+    assert post.options.gamma == 3.0
+
+
+def test_run_applies_the_filter_and_plots(synthetic, steps):
+    config = synthetic(
+        jacobian_coverage_percentile=30,
+        plot_inputs=True,
+        plot_results=True,
+        plot_diagnostics=True,
     )
-    problem = p.run(estimator_kwargs={"gamma": 5.0, "tol": 1e-6})
-    assert steps == [
-        "inputs",
-        "filter",
+    problem = pipelines.build_problem(config)
+    post = pipelines.run(config, problem)
+    assert [s[0] for s in steps] == [
         "plot_inputs",
         "summarize",
         "plot_results",
         "plot_diagnostics",
     ]
-    assert problem.init_kwargs == {"prior": "filtered"}
-    # the explicit estimator kwargs override the config's gamma
-    assert problem.solve_kwargs == {"estimator": "bayesian", "gamma": 5.0, "tol": 1e-6}
-
-
-def test_config_gamma_reaches_the_solver():
-    p = pipeline([], plot_inputs=False, plot_results=False, gamma=3.0)
-    assert p.run().solve_kwargs["gamma"] == 3.0
+    keep = covered_state(problem, 30)
+    assert len(keep) < len(problem.prior)
+    assert post.problem.prior.space == keep
+    # the reports get the whole problem
+    assert steps[1][1][2] is problem
 
 
 # --------------------------------------------------------------------------- plot hooks
@@ -95,78 +85,60 @@ def viz_calls(monkeypatch):
         monkeypatch.setattr(
             report.viz, name, lambda *a, _n=name, **k: calls.append((_n, a, k))
         )
+    monkeypatch.setattr(report, "plot_obs", lambda post: calls.append(("plot_obs",)))
+    monkeypatch.setattr(
+        report,
+        "calculate_total_flux",
+        lambda config, fluxes, units=None: f"total:{fluxes.name}:{units}",
+    )
     monkeypatch.setattr(report.plt, "show", lambda: None)
     return calls
 
 
-class _Series:
-    """Enough of a pandas Series for the plot hooks: to_xarray and a name."""
-
-    name = "flux"
-
-    def to_xarray(self):
-        return "xr"
-
-
-def _plot_pipeline(filtered, monkeypatch):
-    p = object.__new__(SLVMethaneInversion)
-    p.config = InversionConfig(tstart="2020-01-01", tend="2020-03-01")
-    if filtered:
-        p._full_prior = {"flux": _Series()}
-        p._removed_cells = set()
-        monkeypatch.setattr(
-            SLVMethaneInversion, "_all_cells", property(lambda self: {(1, 1)})
-        )
-        p.reconstruct_posterior = lambda: _Series()
-        p._removed_contribution = "removed"
-    p.calculate_total_flux = lambda fluxes, units=None: f"total:{units}"
-    p.desroziers_diagnostic = lambda groupby="obs_location", freq=None: (groupby, freq)
-    problem = SimpleNamespace(
-        concentrations="obs",
-        prior_fluxes=_Series(),
-        posterior_fluxes=_Series(),
-        constant={"concentration": "bg"},
-        plot=SimpleNamespace(concentrations=lambda: None),
-    )
-    return p, problem
+@pytest.fixture(params=[False, True], ids=["whole", "filtered"])
+def solved(request, synthetic):
+    """The config, the whole problem and its posterior, with or without the filter."""
+    config = synthetic()
+    problem = pipelines.build_problem(config)
+    kept = problem
+    if request.param:
+        kept = problem.restrict(covered_state(problem, 30))
+    return request.param, config, problem, fips.solve(kept)
 
 
-@pytest.mark.parametrize("filtered", [False, True])
-def test_plot_inputs(viz_calls, monkeypatch, filtered):
-    p, problem = _plot_pipeline(filtered, monkeypatch)
-    p.plot_inputs(problem)
+def test_plot_inputs(viz_calls, solved):
+    filtered, config, problem, post = solved
+    report.plot_inputs(config, problem, post.problem)
     names = [c[0] for c in viz_calls]
     prior_plot = "plot_prior_with_coverage" if filtered else "plot_inventory"
     assert names == ["plot_grid", "plot_concentrations", prior_plot]
     assert viz_calls[0][2]["sites"] == ["wbb"]
 
 
-@pytest.mark.parametrize("filtered", [False, True])
-def test_plot_results(viz_calls, monkeypatch, filtered):
-    p, problem = _plot_pipeline(filtered, monkeypatch)
-    p.plot_results(problem)
+def test_plot_results(viz_calls, solved):
+    filtered, config, problem, post = solved
+    report.plot_results(config, post, problem)
     names = [c[0] for c in viz_calls]
-    expected = ["plot_fluxes", "plot_total_fluxes_over_time", "plot_residuals"]
+    expected = ["plot_fluxes", "plot_total_fluxes_over_time", "plot_obs"]
     if filtered:
         expected.insert(1, "plot_reconstructed_posterior")
-    assert names == [*expected, "plot_background_and_bias"]
+    assert names == [*expected, "plot_residuals", "plot_background_and_bias"]
     (totals,) = [c for c in viz_calls if c[0] == "plot_total_fluxes_over_time"]
-    assert totals[1] == ("total:Gg/m2/s", "total:Gg/m2/s")
+    assert totals[1] == ("total:prior:Gg/m2/s", "total:posterior:Gg/m2/s")
     assert totals[2]["units"] == "Gg per MS interval"
 
 
-@pytest.mark.parametrize("filtered", [False, True])
-def test_plot_diagnostics(viz_calls, monkeypatch, filtered):
-    p, problem = _plot_pipeline(filtered, monkeypatch)
-    p.plot_diagnostics(problem)
+def test_plot_diagnostics(viz_calls, solved):
+    filtered, config, problem, post = solved
+    report.plot_diagnostics(config, post, problem)
     names = [c[0] for c in viz_calls]
     expected = ["plot_fluxes_by_timestep", "plot_desroziers"]
     if filtered:
         expected.append("plot_removed_contribution")
+        (removed,) = [c for c in viz_calls if c[0] == "plot_removed_contribution"]
+        contribution, offset = removed[1]
+        assert (contribution > 0).any()
+        np.testing.assert_allclose(offset - contribution, 1.95)
     assert names == expected
     (desroziers,) = [c for c in viz_calls if c[0] == "plot_desroziers"]
-    assert desroziers[2] == {
-        "by_site": ("obs_location", None),
-        "per_obs": (None, None),
-        "timeseries": ("obs_location", "MS"),
-    }
+    assert set(desroziers[2]) == {"by_site", "per_obs", "timeseries"}
