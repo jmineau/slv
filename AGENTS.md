@@ -25,7 +25,7 @@ PyPI/import name: `slv`. Source in `src/slv/`.
   measurements and inventories, running flux inversions (via `fips`),
   building figures.
 - Depends directly on the user's own packages — `lair[science,geo]` and `uataq` (each pinned
-  to a release tag) are git-installed; `fips[flux]` (which pulls in
+  to a release tag) are git-installed; `fips[viz]` (which pulls in
   `pystilt`) lives in the `inversion` extra.
 
 ## Module layout
@@ -139,31 +139,35 @@ src/slv/
     __init__.py      (currently empty)
     pcaps.py         SLV-specific PCAP wrappers
   inversion/
-    __init__.py      re-exports InversionConfig, SLVMethaneInversion, Sweep,
+    __init__.py      re-exports InversionConfig, build_problem, run, Sweep,
                      run_sweep_job, SweepResults
     config.py        InversionConfig — pydantic-ish config for an inversion;
                      DEFAULT_STILT_PROJECT + stilt_project_dir() ($SLV_STILT_DIR);
                      state_grid (stilt Grid, domain snapped outward to whole cells) is
                      the one definition of the flux cells, `grid` takes its axes
-    pipelines.py     SLVMethaneInversion — the pipeline proper: get_obs / get_prior /
-                     get_forward_operator (+ cached _get_flux_jacobian) / get_prior_error /
-                     get_constant, state filtering, obs aggregation, run, obs_sites.
-                     Composed from the mixins below (MRO: Reporting, CoverageFilter, Bias,
-                     ModelDataMismatch, fips FluxInversionPipeline); every method keeps its
-                     name, so subclasses override as before. Re-exports the cache helpers.
-    cache.py         component cache: COMPONENT_DEPS sets, _component_hash, _pkg_rev /
-                     _version_tag, fips_cache
-    mdm.py           ModelDataMismatchMixin: get_modeldata_mismatch, multiplicative scale,
-                     per-obs (subhour) std
-    bias.py          BiasMixin: get_bias, get_bias_jacobian, get_site_group
-    coverage.py      check_state_cells; CoverageFilterMixin (Jacobian coverage filter,
-                     reconstruct_posterior)
-    report.py        ReportingMixin: domain totals, summarize, desroziers, plot_*
+    pipelines.py     the pipeline proper, as functions of the config: get_obs / get_prior /
+                     get_constant (pandas Series) / get_flux_jacobian (a fips Operator,
+                     receptor rows) / get_prior_error (cached components),
+                     filter_state_space, get_bias (fips.offset_block), obs_sites;
+                     build_problem(config) -> fips.Problem (labels rounded to
+                     LABEL_DECIMALS, the Jacobian placed on the obs, daily means by
+                     fips.aggregate.mean); run(config, problem=None) -> fips.Posterior
+    cache.py         component cache: DEFAULT_COMPONENT_DEPS sets, _component_hash,
+                     _pkg_rev / _version_tag, fips_cache (pickles what the function returns)
+    mdm.py           get_modeldata_mismatch (cached; sum of covariance models on the obs),
+                     multiplicative_scale, per_obs_std (subhour)
+    coverage.py      matrix (an Operator's matrix by position), check_state_cells,
+                     covered_state (the Jacobian coverage filter's cells; the problem of
+                     them is problem.restrict(keep))
+    report.py        domain totals (calculate_total_flux, fluxes_as_inventory), summarize
+                     (prints), desroziers_diagnostic, plot_inputs/results/diagnostics, plot_obs
     priors.py        prior flux construction
-    covariances.py   covariance construction (kernels, scaling)
+    covariances.py   covariance models: build_prior_error (Kronecker factors),
+                     build_mdm_error (one MDM component)
     data.py          inversion-time data loading
     background.py    inversion background model
-    viz.py           inversion-specific plotting
+    viz.py           inversion-specific plotting; block_series (a fips Vector's block
+                     as a Series); plot_flux_maps (the prior/posterior/difference maps)
     sweep.py         Sweep / run_sweep_job / SweepResults — hyperparam sweeps
   py.typed           ships type hints
 tests/               pytest
@@ -206,7 +210,7 @@ from slv.basemap import SaltLake
 from slv.measurements import aggregate_obs, load_concentrations, get_site_coordinates
 from slv.emissions import plot_point_sources
 from slv.inversion import (
-    InversionConfig, SLVMethaneInversion,
+    InversionConfig, build_problem, run,
     Sweep, run_sweep_job, SweepResults,
 )
 ```
@@ -218,7 +222,7 @@ Two paths depending on `xesmf` (regridding) needs:
 ```bash
 # Standard (uv) — what the user runs day-to-day
 uv sync                        # slv, the inversion extra (via the dev group), dev tools
-uv sync --no-dev               # slv alone; add --extra inversion for fips[flux] etc.
+uv sync --no-dev               # slv alone; add --extra inversion for fips[viz] etc.
 
 # With xesmf (needs conda-built ESMF): pixi installs it beside everything else
 pixi install                   # .pixi/envs/default, from pixi.lock
@@ -226,7 +230,7 @@ pixi run pytest                # or call .pixi/envs/default/bin/python
 ```
 
 The `inversion` extra is what unlocks `slv.inversion` (it depends on
-`fips[flux]`, which in turn depends on `pystilt`). The base install is
+`fips[viz]` and `pystilt`). The base install is
 enough for `domain`, `basemap`, `measurements`, `emissions`.
 
 ## Dev commands
@@ -291,10 +295,16 @@ the branch. Never edit gh-pages by hand.
   monthly default and paper 1's annual `express=True` hold the same emissions (27 sectors
   incl. post-meter, 2012-2020); it relies on lair >= v2026.12.6 holding sectors without
   monthly scale factors at their annual rate.
-- **Inversion pipeline structure** mirrors `fips.InversionPipeline`'s
-  template-method pattern. New inversion variants should subclass
-  `SLVMethaneInversion` (or `fips.InversionPipeline`), not rewrite the
-  loop.
+- **The inversion pipeline is functions of the config** (fips has no pipeline):
+  `build_problem` composes the `get_*` components into a `fips.Problem`, and `run`
+  solves it with `fips.solve`. A new variant composes its own `build_problem` from the
+  same functions; the cached components keep their names and keys.
+- **Labels are matched exactly.** fips 0.2 joins labels exactly and never rounds them;
+  `build_problem` rounds the float labels of the prior and the Jacobian's columns to
+  `LABEL_DECIMALS` (6, what fips 0.1 did) so the regridded prior's cells meet the
+  PYSTILT grid's. The Jacobian's rows are the receptors; only those that are obs are
+  placed on the obs (an obs without a footprint is a row of zeros). The MDM is built on
+  the obs that have a background, the ones the problem has.
 - **Packaged CSVs are part of the API contract.** Schema changes break
   downstream notebooks.
 - **Inversion cache keying** (`inversion/cache.py`): `@fips_cache` writes to
@@ -304,10 +314,12 @@ the branch. Never edit gh-pages by hand.
   automatically, no reinstall needed. A copy under `site-packages` (the uv `.venv`,
   which sits inside the slv repo, or the pixi env) uses its metadata version instead,
   written as the release's tag (`v0.1.0b9`): `git describe` there would answer with
-  slv's rev, and a release names the same folder installed or checked out.
-  `get_inputs` raises when the prior's cells and the Jacobian's
-  columns differ (stale caches after a grid change). Components other than
-  the Jacobian also hash the *release* of lair / uataq (`COMPONENT_PACKAGES`,
+  slv's rev, and a release names the same folder installed or checked out. The
+  pickles hold fips objects (the Jacobian an `Operator`, the covariances `Covariance`s)
+  or pandas Series, so a fips version change must change the folder: a pickle from
+  another fips does not load. `build_problem` raises when the prior's cells and the
+  Jacobian's columns differ (stale caches after a grid change). Components other than
+  the Jacobian also hash the *release* of lair / uataq (`DEFAULT_COMPONENT_PACKAGES`,
   `_release`: an editable checkout's static pyproject version or latest git tag, else
   the installed version) -- a release, not an edit, rebuilds obs/prior/MDM/constant. Caveats: (1) slv's *own* rev is deliberately
   not in the key, so when you change slv component-building logic
@@ -400,10 +412,12 @@ m.fig.savefig("slv.png", dpi=300)
 
 ### Methane inversion
 ```python
-from slv.inversion import SLVMethaneInversion, InversionConfig
+from slv.inversion import InversionConfig, build_problem, run
 cfg = InversionConfig(...)
-inv = SLVMethaneInversion(cfg)
-result = inv.run()    # internally drives fips.InverseProblem.solve()
+post = run(cfg)                 # build_problem(cfg), fips.solve, summary, plots
+post.estimate["flux"]           # a fips Vector; .to_series() for pandas
+problem = build_problem(cfg)    # the whole problem, e.g. with the coverage filter on:
+post = run(cfg, problem)        # post.estimate.combine_first(problem.prior)
 ```
 
 ### Hyperparameter sweep
@@ -424,14 +438,15 @@ results = run_sweep_job(sweep)
 - `basemap.SaltLake` mutates a matplotlib figure with cartopy axes;
   it is not thread-safe.
 - Mobile (TRAX) obs are keyed by PYSTILT location_id, not site. Anything keyed by
-  site must resolve through `SLVMethaneInversion.obs_sites` (receptor -> the single
+  site must resolve through `pipelines.obs_sites` (receptor -> the single
   mobile site in `config.sites`) -- the MDM and the bias Jacobian do. The rolling
   background uses stationary sites only (`split_sites`; override with
   `background_kwargs={"background_sites": [...]}`) and each obs takes its hour's
   value; `get_slv_subhour_std` skips mobile sites.
-- `get_forward_operator` is a thin wrapper: `_get_flux_jacobian` is the cached
-  (`forward_operator`) flux Jacobian; the bias block is rebuilt every run. `get_prior`
-  memoizes `_build_prior` per pipeline; `_multiplicative_scale` reuses both.
+- `get_flux_jacobian` is the cached (`forward_operator`) flux Jacobian; the bias block
+  (`get_bias`, one offset per group that has obs) is rebuilt every run and not cached.
+  The multiplicative MDM scales take the run's prior, Jacobian and background as
+  arguments; `build_problem` passes the cached prior before the time trim, as before.
 - `InversionConfig.__post_init__` validates flux_freq / bias_grouping / background /
   prior / mdm_config / domain; setting any field drops the cached derived values.
 - cartopy's cached tilers (`GoogleTiles(cache=True)`) make their cache folder with a
@@ -447,10 +462,10 @@ results = run_sweep_job(sweep)
   key change means a full Jacobian rebuild) and sweep config_ids. Normalize at the
   parse site instead (`covariances.normalize_duration`).
 - Tests: `tests/conftest.py` points `SLV_STILT_DIR` at an empty tmp dir, so a test that
-  reaches the Jacobian build without stubbing `_get_flux_jacobian` fails fast instead
-  of scanning the paper-1 project. Pipeline methods are tested on
-  `object.__new__(SLVMethaneInversion)` with only `config` set (no fips `__init__`, no
-  data); viz tests stub `GeoAxes.add_image` so no tiles are fetched; the TRAX loaders run
+  reaches the Jacobian build without stubbing `_project_jacobian` fails fast instead
+  of scanning the paper-1 project. `tests/inversion/conftest.py`'s `synthetic` fixture
+  stubs the data loaders so `build_problem` and `run` run end to end on a made-up
+  inversion (two months, four cells, six hourly obs; no data); viz tests stub `GeoAxes.add_image` so no tiles are fetched; the TRAX loaders run
   on a synthetic two-line network (`tests/measurements/mobile/test_network.py`). Tests
   needing xesmf (lair cell areas) `importorskip` it: they run in the pixi env / CI only.
   The pixi env pins the no-MPI ESMF build (`build = "nompi*"`): with the MPICH build,
@@ -458,10 +473,6 @@ results = run_sweep_job(sweep)
   traceback), about half the runs until 2026-10-05.
   Measure coverage with `--cov=slv`: `--cov=slv.inversion.viz` imports numpy twice and
   fails collection.
-- fips `Block` squeezes its data, so a one-element Series becomes a scalar and fails
-  validation ("All levels in the row index of Block must be named"). Build test
-  vectors with at least two entries; a real one-interval bias block would hit it too
-  (fips bug, not fixed there yet).
 - `get_slv_observations` loads the TRAX route points only when a mobile site is in
   `sites`; tower-only runs need no TRAX data.
 - `merge_with_gps` drops fixes outside `gps.ALTITUDE_RANGE_MSL` (1000-3500 m, room for

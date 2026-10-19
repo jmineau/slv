@@ -41,15 +41,16 @@ Measurements
 A methane inversion
 -------------------
 
-An :class:`~slv.inversion.config.InversionConfig` describes the run and
-:class:`~slv.inversion.pipelines.SLVMethaneInversion` builds the inputs (obs,
-background, prior, Jacobian from the PYSTILT footprints, covariances) and solves.
+An :class:`~slv.inversion.config.InversionConfig` describes the run;
+:func:`~slv.inversion.pipelines.build_problem` builds the fips problem from it (obs,
+background, prior, Jacobian from the PYSTILT footprints, covariances), and
+:func:`~slv.inversion.pipelines.run` builds it, solves it and prints a summary.
 Components are cached under ``cache`` keyed on the settings they depend on, so a
 second run that changes only, say, ``prior_base_std`` reuses the obs and the Jacobian.
 
 .. code-block:: python
 
-   from slv.inversion import InversionConfig, SLVMethaneInversion
+   from slv.inversion import InversionConfig, run
 
    config = InversionConfig(
        tstart="2016-01-01",
@@ -63,9 +64,11 @@ second run that changes only, say, ``prior_base_std`` reuses the obs and the Jac
        cache="./cache",
        num_processes=30,
    )
-   problem = SLVMethaneInversion(config).run()
+   post = run(config)  # a fips Posterior
 
-   problem.posterior_fluxes  # pd.Series of flux by time and cell
+   post.estimate["flux"].to_series()  # the posterior flux by time and cell
+   post.problem.prior["flux"]  # the prior, a fips Vector
+   post.cov(W)  # the posterior covariance of aggregates W (an Operator), such as totals
 
 Building the Jacobian reads every footprint in the period: run it through SLURM, not
 on a login node.
