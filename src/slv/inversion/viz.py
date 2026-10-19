@@ -1,15 +1,38 @@
 """
-Plots for :class:`~slv.inversion.pipelines.SLVMethaneInversion`: the domain,
-inputs, fluxes, domain totals and error diagnostics.
+Plots of an SLV inversion: the domain, inputs, fluxes, domain totals and error
+diagnostics. The plots of a solved inversion take its :class:`~fips.Posterior`.
 """
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from fips import Posterior, Vector
 from lair.geo import PC, add_latlon_ticks
 from matplotlib.markers import MarkerStyle
 
 from slv.emissions.point_sources import plot_point_sources
+
+
+def block_series(vector: Vector, block: str, name: str | None = None) -> pd.Series:
+    """
+    One block of a fips vector as a Series on the block's own labels.
+
+    Parameters
+    ----------
+    vector : Vector
+        The vector (``problem.prior``, ``post.estimate``, ...).
+    block : str
+        The block (``"flux"``, ``"concentration"``, ``"bias"``).
+    name : str, optional
+        The Series' name; the vector's by default.
+
+    Returns
+    -------
+    pd.Series
+        The block's values, indexed by its labels without the ``block`` level.
+    """
+    series = vector[block].to_series().droplevel("block")
+    return series if name is None else series.rename(name)
 
 
 def plot_sites(ax, sites, site_config, color="black"):
@@ -373,8 +396,137 @@ def plot_reconstructed_posterior(
     )
 
 
+def plot_flux_maps(post: Posterior, tiler=None, tiler_zoom=10, time="mean", **kwargs):
+    """
+    Map the prior and posterior fluxes and their difference, one panel each.
+
+    The fluxes are reduced over time by ``time``: ``"mean"`` or ``"std"`` over the flux
+    times (no difference panel for ``"std"``), the position of one time (an int), or a
+    time's label. The prior and posterior share one color scale.
+
+    Parameters
+    ----------
+    post : Posterior
+        The solved inversion (its state's ``flux`` block, by ``time``, ``lat``, ``lon``).
+    tiler : cartopy tile source, optional
+        Background tiles for every panel.
+    tiler_zoom : int, default 10
+        The tiles' zoom level.
+    time : {"mean", "std"}, int or label, default "mean"
+        How the flux times are reduced or which one is shown.
+    **kwargs
+        Passed to xarray's plotting (``cmap``, ``alpha``, ...).
+
+    Returns
+    -------
+    fig : matplotlib.figure.Figure
+        The figure.
+    axes : numpy.ndarray
+        Its panels: prior, posterior (and their difference).
+    """
+
+    def at_time(data):
+        if time == "mean":
+            return data.mean(dim="time")
+        if time == "std":
+            return data.std(dim="time")
+        if isinstance(time, int):
+            return data.isel(time=time)
+        return data.sel(time=time)
+
+    prior = at_time(block_series(post.problem.prior, "flux").to_xarray())
+    posterior = at_time(block_series(post.estimate, "flux").to_xarray())
+
+    subplot_kw = {}
+    if tiler is not None:
+        subplot_kw["projection"] = tiler.crs
+    ncols = 3 if time != "std" else 2
+    fig, axes = plt.subplots(ncols=ncols, sharey=True, subplot_kw=subplot_kw)
+    if tiler is not None:
+        # Expand the extent by half a cell so the edge cells are not clipped
+        xs, ys = posterior["lon"], posterior["lat"]
+        dx = float(xs.diff("lon").median()) if len(xs) > 1 else 0
+        dy = float(ys.diff("lat").median()) if len(ys) > 1 else 0
+        extent = [
+            float(xs.min()) - dx / 2,
+            float(xs.max()) + dx / 2,
+            float(ys.min()) - dy / 2,
+            float(ys.max()) + dy / 2,
+        ]
+        for ax in axes:
+            ax.set_extent(extent, crs=PC)
+            ax.add_image(tiler, tiler_zoom)
+        kwargs["transform"] = PC
+
+    vmin = min(prior.min(), posterior.min())
+    vmax = max(prior.max(), posterior.max())
+    alpha = kwargs.pop("alpha", 0.55)
+    cmap = kwargs.pop("cmap", "RdBu_r" if vmin < 0 else "Reds")
+    center = 0 if vmin < 0 else None
+    shared = dict(
+        x="lon",
+        y="lat",
+        vmin=None if vmin < 0 else vmin,
+        vmax=vmax,
+        cmap=cmap,
+        alpha=alpha,
+        center=center,
+    )
+
+    # The colorbar goes under the panels it covers
+    fig.subplots_adjust(bottom=0.15)
+    ax_prior, ax_post = axes[0], axes[1]
+    width = ax_post.get_position().x1 - ax_prior.get_position().x0
+    cbar_ax = fig.add_axes(
+        (ax_prior.get_position().x0, ax_prior.get_position().y0 - 0.1, width, 0.05)
+    )
+    prior.plot(
+        ax=ax_prior,
+        cbar_ax=cbar_ax,
+        cbar_kwargs={"orientation": "horizontal", "label": "flux"},
+        **shared,
+        **kwargs,
+    )
+    posterior.plot(ax=ax_post, add_colorbar=False, **shared, **kwargs)
+    fig.suptitle("flux", fontsize=16, y=ax_prior.get_position().y1 + 0.13)
+    fig.text(
+        0.5,
+        ax_prior.get_position().y1 + 0.05,
+        f"time = {time}",
+        ha="center",
+        va="bottom",
+        fontsize=10,
+    )
+    ax_prior.set(title="Prior", xlabel=None, ylabel=None)
+    ax_post.set(title="Posterior", xlabel=None, ylabel=None)
+
+    if time != "std":
+        ax_res = axes[-1]
+        cbar_res = fig.add_axes(
+            (
+                ax_res.get_position().x0,
+                ax_res.get_position().y0 - 0.1,
+                ax_res.get_position().width,
+                0.05,
+            )
+        )
+        (posterior - prior).plot(
+            ax=ax_res,
+            x="lon",
+            y="lat",
+            cmap="PiYG",
+            alpha=alpha,
+            center=0,
+            cbar_ax=cbar_res,
+            cbar_kwargs={"orientation": "horizontal", "label": "Posterior - Prior"},
+            **kwargs,
+        )
+        ax_res.set(title="Residual", xlabel=None, ylabel=None)
+    return fig, axes
+
+
 def plot_fluxes(
-    problem,
+    post: Posterior,
     tiler,
     zoom,
     add_sites=True,
@@ -384,10 +536,10 @@ def plot_fluxes(
     add_point_sources=None,
 ):
     """
-    The fips prior / posterior flux maps, with sites and point sources (default:
-    landfills and refineries) added to every panel.
+    The prior / posterior flux maps (:func:`plot_flux_maps`), with sites and point
+    sources (default: landfills and refineries) added to every panel.
     """
-    fig, axes = problem.plot.fluxes(tiler=tiler, tiler_zoom=zoom)
+    fig, axes = plot_flux_maps(post, tiler=tiler, tiler_zoom=zoom)
 
     if add_point_sources is None:
         add_point_sources = {
@@ -404,7 +556,7 @@ def plot_fluxes(
 
 
 def plot_fluxes_by_timestep(
-    problem,
+    post: Posterior,
     extent,
     tiler,
     zoom,
@@ -419,7 +571,8 @@ def plot_fluxes_by_timestep(
     ``FacetGrid``.
     """
     facet = (
-        problem.posterior_fluxes.to_xarray()
+        block_series(post.estimate, "flux")
+        .to_xarray()
         .astype(float)
         .plot(
             col="time",
@@ -467,7 +620,7 @@ def plot_removed_contribution(removed_contribution, background):
 def plot_total_fluxes_over_time(*total_fluxes: pd.Series, units: str | None = None):
     """
     Domain-total emissions over time; ``units`` labels the y axis (e.g. "Gg per MS
-    interval", as from ``SLVMethaneInversion.calculate_total_flux``).
+    interval", as from :func:`~slv.inversion.report.calculate_total_flux`).
     """
     fig, ax = plt.subplots()
 
@@ -632,7 +785,7 @@ def plot_desroziers(
 
 
 def plot_residuals(
-    problem,
+    post: Posterior,
     rolling_window="30D",
     gap_threshold="7D",
     show_raw=True,
@@ -643,8 +796,8 @@ def plot_residuals(
 
     Parameters
     ----------
-    problem : FluxProblem
-        Solved inversion problem.
+    post : Posterior
+        The solved inversion.
     rolling_window : str or int, default '30D'
         Rolling window for smoothed lines.
     gap_threshold : str, default '7D'
@@ -654,8 +807,8 @@ def plot_residuals(
     location_dim : str, default 'obs_location'
         Name of the location dimension in the data.
     """
-    obs = problem.concentrations
-    posterior = problem.posterior_concentrations
+    obs = block_series(post.problem.obs, "concentration")
+    posterior = block_series(post.modeled_obs, "concentration")
     residuals = (posterior - obs).dropna()
 
     locations = residuals.index.get_level_values(location_dim).unique()
@@ -719,14 +872,15 @@ def plot_residuals(
     return fig, ax
 
 
-def plot_background_and_bias(problem):
+def plot_background_and_bias(post: Posterior):
     """
     Plot background concentration and bias corrections.
 
     Parameters
     ----------
-    problem : FluxProblem
-        Solved inversion problem containing prior, posterior, and constant.
+    post : Posterior
+        The solved inversion: its problem's offset (the background) and, with a bias
+        block in the state, the prior and posterior bias.
 
     Notes
     -----
@@ -738,14 +892,8 @@ def plot_background_and_bias(problem):
     - Bias is shown as prior (initial) and posterior (estimated) values
     - For grouped bias (site/site_group), each group gets its own line
     """
-    # Check if bias exists
-    has_bias = False
-    if hasattr(problem, "prior") and hasattr(problem.prior, "data"):
-        # Check if prior has a "block" level in its index
-        prior_index = problem.prior.data.index
-        if isinstance(prior_index, pd.MultiIndex) and "block" in prior_index.names:
-            # Check if "bias" is one of the block values
-            has_bias = "bias" in prior_index.get_level_values("block").unique()
+    problem = post.problem
+    has_bias = "bias" in problem.prior.space
 
     # Set up subplots
     n_plots = 2 if has_bias else 1
@@ -754,8 +902,8 @@ def plot_background_and_bias(problem):
         axes = [axes]
 
     # Plot background
-    if hasattr(problem, "constant") and problem.constant is not None:
-        bg_data = problem.constant["concentration"]
+    if problem.offset is not None:
+        bg_data = block_series(problem.offset, "concentration")
 
         # Get unique sites
         if isinstance(bg_data.index, pd.MultiIndex):
@@ -810,8 +958,8 @@ def plot_background_and_bias(problem):
 
     # Plot bias if it exists
     if has_bias:
-        prior_bias = problem.prior["bias"]
-        posterior_bias = problem.posterior["bias"]
+        prior_bias = block_series(problem.prior, "bias")
+        posterior_bias = block_series(post.estimate, "bias")
 
         # Check if bias has grouping (MultiIndex)
         if isinstance(prior_bias.index, pd.MultiIndex):

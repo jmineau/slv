@@ -1,77 +1,32 @@
-"""Tests for inversion pipeline caching and bias classes."""
+"""Tests for the inversion pipeline: the component cache, the bias block and the problem."""
 
-import pickle
 import shutil
 import subprocess
 import sys
 from types import SimpleNamespace
-from unittest.mock import MagicMock
 
 import numpy as np
 import pandas as pd
 import pytest
-from fips import Block, ForwardOperator, MatrixBlock, Vector
-from fips.problems.flux import FluxInversionPipeline
+import scipy.sparse as sp
+from fips import Operator, Problem, Space
 
+from slv.inversion import mdm, pipelines
+from slv.inversion.cache import _pkg_rev, _version_tag, fips_cache
 from slv.inversion.config import InversionConfig
-from slv.inversion.pipelines import (
-    SLVMethaneInversion,
-    _component_hash,
-    _pkg_rev,
-    check_state_cells,
-    fips_cache,
+from slv.inversion.coverage import check_state_cells, matrix
+from slv.inversion.pipelines import build_problem, get_bias, obs_sites
+
+from .conftest import (
+    LATS,
+    LONS,
+    NO_BACKGROUND,
+    NO_FOOTPRINT,
+    OBS_INDEX,
+    TIMES,
+    jacobian,
+    prior_series,
 )
-
-# ---------------------------------------------------------------------------
-# Helpers
-# ---------------------------------------------------------------------------
-
-
-def make_pipeline(cls, **config_kwargs):
-    """Instantiate a pipeline subclass without calling FluxInversionPipeline.__init__."""
-    obj = object.__new__(cls)
-    obj.config = InversionConfig(**config_kwargs)
-    return obj
-
-
-def make_obs_vector(locations, times):
-    """Build a minimal mock Vector whose ["concentration"].index is a MultiIndex."""
-    index = pd.MultiIndex.from_arrays(
-        [locations, times], names=["obs_location", "obs_time"]
-    )
-    mock_block = MagicMock()
-    mock_block.index = index
-
-    mock_vector = MagicMock()
-    mock_vector.__getitem__ = lambda self, key: (
-        mock_block if key == "concentration" else None
-    )
-    return mock_vector
-
-
-def make_bias_vector(bias_index):
-    """Build a minimal mock Vector whose ["bias"].index is bias_index."""
-    mock_block = MagicMock()
-    mock_block.index = bias_index
-
-    mock_vector = MagicMock()
-    mock_vector.__getitem__ = lambda self, key: mock_block if key == "bias" else None
-    return mock_vector
-
-
-class FakeCacheObject:
-    """Module-level picklable object used by TestFipsCache."""
-
-    def __init__(self, value):
-        self.value = value
-
-    def to_file(self, path):
-        path.write_bytes(pickle.dumps(self))
-
-    @classmethod
-    def from_file(cls, path):
-        return pickle.loads(path.read_bytes())
-
 
 # ---------------------------------------------------------------------------
 # fips_cache decorator
@@ -81,382 +36,83 @@ class FakeCacheObject:
 class TestFipsCache:
     """Test caching behaviour of the fips_cache decorator."""
 
-    def test_caching_disabled_always_calls_method(self, tmp_path):
-        call_count = 0
+    @staticmethod
+    def component(calls):
+        @fips_cache("test_data")
+        def compute(config):
+            calls.append(1)
+            return {"value": 99}
 
-        class FakePipeline:
-            config = InversionConfig(cache=False)
+        return compute
 
-            @fips_cache(FakeCacheObject, "test_data")
-            def compute(self):
-                nonlocal call_count
-                call_count += 1
-                return FakeCacheObject(42)
-
-        p = FakePipeline()
-        p.compute()
-        p.compute()
-        assert call_count == 2
+    def test_caching_disabled_always_calls_the_function(self):
+        calls = []
+        compute = self.component(calls)
+        config = InversionConfig(cache=False)
+        compute(config)
+        compute(config)
+        assert len(calls) == 2
 
     def test_first_call_saves_cache(self, tmp_path):
-        class FakePipeline:
-            config = InversionConfig(cache=str(tmp_path))
-
-            @fips_cache(FakeCacheObject, "test_data")
-            def compute(self):
-                return FakeCacheObject(99)
-
-        FakePipeline().compute()
+        self.component([])(InversionConfig(cache=str(tmp_path)))
         # flat (un-hashed) components live under .fips/<fips+pystilt version tag>/
-        from slv.inversion.pipelines import _version_tag
-
         assert (tmp_path / ".fips" / _version_tag() / "test_data.pkl").exists()
 
     def test_second_call_loads_from_cache(self, tmp_path):
-        call_count = 0
-
-        class FakePipeline:
-            config = InversionConfig(cache=str(tmp_path))
-
-            @fips_cache(FakeCacheObject, "test_data")
-            def compute(self):
-                nonlocal call_count
-                call_count += 1
-                return FakeCacheObject(99)
-
-        FakePipeline().compute()
-        FakePipeline().compute()
-        assert call_count == 1
-
-    def test_cache_overwrite_all_recomputes(self, tmp_path):
-        call_count = 0
-
-        class FakePipeline:
-            config = InversionConfig(cache=str(tmp_path), cache_overwrite="all")
-
-            @fips_cache(FakeCacheObject, "test_data")
-            def compute(self):
-                nonlocal call_count
-                call_count += 1
-                return FakeCacheObject(99)
-
-        FakePipeline().compute()
-        FakePipeline().compute()
-        assert call_count == 2
-
-    def test_cache_overwrite_specific_stem_recomputes(self, tmp_path):
-        call_count = 0
-
-        class FakePipeline:
-            config = InversionConfig(cache=str(tmp_path), cache_overwrite=["test_data"])
-
-            @fips_cache(FakeCacheObject, "test_data")
-            def compute(self):
-                nonlocal call_count
-                call_count += 1
-                return FakeCacheObject(99)
-
-        FakePipeline().compute()
-        FakePipeline().compute()
-        assert call_count == 2
-
-    def test_cache_overwrite_other_stem_still_loads_cache(self, tmp_path):
-        call_count = 0
-
-        class FakePipeline:
-            config = InversionConfig(
-                cache=str(tmp_path), cache_overwrite=["other_data"]
-            )
-
-            @fips_cache(FakeCacheObject, "test_data")
-            def compute(self):
-                nonlocal call_count
-                call_count += 1
-                return FakeCacheObject(99)
-
-        FakePipeline().compute()
-        FakePipeline().compute()
-        assert call_count == 1
-
-    def test_cache_overwrite_single_string_matches_stem(self, tmp_path):
-        call_count = 0
-
-        class FakePipeline:
-            config = InversionConfig(cache=str(tmp_path), cache_overwrite="test_data")
-
-            @fips_cache(FakeCacheObject, "test_data")
-            def compute(self):
-                nonlocal call_count
-                call_count += 1
-                return FakeCacheObject(99)
-
-        FakePipeline().compute()
-        FakePipeline().compute()
-        assert call_count == 2
-
-
-# ---------------------------------------------------------------------------
-# SLVMethaneInversion.get_bias
-# ---------------------------------------------------------------------------
-
-
-class TestBiasGetBias:
-    @pytest.fixture
-    def pipeline(self):
-        return make_pipeline(
-            SLVMethaneInversion,
-            tstart="2020-01-01",
-            tend="2020-04-01",
-            flux_freq="MS",
-            bias_std=0.5,
-        )
-
-    def test_get_bias_returns_series(self, pipeline):
-        bias = pipeline.get_bias()
-        assert isinstance(bias, pd.Series)
-
-    def test_get_bias_length(self, pipeline):
-        bias = pipeline.get_bias()
-        assert len(bias) == 3  # Jan, Feb, Mar 2020
-
-    def test_get_bias_all_zeros(self, pipeline):
-        bias = pipeline.get_bias()
-        assert (bias == 0.0).all()
-
-    def test_get_bias_index_name(self, pipeline):
-        bias = pipeline.get_bias()
-        assert bias.index.name == "time"
-
-    def test_get_bias_index_values(self, pipeline):
-        bias = pipeline.get_bias()
-        assert bias.index[0] == pd.Timestamp("2020-01-01")
-        assert bias.index[-1] == pd.Timestamp("2020-03-01")
-
-
-# ---------------------------------------------------------------------------
-# SLVMethaneInversion.get_bias_jacobian
-# ---------------------------------------------------------------------------
-
-
-class TestBiasJacobian:
-    @pytest.fixture
-    def pipeline(self):
-        return make_pipeline(
-            SLVMethaneInversion,
-            tstart="2020-01-01",
-            tend="2020-04-01",
-            flux_freq="MS",
-            bias_std=0.5,
-        )
-
-    def test_each_obs_maps_to_exactly_one_time(self, pipeline):
-        obs_times = pd.to_datetime(["2020-01-15", "2020-02-10", "2020-03-20"])
-        locs = ["loc_a", "loc_b", "loc_c"]
-        obs = make_obs_vector(locs, obs_times)
-        bias_index = pd.Index(pipeline.config.flux_times, name="time")
-        prior = make_bias_vector(bias_index)
-
-        jac = pipeline.get_bias_jacobian(obs, prior)
-        assert (jac.sum(axis=1) == 1.0).all()
-
-    def test_obs_maps_to_correct_month(self, pipeline):
-        obs_times = pd.to_datetime(["2020-02-15"])
-        obs = make_obs_vector(["loc_a"], obs_times)
-        bias_index = pd.Index(pipeline.config.flux_times, name="time")
-        prior = make_bias_vector(bias_index)
-
-        jac = pipeline.get_bias_jacobian(obs, prior)
-        assert jac[pd.Timestamp("2020-02-01")].iloc[0] == 1.0
-        assert jac[pd.Timestamp("2020-01-01")].iloc[0] == 0.0
-
-    def test_jacobian_columns_match_bias_index(self, pipeline):
-        obs_times = pd.to_datetime(["2020-01-15"])
-        obs = make_obs_vector(["loc_a"], obs_times)
-        bias_index = pd.Index(pipeline.config.flux_times, name="time")
-        prior = make_bias_vector(bias_index)
-
-        jac = pipeline.get_bias_jacobian(obs, prior)
-        pd.testing.assert_index_equal(jac.columns, bias_index)
-
-
-# ---------------------------------------------------------------------------
-# SLVMethaneInversion (site_group grouping)
-# ---------------------------------------------------------------------------
-
-
-class TestGetSiteGroup:
-    @pytest.fixture
-    def pipeline(self):
-        return make_pipeline(
-            SLVMethaneInversion,
-            tstart="2020-01-01",
-            tend="2020-04-01",
-            flux_freq="MS",
-            bias_std=0.5,
-            bias_grouping="site_group",
-        )
-
-    def test_uataq_site(self, pipeline):
-        assert pipeline.get_site_group("wbb") == "UATAQ"
-
-    def test_daq_site(self, pipeline):
-        assert pipeline.get_site_group("hw") == "DAQ"
-
-    def test_unknown_site(self, pipeline):
-        assert pipeline.get_site_group("nonexistent") == "unknown"
-
-
-# ---------------------------------------------------------------------------
-# SLVMethaneInversion.get_bias (site_group grouping)
-# ---------------------------------------------------------------------------
-
-
-class TestSiteGroupBiasGetBias:
-    @pytest.fixture
-    def pipeline(self):
-        return make_pipeline(
-            SLVMethaneInversion,
-            tstart="2020-01-01",
-            tend="2020-04-01",
-            flux_freq="MS",
-            sites=["wbb", "hw"],  # UATAQ and DAQ
-            bias_std=0.5,
-            bias_grouping="site_group",
-        )
-
-    def test_returns_series(self, pipeline):
-        bias = pipeline.get_bias()
-        assert isinstance(bias, pd.Series)
-
-    def test_has_multiindex(self, pipeline):
-        bias = pipeline.get_bias()
-        assert isinstance(bias.index, pd.MultiIndex)
-
-    def test_index_names(self, pipeline):
-        bias = pipeline.get_bias()
-        assert bias.index.names == ["time", "site_group"]
-
-    def test_site_groups_present(self, pipeline):
-        bias = pipeline.get_bias()
-        groups = bias.index.get_level_values("site_group").unique().tolist()
-        assert "UATAQ" in groups
-        assert "DAQ" in groups
-
-    def test_length(self, pipeline):
-        # 2 groups × 3 months
-        bias = pipeline.get_bias()
-        assert len(bias) == 2 * 3
-
-    def test_all_zeros(self, pipeline):
-        bias = pipeline.get_bias()
-        assert (bias == 0.0).all()
-
-
-# ---------------------------------------------------------------------------
-# SLVMethaneInversion.get_bias_jacobian (site_group grouping)
-# ---------------------------------------------------------------------------
-
-
-class TestSiteGroupBiasJacobian:
-    @pytest.fixture
-    def pipeline(self):
-        return make_pipeline(
-            SLVMethaneInversion,
-            tstart="2020-01-01",
-            tend="2020-04-01",
-            flux_freq="MS",
-            sites=["wbb", "hw"],  # UATAQ and DAQ
-            bias_std=0.5,
-            bias_grouping="site_group",
-            location_site_map={
-                "wbb_loc": "wbb",  # UATAQ
-                "hw_loc": "hw",  # DAQ
-            },
-        )
-
-    @pytest.fixture
-    def prior(self, pipeline):
-        bias = pipeline.get_bias()
-        return make_bias_vector(bias.index)
-
-    def test_uataq_obs_maps_to_uataq_column(self, pipeline, prior):
-        obs_times = pd.to_datetime(["2020-01-15"])
-        obs = make_obs_vector(["wbb_loc"], obs_times)
-
-        jac = pipeline.get_bias_jacobian(obs, prior)
-        assert jac[(pd.Timestamp("2020-01-01"), "UATAQ")].iloc[0] == 1.0
-        assert jac[(pd.Timestamp("2020-01-01"), "DAQ")].iloc[0] == 0.0
-
-    def test_daq_obs_maps_to_daq_column(self, pipeline, prior):
-        obs_times = pd.to_datetime(["2020-02-20"])
-        obs = make_obs_vector(["hw_loc"], obs_times)
-
-        jac = pipeline.get_bias_jacobian(obs, prior)
-        assert jac[(pd.Timestamp("2020-02-01"), "DAQ")].iloc[0] == 1.0
-        assert jac[(pd.Timestamp("2020-02-01"), "UATAQ")].iloc[0] == 0.0
-
-    def test_each_obs_maps_to_exactly_one_column(self, pipeline, prior):
-        obs_times = pd.to_datetime(["2020-01-15", "2020-02-10", "2020-03-05"])
-        locs = ["wbb_loc", "hw_loc", "wbb_loc"]
-        obs = make_obs_vector(locs, obs_times)
-
-        jac = pipeline.get_bias_jacobian(obs, prior)
-        assert (jac.sum(axis=1) == 1.0).all()
-
-    def test_jacobian_columns_match_bias_index(self, pipeline, prior):
-        obs_times = pd.to_datetime(["2020-01-15"])
-        obs = make_obs_vector(["wbb_loc"], obs_times)
-
-        jac = pipeline.get_bias_jacobian(obs, prior)
-        pd.testing.assert_index_equal(jac.columns, prior["bias"].index)
-
-
-# ---------------------------------------------------------------------------
-# Integration tests for bias functionality
-# ---------------------------------------------------------------------------
-
-
-class TestBiasIntegration:
-    """Test that bias components integrate correctly across pipeline methods."""
-
-    @pytest.fixture
-    def pipeline(self):
-        return make_pipeline(
-            SLVMethaneInversion,
-            tstart="2020-01-01",
-            tend="2020-04-01",
-            flux_freq="MS",
-            sites=["wbb", "hw"],
-            bias_std=0.5,
-            bias_grouping="site_group",
-        )
-
-    def test_get_prior_includes_bias_block(self, pipeline):
-        """Test that get_prior() creates bias block when bias_std is set."""
-        pipeline.get_bias()  # returns just the bias Series
-        # Create a proper prior vector like get_prior does
-        assert pipeline.config.bias_std is not None
-
-    def test_get_prior_and_prior_error_compatibility(self, pipeline):
-        """Test that get_prior and get_prior_error work together with bias."""
-        # Simulate what happens in the pipeline
-        bias = pipeline.get_bias()
-        assert len(bias) > 0
-        assert isinstance(bias.index, pd.MultiIndex)
-        assert bias.index.names == ["time", "site_group"]
-
-    def test_bias_std_affects_cache_key(self, pipeline):
-        """Test that changing bias_std invalidates cache."""
-        # This indirectly tests that COMPONENT_DEPS includes bias_std
-        # for prior, forward_operator, and prior_error
-        bias1 = pipeline.get_bias()
-        pipeline.config.bias_std = 1.0
-        bias2 = pipeline.get_bias()
-
-        # Values should be different (different lengths due to grouping)
-        # or same structure but we just verify the method runs
-        assert isinstance(bias1, pd.Series)
-        assert isinstance(bias2, pd.Series)
+        calls = []
+        compute = self.component(calls)
+        assert compute(InversionConfig(cache=str(tmp_path))) == {"value": 99}
+        assert compute(InversionConfig(cache=str(tmp_path))) == {"value": 99}
+        assert len(calls) == 1
+
+    @pytest.mark.parametrize(
+        ("overwrite", "calls"),
+        [("all", 2), (["test_data"], 2), ("test_data", 2), (["other_data"], 1)],
+    )
+    def test_cache_overwrite(self, tmp_path, overwrite, calls):
+        seen = []
+        compute = self.component(seen)
+        config = InversionConfig(cache=str(tmp_path), cache_overwrite=overwrite)
+        compute(config)
+        compute(config)
+        assert len(seen) == calls
+
+
+def test_package_release_rekeys_obs_but_not_the_jacobian(tmp_path, monkeypatch):
+    import slv.inversion.cache as cache
+
+    @fips_cache("obs")
+    def get_obs(config):
+        return "obs"
+
+    @fips_cache("forward_operator")
+    def get_fo(config):
+        return "fo"
+
+    def files(component):
+        return sorted((tmp_path / ".fips").glob(f"*/{component}/*.pkl"))
+
+    config = InversionConfig(cache=str(tmp_path))
+    monkeypatch.setattr(cache, "_release", lambda p: "2026.12.2")
+    get_obs(config)
+    get_fo(config)
+    monkeypatch.setattr(cache, "_release", lambda p: "2026.12.3")  # a new lair release
+    get_obs(config)
+    get_fo(config)
+    assert len(files("obs")) == 2
+    assert len(files("forward_operator")) == 1
+
+
+def test_a_cached_operator_loads_as_it_was(tmp_path):
+    @fips_cache("forward_operator")
+    def get_fo(config):
+        return jacobian()
+
+    config = InversionConfig(cache=str(tmp_path))
+    built, loaded = get_fo(config), get_fo(config)
+    assert loaded is not built
+    assert loaded.rows == built.rows and loaded.cols == built.cols
+    np.testing.assert_array_equal(loaded.dense(), built.dense())
 
 
 # ---------------------------------------------------------------------------
@@ -520,96 +176,324 @@ class TestPkgRev:
 
 
 # ---------------------------------------------------------------------------
+# The bias block
+# ---------------------------------------------------------------------------
+
+
+def obs_space(locations, times):
+    index = pd.MultiIndex.from_arrays(
+        [locations, pd.to_datetime(times)], names=["obs_location", "obs_time"]
+    )
+    return Space({"concentration": index})
+
+
+def bias_frame(config, space):
+    """The bias block's forward operator as a DataFrame (obs by bias label)."""
+    prior, forward = get_bias(config, space)
+    assert (prior.values == 0.0).all()
+    frame = forward.to_frame()
+    frame.index = frame.index.droplevel("block")
+    frame.columns = frame.columns.droplevel("block")
+    return frame
+
+
+def config(**kwargs):
+    defaults = dict(
+        tstart="2020-01-01", tend="2020-04-01", flux_freq="MS", bias_std=0.5
+    )
+    return InversionConfig(**(defaults | kwargs))
+
+
+class TestTimeBias:
+    def test_one_bias_per_month_with_obs(self):
+        space = obs_space(["a", "b", "c"], ["2020-01-15", "2020-02-10", "2020-02-20"])
+        frame = bias_frame(config(), space)
+        # March has no obs, so no bias
+        assert list(frame.columns) == list(pd.to_datetime(["2020-01-01", "2020-02-01"]))
+        assert frame.columns.name == "obs_time"
+        assert (frame.sum(axis=1) == 1.0).all()
+        assert frame.loc[("b", pd.Timestamp("2020-02-10")), pd.Timestamp("2020-02-01")]
+
+
+class TestSiteGroupBias:
+    @pytest.fixture
+    def cfg(self):
+        return config(
+            sites=["wbb", "hw"],  # UATAQ and DAQ
+            bias_grouping="site_group",
+            location_site_map={"wbb_loc": "wbb", "hw_loc": "hw"},
+        )
+
+    def test_obs_map_to_their_organization(self, cfg):
+        space = obs_space(
+            ["wbb_loc", "hw_loc", "wbb_loc"], ["2020-01-15", "2020-02-10", "2020-03-05"]
+        )
+        frame = bias_frame(cfg, space)
+        assert frame.columns.names == ["obs_time", "site_group"]
+        assert (frame.sum(axis=1) == 1.0).all()
+        jan, feb = pd.Timestamp("2020-01-01"), pd.Timestamp("2020-02-01")
+        assert frame.loc[("wbb_loc", pd.Timestamp("2020-01-15")), (jan, "UATAQ")] == 1
+        assert frame.loc[("hw_loc", pd.Timestamp("2020-02-10")), (feb, "DAQ")] == 1
+
+
+def test_site_bias_maps_receptors_to_the_mobile_site():
+    # "site" grouping keyed obs_location; a TRAX receptor matched no bias column
+    cfg = config(
+        bias_grouping="site",
+        sites=["wbb", "trx01"],
+        tstart="2024-06-01",
+        tend="2024-07-01",
+    )
+    frame = bias_frame(cfg, TRAX_SPACE)
+    june = pd.Timestamp("2024-06-01")
+    assert frame[(june, "trx01")].tolist() == [0.0, 1.0]
+    assert frame[(june, "wbb")].tolist() == [1.0, 0.0]
+
+
+# ---------------------------------------------------------------------------
 # State cells: prior vs Jacobian columns
 # ---------------------------------------------------------------------------
 
-TIMES = pd.DatetimeIndex(["2020-01-01", "2020-02-01"])
-LATS = [40.5, 40.6]
-LONS = [-112.0, -111.9]
-OBS_INDEX = pd.MultiIndex.from_arrays(
-    [["wbb", "wbb", "wbb"], pd.to_datetime(["2020-01-05", "2020-01-20", "2020-02-05"])],
-    names=["obs_location", "obs_time"],
-)
+
+def flux_index(lats=LATS, lons=LONS):
+    return pd.MultiIndex.from_product([TIMES, lats, lons], names=["time", "lat", "lon"])
 
 
-def flux_prior(lats=LATS, lons=LONS, bias=False):
-    """A fips prior ordered (time, lat, lon), like the EPA prior."""
-    index = pd.MultiIndex.from_product(
-        [TIMES, lats, lons], names=["time", "lat", "lon"]
-    )
-    series = pd.Series(np.arange(len(index), dtype=float) + 1.0, index=index)
-    if not bias:
-        return series, Vector(name="prior", data=Block(name="flux", data=series))
-    bias_s = pd.Series(0.0, index=pd.Index(TIMES, name="time"), name="bias")
-    blocks = [Block(series, name="flux"), Block(bias_s, name="bias")]
-    return series, Vector(name="prior", data=blocks)
-
-
-def jacobian(lats=LATS, lons=LONS):
-    """A fips forward operator whose columns are ordered (lon, lat, time), like fips'."""
-    columns = pd.MultiIndex.from_product(
-        [lons, lats, TIMES], names=["lon", "lat", "time"]
-    )
-    rng = np.random.default_rng(0)
-    H = pd.DataFrame(rng.random((len(OBS_INDEX), len(columns))), OBS_INDEX, columns)
-    return H, ForwardOperator(
-        MatrixBlock(H, row_block="concentration", col_block="flux")
-    )
+def jacobian_columns(lats=LATS, lons=LONS):
+    return pd.MultiIndex.from_product([lons, lats, TIMES], names=["lon", "lat", "time"])
 
 
 class TestCheckStateCells:
     def test_same_cells_pass(self):
-        check_state_cells(flux_prior()[1], jacobian()[1])
+        check_state_cells(flux_index(), jacobian_columns())
 
-    def test_bias_block_is_ignored(self):
-        check_state_cells(flux_prior(bias=True)[1], jacobian()[1])
+    def test_only_the_flux_block_is_compared(self):
+        state = Space(
+            {"flux": flux_index(), "bias": pd.Index(TIMES, name="obs_time")}
+        ).index
+        check_state_cells(state, jacobian_columns())
 
     def test_prior_cell_missing_from_jacobian_raises(self):
         # e.g. a Jacobian cached before the state grid gained its top row
         with pytest.raises(ValueError, match="2 prior cells have no Jacobian column"):
-            check_state_cells(flux_prior()[1], jacobian(lats=[40.5])[1])
+            check_state_cells(flux_index(), jacobian_columns(lats=[40.5]))
 
     def test_jacobian_cell_missing_from_prior_raises(self):
         with pytest.raises(ValueError, match="2 Jacobian cells are not in the prior"):
-            check_state_cells(flux_prior(lats=[40.5])[1], jacobian()[1])
+            check_state_cells(flux_index(lats=[40.5]), jacobian_columns())
 
-    def test_get_inputs_runs_the_check(self, monkeypatch):
-        inputs = {
-            "prior": flux_prior()[1],
-            "forward_operator": jacobian(lats=[40.5])[1],
-        }
-        monkeypatch.setattr(FluxInversionPipeline, "get_inputs", lambda self: inputs)
-        pipeline = make_pipeline(SLVMethaneInversion)
+    def test_build_problem_runs_the_check(self, synthetic, monkeypatch):
+        J = jacobian()
+        flux = J.cols.select("flux")
+        keep = flux.get_level_values("lat") == LATS[0]
+        part = Operator(
+            sp.csr_array(matrix(J)[:, np.flatnonzero(keep)]),
+            J.rows,
+            Space({"flux": flux[keep]}),
+        )
+        monkeypatch.setattr(pipelines, "_project_jacobian", lambda c, p, locs: part)
         with pytest.raises(ValueError, match="State cells disagree"):
-            pipeline.get_inputs()
+            build_problem(synthetic())
+
+
+def test_matrix_keeps_a_sparse_operator_sparse():
+    J = jacobian()
+    dense = Operator(J.dense(), J.rows, J.cols)
+    assert sp.issparse(matrix(J)) and not sp.issparse(matrix(dense))
+    np.testing.assert_array_equal(matrix(J).toarray(), matrix(dense))
 
 
 # ---------------------------------------------------------------------------
-# Multiplicative MDM scale on the prior-modelled enhancement
+# build_problem on the made-up inversion
 # ---------------------------------------------------------------------------
 
 
-def test_scale_on_prior_matches_by_label(monkeypatch):
-    prior_s, prior = flux_prior()
-    H, forward_operator = jacobian()
-    obs = Vector(
-        name="obs",
-        data=Block(name="concentration", data=pd.Series(1.0, index=OBS_INDEX)),
+def test_build_problem_puts_every_input_on_the_obs_and_the_state(synthetic, capsys):
+    problem = build_problem(synthetic())
+    assert isinstance(problem, Problem)
+    assert problem.prior.space.names == ("flux",)
+    assert problem.obs.space.names == ("concentration",)
+    assert len(problem.prior) == len(TIMES) * len(LATS) * len(LONS)
+    # the obs without a background is dropped, the one without a footprint is kept
+    obs = problem.obs.space.select("concentration")
+    assert NO_BACKGROUND not in obs and NO_FOOTPRINT in obs
+    assert len(obs) == len(OBS_INDEX) - 1
+    assert "Dropping 1/6 obs with missing background" in capsys.readouterr().out
+    # the background is the offset
+    np.testing.assert_allclose(problem.offset.values, 1.95)
+
+
+def test_the_prior_and_jacobian_cells_meet_after_rounding(synthetic):
+    # the prior's latitudes carry float noise (a regrid); the Jacobian's do not
+    problem = build_problem(synthetic())
+    lats = problem.prior.space.select("flux").get_level_values("lat")
+    assert sorted(set(lats)) == LATS
+    J = jacobian()
+    receptor = OBS_INDEX[0]
+    H = problem.forward.to_frame()
+    H.index = H.index.droplevel("block")
+    H.columns = H.columns.droplevel("block")
+    expected = J.to_frame().droplevel("block").loc[receptor]
+    expected.index = expected.index.droplevel("block")
+    expected = expected.reorder_levels(H.columns.names)
+    np.testing.assert_allclose(H.loc[receptor, expected.index], expected.to_numpy())
+
+
+def test_an_obs_without_a_footprint_is_a_row_of_zeros(synthetic):
+    problem = build_problem(synthetic())
+    H = problem.forward.to_frame()
+    H.index = H.index.droplevel("block")
+    assert (H.loc[NO_FOOTPRINT] == 0).all()
+    assert (H.drop(NO_FOOTPRINT).sum(axis=1) > 0).all()
+
+
+def test_the_prior_error_is_kept_as_kronecker_factors(synthetic):
+    from fips.linalg import KroneckerOperator
+
+    problem = build_problem(synthetic())
+    assert isinstance(problem.prior_cov.data, KroneckerOperator)
+    prior = prior_series()
+    std = 0.01 + 0.5 * prior.to_numpy()
+    np.testing.assert_allclose(problem.prior_cov.variances.values, std**2, rtol=1e-6)
+
+
+def test_the_bias_block_joins_the_state(synthetic):
+    problem = build_problem(synthetic(bias_std=0.0))
+    assert problem.prior.space.names == ("flux", "bias")
+    assert len(problem.prior["bias"]) == 2  # the two months with obs
+    np.testing.assert_allclose(problem.prior_cov["bias", "bias"].dense(), 0.0)
+    assert (problem.forward["concentration", "bias"].dense().sum(axis=1) == 1).all()
+
+
+def test_the_obs_are_averaged_to_days(synthetic):
+    hourly = build_problem(synthetic())
+    daily = build_problem(synthetic(aggregate_obs="1D"))
+    days = daily.obs.space.select("concentration").get_level_values("obs_time")
+    assert list(days) == list(
+        pd.to_datetime(["2020-01-05", "2020-01-06", "2020-02-05"])
     )
-    pipeline = make_pipeline(SLVMethaneInversion)
-    monkeypatch.setattr(pipeline, "get_prior", lambda: prior)
-    monkeypatch.setattr(pipeline, "_get_flux_jacobian", lambda obs: forward_operator)
+    z = hourly.obs.values
+    # 01-06 has one obs left (its 20:00 obs had no background)
+    np.testing.assert_allclose(daily.obs.values, [z[:2].mean(), z[2], z[3:].mean()])
+    np.testing.assert_allclose(daily.offset.values, 1.95)
 
-    x = prior_s.reorder_levels(H.columns.names).reindex(H.columns)
-    expected = np.abs(H.to_numpy() @ x.to_numpy())
-    positional = np.abs(H.to_numpy() @ prior_s.to_numpy())
+
+def test_filter_state_space_keeps_only_the_time_range():
+    cfg = config(tstart="2020-01-01", tend="2020-03-01", min_obs_per_interval=1)
+    times = pd.to_datetime(
+        ["2019-12-31 20:00", "2020-01-05 20:00", "2020-02-05 20:00", "2020-03-01 20:00"]
+    )
+    obs = pd.Series(
+        [1.0, 2.0, 3.0, 4.0],
+        index=obs_space(["wbb"] * 4, times).select("concentration"),
+    )
+    prior = pd.Series(
+        1.0,
+        index=pd.MultiIndex.from_product(
+            [
+                pd.to_datetime(["2019-12-01", "2020-01-01", "2020-02-01"]),
+                [40.5],
+                [-112.0],
+            ],
+            names=["time", "lat", "lon"],
+        ),
+    )
+    obs, prior = pipelines.filter_state_space(cfg, obs, prior)
+    assert obs.tolist() == [2.0, 3.0]
+    assert len(prior) == 2
+
+
+def test_filter_state_space_drops_obs_of_sparse_intervals():
+    cfg = config(tstart="2020-01-01", tend="2020-03-01", min_obs_per_interval=2)
+    times = pd.to_datetime(["2020-01-05 20:00", "2020-01-06 20:00", "2020-02-05 20:00"])
+    obs = pd.Series(
+        [1.0, 2.0, 3.0], index=obs_space(["wbb"] * 3, times).select("concentration")
+    )
+    prior = prior_series()
+    obs, prior = pipelines.filter_state_space(cfg, obs, prior)
+    # February has one obs: dropped; its flux stays in the state, held by the prior
+    assert obs.tolist() == [1.0, 2.0]
+    assert len(prior) == len(prior_series())
+
+
+def test_get_obs_passes_the_config_to_the_loader(monkeypatch):
+    seen = {}
+
+    def fake(**kwargs):
+        seen.update(kwargs)
+        return pd.DataFrame({"CH4": [2.0, 2.5]}, index=OBS_INDEX[:2])
+
+    monkeypatch.setattr(pipelines, "get_slv_observations", fake)
+    cfg = InversionConfig(
+        tstart="2020-01-01",
+        tend="2020-03-01",
+        sites=["wbb", "hdp"],
+        subset_hours=[13, 14],
+        utc_offset=-6,
+        filter_pcaps=False,
+        mobile_obs="receptor_obs.parquet",
+    )
+    obs = pipelines.get_obs(cfg)
+    assert obs.tolist() == [2.0, 2.5] and obs.name == "obs"
+    assert seen["sites"] == ["wbb", "hdp"]
+    assert seen["subset_hours"] == [13, 14]
+    assert seen["utc_offset"] == -6
+    assert seen["filter_pcaps"] is False
+    assert seen["mobile_obs"] == "receptor_obs.parquet"
+    assert seen["time_range"] == (
+        pd.Timestamp("2020-01-01"),
+        pd.Timestamp("2020-03-01"),
+    )
+
+
+# ---------------------------------------------------------------------------
+# Multiplicative MDM scales
+# ---------------------------------------------------------------------------
+
+
+def test_scale_on_prior_matches_by_label():
+    J = jacobian()
+    prior = prior_series()
+    prior.index = flux_index()  # the Jacobian's own cells, in another level order
+    obs = pd.Series(1.0, index=OBS_INDEX)
+    cells = J.cols.select("flux")
+    x = prior.reorder_levels(cells.names).reindex(cells).to_numpy()
+    expected = np.abs(J.dense() @ x)
+    positional = np.abs(J.dense() @ prior.to_numpy())
     assert not np.allclose(expected, positional)  # the orders really differ here
 
-    np.testing.assert_allclose(pipeline._multiplicative_scale(obs, "prior"), expected)
+    got = mdm.multiplicative_scale(
+        obs, "prior", prior=prior, jacobian=J, constant=pd.Series(dtype=float)
+    )
+    receptors = J.rows.select("concentration")
+    on_obs = pd.Series(expected, index=receptors).reindex(OBS_INDEX).fillna(0.0)
+    np.testing.assert_allclose(got, on_obs.to_numpy())
+
+
+def test_scale_on_the_footprint_is_zero_without_one():
+    J = jacobian()
+    obs = pd.Series(1.0, index=OBS_INDEX)
+    got = mdm.multiplicative_scale(
+        obs, "footprint", prior=prior_series(), jacobian=J, constant=pd.Series()
+    )
+    rows = np.abs(J.dense()).sum(axis=1) * float(np.mean(prior_series().values))
+    expected = pd.Series(rows, index=J.rows.select("concentration")).reindex(OBS_INDEX)
+    np.testing.assert_allclose(got, expected.fillna(0.0).to_numpy())
+    assert got[OBS_INDEX.get_loc(NO_FOOTPRINT)] == 0.0
+
+
+def test_scale_on_obs_is_the_enhancement():
+    obs = pd.Series(2.0, index=OBS_INDEX)
+    constant = pd.Series(1.9, index=OBS_INDEX.drop(NO_BACKGROUND))
+    got = mdm.multiplicative_scale(
+        obs, "obs", prior=prior_series(), jacobian=jacobian(), constant=constant
+    )
+    expected = np.where(OBS_INDEX == NO_BACKGROUND, 0.0, 0.1)
+    np.testing.assert_allclose(got, expected)
 
 
 # ---------------------------------------------------------------------------
-# get_forward_operator leaves the config alone
+# get_flux_jacobian leaves the config alone
 # ---------------------------------------------------------------------------
 
 
@@ -617,14 +501,14 @@ def test_auto_location_map_is_not_written_to_config(monkeypatch):
     import stilt
 
     import slv.inversion.config as config_module
-    import slv.inversion.pipelines as pipelines_module
     from slv.inversion.sweep import config_id
 
     seen = {}
+    cfg = InversionConfig(tstart="2020-01-01", tend="2020-03-01")
 
     def fake_project(path):
-        bins = pipeline.config.flux_time_bins
-        when = bins[0].left + pd.Timedelta(hours=pipeline.config.subset_hours_utc[0])
+        bins = cfg.flux_time_bins
+        when = bins[0].left + pd.Timedelta(hours=cfg.subset_hours_utc[0])
         return SimpleNamespace(
             simulations=pd.DataFrame(
                 {
@@ -639,59 +523,21 @@ def test_auto_location_map_is_not_written_to_config(monkeypatch):
 
     def fake_project_jacobian(project, sel, target, bins, **kwargs):
         seen.update(kwargs)
-        return MatrixBlock(jacobian()[0], row_block="concentration", col_block="flux")
+        return jacobian()
 
     monkeypatch.setattr(stilt, "Project", fake_project)
-    monkeypatch.setattr(pipelines_module, "project_jacobian", fake_project_jacobian)
+    monkeypatch.setattr(pipelines, "project_jacobian", fake_project_jacobian)
     monkeypatch.setattr(
         config_module,
         "build_location_site_map",
         lambda ids, site_config: {"loc_a": "wbb"},
     )
-
-    pipeline = make_pipeline(
-        SLVMethaneInversion, tstart="2020-01-01", tend="2020-03-01"
-    )
-    obs = Vector(
-        name="obs",
-        data=Block(name="concentration", data=pd.Series(1.0, index=OBS_INDEX)),
-    )
-    before = config_id(pipeline.config)
-    pipeline.get_forward_operator(obs, flux_prior()[1])
+    before = config_id(cfg)
+    pipelines.get_flux_jacobian(cfg, pd.Series(1.0, index=OBS_INDEX))
 
     assert seen["location_mapper"] == {"loc_a": "wbb"}
-    assert pipeline.config.location_site_map == {}
-    assert config_id(pipeline.config) == before
-
-
-def test_bias_jacobian_uses_given_location_mapper():
-    pipeline = make_pipeline(
-        SLVMethaneInversion,
-        tstart="2020-01-01",
-        tend="2020-03-01",
-        sites=["wbb"],
-        bias_std=0.5,
-        bias_grouping="site_group",
-    )
-    obs = make_obs_vector(["loc_a"], pd.to_datetime(["2020-01-05"]))
-    prior = make_bias_vector(pipeline.get_bias().index)
-    jac = pipeline.get_bias_jacobian(obs, prior, location_mapper={"loc_a": "wbb"})
-    org = pipeline.get_site_group("wbb")
-    assert jac.loc[:, (pd.Timestamp("2020-01-01"), org)].tolist() == [1.0]
-
-
-# ---------------------------------------------------------------------------
-# Cache keys
-# ---------------------------------------------------------------------------
-
-
-@pytest.mark.parametrize("component", ["prior", "prior_error"])
-def test_prior_keys_change_with_sites(component):
-    # "site" / "site_group" bias blocks are indexed by config.sites
-    fields = SLVMethaneInversion.COMPONENT_DEPS[component]
-    a = InversionConfig(sites=["wbb"], bias_std=0.5, bias_grouping="site")
-    b = InversionConfig(sites=["wbb", "hw"], bias_std=0.5, bias_grouping="site")
-    assert _component_hash(a, fields) != _component_hash(b, fields)
+    assert cfg.location_site_map == {}
+    assert config_id(cfg) == before
 
 
 # ---------------------------------------------------------------------------
@@ -705,34 +551,44 @@ TRAX_OBS_INDEX = pd.MultiIndex.from_arrays(
     ],
     names=["obs_location", "obs_time"],
 )
+TRAX_SPACE = Space({"concentration": TRAX_OBS_INDEX})
 
 
 def trax_obs():
     """A tower obs and a TRAX receptor obs (keyed by its PYSTILT location_id)."""
-    data = pd.Series([2.0, 2.1], index=TRAX_OBS_INDEX)
-    return Vector(name="obs", data=Block(name="concentration", data=data))
+    return pd.Series([2.0, 2.1], index=TRAX_OBS_INDEX, name="obs")
 
 
 class TestMobileObsInPipeline:
     def test_obs_sites_resolves_receptors_to_the_mobile_site(self):
-        pipeline = make_pipeline(SLVMethaneInversion, sites=["wbb", "trx01"])
-        assert pipeline.obs_sites(trax_obs().index).tolist() == ["wbb", "trx01"]
+        cfg = InversionConfig(sites=["wbb", "trx01"])
+        locations = TRAX_OBS_INDEX.get_level_values("obs_location")
+        assert obs_sites(cfg, locations).tolist() == ["wbb", "trx01"]
 
     def test_obs_sites_without_a_mobile_site_raises(self):
-        pipeline = make_pipeline(SLVMethaneInversion, sites=["wbb"])
+        cfg = InversionConfig(sites=["wbb"])
         with pytest.raises(ValueError, match="0 mobile sites"):
-            pipeline.obs_sites(trax_obs().index)
+            obs_sites(cfg, TRAX_OBS_INDEX.get_level_values("obs_location"))
 
     def test_default_mdm_builds_with_mobile_obs(self, monkeypatch):
         # the default `instr` term looked up each obs_location's organization: KeyError
-        pipeline = make_pipeline(SLVMethaneInversion, sites=["wbb", "trx01"])
-        zeros = lambda obs, _: np.zeros(len(obs.index))  # noqa: E731
-        monkeypatch.setattr(pipeline, "_multiplicative_scale", zeros)
-        monkeypatch.setattr(pipeline, "_per_obs_std", zeros)
-        mdm = pipeline.get_modeldata_mismatch(trax_obs())
-        diag = np.diag(np.asarray(mdm.values, dtype=float))
+        cfg = InversionConfig(sites=["wbb", "trx01"])
+        zeros = lambda obs, *a, **k: np.zeros(len(obs))  # noqa: E731
+        monkeypatch.setattr(mdm, "multiplicative_scale", zeros)
+        monkeypatch.setattr(mdm, "per_obs_std", lambda config, obs, src: zeros(obs))
+        obs = trax_obs()
+        S = mdm.get_modeldata_mismatch(
+            cfg,
+            obs,
+            prior=None,
+            jacobian=None,
+            constant=None,
+            obs_sites=obs_sites(cfg, obs.index.get_level_values("obs_location")),
+        )
+        diag = S.variances.values
         assert len(diag) == 2
         assert (diag > 0).all()
+        assert S.name == "modeldata_mismatch"
 
     def test_constant_keeps_mobile_obs(self, monkeypatch):
         # hourly background joined on exact obs_time left the 20:13 receptor NaN -> dropped
@@ -742,176 +598,20 @@ class TestMobileObsInPipeline:
             [1.90, 1.95], index=pd.to_datetime(["2024-06-02 19:00", "2024-06-02 20:00"])
         )
         monkeypatch.setattr(bg, "get_rolling_background", lambda **kwargs: hourly)
-        pipeline = make_pipeline(SLVMethaneInversion, sites=["wbb", "trx01"])
-        constant = pipeline.get_constant(trax_obs())["concentration"]
+        cfg = InversionConfig(sites=["wbb", "trx01"])
+        constant = pipelines.get_constant(cfg, trax_obs())
         assert constant.index.get_level_values("obs_location").tolist() == [
             "wbb",
             "multi_aaaaaaaaaa",
         ]
         assert constant.tolist() == [1.95, 1.95]
-
-
-# ---------------------------------------------------------------------------
-# Robustness follow-ups (#4)
-# ---------------------------------------------------------------------------
-
-CELL_LATS = [40.5, 40.6]
-CELL_LONS = [-112.0, -111.9]
-SIM_INDEX = pd.MultiIndex.from_arrays(
-    [
-        ["wbb", "wbb", "wbb"],
-        pd.to_datetime(["2020-01-20", "2020-01-05", "2020-02-05"]),
-    ],
-    names=["obs_location", "obs_time"],
-)
-
-
-def test_coverage_filter_adds_removed_cells_by_label():
-    # Jacobian rows are simulations (here out of order, plus one with no obs); the
-    # constant is indexed by obs. They used to be added by position.
-    prior_s, prior = flux_prior(CELL_LATS, CELL_LONS)
-    columns = pd.MultiIndex.from_product(
-        [CELL_LONS, CELL_LATS, TIMES], names=["lon", "lat", "time"]
-    )
-    H = pd.DataFrame(1.0, index=SIM_INDEX, columns=columns)
-    weak = columns.get_level_values("lon") == -112.0
-    weak &= columns.get_level_values("lat") == 40.5
-    H.loc[:, weak] = 1e-6  # the least-covered cell, removed at the 30th percentile
-    forward_operator = ForwardOperator(
-        MatrixBlock(H, row_block="concentration", col_block="flux")
-    )
-    obs_index = SIM_INDEX[[1, 0]].sort_values()  # 2020-01-05, 2020-01-20
-    constant = Vector(
-        name="background",
-        data=Block(name="concentration", data=pd.Series([2.0, 2.5], index=obs_index)),
-    )
-    pipeline = make_pipeline(
-        SLVMethaneInversion,
-        tstart="2020-01-01",
-        tend="2020-03-01",
-        jacobian_coverage_percentile=30,
-    )
-    inputs = {
-        "prior": prior,
-        "forward_operator": forward_operator,
-        "constant": constant,
-    }
-
-    out = pipeline._apply_jacobian_coverage_filter(inputs)
-
-    x = prior_s.reorder_levels(columns.names).reindex(columns)
-    removed = pd.Series(H.loc[:, weak].to_numpy() @ x[weak].to_numpy(), index=SIM_INDEX)
-    expected = pd.Series([2.0, 2.5], index=obs_index) + removed.reindex(obs_index)
-    got = out["constant"]["concentration"]
-    np.testing.assert_allclose(got.to_numpy(), expected.to_numpy())
-
-
-def test_prior_error_with_zero_bias_std_uses_the_flux_block():
-    pipeline = make_pipeline(
-        SLVMethaneInversion, tstart="2020-01-01", tend="2020-03-01", bias_std=0.0
-    )
-    _, prior = flux_prior(bias=True)
-    S = pipeline.get_prior_error(prior)
-    assert set(S.index.get_level_values("block")) == {"flux", "bias"}
-
-
-class TestBiasBlockPerRun:
-    def _pipeline(self, **kwargs):
-        defaults = {"tstart": "2020-01-01", "tend": "2020-03-01", "bias_std": 0.5}
-        return make_pipeline(SLVMethaneInversion, **(defaults | kwargs))
-
-    def test_stale_cached_bias_block_is_replaced(self, monkeypatch):
-        # a forward_operator cached with a bias block for other obs: only its flux
-        # block is kept, and the bias block is rebuilt for these obs
-        pipeline = self._pipeline(bias_grouping="time", sites=["wbb"])
-        H, _ = jacobian()
-        stale_bias = pd.DataFrame(
-            1.0, index=OBS_INDEX[:1], columns=pd.Index(TIMES[:1], name="time")
-        )
-        cached = ForwardOperator(
-            [
-                MatrixBlock(H, "concentration", "flux"),
-                MatrixBlock(stale_bias, "concentration", "bias"),
-            ]
-        )
-        monkeypatch.setattr(pipeline, "_get_flux_jacobian", lambda obs: cached)
-        obs = Vector(
-            name="obs",
-            data=Block(name="concentration", data=pd.Series(1.0, index=OBS_INDEX)),
-        )
-        prior = Vector(
-            name="prior",
-            data=[
-                Block(flux_prior()[0], name="flux"),
-                Block(pipeline.get_bias(), name="bias"),
-            ],
-        )
-        fo = pipeline.get_forward_operator(obs, prior)
-        bias = fo["concentration", "bias"]
-        assert bias.shape == (len(OBS_INDEX), len(TIMES))
-        assert (bias.sum(axis=1) == 1).all()
-
-    def test_site_bias_maps_receptors_to_the_mobile_site(self):
-        # "site" grouping keyed obs_location; a TRAX receptor matched no bias column
-        pipeline = self._pipeline(
-            bias_grouping="site",
-            sites=["wbb", "trx01"],
-            tstart="2024-06-01",
-            tend="2024-07-01",
-        )
-        prior = make_bias_vector(pipeline.get_bias().index)
-        jac = pipeline.get_bias_jacobian(trax_obs(), prior)
-        june = pd.Timestamp("2024-06-01")
-        assert jac.loc[:, (june, "trx01")].tolist() == [0.0, 1.0]
-        assert jac.loc[:, (june, "wbb")].tolist() == [1.0, 0.0]
-
-
-def test_mdm_scale_reuses_the_runs_prior_and_jacobian(monkeypatch):
-    # with cache=False the multiplicative MDM used to rebuild both
-    pipeline = make_pipeline(SLVMethaneInversion)
-    _, prior = flux_prior()
-    _, forward_operator = jacobian()
-    builds = {"prior": 0, "jacobian": 0}
-
-    def build_prior():
-        builds["prior"] += 1
-        return prior
-
-    def build_jacobian(obs):
-        builds["jacobian"] += 1
-        return forward_operator
-
-    monkeypatch.setattr(pipeline, "_build_prior", build_prior)
-    monkeypatch.setattr(pipeline, "_get_flux_jacobian", build_jacobian)
-    obs = Vector(
-        name="obs",
-        data=Block(name="concentration", data=pd.Series(1.0, index=OBS_INDEX)),
-    )
-    pipeline.get_forward_operator(obs, pipeline.get_prior())  # what get_inputs does
-    for scale_on in ("footprint", "prior"):
-        pipeline._multiplicative_scale(obs, scale_on)
-    assert builds == {"prior": 1, "jacobian": 1}
-
-
-def test_sparse_jacobian_scale_matches_dense():
-    H, _ = jacobian()
-    sparse = H.astype(pd.SparseDtype(float, 0.0))
-    dense_rows = np.abs(H.to_numpy()).sum(axis=1)
-    sparse_rows = np.asarray(abs(pipelines_matrix(sparse)).sum(axis=1)).ravel()
-    np.testing.assert_allclose(sparse_rows, dense_rows)
-
-
-def pipelines_matrix(block):
-    from slv.inversion.mdm import _matrix
-
-    return _matrix(block)
+        assert constant.name == "background"
 
 
 def test_total_units_are_mass_per_interval():
-    pipeline = make_pipeline(
-        SLVMethaneInversion, tstart="2016-01-01", tend="2024-01-01", flux_freq="QS"
-    )
-    assert pipeline._total_units() == "Gg per QS interval"
+    from slv.inversion.report import total_units
+
+    assert total_units(InversionConfig(flux_freq="QS")) == "Gg per QS interval"
 
 
 # ---------------------------------------------------------------------------
@@ -962,38 +662,3 @@ class TestPkgVersion:
             assert _pkg_version("slvtest_scm_pkg", "x") == "2026.12.3"
         finally:
             sys.modules.pop("slvtest_scm_pkg", None)
-
-
-def test_package_release_rekeys_obs_but_not_the_jacobian(tmp_path, monkeypatch):
-    import slv.inversion.cache as cache
-
-    class Fake:
-        def to_file(self, path):
-            path.write_text("x")
-
-        @classmethod
-        def from_file(cls, path):
-            return cls()
-
-    class FakePipeline:
-        config = InversionConfig(cache=str(tmp_path))
-
-        @fips_cache(Fake, "obs")
-        def get_obs(self):
-            return Fake()
-
-        @fips_cache(Fake, "forward_operator")
-        def get_fo(self):
-            return Fake()
-
-    def files(component):
-        return sorted((tmp_path / ".fips").glob(f"*/{component}/*.pkl"))
-
-    monkeypatch.setattr(cache, "_release", lambda p: "2026.12.2")
-    FakePipeline().get_obs()
-    FakePipeline().get_fo()
-    monkeypatch.setattr(cache, "_release", lambda p: "2026.12.3")  # a new lair release
-    FakePipeline().get_obs()
-    FakePipeline().get_fo()
-    assert len(files("obs")) == 2
-    assert len(files("forward_operator")) == 1

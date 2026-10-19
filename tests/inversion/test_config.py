@@ -216,7 +216,7 @@ RESOLUTIONS = [0.002, 0.005, 0.01, 0.02, 0.025, 0.03, 0.05, 0.1, 0.15]
 class TestInversionConfigGrid:
     """
     The prior's grid and the Jacobian's state_grid must enumerate the same cells:
-    fips zero-fills Jacobian columns the prior has and the Jacobian lacks.
+    the Jacobian is placed on the prior's cells, a cell it lacks getting zeros.
     """
 
     @pytest.mark.parametrize("d", RESOLUTIONS)

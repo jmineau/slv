@@ -136,7 +136,7 @@ def test_mobile_obs_key_changes_when_the_file_is_rewritten(tmp_path):
 
 
 def test_mobile_obs_key_is_a_forward_operator_dependency():
-    from slv.inversion.pipelines import DEFAULT_COMPONENT_DEPS
+    from slv.inversion.cache import DEFAULT_COMPONENT_DEPS
 
     for comp in ("obs", "forward_operator", "modeldata_mismatch", "constant"):
         assert "mobile_obs_key" in DEFAULT_COMPONENT_DEPS[comp], comp

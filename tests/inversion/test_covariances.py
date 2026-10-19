@@ -3,6 +3,7 @@
 import numpy as np
 import pandas as pd
 import pytest
+from fips import Space
 
 from slv.inversion.covariances import build_mdm_error
 from slv.measurements.sites import load_site_config
@@ -17,7 +18,7 @@ OBS_SITES = ["wbb", "hw", "trx01"]
 
 
 def variances(component):
-    return np.diag(component.build(OBS_INDEX).to_numpy())
+    return component.build(Space({"concentration": OBS_INDEX})).variances.values
 
 
 def test_organization_std_needs_the_obs_site():
@@ -56,3 +57,18 @@ def test_normalize_duration(value, expected):
     from slv.inversion.covariances import normalize_duration
 
     assert normalize_duration(value) == expected
+
+
+def test_correlated_components_stay_within_their_groups():
+    times = pd.to_datetime(["2024-01-01 20:00", "2024-01-01 21:00", "2024-01-02 20:00"])
+    index = pd.MultiIndex.from_arrays(
+        [["wbb"] * 3, times], names=["obs_location", "obs_time"]
+    )
+    space = Space({"concentration": index})
+    within_day = build_mdm_error("aggr", index, std=0.1, scale=None).build(space)
+    np.testing.assert_allclose(
+        within_day.dense(), 0.01 * np.array([[1, 1, 0], [1, 1, 0], [0, 0, 1]])
+    )
+    across_days = build_mdm_error("bg", index, std=0.1, scale="7d", interday=True)
+    C = across_days.build(space).dense()
+    assert C[0, 2] == pytest.approx(0.01 * np.exp(-1 / 7))
