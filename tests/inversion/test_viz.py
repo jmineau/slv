@@ -12,6 +12,7 @@ import pandas as pd
 import pytest
 import xarray as xr
 from cartopy.mpl.geoaxes import GeoAxes
+from fips import Vector
 from lair.geo import PC
 
 from slv.inversion import viz
@@ -126,20 +127,39 @@ def test_coverage_maps_shade_the_removed_cells(tiler, func, title):
     assert len(ax.patches) == 1
 
 
+def flux_vector(field):
+    return Vector.from_series(field.to_series(), block="flux")
+
+
+def flux_post(prior=None, estimate=None):
+    """Enough of a Posterior for the flux maps: the prior and the estimate."""
+    prior = flux_field() if prior is None else prior
+    estimate = flux_field() * 2 if estimate is None else estimate
+    return SimpleNamespace(
+        problem=SimpleNamespace(prior=flux_vector(prior)),
+        estimate=flux_vector(estimate),
+    )
+
+
 def test_plot_fluxes_by_timestep_one_panel_per_time(tiler):
-    problem = SimpleNamespace(posterior_fluxes=flux_field().to_series())
-    facet = viz.plot_fluxes_by_timestep(problem, EXTENT, tiler, 10, add_sites=False)
+    facet = viz.plot_fluxes_by_timestep(flux_post(), EXTENT, tiler, 10, add_sites=False)
     assert facet.axs.size >= len(TIMES)
     assert len([ax for ax in facet.axs.flat if ax.has_data()]) == len(TIMES)
     assert len(tiler.calls) == len(facet.axs.flat)
 
 
-def test_plot_fluxes_adds_sites_and_point_sources_to_each_panel(tiler):
+def test_plot_flux_maps_prior_posterior_and_difference(tiler):
+    fig, axes = viz.plot_flux_maps(flux_post(), tiler=tiler, tiler_zoom=10)
+    assert [ax.get_title() for ax in axes] == ["Prior", "Posterior", "Residual"]
+    assert len(tiler.calls) == 3
+    fig, axes = viz.plot_flux_maps(flux_post(), time="std")
+    assert len(axes) == 2
+
+
+def test_plot_fluxes_adds_sites_and_point_sources_to_each_panel(tiler, monkeypatch):
     fig, axes = plt.subplots(1, 2, subplot_kw={"projection": PC})
-    problem = SimpleNamespace(
-        plot=SimpleNamespace(fluxes=lambda **kwargs: (fig, list(axes)))
-    )
-    viz.plot_fluxes(problem, tiler, 10, sites=["wbb"], site_config=SITE_CONFIG)
+    monkeypatch.setattr(viz, "plot_flux_maps", lambda post, **k: (fig, list(axes)))
+    viz.plot_fluxes(flux_post(), tiler, 10, sites=["wbb"], site_config=SITE_CONFIG)
     for ax in axes:
         labels = ax.get_legend_handles_labels()[1]
         assert "Stationary Site" in labels
@@ -210,8 +230,11 @@ def test_plot_residuals_breaks_the_smoothed_line_at_gaps():
     )
     obs = obs_series({"wbb": np.full(5, 2.0)}, times)
     post = obs + np.array([0.1, 0.2, 0.3, -0.1, -0.2])
-    problem = SimpleNamespace(concentrations=obs, posterior_concentrations=post)
-    fig, ax = viz.plot_residuals(problem, rolling_window=1, show_raw=False)
+    solved = SimpleNamespace(
+        problem=SimpleNamespace(obs=Vector.from_series(obs, block="concentration")),
+        modeled_obs=Vector.from_series(post, block="concentration"),
+    )
+    fig, ax = viz.plot_residuals(solved, rolling_window=1, show_raw=False)
     (line,) = [ln for ln in ax.get_lines() if ln.get_label() == "wbb"]
     y = np.asarray(line.get_ydata(), dtype=float)
     np.testing.assert_allclose(y[:3], [0.1, 0.2, 0.3])
@@ -219,37 +242,25 @@ def test_plot_residuals_breaks_the_smoothed_line_at_gaps():
     np.testing.assert_allclose(y[4], -0.2)
 
 
-def _problem(bias=False, same_background=True):
+def _post(bias=False, same_background=True):
+    """Enough of a Posterior for plot_background_and_bias."""
     obs_index = obs_series({"wbb": [0, 0], "hdp": [0, 0]}, TIMES[:2]).index
     bg = pd.Series([2.0, 2.1, 2.0, 2.1 if same_background else 2.3], index=obs_index)
-    prior_index = [("flux", t) for t in TIMES]
-    blocks = {"concentration": bg}
-    problem = SimpleNamespace(constant=blocks)
+    flux = pd.Series(0.0, index=pd.Index(TIMES, name="time"))
+    prior, estimate = {"flux": flux}, {"flux": flux}
     if bias:
-        prior_index += [("bias", t) for t in TIMES[:2]]
-        bias_prior = pd.Series([0.0, 0.0], index=TIMES[:2])
-        bias_post = pd.Series([0.1, -0.1], index=TIMES[:2])
-        prior_data = pd.Series(
-            0.0, index=pd.MultiIndex.from_tuples(prior_index, names=["block", "t"])
-        )
-        problem.prior = _Blocks(prior_data, {"bias": bias_prior})
-        problem.posterior = _Blocks(None, {"bias": bias_post})
-    return problem
-
-
-class _Blocks:
-    """``obj.data`` plus ``obj["name"]`` block access, like a fips Vector."""
-
-    def __init__(self, data, blocks):
-        self.data = data
-        self._blocks = blocks
-
-    def __getitem__(self, key):
-        return self._blocks[key]
+        bias_index = pd.Index(TIMES[:2], name="obs_time")
+        prior["bias"] = pd.Series([0.0, 0.0], index=bias_index)
+        estimate["bias"] = pd.Series([0.1, -0.1], index=bias_index)
+    problem = SimpleNamespace(
+        prior=Vector.from_blocks(prior),
+        offset=Vector.from_series(bg, block="concentration"),
+    )
+    return SimpleNamespace(problem=problem, estimate=Vector.from_blocks(estimate))
 
 
 def test_background_shared_by_all_sites_is_one_line():
-    fig, axes = viz.plot_background_and_bias(_problem())
+    fig, axes = viz.plot_background_and_bias(_post())
     assert len(axes) == 1
     assert [ln.get_label() for ln in axes[0].get_lines()] == [
         "Regional Background (all sites)"
@@ -257,12 +268,12 @@ def test_background_shared_by_all_sites_is_one_line():
 
 
 def test_site_backgrounds_are_one_line_each():
-    fig, axes = viz.plot_background_and_bias(_problem(same_background=False))
+    fig, axes = viz.plot_background_and_bias(_post(same_background=False))
     assert sorted(ln.get_label() for ln in axes[0].get_lines()) == ["hdp", "wbb"]
 
 
 def test_bias_panel_shows_prior_and_posterior():
-    fig, axes = viz.plot_background_and_bias(_problem(bias=True))
+    fig, axes = viz.plot_background_and_bias(_post(bias=True))
     assert len(axes) == 2
     lines = {ln.get_label(): ln for ln in axes[1].get_lines()}
     np.testing.assert_allclose(lines["Posterior"].get_ydata(), [0.1, -0.1])

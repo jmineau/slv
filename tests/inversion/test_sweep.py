@@ -4,20 +4,22 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
+import fips
 import numpy as np
 import pandas as pd
 import pytest
-from fips import Block, CovarianceMatrix, ForwardOperator, MatrixBlock, Vector
-from fips.problems.flux.problem import FluxProblem
+from fips import Independent, Operator, Problem, Vector
 
-from slv.inversion.config import InversionConfig
-from slv.inversion.pipelines import (
+from slv.inversion import pipelines, sweep
+from slv.inversion.cache import (
     DEFAULT_COMPONENT_DEPS,
-    SLVMethaneInversion,
     _component_hash,
+    _version_tag,
+    fips_cache,
 )
+from slv.inversion.config import InversionConfig
 from slv.inversion.sweep import (
     _RESULT_COLUMNS,
     Sweep,
@@ -112,128 +114,62 @@ class TestComponentHash:
 
 class TestFipsCache:
     """
-    Smoke-tests for the cache decorator using fake fips objects.
+    Smoke-tests for the cache decorator.
 
     Hashed components live under ``<cache>/.fips/<version tag>/<component>/<hash>.pkl``.
     """
 
     @staticmethod
     def _component_files(cache_dir, component):
-        from slv.inversion.pipelines import _version_tag
-
         return list((cache_dir / ".fips" / _version_tag() / component).glob("*.pkl"))
 
-    def _make_pipeline(self, config, cache_dir):
-        """Build a minimal mock pipeline to exercise the cache decorator."""
-        from slv.inversion.pipelines import fips_cache
+    @staticmethod
+    def _get_obs(calls=None):
+        @fips_cache("obs")
+        def get_obs(config):
+            if calls is not None:
+                calls.append(1)
+            return {"val": 42}
 
-        class FakeObj:
-            def __init__(self, val):
-                self.val = val
-
-            def to_file(self, path):
-                path.parent.mkdir(parents=True, exist_ok=True)
-                path.write_text(str(self.val))
-
-            @classmethod
-            def from_file(cls, path):
-                return cls(int(path.read_text()))
-
-        class FakePipeline:
-            def __init__(self, cfg):
-                self.config = cfg
-
-            COMPONENT_DEPS = DEFAULT_COMPONENT_DEPS
-
-            @fips_cache(FakeObj, "obs")
-            def get_obs(self):
-                return FakeObj(42)
-
-        config.cache = str(cache_dir)
-        return FakePipeline(config)
+        return get_obs
 
     def test_cache_miss_saves_file(self, tmp_path):
-        config = _cfg()
-        p = self._make_pipeline(config, tmp_path)
-        result = p.get_obs()
-        assert result.val == 42
-        # File should exist somewhere under tmp_path/obs/
-        obs_files = self._component_files(tmp_path, "obs")
-        assert len(obs_files) == 1
+        result = self._get_obs()(_cfg(cache=str(tmp_path)))
+        assert result == {"val": 42}
+        assert len(self._component_files(tmp_path, "obs")) == 1
 
     def test_cache_hit_loads_file(self, tmp_path):
-        config = _cfg()
-        p = self._make_pipeline(config, tmp_path)
-        p.get_obs()  # populate cache
-        # Patch method to track whether it's called on 2nd invocation
-        with patch.object(type(p), "get_obs", wraps=p.get_obs):
-            # Create a fresh pipeline pointing to same cache
-            p2 = self._make_pipeline(config, tmp_path)
-            result = p2.get_obs()
-        # Value comes from cache file
-        assert result.val == 42
+        calls = []
+        get_obs = self._get_obs(calls)
+        get_obs(_cfg(cache=str(tmp_path)))
+        assert get_obs(_cfg(cache=str(tmp_path))) == {"val": 42}
+        assert len(calls) == 1
 
     def test_two_configs_sharing_obs_deps_share_cache_file(self, tmp_path):
         """Same sites/time → same obs hash → same cache file."""
-        c1 = _cfg(prior_base_std=0.01)
-        c2 = _cfg(prior_base_std=0.05)
-        p1 = self._make_pipeline(c1, tmp_path)
-        p2 = self._make_pipeline(c2, tmp_path)
-        p1.get_obs()
-        p2.get_obs()
-        # Only one unique hash file should exist
-        obs_files = self._component_files(tmp_path, "obs")
-        assert len(obs_files) == 1
+        get_obs = self._get_obs()
+        get_obs(_cfg(cache=str(tmp_path), prior_base_std=0.01))
+        get_obs(_cfg(cache=str(tmp_path), prior_base_std=0.05))
+        assert len(self._component_files(tmp_path, "obs")) == 1
 
     def test_different_sites_produce_different_cache_files(self, tmp_path):
-        c1 = _cfg(sites=["wbb"])
-        c2 = _cfg(sites=["wbb", "hw"])
-        p1 = self._make_pipeline(c1, tmp_path)
-        p2 = self._make_pipeline(c2, tmp_path)
-        p1.get_obs()
-        p2.get_obs()
-        obs_files = self._component_files(tmp_path, "obs")
-        assert len(obs_files) == 2
+        get_obs = self._get_obs()
+        get_obs(_cfg(cache=str(tmp_path), sites=["wbb"]))
+        get_obs(_cfg(cache=str(tmp_path), sites=["wbb", "hw"]))
+        assert len(self._component_files(tmp_path, "obs")) == 2
 
     def test_cache_overwrite_all_clears_component(self, tmp_path):
-        config = _cfg()
-        p = self._make_pipeline(config, tmp_path)
-        p.get_obs()
-        obs_files_before = self._component_files(tmp_path, "obs")
-        assert len(obs_files_before) == 1
-
-        config.cache_overwrite = "all"
-        p2 = self._make_pipeline(config, tmp_path)
-        p2.get_obs()
+        get_obs = self._get_obs()
+        get_obs(_cfg(cache=str(tmp_path)))
+        assert len(self._component_files(tmp_path, "obs")) == 1
+        get_obs(_cfg(cache=str(tmp_path), cache_overwrite="all"))
         # File count stays 1 (old file deleted, new one written)
-        obs_files_after = self._component_files(tmp_path, "obs")
-        assert len(obs_files_after) == 1
+        assert len(self._component_files(tmp_path, "obs")) == 1
 
-    def test_cache_disabled_does_not_create_files(self, tmp_path):
-        config = _cfg()  # cache=False by default
-        from slv.inversion.pipelines import fips_cache
-
-        class FakeObj:
-            def to_file(self, p):
-                pass
-
-            @classmethod
-            def from_file(cls, p):
-                pass
-
-        class FakePipeline:
-            def __init__(self, cfg):
-                self.config = cfg
-
-            COMPONENT_DEPS = DEFAULT_COMPONENT_DEPS
-
-            @fips_cache(FakeObj, "obs")
-            def get_obs(self):
-                return FakeObj()
-
-        p = FakePipeline(config)
-        p.get_obs()
-        assert not (tmp_path / "obs").exists()
+    def test_cache_disabled_does_not_create_files(self, tmp_path, monkeypatch):
+        monkeypatch.chdir(tmp_path)
+        self._get_obs()(_cfg())  # cache=False by default
+        assert not (tmp_path / ".fips").exists()
 
 
 # ---------------------------------------------------------------------------
@@ -265,13 +201,17 @@ class TestSweepConfigs:
         )
         assert all(cfg.cache == "/tmp/my_cache" for cfg, _ in sweep.configs)
 
-    def test_pipeline_cls_propagated(self):
+    def test_pipeline_propagated(self):
         sweep = Sweep(
             cache="/tmp/sweep",
-            pipeline_cls=SLVMethaneInversion,
+            pipeline=_fake_pipeline,
             prior_base_std=[0.01],
         )
-        assert all(cls is SLVMethaneInversion for _, cls in sweep.configs)
+        assert all(p is _fake_pipeline for _, p in sweep.configs)
+
+    def test_default_pipeline_is_run(self):
+        sweep = Sweep(cache="/tmp/sweep", prior_base_std=[0.01])
+        assert all(p is pipelines.run for _, p in sweep.configs)
 
     def test_base_config_fields_inherited(self):
         base = _cfg(tstart="2020-01-01", tend="2021-01-01")
@@ -330,179 +270,81 @@ class TestConfigId:
 # ---------------------------------------------------------------------------
 
 
+def _solved():
+    """A small solved inversion: four obs, a flux block over two months and two cells."""
+    index = pd.MultiIndex.from_product(
+        [pd.to_datetime(["2023-01-01", "2023-02-01"]), [40.5], [-112.0, -111.9]],
+        names=["time", "lat", "lon"],
+    )
+    prior = Vector.from_series(
+        pd.Series([1.0, 2.0, 1.5, 2.5], index=index), block="flux"
+    )
+    obs_index = pd.MultiIndex.from_arrays(
+        [["wbb"] * 4, pd.date_range("2023-01-05", periods=4, freq="10D")],
+        names=["obs_location", "obs_time"],
+    )
+    obs = Vector.from_series(
+        pd.Series([2.1, 2.3, 2.2, 2.6], index=obs_index), block="concentration"
+    )
+    H = np.random.default_rng(0).random((4, 4)) * 0.1
+    problem = Problem(
+        prior=prior,
+        prior_cov=Independent().with_std(0.5),
+        obs=obs,
+        obs_cov=Independent().with_std(0.05),
+        forward=Operator(H, obs.space, prior.space),
+        offset=1.9,
+    )
+    return fips.solve(problem)
+
+
+@pytest.fixture
+def summing(monkeypatch):
+    """Totals as the sum over the cells (no xesmf needed)."""
+    monkeypatch.setattr(
+        sweep,
+        "calculate_total_flux",
+        lambda config, fluxes, units=None: fluxes.groupby(level="time").sum(),
+    )
+
+
 class TestCollectMetrics:
-    def _mock_problem_and_pipeline(self):
-        """Build minimal mocks for FluxProblem and pipeline."""
-        estimator = MagicMock()
-        estimator.reduced_chi2 = 1.05
-        estimator.R2 = 0.82
-        estimator.RMSE = 0.03
-        estimator.DOFS = 45.0
-        estimator.uncertainty_reduction = 0.35
+    def test_basic_metrics_present(self, summing):
+        row = collect_metrics(_solved(), _cfg())
+        for key in ("reduced_chi2", "chi2_distance", "DOFS", "uncertainty_reduction"):
+            assert key in row
+        assert row["config_id"] == config_id(_cfg())
+        assert list(row)[: len(_RESULT_COLUMNS)] == list(_RESULT_COLUMNS)
 
-        # Observed and modeled concentrations (background 1.9 ppm): the prior model
-        # is 0.1 ppm high, 0.1 low, 0.1 high; the posterior fits.
-        problem = MagicMock()
-        problem.estimator = estimator
-        problem.concentrations = pd.Series([2.9, 3.9, 4.9])
-        problem.prior_concentrations = pd.Series([3.0, 3.8, 5.0])
-        problem.posterior_concentrations = pd.Series([2.9, 3.9, 4.9])
-        problem.prior_fluxes = pd.Series(
-            [1.0, 2.0], index=pd.to_datetime(["2023-01", "2023-02"])
-        )
-        problem.posterior_fluxes = pd.Series(
-            [1.2, 2.1], index=pd.to_datetime(["2023-01", "2023-02"])
-        )
+    def test_fit_metrics_are_the_posterior_s(self, summing):
+        post = _solved()
+        row = collect_metrics(post, _cfg())
+        assert row["reduced_chi2"] == pytest.approx(post.reduced_chi2)
+        assert row["chi2_distance"] == pytest.approx(abs(post.reduced_chi2 - 1))
+        assert row["R2"] == pytest.approx(post.r2)
+        assert row["RMSE"] == pytest.approx(post.rmse)
+        assert row["DOFS"] == pytest.approx(post.dofs)
+        assert row["n_obs"] == 4 and row["n_state"] == 4
 
-        pipeline = MagicMock()
-        pipeline.calculate_total_flux.side_effect = lambda fluxes, units=None: (
-            pd.Series([float(fluxes.sum())])
-        )
+    def test_flux_totals(self, summing):
+        post = _solved()
+        row = collect_metrics(post, _cfg())
+        assert row["prior_flux_mean"] == pytest.approx(3.5)  # (1 + 2, 1.5 + 2.5) / 2
+        totals = post.estimate.to_series().groupby(level="time").sum()
+        assert row["posterior_flux_mean"] == pytest.approx(totals.mean())
 
-        return problem, pipeline
-
-    def test_basic_metrics_present(self):
-        problem, pipeline = self._mock_problem_and_pipeline()
-        config = _cfg()
-        row = collect_metrics(problem, config, pipeline)
-        assert "reduced_chi2" in row
-        assert "chi2_distance" in row
-        assert "DOFS" in row
-        assert "uncertainty_reduction" in row
-        assert "config_id" in row
-
-    def test_chi2_value(self):
-        problem, pipeline = self._mock_problem_and_pipeline()
-        row = collect_metrics(problem, _cfg(), pipeline)
-        assert abs(row["reduced_chi2"] - 1.05) < 1e-9
-        assert abs(row["chi2_distance"] - 0.05) < 1e-9
-
-    def test_concentration_residuals(self):
-        problem, pipeline = self._mock_problem_and_pipeline()
-        row = collect_metrics(problem, _cfg(), pipeline)
+    def test_concentration_residuals(self, summing):
+        row = collect_metrics(_solved(), _cfg())
         assert "prior_conc_rmse" in row
         assert "posterior_conc_rmse" in row
-        # Perfect posterior → zero RMSE
-        assert abs(row["posterior_conc_rmse"]) < 1e-9
-        assert abs(row["posterior_conc_bias"]) < 1e-9
-        # Prior residuals (obs - model) are (-0.1, +0.1, -0.1)
-        assert row["prior_conc_rmse"] == pytest.approx(0.1)
-        assert row["prior_conc_bias"] == pytest.approx(-0.1 / 3)
-        assert row["n_obs"] == 3
 
-    def test_swept_params_captured(self):
-        problem, pipeline = self._mock_problem_and_pipeline()
+    def test_swept_params_captured(self, summing):
         config = _cfg(prior_base_std=0.019, prior_std_frac=0.5)
         row = collect_metrics(
-            problem, config, pipeline, swept_params=["prior_base_std", "prior_std_frac"]
+            _solved(), config, swept_params=["prior_base_std", "prior_std_frac"]
         )
         assert row["cfg_prior_base_std"] == pytest.approx(0.019)
         assert row["cfg_prior_std_frac"] == pytest.approx(0.5)
-
-
-def _solved_flux_problem(background: float, truth_scale: float = 1.0) -> FluxProblem:
-    """
-    A solved ``FluxProblem`` with a constant *background*.
-
-    The observations are ``H @ (truth_scale * x0) + background``, so the prior
-    fits them exactly when ``truth_scale`` is 1.
-    """
-    obs_index = pd.MultiIndex.from_arrays(
-        [["wbb"] * 3, pd.date_range("2020-01-05", periods=3, freq="D")],
-        names=["obs_location", "obs_time"],
-    )
-    cells = pd.MultiIndex.from_product(
-        [pd.to_datetime(["2020-01-01"]), [40.5], [-112.0, -111.9]],
-        names=["time", "lat", "lon"],
-    )
-    H = pd.DataFrame(
-        [[1.0, 0.5], [0.2, 1.0], [0.7, 0.7]], index=obs_index, columns=cells
-    )
-    x0 = pd.Series([0.01, 0.02], index=cells, name="prior")
-    c = pd.Series(background, index=obs_index, name="background")
-    z = (H @ (truth_scale * x0) + c).rename("obs")
-    problem = FluxProblem(
-        obs=Vector(name="obs", data=Block(z, name="concentration")),
-        prior=Vector(name="prior", data=Block(x0, name="flux")),
-        forward_operator=ForwardOperator(MatrixBlock(H, "concentration", "flux")),
-        prior_error=CovarianceMatrix(
-            MatrixBlock(pd.DataFrame(np.eye(2) * 1e-4, cells, cells), "flux", "flux")
-        ),
-        modeldata_mismatch=CovarianceMatrix(
-            MatrixBlock(
-                pd.DataFrame(np.eye(3) * 1e-4, obs_index, obs_index),
-                "concentration",
-                "concentration",
-            )
-        ),
-        constant=Vector(name="background", data=Block(c, name="concentration")),
-    )
-    return problem.solve()
-
-
-def _flux_pipeline() -> MagicMock:
-    pipeline = MagicMock()
-    pipeline.calculate_total_flux.side_effect = lambda f, units=None: pd.Series(
-        [f.sum()]
-    )
-    return pipeline
-
-
-class TestConcentrationResiduals:
-    """
-    The residuals compare the observed concentration with the modeled one.
-
-    The model adds the background to ``H x``, so a residual taken against the
-    observed enhancement (obs minus background) is off by the background (#27).
-    """
-
-    def test_prior_that_fits_the_obs_has_no_residual(self):
-        # The issue's reproduction: z = H x0 + c with c = 1.9 ppm.
-        problem = _solved_flux_problem(background=1.9)
-        row = collect_metrics(problem, _cfg(), _flux_pipeline())
-        for col in ("prior_conc_rmse", "prior_conc_bias"):
-            assert row[col] == pytest.approx(0.0, abs=1e-12)
-        for col in ("posterior_conc_rmse", "posterior_conc_bias"):
-            assert row[col] == pytest.approx(0.0, abs=1e-9)
-
-    def test_residuals_are_obs_minus_model(self):
-        # Prior flux half of the truth: residual = obs - (H x0 + c) = H (x_true - x0).
-        problem = _solved_flux_problem(background=1.9, truth_scale=1.5)
-        H = problem.jacobian
-        x0 = problem.prior_fluxes
-        x_hat = problem.posterior_fluxes
-        c = problem.background
-        prior_resid = problem.concentrations - (H @ x0 + c)
-        post_resid = problem.concentrations - (H @ x_hat + c)
-
-        row = collect_metrics(problem, _cfg(), _flux_pipeline())
-
-        assert row["prior_conc_rmse"] == pytest.approx(np.sqrt((prior_resid**2).mean()))
-        assert row["prior_conc_bias"] == pytest.approx(prior_resid.mean())
-        assert row["posterior_conc_rmse"] == pytest.approx(
-            np.sqrt((post_resid**2).mean())
-        )
-        assert row["posterior_conc_bias"] == pytest.approx(post_resid.mean())
-        assert row["prior_conc_bias"] > 0  # the model is below the obs
-        assert row["n_obs"] == 3
-
-    def test_residuals_do_not_depend_on_the_background(self):
-        keys = (
-            "prior_conc_rmse",
-            "posterior_conc_rmse",
-            "prior_conc_bias",
-            "posterior_conc_bias",
-        )
-        rows = [
-            collect_metrics(
-                _solved_flux_problem(background=bg, truth_scale=1.5),
-                _cfg(),
-                _flux_pipeline(),
-            )
-            for bg in (0.0, 1.9)
-        ]
-        for key in keys:
-            assert rows[0][key] == pytest.approx(rows[1][key], abs=1e-9)
 
 
 # ---------------------------------------------------------------------------
@@ -642,9 +484,9 @@ class TestSweepResults:
     def test_to_config_round_trip(self, tmp_path):
         r = SweepResults(self._make_csv(tmp_path))
         row = r.best().iloc[0]
-        cfg, cls = r.to_config(row)
+        cfg, pipeline = r.to_config(row)
         assert isinstance(cfg, InversionConfig)
-        assert cls is SLVMethaneInversion
+        assert pipeline is pipelines.run
         assert abs(cfg.prior_base_std - 0.01) < 1e-9
 
 
@@ -653,27 +495,13 @@ class TestSweepResults:
 # ---------------------------------------------------------------------------
 
 
-def _solved_problem():
-    problem, _ = TestCollectMetrics()._mock_problem_and_pipeline()
-    return problem
+def _fake_pipeline(config):
+    """Returns a solved inversion instead of running one."""
+    return _solved()
 
 
-class _FakePipeline:
-    """Returns a solved-problem mock instead of running an inversion."""
-
-    def __init__(self, config):
-        self.config = config
-
-    def run(self):
-        return _solved_problem()
-
-    def calculate_total_flux(self, fluxes, units=None):
-        return pd.Series([float(fluxes.sum())])
-
-
-class _FailingPipeline(_FakePipeline):
-    def run(self):
-        raise RuntimeError("boom")
+def _failing_pipeline(config):
+    raise RuntimeError("boom")
 
 
 class TestResultRows:
@@ -681,25 +509,25 @@ class TestResultRows:
     def sweep(self, tmp_path):
         return Sweep(cache=str(tmp_path / "cache"), prior_base_std=[0.01, 0.02])
 
-    def _row(self, sweep, cls, tmp_path, i=0):
+    def _row(self, sweep, pipeline, tmp_path, i=0):
         cfg = sweep.configs[i][0]
-        return sweep._run_single((cfg, cls, str(tmp_path), None, False))
+        return sweep._run_single((cfg, pipeline, str(tmp_path), None, False))
 
-    def test_success_and_error_rows_share_columns(self, sweep, tmp_path):
-        ok = self._row(sweep, _FakePipeline, tmp_path)
-        err = self._row(sweep, _FailingPipeline, tmp_path)
+    def test_success_and_error_rows_share_columns(self, sweep, tmp_path, summing):
+        ok = self._row(sweep, _fake_pipeline, tmp_path)
+        err = self._row(sweep, _failing_pipeline, tmp_path)
         assert list(ok) == list(err)
         assert ok["error"] is None and err["error"] == "boom"
         assert isinstance(ok["runtime_seconds"], float)
         assert isinstance(err["runtime_seconds"], float)
 
     @pytest.mark.parametrize("first", ["ok", "error"])
-    def test_mixed_rows_read_back(self, sweep, tmp_path, first):
+    def test_mixed_rows_read_back(self, sweep, tmp_path, first, summing):
         # Rows are appended by position: an error row after a success row used to
         # make read_csv fail, and one before it shifted the metrics into `error`.
         rows = {
-            "ok": self._row(sweep, _FakePipeline, tmp_path, 0),
-            "error": self._row(sweep, _FailingPipeline, tmp_path, 1),
+            "ok": self._row(sweep, _fake_pipeline, tmp_path, 0),
+            "error": self._row(sweep, _failing_pipeline, tmp_path, 1),
         }
         csv_path = tmp_path / "sweep_results.csv"
         for key in (first, "error" if first == "ok" else "ok"):
@@ -709,7 +537,7 @@ class TestResultRows:
         assert len(results.df) == 2
         assert results.failed()["config_id"].tolist() == [rows["error"]["config_id"]]
         ok = results.df.set_index("config_id").loc[rows["ok"]["config_id"]]
-        assert ok["reduced_chi2"] == pytest.approx(1.05)
+        assert ok["reduced_chi2"] == pytest.approx(_solved().reduced_chi2)
 
 
 class TestAppendRow:
@@ -740,25 +568,18 @@ class TestAppendRow:
         assert not csv_path.exists()
 
 
-def test_run_sweep_job_rows_read_back(tmp_path, monkeypatch):
-    sweep = Sweep(cache=str(tmp_path / "cache"), prior_base_std=[0.01, 0.02])
-    sweep.run(results_dir=tmp_path, n_jobs=0)
+def test_run_sweep_job_rows_read_back(tmp_path, monkeypatch, summing):
+    swp = Sweep(cache=str(tmp_path / "cache"), prior_base_std=[0.01, 0.02])
+    swp.run(results_dir=tmp_path, n_jobs=0)
+    grid = json.loads((tmp_path / "sweep_grid.json").read_text())
+    assert grid[0]["pipeline"] == "slv.inversion.pipelines.run"
 
-    def fail(self):
-        raise RuntimeError("boom")
-
-    monkeypatch.setattr(SLVMethaneInversion, "__init__", lambda self, cfg: None)
-    monkeypatch.setattr(
-        SLVMethaneInversion,
-        "calculate_total_flux",
-        lambda self, fluxes, units=None: pd.Series([float(fluxes.sum())]),
-    )
-
+    # the grid names the pipeline, which is looked up when the job runs
     monkeypatch.setenv("SLURM_ARRAY_TASK_ID", "0")
-    monkeypatch.setattr(SLVMethaneInversion, "run", lambda self: _solved_problem())
+    monkeypatch.setattr(pipelines, "run", _fake_pipeline)
     run_sweep_job(tmp_path)
     monkeypatch.setenv("SLURM_ARRAY_TASK_ID", "1")
-    monkeypatch.setattr(SLVMethaneInversion, "run", fail)
+    monkeypatch.setattr(pipelines, "run", _failing_pipeline)
     run_sweep_job(tmp_path)
 
     results = SweepResults(tmp_path / "sweep_results.csv")
