@@ -36,8 +36,13 @@ dependencies = [
 
 [project.optional-dependencies]
 inversion = [
-    "fips[flux]>=0.1.0b8",
+    # Temporary: fips's phase-2 API is not released yet (draft migration, fips plan 003
+    # step 2.8). This becomes fips[viz]>=0.2.0b1 once that release exists.
+    "fips[viz] @ git+https://github.com/jmineau/fips@fd59175315e6d96ddc777a911f8ec699fb0ad655",
     "pystilt>=0.1.0a24",  # Project.jacobian, one footprint per thread; the shared output layout
+    # Temporary: fips's linalg forms do not survive pickle on SciPy 1.18 (jmineau/fips#113),
+    # and the component cache pickles the Jacobian and the covariances.
+    "scipy<1.18",
     "joblib>=1.5.3",
     "seaborn",
     # "xesmf",
