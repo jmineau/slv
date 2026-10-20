@@ -67,6 +67,12 @@ second run that changes only, say, ``prior_base_std`` reuses the obs and the Jac
 
    problem.posterior_fluxes  # pd.Series of flux by time and cell
 
+The flux intervals are whole ``flux_freq`` periods from ``tstart`` to ``tend``, so both
+must be on its boundaries: January 1 for ``"YS"``, the first of a quarter for ``"QS"``,
+the first of a month for ``"MS"``, Sundays two weeks apart for ``"2W"``. A config that
+is off them raises ``ValueError`` rather than leave the obs of the days outside whole
+periods with no flux to fit.
+
 Building the Jacobian reads every footprint in the period: run it through SLURM, not
 on a login node.
 

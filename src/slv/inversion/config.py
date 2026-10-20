@@ -201,7 +201,8 @@ class InversionConfig:
     Settings for one :class:`~slv.inversion.pipelines.SLVMethaneInversion` run.
 
     Invalid choices (``flux_freq``, ``background``, ``prior``, ``bias_grouping``, MDM
-    component names, an empty domain) raise ``ValueError`` at construction. Cached
+    component names, an empty domain, ``tstart`` or ``tend`` off the ``flux_freq``
+    boundaries) raise ``ValueError`` at construction. Cached
     components are keyed on the fields each one depends on (see
     :mod:`slv.inversion.cache`), so changing a field's default spelling forces a rebuild.
 
@@ -209,7 +210,8 @@ class InversionConfig:
     ----------
     tstart, tend : str or pd.Timestamp
         Inversion period; flux intervals start at ``tstart`` and the last one ends at
-        ``tend``.
+        ``tend``, so both must be on ``flux_freq`` boundaries (see
+        :attr:`flux_time_bins`).
     flux_freq : str
         Flux interval: ``"YS"``, ``"QS"``, ``"MS"``, ``"2W"`` or ``"D"``.
     utc_offset : int
@@ -398,6 +400,7 @@ class InversionConfig:
             raise ValueError(f"dx and dy must be positive, got {self.dx}, {self.dy}")
         if not (self.xmin < self.xmax and self.ymin < self.ymax):
             raise ValueError(f"empty domain: {self.bbox}")
+        _ = self.flux_time_bins  # raises when they would not cover tstart..tend
 
     #: Derived values cached on first access; setting any field drops them, so a config
     #: changed after use (a sweep, a notebook) never serves a stale grid or MDM list.
@@ -587,10 +590,41 @@ class InversionConfig:
         return f"{path.resolve()}|{st.st_size}|{st.st_mtime_ns}"
 
     @property
-    def flux_time_bins(self):
-        """Generates time bins for flux estimation based on the time range and flux frequency."""
+    def flux_time_bins(self) -> pd.IntervalIndex:
+        """
+        The flux intervals: whole ``flux_freq`` periods from ``tstart`` to ``tend``.
+
+        Raises
+        ------
+        ValueError
+            If ``tstart`` or ``tend`` is not on a ``flux_freq`` boundary, so whole periods
+            would cover less than ``tstart..tend``: ``"YS"`` needs January 1, ``"QS"`` the
+            first of a quarter, ``"MS"`` the first of a month, ``"2W"`` Sundays two weeks
+            apart. The obs of the days left out would have no flux to fit.
+
+        Examples
+        --------
+        >>> from slv.inversion import InversionConfig
+        >>> config = InversionConfig(
+        ...     tstart="2016-01-01", tend="2018-01-01", flux_freq="YS"
+        ... )
+        >>> [str(b.left.date()) for b in config.flux_time_bins]
+        ['2016-01-01', '2017-01-01']
+        """
         t0, t1 = self.time_range
-        return pd.interval_range(start=t0, end=t1, freq=self.flux_freq, closed="left")
+        bins = pd.interval_range(start=t0, end=t1, freq=self.flux_freq, closed="left")
+        if len(bins) and bins[0].left == t0 and bins[-1].right == t1:
+            return bins
+        covered = (
+            f"would cover {bins[0].left} to {bins[-1].right}"
+            if len(bins)
+            else "would be empty"
+        )
+        raise ValueError(
+            f"tstart={t0} and tend={t1} must be on flux_freq={self.flux_freq!r} "
+            f"boundaries: its whole periods {covered}, and the obs outside them would "
+            "have no flux to fit."
+        )
 
     @property
     def flux_times(self) -> pd.DatetimeIndex:

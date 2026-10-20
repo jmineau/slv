@@ -327,6 +327,67 @@ def test_invalid_settings_fail_at_construction(bad):
         InversionConfig(**bad)
 
 
+@pytest.mark.parametrize(
+    ("kwargs", "covered"),
+    [
+        # 2W is anchored on Sundays: 2016-01-01 is a Friday
+        (
+            {"tstart": "2016-01-01", "tend": "2016-03-01", "flux_freq": "2W"},
+            "2016-01-03 00:00:00 to 2016-02-28",
+        ),
+        (
+            {"tstart": "2016-01-15", "tend": "2016-04-15", "flux_freq": "MS"},
+            "2016-02-01 00:00:00 to 2016-04-01",
+        ),
+        # the default range, 2015-06-01 to 2025-02-01, is not on year boundaries
+        ({"flux_freq": "YS"}, "2016-01-01 00:00:00 to 2025-01-01"),
+        (
+            {"tstart": "2016-02-01", "tend": "2017-01-01", "flux_freq": "QS"},
+            "2016-04-01 00:00:00 to 2017-01-01",
+        ),
+        ({"tstart": "2016-02-01", "tend": "2016-03-01", "flux_freq": "YS"}, "be empty"),
+    ],
+)
+def test_flux_time_bins_off_the_flux_freq_boundaries_raise(kwargs, covered):
+    # whole periods would cover less than tstart..tend, leaving obs with no flux to fit
+    with pytest.raises(ValueError, match="must be on flux_freq") as error:
+        InversionConfig(**kwargs)
+    assert covered in str(error.value)
+
+
+def test_flux_time_bins_off_the_boundaries_raise_after_a_change():
+    config = InversionConfig(tstart="2016-01-01", tend="2024-01-01", flux_freq="YS")
+    config.tstart = "2016-02-01"
+    with pytest.raises(ValueError, match="must be on flux_freq"):
+        _ = config.flux_time_bins
+
+
+@pytest.mark.parametrize(
+    ("flux_freq", "n"),
+    [("YS", 8), ("QS", 32), ("MS", 96), ("D", 2922)],
+)
+def test_flux_time_bins_cover_the_time_range(flux_freq, n):
+    # paper 1's range (2016 to 2023)
+    config = InversionConfig(
+        tstart="2016-01-01", tend="2024-01-01", flux_freq=flux_freq
+    )
+    bins = config.flux_time_bins
+    assert len(bins) == n
+    assert bins[0].left == pd.Timestamp("2016-01-01")
+    assert bins[-1].right == pd.Timestamp("2024-01-01")
+    assert bins.is_non_overlapping_monotonic
+
+
+def test_biweekly_flux_time_bins_start_on_a_sunday():
+    config = InversionConfig(tstart="2016-01-03", tend="2016-02-28", flux_freq="2W")
+    assert [str(b.left.date()) for b in config.flux_time_bins] == [
+        "2016-01-03",
+        "2016-01-17",
+        "2016-01-31",
+        "2016-02-14",
+    ]
+
+
 def test_derived_values_follow_field_changes():
     config = InversionConfig(dx=0.05, dy=0.05)
     assert config.grid.sizes["lon"] == 9
