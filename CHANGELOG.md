@@ -37,6 +37,14 @@ versions are calendar-based (YYYY.M.PATCH).
   hot-cavity flag (-64, an accepted flag) over -63, so low-pressure rows on hot
   afternoons were kept untagged and `load_trax_obs(include_low_pressure=False)` left
   them in. Rebuild `obs.parquet` to pick this up
+- An obs whose STILT receptor has no footprint (the simulation was not run, or failed)
+  is dropped before the solve, as an obs with no background is, and the run prints how
+  many. It used to stay in with a Jacobian row of zeros: it was fit as background only,
+  and a daily mean that took it in had its Jacobian row diluted, so the fluxes fitting
+  that day came out too high. A receptor whose footprint is empty keeps its obs, now
+  with an explicit row of zeros. The `forward_operator` cache key changes, so a cached
+  Jacobian is rebuilt once. Paper 1's main inversion drops 133 more hourly obs (24
+  fewer daily obs), and its record-mean posterior goes from 42.73 to 42.91 Gg/yr (#29)
 
 ## [2026.10.0] - 2026-10-09
 

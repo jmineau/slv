@@ -46,6 +46,10 @@ An :class:`~slv.inversion.config.InversionConfig` describes the run and
 background, prior, Jacobian from the PYSTILT footprints, covariances) and solves.
 Components are cached under ``cache`` keyed on the settings they depend on, so a
 second run that changes only, say, ``prior_base_std`` reuses the obs and the Jacobian.
+An obs the model cannot simulate is dropped before the solve, and the run prints how
+many: one with no background, and one whose receptor has no footprint (its STILT
+simulation was not run, or failed). A receptor whose footprint is empty, because its
+particles left the domain, keeps its obs: it saw no emissions.
 
 .. code-block:: python
 

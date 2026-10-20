@@ -170,6 +170,20 @@ def test_no_project_matching_the_obs_raises(monkeypatch):
         )
 
 
+def test_forward_operator_cache_key_has_a_revision():
+    # a Jacobian cached before empty footprints got zero rows must not be read as one
+    from slv.inversion.cache import (
+        DEFAULT_COMPONENT_DEPS,
+        DEFAULT_COMPONENT_REVISIONS,
+        _component_hash,
+    )
+
+    cfg = InversionConfig(stilt_project="/prod")
+    deps = DEFAULT_COMPONENT_DEPS["forward_operator"]
+    assert DEFAULT_COMPONENT_REVISIONS["forward_operator"] == 2
+    assert _component_hash(cfg, deps, (), 2) != _component_hash(cfg, deps)
+
+
 # --------------------------------------------------------------------------- per project
 
 
@@ -313,18 +327,18 @@ def test_project_jacobian_drops_sims_outside_the_window_or_hours(monkeypatch):
 # --------------------------------------------------------------------------- project_jacobian
 
 
-def _stilt_jacobian(data, receptors):
+def _stilt_jacobian(data, receptors, empty=(), missing=()):
     from scipy import sparse
 
     columns = pd.MultiIndex.from_product(
         [TIMES, [-111.95, -111.85], [40.65]], names=["time", "lon", "lat"]
     )
     return Jacobian(
-        sparse.csr_matrix(np.asarray(data, dtype=float)),
+        sparse.csr_matrix(np.asarray(data, dtype=float).reshape(-1, len(columns))),
         pd.Index(receptors, name="receptor"),
         columns,
-        [],
-        [],
+        list(empty),
+        list(missing),
     )
 
 
@@ -344,13 +358,41 @@ def test_project_jacobian_labels_rows_by_location_and_time():
     H = pl.project_jacobian(
         project, sel, None, None, location_mapper={"loc_a": "wbb"}, sparse=False
     )
-    # r1 is below the threshold everywhere, so it has no row
-    assert list(H.data.index) == [("wbb", TIMES[0]), ("wbb", TIMES[1])]
+    assert list(H.data.index) == [
+        ("wbb", TIMES[0]),
+        ("multi_aaaaaaaaaa", TIMES[0]),
+        ("wbb", TIMES[1]),
+    ]
     assert H.data.index.names == ["obs_location", "obs_time"]
     assert H.data.columns.names == ["lon", "lat", "time"]
     assert H.data.loc[("wbb", TIMES[0]), (-111.95, 40.65, TIMES[0])] == 1
     assert H.data.loc[("wbb", TIMES[0]), (-111.85, 40.65, TIMES[1])] == 2
     assert H.data.loc[("wbb", TIMES[1]), (-111.85, 40.65, TIMES[0])] == 3
+    # r1 is below the threshold everywhere: a footprint that saw nothing, a row of zeros
+    assert (H.data.loc[("multi_aaaaaaaaaa", TIMES[0])] == 0).all()
+
+
+def test_project_jacobian_gives_an_empty_footprint_a_zero_row(capsys):
+    # r1's footprint is empty (its particles left the domain): a real zero, so a row of
+    # zeros. r2 was never run: no row, and aggregate_obs_space drops its obs.
+    sel = pd.DataFrame(
+        {
+            "receptor": ["r0", "r1", "r2"],
+            "variant": "hrrr",
+            "time": pd.date_range(TIMES[0], periods=3, freq="h"),
+            "location": "loc_a",
+        }
+    )
+    J = _stilt_jacobian([[1, 0, 0, 2]], ["r0"], empty=["r1"], missing=["r2"])
+    project = SimpleNamespace(jacobian=lambda *a, **k: J)
+    H = pl.project_jacobian(
+        project, sel, None, None, location_mapper={"loc_a": "wbb"}, sparse=False
+    )
+    out = capsys.readouterr().out
+    assert "1 receptors have no footprint yet" in out
+    assert "1 receptors have an empty footprint" in out
+    assert list(H.data.index.get_level_values("obs_time")) == list(sel["time"][:2])
+    np.testing.assert_array_equal(H.data.to_numpy(), [[1, 0, 0, 2], [0, 0, 0, 0]])
 
 
 def test_project_jacobian_stays_sparse():
@@ -365,10 +407,10 @@ def test_project_jacobian_stays_sparse():
     assert H.data.sum().sum() == 1
 
 
-def test_project_jacobian_with_no_rows_is_none():
+def test_project_jacobian_with_no_footprint_is_none():
     sel = pd.DataFrame(
         {"receptor": ["r0"], "variant": "hrrr", "time": TIMES[:1], "location": ["a"]}
     )
-    J = _stilt_jacobian([[0, 0, 0, 0]], ["r0"])
+    J = _stilt_jacobian([], [], missing=["r0"])
     project = SimpleNamespace(jacobian=lambda *a, **k: J)
     assert pl.project_jacobian(project, sel, None, None) is None
