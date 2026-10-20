@@ -37,6 +37,13 @@ versions are calendar-based (YYYY.M.PATCH).
   hot-cavity flag (-64, an accepted flag) over -63, so low-pressure rows on hot
   afternoons were kept untagged and `load_trax_obs(include_low_pressure=False)` left
   them in. Rebuild `obs.parquet` to pick this up
+- The sweep's concentration residuals (`prior_conc_rmse`, `posterior_conc_rmse`,
+  `prior_conc_bias`, `posterior_conc_bias`) compare the observed concentration with the
+  modeled concentration. They compared the observed enhancement (obs minus background)
+  with the modeled concentration (`H x + background`), so each was off by the background,
+  about 1.9 ppm for CH4: a prior that fitted the obs exactly gave an RMSE of 1.9 ppm.
+  `reduced_chi2`, `R2`, `RMSE`, `DOFS` and the flux columns, and so `SweepResults.best`,
+  were not affected. Sweep CSVs written before this hold the offset values (#27)
 
 ## [2026.10.0] - 2026-10-09
 

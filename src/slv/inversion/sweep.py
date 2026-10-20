@@ -594,6 +594,12 @@ def collect_metrics(
     The primary target metric is ``reduced_chi2`` — ideally close to 1.0,
     which indicates the error covariances are well-specified.
 
+    The ``prior_conc_*`` and ``posterior_conc_*`` columns summarize the residual
+    ``observed concentration - modeled concentration`` (the model is
+    ``H x + background``) with its root mean square (``*_rmse``) and mean
+    (``*_bias``, positive when the model is below the observations), in the
+    units of the observations.
+
     Parameters
     ----------
     problem :
@@ -648,18 +654,18 @@ def collect_metrics(
         metrics["prior_flux_mean"] = metrics["posterior_flux_mean"] = None
         metrics["posterior_flux_std"] = metrics["flux_change_pct"] = None
 
-    # Concentration residuals
+    # Concentration residuals: observed minus modeled concentration. The modeled
+    # concentrations are H x + background, so they are compared with the observed
+    # concentration, not the enhancement (obs - background).
     try:
-        obs_enh = problem.enhancement
-        prior_c = problem.prior_concentrations
-        post_c = problem.posterior_concentrations
-        rp = obs_enh - prior_c
-        rq = obs_enh - post_c
+        obs_c = problem.concentrations
+        rp = obs_c - problem.prior_concentrations
+        rq = obs_c - problem.posterior_concentrations
         metrics["prior_conc_rmse"] = float((rp**2).mean() ** 0.5)
         metrics["posterior_conc_rmse"] = float((rq**2).mean() ** 0.5)
         metrics["prior_conc_bias"] = float(rp.mean())
         metrics["posterior_conc_bias"] = float(rq.mean())
-        metrics["n_obs"] = int(len(obs_enh))
+        metrics["n_obs"] = int(len(obs_c))
         metrics["n_state"] = int(problem.prior_fluxes.shape[0])
     except Exception:
         logger.debug("collect_metrics: concentration residuals failed", exc_info=True)
