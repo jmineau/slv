@@ -1,0 +1,6 @@
+slv.measurements.mobile.obs.filter\_location
+============================================
+
+.. currentmodule:: slv.measurements.mobile.obs
+
+.. autofunction:: filter_location

@@ -1,0 +1,16 @@
+slv.measurements.instruments.LGR\_UGGA\_Manual\_Cal
+===================================================
+
+.. currentmodule:: slv.measurements.instruments
+
+.. autoclass:: LGR_UGGA_Manual_Cal
+   :no-members:
+   :show-inheritance:
+
+
+
+
+
+
+
+

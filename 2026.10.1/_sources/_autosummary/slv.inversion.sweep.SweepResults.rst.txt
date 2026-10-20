@@ -1,0 +1,30 @@
+slv.inversion.sweep.SweepResults
+================================
+
+.. currentmodule:: slv.inversion.sweep
+
+.. autoclass:: SweepResults
+   :no-members:
+
+
+
+
+
+
+.. rubric:: Methods
+
+.. autosummary::
+   :toctree:
+
+   ~SweepResults.best
+   ~SweepResults.failed
+   ~SweepResults.plot_chi2
+   ~SweepResults.plot_heatmap
+   ~SweepResults.plot_sensitivity
+   ~SweepResults.reload
+   ~SweepResults.sensitivity
+   ~SweepResults.stability
+   ~SweepResults.to_config
+
+
+

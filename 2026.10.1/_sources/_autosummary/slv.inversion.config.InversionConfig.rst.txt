@@ -1,0 +1,36 @@
+slv.inversion.config.InversionConfig
+====================================
+
+.. currentmodule:: slv.inversion.config
+
+.. autoclass:: InversionConfig
+   :no-members:
+
+
+
+
+.. rubric:: Attributes
+
+.. autosummary::
+   :toctree:
+
+   ~InversionConfig.bbox
+   ~InversionConfig.extent
+   ~InversionConfig.flux_time_bins
+   ~InversionConfig.flux_times
+   ~InversionConfig.grid
+   ~InversionConfig.grid_coords
+   ~InversionConfig.map_extent
+   ~InversionConfig.mdm_components
+   ~InversionConfig.mobile_obs_key
+   ~InversionConfig.resolution
+   ~InversionConfig.site_config
+   ~InversionConfig.state_grid
+   ~InversionConfig.stilt_projects
+   ~InversionConfig.subset_hours_utc
+   ~InversionConfig.time_range
+
+
+
+
+

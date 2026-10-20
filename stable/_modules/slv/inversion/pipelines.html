@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 
 
@@ -7,7 +6,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>slv.inversion.pipelines &#8212; slv 2026.10.0</title>
+    <title>slv.inversion.pipelines &#8212; slv 2026.10.1</title>
   
   
   
@@ -26,51 +25,59 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
-<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+  <link href="../../../_static/styles/theme.css?digest=64cc4de3f052d77215f0" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=64cc4de3f052d77215f0" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=ba117b66" />
   
   <!-- So that users can add custom icons -->
-  <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <script defer src="../../../_static/scripts/fontawesome.js?digest=64cc4de3f052d77215f0"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
-<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
 
-    <script src="../../../_static/documentation_options.js?v=c1b729fb"></script>
+    <script src="../../../_static/documentation_options.js?v=65cfade2"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../../../_static/copybutton.js?v=f281be69"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_modules/slv/inversion/pipelines';</script>
     <script>
-        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_version = '0.22.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://jmineau.github.io/slv/switcher.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '2026.10.0';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '2026.10.1';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             true;
         </script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.10.0" />
+  <meta name="docsearch:version" content="2026.10.1" />
+  
+    
+    <script src="../../../_static/searchtools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script src="../../../searchindex.js"></script>
+  
   </head>
-  
-  
-  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
-
+  <body data-default-mode="">
   
   
   <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
   
   <div id="pst-scroll-pixel-helper"></div>
   
   <button type="button" class="btn rounded-pill" id="pst-back-to-top">
     <i class="fa-solid fa-arrow-up"></i>Back to top</button>
-
+  
+  
+  
   
   <dialog id="pst-search-dialog">
     
@@ -96,9 +103,9 @@
 </div>
 
   
-    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
 <div class="bd-header__inner bd-page-width">
-  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
     <span class="fa-solid fa-bars"></span>
   </button>
   
@@ -118,7 +125,7 @@
   
   
   
-    <p class="title logo__title">slv 2026.10.0</p>
+    <p class="title logo__title">slv 2026.10.1</p>
   
 </a></div>
     
@@ -170,7 +177,7 @@
         <div class="navbar-item navbar-persistent--container">
           
 
-<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
  <i class="fa-solid fa-magnifying-glass"></i>
  <span class="search-button__default-text">Search</span>
  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
@@ -200,11 +207,18 @@
       
         <div class="navbar-item">
 
-<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
-  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
-  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
-  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
-</button></div>
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
       
         <div class="navbar-item"><ul class="navbar-icon-links"
     aria-label="Icon Links">
@@ -217,8 +231,7 @@
           
           
           
-          <a href="https://github.com/jmineau/slv" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
-            <span class="sr-only">GitHub</span></a>
+          <a href="https://github.com/jmineau/slv" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
         </li>
 </ul></div>
       
@@ -229,7 +242,7 @@
   
     <div class="navbar-persistent--mobile">
 
-<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
  <i class="fa-solid fa-magnifying-glass"></i>
  <span class="search-button__default-text">Search</span>
  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
@@ -325,11 +338,18 @@
         
           <div class="navbar-item">
 
-<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
-  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
-  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
-  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
-</button></div>
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
         
           <div class="navbar-item"><ul class="navbar-icon-links"
     aria-label="Icon Links">
@@ -342,8 +362,7 @@
           
           
           
-          <a href="https://github.com/jmineau/slv" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
-            <span class="sr-only">GitHub</span></a>
+          <a href="https://github.com/jmineau/slv" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
         </li>
 </ul></div>
         
@@ -509,23 +528,35 @@
 <span class="sd">    footprint is summed onto ``target`` per flux bin. Rows are ``(obs_location,</span>
 <span class="sd">    obs_time)``: the receptor&#39;s location id, renamed by ``location_mapper`` when it names a</span>
 <span class="sd">    site, and its time. Columns are the target&#39;s cells and the bins&#39; left edges</span>
-<span class="sd">    (``(lon, lat, time)`` for a longitude/latitude grid). A receptor whose footprint is</span>
-<span class="sd">    empty or misses the target gets no row, and entries below ``threshold`` are zero.</span>
-<span class="sd">    Returns None when no receptor has a row.</span>
+<span class="sd">    (``(lon, lat, time)`` for a longitude/latitude grid). Entries below ``threshold`` are</span>
+<span class="sd">    zero.</span>
+
+<span class="sd">    Every receptor with a footprint gets a row. One whose footprint is empty (all its</span>
+<span class="sd">    particles left the domain) or misses the target gets a row of zeros: it saw no</span>
+<span class="sd">    emissions, which is a real observation. A receptor with no footprint (not run yet, or</span>
+<span class="sd">    failed) gets no row, and :meth:`~SLVMethaneInversion.aggregate_obs_space` drops its</span>
+<span class="sd">    obs. Returns None when no receptor has a footprint.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">scipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">sparse</span> <span class="k">as</span> <span class="n">sp</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">stilt.footprint</span><span class="w"> </span><span class="kn">import</span> <span class="n">Jacobian</span>
 
     <span class="n">J</span> <span class="o">=</span> <span class="n">project</span><span class="o">.</span><span class="n">jacobian</span><span class="p">(</span><span class="n">sel</span><span class="p">,</span> <span class="n">target</span><span class="p">,</span> <span class="n">flux_bins</span><span class="p">,</span> <span class="n">workers</span><span class="o">=</span><span class="n">workers</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">J</span><span class="o">.</span><span class="n">missing</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">J</span><span class="o">.</span><span class="n">missing</span><span class="p">)</span><span class="si">}</span><span class="s2"> receptors have no footprint yet; skipped&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">J</span><span class="o">.</span><span class="n">missing</span><span class="p">)</span><span class="si">}</span><span class="s2"> receptors have no footprint yet; their obs are dropped&quot;</span>
+        <span class="p">)</span>
     <span class="n">data</span> <span class="o">=</span> <span class="n">J</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">tocsr</span><span class="p">(</span><span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">threshold</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">data</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">threshold</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
         <span class="n">data</span><span class="o">.</span><span class="n">eliminate_zeros</span><span class="p">()</span>
-    <span class="n">keep</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">flatnonzero</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">getnnz</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">keep</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">J</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">J</span><span class="o">.</span><span class="n">empty</span><span class="p">)</span><span class="si">}</span><span class="s2"> receptors have an empty footprint; kept as zero rows&quot;</span><span class="p">)</span>
+        <span class="n">zeros</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">csr_matrix</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">J</span><span class="o">.</span><span class="n">empty</span><span class="p">),</span> <span class="n">data</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">data</span><span class="o">.</span><span class="n">dtype</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">sp</span><span class="o">.</span><span class="n">csr_matrix</span><span class="p">(</span><span class="n">sp</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span><span class="n">data</span><span class="p">,</span> <span class="n">zeros</span><span class="p">],</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;csr&quot;</span><span class="p">))</span>
+    <span class="n">receptors</span> <span class="o">=</span> <span class="n">J</span><span class="o">.</span><span class="n">receptors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Index</span><span class="p">(</span><span class="n">J</span><span class="o">.</span><span class="n">empty</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">J</span><span class="o">.</span><span class="n">receptors</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">receptors</span><span class="p">):</span>
         <span class="k">return</span> <span class="kc">None</span>
-    <span class="n">kept</span> <span class="o">=</span> <span class="n">Jacobian</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">keep</span><span class="p">],</span> <span class="n">J</span><span class="o">.</span><span class="n">receptors</span><span class="p">[</span><span class="n">keep</span><span class="p">],</span> <span class="n">J</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span> <span class="n">J</span><span class="o">.</span><span class="n">empty</span><span class="p">,</span> <span class="n">J</span><span class="o">.</span><span class="n">missing</span><span class="p">)</span>
+    <span class="n">kept</span> <span class="o">=</span> <span class="n">Jacobian</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">receptors</span><span class="p">,</span> <span class="n">J</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span> <span class="n">J</span><span class="o">.</span><span class="n">empty</span><span class="p">,</span> <span class="n">J</span><span class="o">.</span><span class="n">missing</span><span class="p">)</span>
     <span class="n">frame</span> <span class="o">=</span> <span class="n">kept</span><span class="o">.</span><span class="n">to_frame</span><span class="p">(</span><span class="n">sparse</span><span class="o">=</span><span class="n">sparse</span><span class="p">)</span>
 
     <span class="n">info</span> <span class="o">=</span> <span class="n">sel</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="s2">&quot;receptor&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&quot;receptor&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">kept</span><span class="o">.</span><span class="n">receptors</span><span class="p">]</span>
@@ -544,6 +575,25 @@
         <span class="n">sparse</span><span class="o">=</span><span class="n">sparse</span><span class="p">,</span>
     <span class="p">)</span></div>
 
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_drop_obs_not_in</span><span class="p">(</span><span class="n">obs</span><span class="p">:</span> <span class="n">Vector</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Index</span><span class="p">,</span> <span class="n">reason</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Vector</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    ``obs`` without the obs whose key is not in ``index``, printing how many go.</span>
+
+<span class="sd">    ``obs`` carries a leading ``block`` level that ``index`` lacks: obs are matched on</span>
+<span class="sd">    the levels ``index`` has.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">obs_series</span> <span class="o">=</span> <span class="n">obs</span><span class="o">.</span><span class="n">to_series</span><span class="p">()</span>
+    <span class="n">key</span> <span class="o">=</span> <span class="n">obs_series</span><span class="o">.</span><span class="n">index</span>
+    <span class="n">extra</span> <span class="o">=</span> <span class="p">[</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">key</span><span class="o">.</span><span class="n">names</span> <span class="k">if</span> <span class="n">n</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">index</span><span class="o">.</span><span class="n">names</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">extra</span><span class="p">:</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">droplevel</span><span class="p">(</span><span class="n">extra</span><span class="p">)</span>
+    <span class="n">have</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">have</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">obs</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Dropping </span><span class="si">{</span><span class="nb">int</span><span class="p">((</span><span class="o">~</span><span class="n">have</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">have</span><span class="p">)</span><span class="si">}</span><span class="s2"> obs </span><span class="si">{</span><span class="n">reason</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">Vector</span><span class="p">(</span><span class="n">obs_series</span><span class="p">[</span><span class="n">have</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="n">obs</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="SLVMethaneInversion">
@@ -935,28 +985,27 @@
         <span class="n">modeldata_mismatch</span><span class="p">:</span> <span class="n">CovarianceMatrix</span><span class="p">,</span>
         <span class="n">constant</span><span class="p">:</span> <span class="n">Vector</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">Vector</span><span class="p">,</span> <span class="n">ForwardOperator</span><span class="p">,</span> <span class="n">CovarianceMatrix</span><span class="p">,</span> <span class="n">Vector</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Aggregates the observation space if specified in the config.&quot;&quot;&quot;</span>
-        <span class="c1"># Drop obs whose background is missing. get_constant returns a NaN-free</span>
-        <span class="c1"># (reduced) constant; reduce obs to match here -- before the aggregator and</span>
-        <span class="c1"># the InverseProblem reindex everything to obs.index -- so gap-day obs are</span>
-        <span class="c1"># dropped rather than back-filled to zero. Generalizes the old</span>
-        <span class="c1"># CTStiltBackgroundInversion obs-dropping to any background.</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Drop the obs the model cannot simulate, then aggregate if the config says so.</span>
+
+<span class="sd">        Two kinds of obs are dropped, each with a printed count: those whose background</span>
+<span class="sd">        is missing (``get_constant`` leaves them out), and those whose receptor has no</span>
+<span class="sd">        footprint (its STILT simulation was not run, or failed: no row in the flux</span>
+<span class="sd">        Jacobian). Both happen before the aggregator and the ``InverseProblem`` reindex</span>
+<span class="sd">        everything to ``obs.index``, which would fill them with zeros: an obs with a zero</span>
+<span class="sd">        Jacobian row would be fit as background only, and would dilute the mean of the</span>
+<span class="sd">        hours it is aggregated with. A receptor whose footprint is empty keeps its zero</span>
+<span class="sd">        row (:func:`project_jacobian`), so its obs stays.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">constant</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">obs_series</span> <span class="o">=</span> <span class="n">obs</span><span class="o">.</span><span class="n">to_series</span><span class="p">()</span>
-            <span class="n">bg_index</span> <span class="o">=</span> <span class="n">constant</span><span class="p">[</span><span class="s2">&quot;concentration&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">index</span>
-            <span class="c1"># obs carries a leading &quot;block&quot; index level that the background lacks;</span>
-            <span class="c1"># match on the levels the background is actually indexed by.</span>
-            <span class="n">obs_key</span> <span class="o">=</span> <span class="n">obs_series</span><span class="o">.</span><span class="n">index</span>
-            <span class="n">extra</span> <span class="o">=</span> <span class="p">[</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">obs_key</span><span class="o">.</span><span class="n">names</span> <span class="k">if</span> <span class="n">n</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">bg_index</span><span class="o">.</span><span class="n">names</span><span class="p">]</span>
-            <span class="k">if</span> <span class="n">extra</span><span class="p">:</span>
-                <span class="n">obs_key</span> <span class="o">=</span> <span class="n">obs_key</span><span class="o">.</span><span class="n">droplevel</span><span class="p">(</span><span class="n">extra</span><span class="p">)</span>
-            <span class="n">have_bg</span> <span class="o">=</span> <span class="n">obs_key</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">bg_index</span><span class="p">)</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">have_bg</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
-                <span class="nb">print</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;  Dropping </span><span class="si">{</span><span class="nb">int</span><span class="p">((</span><span class="o">~</span><span class="n">have_bg</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">have_bg</span><span class="p">)</span><span class="si">}</span><span class="s2"> obs &quot;</span>
-                    <span class="s2">&quot;with missing background&quot;</span>
-                <span class="p">)</span>
-                <span class="n">obs</span> <span class="o">=</span> <span class="n">Vector</span><span class="p">(</span><span class="n">obs_series</span><span class="p">[</span><span class="n">have_bg</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="n">obs</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="n">obs</span> <span class="o">=</span> <span class="n">_drop_obs_not_in</span><span class="p">(</span>
+                <span class="n">obs</span><span class="p">,</span> <span class="n">constant</span><span class="p">[</span><span class="s2">&quot;concentration&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="s2">&quot;with missing background&quot;</span>
+            <span class="p">)</span>
+        <span class="n">obs</span> <span class="o">=</span> <span class="n">_drop_obs_not_in</span><span class="p">(</span>
+            <span class="n">obs</span><span class="p">,</span>
+            <span class="n">forward_operator</span><span class="p">[</span><span class="s2">&quot;concentration&quot;</span><span class="p">,</span> <span class="s2">&quot;flux&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
+            <span class="s2">&quot;whose receptor has no footprint&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">aggregate_obs</span><span class="p">:</span>
             <span class="n">aggregator</span> <span class="o">=</span> <span class="n">ObsAggregator</span><span class="p">(</span>
@@ -1076,8 +1125,8 @@
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
-<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -1098,7 +1147,6 @@
 
   <p class="sphinx-version">
     Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
-    <br/>
   </p>
 </div>
       
@@ -1111,7 +1159,7 @@
         <div class="footer-item">
 <p class="theme-version">
   <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.22.0.
 </p></div>
       
     </div>

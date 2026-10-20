@@ -1,0 +1,6 @@
+slv.inversion.priors.load\_epa\_prior
+=====================================
+
+.. currentmodule:: slv.inversion.priors
+
+.. autofunction:: load_epa_prior

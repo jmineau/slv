@@ -1,0 +1,6 @@
+slv.measurements.mobile.gps.HOREL\_POST\_PILOT
+==============================================
+
+.. currentmodule:: slv.measurements.mobile.gps
+
+.. autodata:: HOREL_POST_PILOT

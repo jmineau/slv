@@ -1,0 +1,6 @@
+slv.measurements.mobile.receptor\_obs.inlet\_lag\_seconds
+=========================================================
+
+.. currentmodule:: slv.measurements.mobile.receptor_obs
+
+.. autofunction:: inlet_lag_seconds

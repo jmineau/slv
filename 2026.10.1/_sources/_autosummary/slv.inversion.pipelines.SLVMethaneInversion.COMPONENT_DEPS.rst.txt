@@ -1,0 +1,6 @@
+slv.inversion.pipelines.SLVMethaneInversion.COMPONENT\_DEPS
+===========================================================
+
+.. currentmodule:: slv.inversion.pipelines
+
+.. autoattribute:: SLVMethaneInversion.COMPONENT_DEPS

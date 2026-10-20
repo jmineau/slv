@@ -1,0 +1,6 @@
+slv.inversion.priors.align\_to\_flux\_times
+===========================================
+
+.. currentmodule:: slv.inversion.priors
+
+.. autofunction:: align_to_flux_times

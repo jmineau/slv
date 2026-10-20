@@ -1,0 +1,34 @@
+slv.inversion.pipelines
+=======================
+
+.. automodule:: slv.inversion.pipelines
+   :no-members:
+
+
+
+
+.. rubric:: Functions
+
+.. autosummary::
+   :toctree:
+   :nosignatures:
+
+   project_jacobian
+   stack_jacobians
+
+
+
+.. rubric:: Classes
+
+.. autosummary::
+   :toctree:
+   :nosignatures:
+
+   SLVMethaneInversion
+
+
+
+
+
+
+

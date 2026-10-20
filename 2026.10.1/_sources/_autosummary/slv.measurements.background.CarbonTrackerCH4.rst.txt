@@ -1,0 +1,24 @@
+slv.measurements.background.CarbonTrackerCH4
+============================================
+
+.. currentmodule:: slv.measurements.background
+
+.. autoclass:: CarbonTrackerCH4
+   :no-members:
+   :show-inheritance:
+
+
+
+
+
+
+.. rubric:: Methods
+
+.. autosummary::
+   :toctree:
+
+   ~CarbonTrackerCH4.get_SLV_molefractions
+   ~CarbonTrackerCH4.get_Utah_molefractions
+
+
+

@@ -1,0 +1,6 @@
+slv.inversion.pipelines.SLVMethaneInversion.aggregate\_obs\_space
+=================================================================
+
+.. currentmodule:: slv.inversion.pipelines
+
+.. automethod:: SLVMethaneInversion.aggregate_obs_space

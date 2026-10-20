@@ -1,0 +1,6 @@
+slv.measurements.mobile.gps.lin\_clock\_offset\_by\_day
+=======================================================
+
+.. currentmodule:: slv.measurements.mobile.gps
+
+.. autofunction:: lin_clock_offset_by_day

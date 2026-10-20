@@ -1,0 +1,6 @@
+slv.measurements.mobile.obs.SLOPE\_TOL
+======================================
+
+.. currentmodule:: slv.measurements.mobile.obs
+
+.. autodata:: SLOPE_TOL

@@ -1,0 +1,6 @@
+slv.inversion.config.InversionConfig.stilt\_projects
+====================================================
+
+.. currentmodule:: slv.inversion.config
+
+.. autoproperty:: InversionConfig.stilt_projects

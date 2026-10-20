@@ -22,15 +22,15 @@ With ``xesmf`` (EPA / EDGAR priors)
 -----------------------------------
 
 The EPA and EDGAR priors are regridded with ``xesmf``, which needs a compiled ESMF
-library from conda-forge. Use the conda environment instead:
+library from conda-forge. `pixi <https://pixi.sh>`_ installs it beside everything else,
+from ``pixi.lock``:
 
 .. code-block:: bash
 
    git clone https://github.com/jmineau/slv.git
    cd slv
-   conda env create -f ci/environment.yml
-   conda activate slv
-   pip install --no-deps -e .
+   pixi install     # builds .pixi/envs/default
+   pixi run python  # or: pixi shell
 
 Data locations
 --------------

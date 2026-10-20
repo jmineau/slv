@@ -1,0 +1,23 @@
+slv.inversion.sweep.Sweep
+=========================
+
+.. currentmodule:: slv.inversion.sweep
+
+.. autoclass:: Sweep
+   :no-members:
+
+
+
+
+
+
+.. rubric:: Methods
+
+.. autosummary::
+   :toctree:
+
+   ~Sweep.get_problem
+   ~Sweep.run
+
+
+
