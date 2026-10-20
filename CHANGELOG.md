@@ -6,6 +6,8 @@ versions are calendar-based (YYYY.M.PATCH).
 
 ## [Unreleased]
 
+## [2026.10.1] - 2026-10-20
+
 ### Added
 
 - `slv.basemap.cached_tiler` builds a cartopy tiler that caches its tiles on disk and
@@ -14,6 +16,10 @@ versions are calendar-based (YYYY.M.PATCH).
 
 ### Changed
 
+- lair 2026.12.9: CarbonTracker-CH4 2025 times are the centers of the 3-hour means (the
+  file's own `time` is the period end), grid-cell areas are the exact WGS84 ellipsoid areas
+  (domain totals of any flux +0.18% over the Salt Lake Valley, prior and posterior alike), and
+  PCAP events are counted in time (one missing sounding is bridged, two end the event)
 - The environment with `xesmf` is built by [pixi](https://pixi.sh) from `pyproject.toml`
   and `pixi.lock` (`pixi install`). `ci/environment.yml` is gone, so slv's dependencies
   are listed in one place
