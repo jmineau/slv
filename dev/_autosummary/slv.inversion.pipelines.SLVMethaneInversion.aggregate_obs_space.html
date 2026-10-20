@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
 
-    <script src="../_static/documentation_options.js?v=66d44c71"></script>
+    <script src="../_static/documentation_options.js?v=4e560eb8"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -60,7 +60,7 @@
     <link rel="prev" title="slv.inversion.pipelines.SLVMethaneInversion.COMPONENT_DEPS" href="slv.inversion.pipelines.SLVMethaneInversion.COMPONENT_DEPS.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.10.1.dev9+g16e84c9a4" />
+  <meta name="docsearch:version" content="2026.10.1.dev10+gc46c0650c" />
   
     
     <script src="../_static/searchtools.js"></script>
@@ -441,6 +441,7 @@
 <li class="toctree-l3 has-children"><a class="reference internal" href="slv.inversion.cache.html">slv.inversion.cache</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l4"><a class="reference internal" href="slv.inversion.cache.DEFAULT_COMPONENT_DEPS.html">slv.inversion.cache.DEFAULT_COMPONENT_DEPS</a></li>
 <li class="toctree-l4"><a class="reference internal" href="slv.inversion.cache.DEFAULT_COMPONENT_PACKAGES.html">slv.inversion.cache.DEFAULT_COMPONENT_PACKAGES</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.cache.DEFAULT_COMPONENT_REVISIONS.html">slv.inversion.cache.DEFAULT_COMPONENT_REVISIONS</a></li>
 <li class="toctree-l4"><a class="reference internal" href="slv.inversion.cache.fips_cache.html">slv.inversion.cache.fips_cache</a></li>
 </ul>
 </details></li>
@@ -670,7 +671,15 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="slv.inversion.pipelines.SLVMethaneInversion.aggregate_obs_space">
 <span class="sig-prename descclassname"><span class="pre">SLVMethaneInversion.</span></span><span class="sig-name descname"><span class="pre">aggregate_obs_space</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">forward_operator</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modeldata_mismatch</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constant</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/slv/inversion/pipelines.html#SLVMethaneInversion.aggregate_obs_space"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#slv.inversion.pipelines.SLVMethaneInversion.aggregate_obs_space" title="Link to this definition">#</a></dt>
-<dd><p>Aggregates the observation space if specified in the config.</p>
+<dd><p>Drop the obs the model cannot simulate, then aggregate if the config says so.</p>
+<p>Two kinds of obs are dropped, each with a printed count: those whose background
+is missing (<code class="docutils literal notranslate"><span class="pre">get_constant</span></code> leaves them out), and those whose receptor has no
+footprint (its STILT simulation was not run, or failed: no row in the flux
+Jacobian). Both happen before the aggregator and the <code class="docutils literal notranslate"><span class="pre">InverseProblem</span></code> reindex
+everything to <code class="docutils literal notranslate"><span class="pre">obs.index</span></code>, which would fill them with zeros: an obs with a zero
+Jacobian row would be fit as background only, and would dilute the mean of the
+hours it is aggregated with. A receptor whose footprint is empty keeps its zero
+row (<a class="reference internal" href="slv.inversion.pipelines.project_jacobian.html#slv.inversion.pipelines.project_jacobian" title="slv.inversion.pipelines.project_jacobian"><code class="xref py py-func docutils literal notranslate"><span class="pre">project_jacobian()</span></code></a>), so its obs stays.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Vector</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ForwardOperator</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">CovarianceMatrix</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Vector</span></code> | <a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a>]</span></p>

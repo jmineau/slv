@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
 
-    <script src="../_static/documentation_options.js?v=66d44c71"></script>
+    <script src="../_static/documentation_options.js?v=4e560eb8"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -60,7 +60,7 @@
     <link rel="prev" title="slv.inversion.bias.BiasMixin.get_site_group" href="slv.inversion.bias.BiasMixin.get_site_group.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.10.1.dev9+g16e84c9a4" />
+  <meta name="docsearch:version" content="2026.10.1.dev10+gc46c0650c" />
   
     
     <script src="../_static/searchtools.js"></script>
@@ -441,6 +441,7 @@
 <li class="toctree-l3 current active has-children"><a aria-current="page" class="current reference internal" href="#">slv.inversion.cache</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l4"><a class="reference internal" href="slv.inversion.cache.DEFAULT_COMPONENT_DEPS.html">slv.inversion.cache.DEFAULT_COMPONENT_DEPS</a></li>
 <li class="toctree-l4"><a class="reference internal" href="slv.inversion.cache.DEFAULT_COMPONENT_PACKAGES.html">slv.inversion.cache.DEFAULT_COMPONENT_PACKAGES</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.cache.DEFAULT_COMPONENT_REVISIONS.html">slv.inversion.cache.DEFAULT_COMPONENT_REVISIONS</a></li>
 <li class="toctree-l4"><a class="reference internal" href="slv.inversion.cache.fips_cache.html">slv.inversion.cache.fips_cache</a></li>
 </ul>
 </details></li>
@@ -673,6 +674,9 @@ source revision and the hash covers only the config fields that component depend
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="slv.inversion.cache.DEFAULT_COMPONENT_PACKAGES.html#slv.inversion.cache.DEFAULT_COMPONENT_PACKAGES" title="slv.inversion.cache.DEFAULT_COMPONENT_PACKAGES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DEFAULT_COMPONENT_PACKAGES</span></code></a></p></td>
 <td><p>Packages whose <em>release</em> each component also keys on, beyond fips + pystilt (which are in the version tag).</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="slv.inversion.cache.DEFAULT_COMPONENT_REVISIONS.html#slv.inversion.cache.DEFAULT_COMPONENT_REVISIONS" title="slv.inversion.cache.DEFAULT_COMPONENT_REVISIONS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DEFAULT_COMPONENT_REVISIONS</span></code></a></p></td>
+<td><p>bumped when slv changes what it builds for the same config, so a file cached before the change is not read as the new kind.</p></td>
 </tr>
 </tbody>
 </table>

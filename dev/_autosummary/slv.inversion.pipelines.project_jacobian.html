@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
 
-    <script src="../_static/documentation_options.js?v=66d44c71"></script>
+    <script src="../_static/documentation_options.js?v=4e560eb8"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -60,7 +60,7 @@
     <link rel="prev" title="slv.inversion.pipelines" href="slv.inversion.pipelines.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.10.1.dev9+g16e84c9a4" />
+  <meta name="docsearch:version" content="2026.10.1.dev10+gc46c0650c" />
   
     
     <script src="../_static/searchtools.js"></script>
@@ -441,6 +441,7 @@
 <li class="toctree-l3 has-children"><a class="reference internal" href="slv.inversion.cache.html">slv.inversion.cache</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l4"><a class="reference internal" href="slv.inversion.cache.DEFAULT_COMPONENT_DEPS.html">slv.inversion.cache.DEFAULT_COMPONENT_DEPS</a></li>
 <li class="toctree-l4"><a class="reference internal" href="slv.inversion.cache.DEFAULT_COMPONENT_PACKAGES.html">slv.inversion.cache.DEFAULT_COMPONENT_PACKAGES</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.cache.DEFAULT_COMPONENT_REVISIONS.html">slv.inversion.cache.DEFAULT_COMPONENT_REVISIONS</a></li>
 <li class="toctree-l4"><a class="reference internal" href="slv.inversion.cache.fips_cache.html">slv.inversion.cache.fips_cache</a></li>
 </ul>
 </details></li>
@@ -672,9 +673,13 @@
 footprint is summed onto <code class="docutils literal notranslate"><span class="pre">target</span></code> per flux bin. Rows are <code class="docutils literal notranslate"><span class="pre">(obs_location,</span>
 <span class="pre">obs_time)</span></code>: the receptor’s location id, renamed by <code class="docutils literal notranslate"><span class="pre">location_mapper</span></code> when it names a
 site, and its time. Columns are the target’s cells and the bins’ left edges
-(<code class="docutils literal notranslate"><span class="pre">(lon,</span> <span class="pre">lat,</span> <span class="pre">time)</span></code> for a longitude/latitude grid). A receptor whose footprint is
-empty or misses the target gets no row, and entries below <code class="docutils literal notranslate"><span class="pre">threshold</span></code> are zero.
-Returns None when no receptor has a row.</p>
+(<code class="docutils literal notranslate"><span class="pre">(lon,</span> <span class="pre">lat,</span> <span class="pre">time)</span></code> for a longitude/latitude grid). Entries below <code class="docutils literal notranslate"><span class="pre">threshold</span></code> are
+zero.</p>
+<p>Every receptor with a footprint gets a row. One whose footprint is empty (all its
+particles left the domain) or misses the target gets a row of zeros: it saw no
+emissions, which is a real observation. A receptor with no footprint (not run yet, or
+failed) gets no row, and <a class="reference internal" href="slv.inversion.pipelines.SLVMethaneInversion.aggregate_obs_space.html#slv.inversion.pipelines.SLVMethaneInversion.aggregate_obs_space" title="slv.inversion.pipelines.SLVMethaneInversion.aggregate_obs_space"><code class="xref py py-meth docutils literal notranslate"><span class="pre">aggregate_obs_space()</span></code></a> drops its
+obs. Returns None when no receptor has a footprint.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">MatrixBlock</span></code> | <a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span></p>

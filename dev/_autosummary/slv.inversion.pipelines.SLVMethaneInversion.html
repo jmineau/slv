@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
 
-    <script src="../_static/documentation_options.js?v=66d44c71"></script>
+    <script src="../_static/documentation_options.js?v=4e560eb8"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -60,7 +60,7 @@
     <link rel="prev" title="slv.inversion.pipelines.stack_jacobians" href="slv.inversion.pipelines.stack_jacobians.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.10.1.dev9+g16e84c9a4" />
+  <meta name="docsearch:version" content="2026.10.1.dev10+gc46c0650c" />
   
     
     <script src="../_static/searchtools.js"></script>
@@ -441,6 +441,7 @@
 <li class="toctree-l3 has-children"><a class="reference internal" href="slv.inversion.cache.html">slv.inversion.cache</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l4"><a class="reference internal" href="slv.inversion.cache.DEFAULT_COMPONENT_DEPS.html">slv.inversion.cache.DEFAULT_COMPONENT_DEPS</a></li>
 <li class="toctree-l4"><a class="reference internal" href="slv.inversion.cache.DEFAULT_COMPONENT_PACKAGES.html">slv.inversion.cache.DEFAULT_COMPONENT_PACKAGES</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.cache.DEFAULT_COMPONENT_REVISIONS.html">slv.inversion.cache.DEFAULT_COMPONENT_REVISIONS</a></li>
 <li class="toctree-l4"><a class="reference internal" href="slv.inversion.cache.fips_cache.html">slv.inversion.cache.fips_cache</a></li>
 </ul>
 </details></li>
@@ -687,7 +688,7 @@ grouped by time (default), site, or site organization.</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="slv.inversion.pipelines.SLVMethaneInversion.aggregate_obs_space.html#slv.inversion.pipelines.SLVMethaneInversion.aggregate_obs_space" title="slv.inversion.pipelines.SLVMethaneInversion.aggregate_obs_space"><code class="xref py py-obj docutils literal notranslate"><span class="pre">aggregate_obs_space</span></code></a>(obs, forward_operator, ...)</p></td>
-<td><p>Aggregates the observation space if specified in the config.</p></td>
+<td><p>Drop the obs the model cannot simulate, then aggregate if the config says so.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="slv.inversion.pipelines.SLVMethaneInversion.filter_state_space.html#slv.inversion.pipelines.SLVMethaneInversion.filter_state_space" title="slv.inversion.pipelines.SLVMethaneInversion.filter_state_space"><code class="xref py py-obj docutils literal notranslate"><span class="pre">filter_state_space</span></code></a>(obs, prior)</p></td>
 <td><p>Trim obs and prior to <code class="docutils literal notranslate"><span class="pre">config.time_range</span></code>, then run interval filter.</p></td>

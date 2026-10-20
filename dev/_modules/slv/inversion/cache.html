@@ -39,7 +39,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
 
-    <script src="../../../_static/documentation_options.js?v=66d44c71"></script>
+    <script src="../../../_static/documentation_options.js?v=4e560eb8"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -57,7 +57,7 @@
     <link rel="search" title="Search" href="../../../search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.10.1.dev9+g16e84c9a4" />
+  <meta name="docsearch:version" content="2026.10.1.dev10+gc46c0650c" />
   
     
     <script src="../../../_static/searchtools.js"></script>
@@ -552,6 +552,13 @@
 <span class="p">}</span>
 
 
+<span class="c1">#: What a component holds, numbered: bumped when slv changes what it builds for the same</span>
+<span class="c1">#: config, so a file cached before the change is not read as the new kind. slv&#39;s own</span>
+<span class="c1">#: revision is not in the key (see :func:`_version_tag`). forward_operator 2: receptors</span>
+<span class="c1">#: with an empty footprint have a row of zeros, so a missing row means no footprint.</span>
+<span class="n">DEFAULT_COMPONENT_REVISIONS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;forward_operator&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">}</span>
+
+
 <span class="k">def</span><span class="w"> </span><span class="nf">_json_default</span><span class="p">(</span><span class="n">v</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Fallback JSON serializer: converts non-primitive types to strings.&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
@@ -564,15 +571,21 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_component_hash</span><span class="p">(</span>
-    <span class="n">config</span><span class="p">,</span> <span class="n">fields</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">packages</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">()</span>
+    <span class="n">config</span><span class="p">,</span>
+    <span class="n">fields</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">packages</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(),</span>
+    <span class="n">revision</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Return the first 12 hex chars of sha256 over the given config fields, plus the</span>
-<span class="sd">    release versions of ``packages`` (see :func:`_release`).</span>
+<span class="sd">    release versions of ``packages`` (see :func:`_release`) and the component&#39;s</span>
+<span class="sd">    ``revision`` (see ``DEFAULT_COMPONENT_REVISIONS``).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="n">f</span><span class="p">:</span> <span class="n">_json_default</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">f</span><span class="p">))</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">fields</span><span class="p">)}</span>
     <span class="k">if</span> <span class="n">packages</span><span class="p">:</span>
         <span class="n">data</span><span class="p">[</span><span class="s2">&quot;__packages__&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">p</span><span class="p">:</span> <span class="n">_release</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">packages</span><span class="p">)}</span>
+    <span class="k">if</span> <span class="n">revision</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">data</span><span class="p">[</span><span class="s2">&quot;__revision__&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">revision</span>
     <span class="n">serialized</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha256</span><span class="p">(</span><span class="n">serialized</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()[:</span><span class="mi">12</span><span class="p">]</span>
 
@@ -729,7 +742,8 @@
 <span class="sd">    ``hash`` is derived only from the config fields that actually affect that</span>
 <span class="sd">    component (see ``COMPONENT_DEPS``), plus the release versions of the packages it</span>
 <span class="sd">    is built with (lair / uataq, see ``COMPONENT_PACKAGES``; a new lair release rebuilds</span>
-<span class="sd">    the obs and prior, not the Jacobian).  Committing/bumping a package therefore</span>
+<span class="sd">    the obs and prior, not the Jacobian) and the component&#39;s revision (see</span>
+<span class="sd">    ``COMPONENT_REVISIONS``; bumped when slv changes what the component holds).  Committing/bumping a package therefore</span>
 <span class="sd">    lands in a fresh tree rather than silently reusing a stale component.  This</span>
 <span class="sd">    means:</span>
 
@@ -778,10 +792,16 @@
             <span class="n">component_packages</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span>
                 <span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;COMPONENT_PACKAGES&quot;</span><span class="p">,</span> <span class="n">DEFAULT_COMPONENT_PACKAGES</span>
             <span class="p">)</span>
+            <span class="n">component_revisions</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span>
+                <span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;COMPONENT_REVISIONS&quot;</span><span class="p">,</span> <span class="n">DEFAULT_COMPONENT_REVISIONS</span>
+            <span class="p">)</span>
             <span class="n">fields</span> <span class="o">=</span> <span class="n">component_deps</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">fields</span><span class="p">:</span>
                 <span class="n">h</span> <span class="o">=</span> <span class="n">_component_hash</span><span class="p">(</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="n">fields</span><span class="p">,</span> <span class="n">component_packages</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="p">())</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span>
+                    <span class="n">fields</span><span class="p">,</span>
+                    <span class="n">component_packages</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="p">()),</span>
+                    <span class="n">component_revisions</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">filename</span><span class="p">),</span>
                 <span class="p">)</span>
                 <span class="n">component_dir</span> <span class="o">=</span> <span class="n">fips_dir</span> <span class="o">/</span> <span class="n">filename</span>
                 <span class="n">path</span> <span class="o">=</span> <span class="n">component_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">h</span><span class="si">}</span><span class="s2">.pkl&quot;</span>
