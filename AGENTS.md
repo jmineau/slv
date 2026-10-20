@@ -311,7 +311,9 @@ the branch. Never edit gh-pages by hand.
   `_release`: an editable checkout's static pyproject version or latest git tag, else
   the installed version) -- a release, not an edit, rebuilds obs/prior/MDM/constant. Caveats: (1) slv's *own* rev is deliberately
   not in the key, so when you change slv component-building logic
-  (obs/prior/mdm/constant) force a rebuild via `config.cache_overwrite`;
+  (obs/prior/mdm/constant) force a rebuild via `config.cache_overwrite`; a change to
+  what a component holds for the same config (a reader of old files would misread
+  them) bumps its number in `DEFAULT_COMPONENT_REVISIONS` instead, which re-keys it;
   (2) reinstall editable packages (`uv sync` / `pip install -e`) when you cut a
   version so `importlib.metadata` matches the source — this does not affect the
   cache key but keeps `pip show` and other version consumers honest.

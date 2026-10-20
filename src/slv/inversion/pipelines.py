@@ -92,23 +92,35 @@ def project_jacobian(
     footprint is summed onto ``target`` per flux bin. Rows are ``(obs_location,
     obs_time)``: the receptor's location id, renamed by ``location_mapper`` when it names a
     site, and its time. Columns are the target's cells and the bins' left edges
-    (``(lon, lat, time)`` for a longitude/latitude grid). A receptor whose footprint is
-    empty or misses the target gets no row, and entries below ``threshold`` are zero.
-    Returns None when no receptor has a row.
+    (``(lon, lat, time)`` for a longitude/latitude grid). Entries below ``threshold`` are
+    zero.
+
+    Every receptor with a footprint gets a row. One whose footprint is empty (all its
+    particles left the domain) or misses the target gets a row of zeros: it saw no
+    emissions, which is a real observation. A receptor with no footprint (not run yet, or
+    failed) gets no row, and :meth:`~SLVMethaneInversion.aggregate_obs_space` drops its
+    obs. Returns None when no receptor has a footprint.
     """
+    from scipy import sparse as sp
     from stilt.footprint import Jacobian
 
     J = project.jacobian(sel, target, flux_bins, workers=workers)
     if J.missing:
-        print(f"  {len(J.missing)} receptors have no footprint yet; skipped")
+        print(
+            f"  {len(J.missing)} receptors have no footprint yet; their obs are dropped"
+        )
     data = J.data.tocsr(copy=True)
     if threshold is not None:
         data.data[np.abs(data.data) < threshold] = 0.0
         data.eliminate_zeros()
-    keep = np.flatnonzero(data.getnnz(axis=1))
-    if not len(keep):
+    if J.empty:
+        print(f"  {len(J.empty)} receptors have an empty footprint; kept as zero rows")
+        zeros = sp.csr_matrix((len(J.empty), data.shape[1]), dtype=data.dtype)
+        data = sp.csr_matrix(sp.vstack([data, zeros], format="csr"))
+    receptors = J.receptors.append(pd.Index(J.empty, name=J.receptors.name))
+    if not len(receptors):
         return None
-    kept = Jacobian(data[keep], J.receptors[keep], J.columns, J.empty, J.missing)
+    kept = Jacobian(data, receptors, J.columns, J.empty, J.missing)
     frame = kept.to_frame(sparse=sparse)
 
     info = sel.drop_duplicates("receptor").set_index("receptor").loc[kept.receptors]
@@ -126,6 +138,25 @@ def project_jacobian(
         col_block="flux",
         sparse=sparse,
     )
+
+
+def _drop_obs_not_in(obs: Vector, index: pd.Index, reason: str) -> Vector:
+    """
+    ``obs`` without the obs whose key is not in ``index``, printing how many go.
+
+    ``obs`` carries a leading ``block`` level that ``index`` lacks: obs are matched on
+    the levels ``index`` has.
+    """
+    obs_series = obs.to_series()
+    key = obs_series.index
+    extra = [n for n in key.names if n not in index.names]
+    if extra:
+        key = key.droplevel(extra)
+    have = key.isin(index)
+    if have.all():
+        return obs
+    print(f"  Dropping {int((~have).sum())}/{len(have)} obs {reason}")
+    return Vector(obs_series[have], name=obs.name)
 
 
 class SLVMethaneInversion(
@@ -489,28 +520,27 @@ class SLVMethaneInversion(
         modeldata_mismatch: CovarianceMatrix,
         constant: Vector | None,
     ) -> tuple[Vector, ForwardOperator, CovarianceMatrix, Vector | None]:
-        """Aggregates the observation space if specified in the config."""
-        # Drop obs whose background is missing. get_constant returns a NaN-free
-        # (reduced) constant; reduce obs to match here -- before the aggregator and
-        # the InverseProblem reindex everything to obs.index -- so gap-day obs are
-        # dropped rather than back-filled to zero. Generalizes the old
-        # CTStiltBackgroundInversion obs-dropping to any background.
+        """
+        Drop the obs the model cannot simulate, then aggregate if the config says so.
+
+        Two kinds of obs are dropped, each with a printed count: those whose background
+        is missing (``get_constant`` leaves them out), and those whose receptor has no
+        footprint (its STILT simulation was not run, or failed: no row in the flux
+        Jacobian). Both happen before the aggregator and the ``InverseProblem`` reindex
+        everything to ``obs.index``, which would fill them with zeros: an obs with a zero
+        Jacobian row would be fit as background only, and would dilute the mean of the
+        hours it is aggregated with. A receptor whose footprint is empty keeps its zero
+        row (:func:`project_jacobian`), so its obs stays.
+        """
         if constant is not None:
-            obs_series = obs.to_series()
-            bg_index = constant["concentration"].index
-            # obs carries a leading "block" index level that the background lacks;
-            # match on the levels the background is actually indexed by.
-            obs_key = obs_series.index
-            extra = [n for n in obs_key.names if n not in bg_index.names]
-            if extra:
-                obs_key = obs_key.droplevel(extra)
-            have_bg = obs_key.isin(bg_index)
-            if not have_bg.all():
-                print(
-                    f"  Dropping {int((~have_bg).sum())}/{len(have_bg)} obs "
-                    "with missing background"
-                )
-                obs = Vector(obs_series[have_bg], name=obs.name)
+            obs = _drop_obs_not_in(
+                obs, constant["concentration"].index, "with missing background"
+            )
+        obs = _drop_obs_not_in(
+            obs,
+            forward_operator["concentration", "flux"].index,
+            "whose receptor has no footprint",
+        )
 
         if self.config.aggregate_obs:
             aggregator = ObsAggregator(
