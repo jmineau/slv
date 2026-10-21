@@ -468,7 +468,9 @@ results = run_sweep_job(sweep)
   `sites`; tower-only runs need no TRAX data.
 - `merge_with_gps` drops fixes outside `gps.ALTITUDE_RANGE_MSL` (1000-3500 m, room for
   canyon and mountain roads); it is on the `build_trax_obs` path, so changing it changes
-  `obs.parquet` on the next rebuild.
+  `obs.parquet` on the next rebuild. It also drops a row with the same values as an
+  earlier one in the same Pi second: the copy uataq's `merge_gps` makes of a reading when
+  two lin fixes share that second (see the code comment).
 - `GMLDiscrete` never downloads into lair's shared GML dir (`$LAIR_GML_DIR`;
   lair main dropped the built-in `lair.noaa.GML_DIR` and all its CHPC paths,
   see `LAIR_*` env vars): it reads

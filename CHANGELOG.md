@@ -6,6 +6,16 @@ versions are calendar-based (YYYY.M.PATCH).
 
 ## [Unreleased]
 
+### Fixed
+
+- `merge_with_gps`, and so `build_trax_obs` and the mobile sites of
+  `load_concentrations`, returns each observation once. uataq's `merge_gps` joins on
+  the Pi clock floored to whole seconds, so when two lin GPS fixes fell in one Pi second
+  the reading came out twice, a second apart, with two positions (uataq#93): 2,121 of
+  the 1,723,627 TRAX rows of March 2015, 5 of 239,072 in September 2026, most of them in
+  2014-2017. A row with the same values as an earlier one in the same Pi second is now
+  dropped, keeping the first fix. The TRAX `obs.parquet` changes on its next rebuild
+
 ## [2026.10.1] - 2026-10-20
 
 ### Added
