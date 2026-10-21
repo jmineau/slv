@@ -6,6 +6,26 @@ versions are calendar-based (YYYY.M.PATCH).
 
 ## [Unreleased]
 
+### Fixed
+
+- The inversion cache sees what is in its input files, not only their paths. The
+  CT-STILT background CSV is keyed by its size and modification time, as `mobile_obs`
+  already was, so a CSV rewritten in place rebuilds the background and the model-data
+  mismatch (`InversionConfig.background_kwargs_key`). The Jacobian and the model-data
+  mismatch are keyed on how many of the selected receptors have a footprint, and on the
+  footprints' settings folder, so simulations run since the Jacobian was cached (or
+  rerun on other met) rebuild it. Every cached Jacobian, background and model-data
+  mismatch rebuilds once on the next run (#30)
+- `merge_with_gps`, and so `build_trax_obs` and the mobile sites of
+  `load_concentrations`, returns each observation once. uataq's `merge_gps` joins on
+  the Pi clock floored to whole seconds, so when two lin GPS fixes fell in one Pi second
+  the reading came out twice, a second apart, with two positions (uataq#93): 2,121 of
+  the 1,723,627 TRAX rows of March 2015, 5 of 239,072 in September 2026, most of them in
+  2014-2017. A row with the same values as an earlier one in the same Pi second is now
+  dropped, keeping the first fix. The TRAX `obs.parquet` changes on its next rebuild
+
+## [2026.10.1] - 2026-10-20
+
 ### Added
 
 - `slv.basemap.cached_tiler` builds a cartopy tiler that caches its tiles on disk and
@@ -14,6 +34,10 @@ versions are calendar-based (YYYY.M.PATCH).
 
 ### Changed
 
+- lair 2026.12.9: CarbonTracker-CH4 2025 times are the centers of the 3-hour means (the
+  file's own `time` is the period end), grid-cell areas are the exact WGS84 ellipsoid areas
+  (domain totals of any flux +0.18% over the Salt Lake Valley, prior and posterior alike), and
+  PCAP events are counted in time (one missing sounding is bridged, two end the event)
 - The environment with `xesmf` is built by [pixi](https://pixi.sh) from `pyproject.toml`
   and `pixi.lock` (`pixi install`). `ci/environment.yml` is gone, so slv's dependencies
   are listed in one place
@@ -44,6 +68,20 @@ versions are calendar-based (YYYY.M.PATCH).
   about 1.9 ppm for CH4: a prior that fitted the obs exactly gave an RMSE of 1.9 ppm.
   `reduced_chi2`, `R2`, `RMSE`, `DOFS` and the flux columns, and so `SweepResults.best`,
   were not affected. Sweep CSVs written before this hold the offset values (#27)
+- `InversionConfig` raises `ValueError` when `tstart` or `tend` is not on a `flux_freq`
+  boundary (`tstart="2015-06-01"` with `flux_freq="YS"`, any non-Sunday start with
+  `"2W"`). pandas rolled the first flux interval forward to the boundary and dropped the
+  partial last one, so the flux state covered less than the obs, and the obs at the ends
+  had no flux to fit. A config on the boundaries (paper 1's 2016 to 2023) gets the same
+  intervals and cache keys as before (#31)
+- An obs whose STILT receptor has no footprint (the simulation was not run, or failed)
+  is dropped before the solve, as an obs with no background is, and the run prints how
+  many. It used to stay in with a Jacobian row of zeros: it was fit as background only,
+  and a daily mean that took it in had its Jacobian row diluted, so the fluxes fitting
+  that day came out too high. A receptor whose footprint is empty keeps its obs, now
+  with an explicit row of zeros. The `forward_operator` cache key changes, so a cached
+  Jacobian is rebuilt once. Paper 1's main inversion drops 133 more hourly obs (24
+  fewer daily obs), and its record-mean posterior goes from 42.73 to 42.91 Gg/yr (#29)
 
 ## [2026.10.0] - 2026-10-09
 

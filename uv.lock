@@ -1454,8 +1454,8 @@ wheels = [
 
 [[package]]
 name = "lair"
-version = "2026.12.8"
-source = { git = "https://github.com/jmineau/lair?rev=v2026.12.8#27e8857eb381fa2a342f20aceffda245ce4af260" }
+version = "2026.12.9"
+source = { git = "https://github.com/jmineau/lair?rev=v2026.12.9#81afda5c88d43b8ad7780ee3d341487dd5e293ee" }
 dependencies = [
     { name = "cf-xarray" },
     { name = "dask" },
@@ -3472,7 +3472,7 @@ requires-dist = [
     { name = "fips", extras = ["flux"], marker = "extra == 'inversion'", specifier = ">=0.1.0b8" },
     { name = "geopandas" },
     { name = "joblib", marker = "extra == 'inversion'", specifier = ">=1.5.3" },
-    { name = "lair", extras = ["geo", "science"], git = "https://github.com/jmineau/lair?rev=v2026.12.8" },
+    { name = "lair", extras = ["geo", "science"], git = "https://github.com/jmineau/lair?rev=v2026.12.9" },
     { name = "matplotlib" },
     { name = "pandas" },
     { name = "pystilt", marker = "extra == 'inversion'", specifier = ">=0.1.0a24" },

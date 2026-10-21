@@ -88,7 +88,9 @@ DEFAULT_COMPONENT_DEPS: dict[str, frozenset[str]] = {
     },
     # A multiplicative MDM term scales with the enhancement (observed obs-background, or the
     # prior-modeled H x_prior), so the MDM also depends on the background and forward-operator
-    # + prior deps -- not just the obs deps.
+    # + prior deps -- not just the obs deps -- and, like the forward operator, it also keys on
+    # the footprints it was built from (``key`` in fips_cache). The background CSV is keyed
+    # by its fingerprint (background_kwargs_key), not its path: a file rebuilt in place re-keys.
     "modeldata_mismatch": _OBS_DEPS
     | _OBS_FILTER_DEPS
     | _STATE_FILTER_DEPS
@@ -99,12 +101,12 @@ DEFAULT_COMPONENT_DEPS: dict[str, frozenset[str]] = {
         "sparse_jacobian",
         "variant",
         "background",
-        "background_kwargs",
+        "background_kwargs_key",
     },
     "constant": _OBS_DEPS
     | _OBS_FILTER_DEPS
     | _STATE_FILTER_DEPS
-    | {"background", "background_kwargs"},
+    | {"background", "background_kwargs_key"},
 }
 
 
@@ -121,6 +123,13 @@ DEFAULT_COMPONENT_PACKAGES: dict[str, tuple[str, ...]] = {
 }
 
 
+#: What a component holds, numbered: bumped when slv changes what it builds for the same
+#: config, so a file cached before the change is not read as the new kind. slv's own
+#: revision is not in the key (see :func:`_version_tag`). forward_operator 2: receptors
+#: with an empty footprint have a row of zeros, so a missing row means no footprint.
+DEFAULT_COMPONENT_REVISIONS: dict[str, int] = {"forward_operator": 2}
+
+
 def _json_default(v):
     """Fallback JSON serializer: converts non-primitive types to strings."""
     if isinstance(v, (list, tuple)):
@@ -133,15 +142,25 @@ def _json_default(v):
 
 
 def _component_hash(
-    config, fields: frozenset[str], packages: tuple[str, ...] = ()
+    config,
+    fields: frozenset[str],
+    packages: tuple[str, ...] = (),
+    revision: int | None = None,
+    extra=None,
 ) -> str:
     """
     Return the first 12 hex chars of sha256 over the given config fields, plus the
-    release versions of ``packages`` (see :func:`_release`).
+    release versions of ``packages`` (see :func:`_release`), the component's
+    ``revision`` (see ``DEFAULT_COMPONENT_REVISIONS``) and ``extra``, what the
+    component depends on beyond the config (the ``key`` of :func:`fips_cache`).
     """
     data = {f: _json_default(getattr(config, f)) for f in sorted(fields)}
     if packages:
         data["__packages__"] = {p: _release(p) for p in sorted(packages)}
+    if revision is not None:
+        data["__revision__"] = revision
+    if extra is not None:
+        data["__key__"] = _json_default(extra)
     serialized = json.dumps(data, sort_keys=True)
     return hashlib.sha256(serialized.encode()).hexdigest()[:12]
 
@@ -276,7 +295,7 @@ def _version_tag() -> str:
     return f"fips-{_pkg_rev('fips', 'fips')}_pystilt-{_pkg_rev('stilt', 'pystilt')}"
 
 
-def fips_cache(cls, filename):
+def fips_cache(cls, filename, key=None):
     """
     Content-addressed cache decorator for pipeline methods.
 
@@ -286,6 +305,11 @@ def fips_cache(cls, filename):
         The fips class to use for ``cls.from_file`` / ``result.to_file``.
     filename :
         Stage name / cache stem (e.g. ``"obs"``, ``"prior_error"``).
+    key :
+        Optional ``key(self, *args, **kwargs)``, called with the method's arguments
+        before the cache is looked up: what the component depends on beyond the config
+        (JSON-able), hashed into its key. The forward operator and the MDM use it for
+        the footprints they are built from (``SLVMethaneInversion._footprint_key``).
 
     Notes
     -----
@@ -296,7 +320,8 @@ def fips_cache(cls, filename):
     ``hash`` is derived only from the config fields that actually affect that
     component (see ``COMPONENT_DEPS``), plus the release versions of the packages it
     is built with (lair / uataq, see ``COMPONENT_PACKAGES``; a new lair release rebuilds
-    the obs and prior, not the Jacobian).  Committing/bumping a package therefore
+    the obs and prior, not the Jacobian) and the component's revision (see
+    ``COMPONENT_REVISIONS``; bumped when slv changes what the component holds).  Committing/bumping a package therefore
     lands in a fresh tree rather than silently reusing a stale component.  This
     means:
 
@@ -345,10 +370,17 @@ def fips_cache(cls, filename):
             component_packages = getattr(
                 self, "COMPONENT_PACKAGES", DEFAULT_COMPONENT_PACKAGES
             )
+            component_revisions = getattr(
+                self, "COMPONENT_REVISIONS", DEFAULT_COMPONENT_REVISIONS
+            )
             fields = component_deps.get(filename)
             if fields:
                 h = _component_hash(
-                    self.config, fields, component_packages.get(filename, ())
+                    self.config,
+                    fields,
+                    component_packages.get(filename, ()),
+                    component_revisions.get(filename),
+                    None if key is None else key(self, *args, **kwargs),
                 )
                 component_dir = fips_dir / filename
                 path = component_dir / f"{h}.pkl"
