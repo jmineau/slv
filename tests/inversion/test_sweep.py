@@ -6,8 +6,11 @@ import json
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
+import numpy as np
 import pandas as pd
 import pytest
+from fips import Block, CovarianceMatrix, ForwardOperator, MatrixBlock, Vector
+from fips.problems.flux.problem import FluxProblem
 
 from slv.inversion.config import InversionConfig
 from slv.inversion.pipelines import (
@@ -337,11 +340,13 @@ class TestCollectMetrics:
         estimator.DOFS = 45.0
         estimator.uncertainty_reduction = 0.35
 
+        # Observed and modeled concentrations (background 1.9 ppm): the prior model
+        # is 0.1 ppm high, 0.1 low, 0.1 high; the posterior fits.
         problem = MagicMock()
         problem.estimator = estimator
-        problem.enhancement = pd.Series([1.0, 2.0, 3.0])
-        problem.prior_concentrations = pd.Series([1.1, 1.9, 3.1])
-        problem.posterior_concentrations = pd.Series([1.0, 2.0, 3.0])
+        problem.concentrations = pd.Series([2.9, 3.9, 4.9])
+        problem.prior_concentrations = pd.Series([3.0, 3.8, 5.0])
+        problem.posterior_concentrations = pd.Series([2.9, 3.9, 4.9])
         problem.prior_fluxes = pd.Series(
             [1.0, 2.0], index=pd.to_datetime(["2023-01", "2023-02"])
         )
@@ -379,6 +384,11 @@ class TestCollectMetrics:
         assert "posterior_conc_rmse" in row
         # Perfect posterior → zero RMSE
         assert abs(row["posterior_conc_rmse"]) < 1e-9
+        assert abs(row["posterior_conc_bias"]) < 1e-9
+        # Prior residuals (obs - model) are (-0.1, +0.1, -0.1)
+        assert row["prior_conc_rmse"] == pytest.approx(0.1)
+        assert row["prior_conc_bias"] == pytest.approx(-0.1 / 3)
+        assert row["n_obs"] == 3
 
     def test_swept_params_captured(self):
         problem, pipeline = self._mock_problem_and_pipeline()
@@ -388,6 +398,111 @@ class TestCollectMetrics:
         )
         assert row["cfg_prior_base_std"] == pytest.approx(0.019)
         assert row["cfg_prior_std_frac"] == pytest.approx(0.5)
+
+
+def _solved_flux_problem(background: float, truth_scale: float = 1.0) -> FluxProblem:
+    """
+    A solved ``FluxProblem`` with a constant *background*.
+
+    The observations are ``H @ (truth_scale * x0) + background``, so the prior
+    fits them exactly when ``truth_scale`` is 1.
+    """
+    obs_index = pd.MultiIndex.from_arrays(
+        [["wbb"] * 3, pd.date_range("2020-01-05", periods=3, freq="D")],
+        names=["obs_location", "obs_time"],
+    )
+    cells = pd.MultiIndex.from_product(
+        [pd.to_datetime(["2020-01-01"]), [40.5], [-112.0, -111.9]],
+        names=["time", "lat", "lon"],
+    )
+    H = pd.DataFrame(
+        [[1.0, 0.5], [0.2, 1.0], [0.7, 0.7]], index=obs_index, columns=cells
+    )
+    x0 = pd.Series([0.01, 0.02], index=cells, name="prior")
+    c = pd.Series(background, index=obs_index, name="background")
+    z = (H @ (truth_scale * x0) + c).rename("obs")
+    problem = FluxProblem(
+        obs=Vector(name="obs", data=Block(z, name="concentration")),
+        prior=Vector(name="prior", data=Block(x0, name="flux")),
+        forward_operator=ForwardOperator(MatrixBlock(H, "concentration", "flux")),
+        prior_error=CovarianceMatrix(
+            MatrixBlock(pd.DataFrame(np.eye(2) * 1e-4, cells, cells), "flux", "flux")
+        ),
+        modeldata_mismatch=CovarianceMatrix(
+            MatrixBlock(
+                pd.DataFrame(np.eye(3) * 1e-4, obs_index, obs_index),
+                "concentration",
+                "concentration",
+            )
+        ),
+        constant=Vector(name="background", data=Block(c, name="concentration")),
+    )
+    return problem.solve()
+
+
+def _flux_pipeline() -> MagicMock:
+    pipeline = MagicMock()
+    pipeline.calculate_total_flux.side_effect = lambda f, units=None: pd.Series(
+        [f.sum()]
+    )
+    return pipeline
+
+
+class TestConcentrationResiduals:
+    """
+    The residuals compare the observed concentration with the modeled one.
+
+    The model adds the background to ``H x``, so a residual taken against the
+    observed enhancement (obs minus background) is off by the background (#27).
+    """
+
+    def test_prior_that_fits_the_obs_has_no_residual(self):
+        # The issue's reproduction: z = H x0 + c with c = 1.9 ppm.
+        problem = _solved_flux_problem(background=1.9)
+        row = collect_metrics(problem, _cfg(), _flux_pipeline())
+        for col in ("prior_conc_rmse", "prior_conc_bias"):
+            assert row[col] == pytest.approx(0.0, abs=1e-12)
+        for col in ("posterior_conc_rmse", "posterior_conc_bias"):
+            assert row[col] == pytest.approx(0.0, abs=1e-9)
+
+    def test_residuals_are_obs_minus_model(self):
+        # Prior flux half of the truth: residual = obs - (H x0 + c) = H (x_true - x0).
+        problem = _solved_flux_problem(background=1.9, truth_scale=1.5)
+        H = problem.jacobian
+        x0 = problem.prior_fluxes
+        x_hat = problem.posterior_fluxes
+        c = problem.background
+        prior_resid = problem.concentrations - (H @ x0 + c)
+        post_resid = problem.concentrations - (H @ x_hat + c)
+
+        row = collect_metrics(problem, _cfg(), _flux_pipeline())
+
+        assert row["prior_conc_rmse"] == pytest.approx(np.sqrt((prior_resid**2).mean()))
+        assert row["prior_conc_bias"] == pytest.approx(prior_resid.mean())
+        assert row["posterior_conc_rmse"] == pytest.approx(
+            np.sqrt((post_resid**2).mean())
+        )
+        assert row["posterior_conc_bias"] == pytest.approx(post_resid.mean())
+        assert row["prior_conc_bias"] > 0  # the model is below the obs
+        assert row["n_obs"] == 3
+
+    def test_residuals_do_not_depend_on_the_background(self):
+        keys = (
+            "prior_conc_rmse",
+            "posterior_conc_rmse",
+            "prior_conc_bias",
+            "posterior_conc_bias",
+        )
+        rows = [
+            collect_metrics(
+                _solved_flux_problem(background=bg, truth_scale=1.5),
+                _cfg(),
+                _flux_pipeline(),
+            )
+            for bg in (0.0, 1.9)
+        ]
+        for key in keys:
+            assert rows[0][key] == pytest.approx(rows[1][key], abs=1e-9)
 
 
 # ---------------------------------------------------------------------------
