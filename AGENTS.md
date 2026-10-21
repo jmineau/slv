@@ -83,6 +83,9 @@ src/slv/
       obs.py         build_trax_obs (per-year chunks; slope guard on calibrated rows; every GPS fix + cal_source + low_pressure + state/indoor/
                      yard_name) / load_trax_obs(location="on_track"|"outdoor"|"all")
                      cached at $SLV_USER_DATA_DIR/trax/obs.parquet; LOCATION_SETS.
+                     load_trax_obs filters on the rows first (cal_source, low_pressure,
+                     location), then applies the epoch offset and builds the points for the
+                     rows kept only: the whole record is 105 M rows, about half on track.
                      2026-09-22 audit rules, all from _read_support (qaqc CH4/flag/
                      cavity P read WITHOUT normalize_pollutant): apply_pressure_rule
                      (flag -64 overwrites -63 in lgr_ugga_qaqc.r, so pressure is

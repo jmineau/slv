@@ -302,6 +302,64 @@ def test_load_trax_obs_applies_the_location_filter(tmp_path):
     assert load_trax_obs(cache, location="all").state.tolist() == states
 
 
+def test_load_trax_obs_keeps_the_filtered_rows_with_their_offset_and_point(tmp_path):
+    import geopandas as gpd
+
+    from slv.measurements.mobile.obs import load_trax_obs
+
+    n = 8
+    raw = pd.DataFrame(
+        {
+            "Time_UTC": pd.date_range("2024-03-01", periods=n, freq="min"),
+            "CH4_ppm": 2.0 + np.arange(n) * 0.1,
+            "Latitude_deg": 40.7 + np.arange(n) * 0.01,
+            "Longitude_deg": -111.9 - np.arange(n) * 0.01,
+            "cal_source": ["pipeline", "uncalibrated"] * 4,
+            "low_pressure": [False, False, True, False, False, True, False, False],
+            "state": [
+                "route",
+                "route",
+                "line",
+                "yard",
+                "route",
+                "stopped",
+                "depot",
+                "x",
+            ],
+        }
+    )
+    legacy = tmp_path / "legacy.parquet"  # no epoch_offset_ppm column yet
+    raw.to_parquet(legacy)
+    stored = tmp_path / "stored.parquet"
+    raw.assign(epoch_offset_ppm=np.arange(n) * -0.01).to_parquet(stored)
+
+    def check(out, rows, offset, labels=None):
+        assert isinstance(out, gpd.GeoDataFrame) and out.crs == "EPSG:4326"
+        assert out.index.tolist() == (rows if labels is None else labels)
+        assert out.Time_UTC.tolist() == raw.Time_UTC[rows].tolist()
+        assert out.CH4_ppm.tolist() == [2.0 + r * 0.1 - offset(r) for r in rows]
+        assert out.geometry.x.tolist() == raw.Longitude_deg[rows].tolist()
+        assert out.geometry.y.tolist() == raw.Latitude_deg[rows].tolist()
+
+    # an obs.parquet without the column gets the packaged epoch's offset (-0.002 ppm)
+    out = load_trax_obs(legacy)
+    check(out, [0, 1, 2, 4, 5], lambda r: -0.002)
+    assert out.epoch_offset_ppm.eq(-0.002).all()
+    both = load_trax_obs(legacy, include_uncalibrated=False, include_low_pressure=False)
+    check(both, [0, 4], lambda r: -0.002)
+    # a stored offset is used row by row, and epoch_offset=False leaves the values alone
+    check(load_trax_obs(stored), [0, 1, 2, 4, 5], lambda r: r * -0.01)
+    check(load_trax_obs(stored, epoch_offset=False), [0, 1, 2, 4, 5], lambda r: 0.0)
+    check(load_trax_obs(stored, location="all"), list(range(n)), lambda r: r * -0.01)
+    # a time range reads part of the file (and numbers the rows it read from 0); nothing
+    # kept is still a frame with points
+    part = load_trax_obs(stored, time_range=("2024-03-01 00:03", "2024-03-01 00:06"))
+    check(part, [4, 5], lambda r: r * -0.01, labels=[1, 2])
+    none = load_trax_obs(stored, location=())
+    assert isinstance(none, gpd.GeoDataFrame) and none.empty and none.crs == "EPSG:4326"
+    assert "geometry" in none.columns
+
+
 def _fake_read_lgr(tables):
     """
     Stand-in for ``obs._read_lgr``: ``tables[(instrument, lvl)]`` is a ``Time_UTC``/``CH4``

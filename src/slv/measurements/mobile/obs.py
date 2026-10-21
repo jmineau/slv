@@ -644,22 +644,23 @@ def load_trax_obs(
             raise ValueError(
                 f"{cache} predates cal_source / location / low_pressure tagging; call with rebuild=True"
             )
-        data = gpd.GeoDataFrame(
-            data,
-            geometry=gpd.points_from_xy(data.Longitude_deg, data.Latitude_deg),
-            crs="EPSG:4326",
-        )
     else:
-        data = build_trax_obs(**build_kwargs)
+        data = pd.DataFrame(build_trax_obs(**build_kwargs).drop(columns="geometry"))
         cache.parent.mkdir(parents=True, exist_ok=True)
         print(f"Caching TRAX obs to {cache}")
-        pd.DataFrame(data.drop(columns="geometry")).to_parquet(cache)
+        data.to_parquet(cache)
         if time_range is not None:
             t0, t1 = (pd.Timestamp(t) for t in time_range)
             data = data[(data.Time_UTC >= t0) & (data.Time_UTC < t1)]
-    data = apply_epoch_offset(data, epoch_offset)
+    # Keep the rows first, then offset and locate only those: the whole record is 105 M
+    # rows, half of them on track, and a point for each row costs more than the rest.
     data = filter_cal_source(data, include_uncalibrated)
     if not include_low_pressure and "low_pressure" in data.columns:
         data = data[~data["low_pressure"].astype(bool)]
     data = filter_location(data, location)
-    return gpd.GeoDataFrame(data)
+    data = apply_epoch_offset(data, epoch_offset)
+    return gpd.GeoDataFrame(
+        data,
+        geometry=gpd.points_from_xy(data.Longitude_deg, data.Latitude_deg),
+        crs="EPSG:4326",
+    )

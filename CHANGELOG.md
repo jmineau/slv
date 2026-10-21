@@ -6,6 +6,12 @@ versions are calendar-based (YYYY.M.PATCH).
 
 ## [Unreleased]
 
+### Changed
+
+- `load_trax_obs` keeps the rows you asked for first, and then applies the epoch offset
+  and builds the points for those rows only. Loading the whole record takes 50 s and
+  37 GB at the peak, from 90 s and 54 GB. The rows, values and points are the same
+
 ### Fixed
 
 - The inversion cache sees what is in its input files, not only their paths. The
