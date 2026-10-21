@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
 
-    <script src="../_static/documentation_options.js?v=9925646b"></script>
+    <script src="../_static/documentation_options.js?v=cfb39b09"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -60,7 +60,7 @@
     <link rel="prev" title="slv.inversion.config.InversionConfig.extent" href="slv.inversion.config.InversionConfig.extent.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.10.2.dev2+g35a620d21" />
+  <meta name="docsearch:version" content="2026.10.2.dev4+g8fb7fdf73" />
   
     
     <script src="../_static/searchtools.js"></script>
@@ -670,8 +670,30 @@
 <h1>slv.inversion.config.InversionConfig.flux_time_bins<a class="headerlink" href="#slv-inversion-config-inversionconfig-flux-time-bins" title="Link to this heading">#</a></h1>
 <dl class="py property">
 <dt class="sig sig-object py" id="slv.inversion.config.InversionConfig.flux_time_bins">
-<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">InversionConfig.</span></span><span class="sig-name descname"><span class="pre">flux_time_bins</span></span><a class="headerlink" href="#slv.inversion.config.InversionConfig.flux_time_bins" title="Link to this definition">#</a></dt>
-<dd><p>Generates time bins for flux estimation based on the time range and flux frequency.</p>
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">InversionConfig.</span></span><span class="sig-name descname"><span class="pre">flux_time_bins</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.IntervalIndex.html#pandas.IntervalIndex" title="(in pandas v3.0.6)"><span class="pre">IntervalIndex</span></a></span><a class="headerlink" href="#slv.inversion.config.InversionConfig.flux_time_bins" title="Link to this definition">#</a></dt>
+<dd><p>whole <code class="docutils literal notranslate"><span class="pre">flux_freq</span></code> periods from <code class="docutils literal notranslate"><span class="pre">tstart</span></code> to <code class="docutils literal notranslate"><span class="pre">tend</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#ValueError" title="(in Python v3.15)"><strong>ValueError</strong></a> – If <code class="docutils literal notranslate"><span class="pre">tstart</span></code> or <code class="docutils literal notranslate"><span class="pre">tend</span></code> is not on a <code class="docutils literal notranslate"><span class="pre">flux_freq</span></code> boundary, so whole periods
+    would cover less than <code class="docutils literal notranslate"><span class="pre">tstart..tend</span></code>: <code class="docutils literal notranslate"><span class="pre">&quot;YS&quot;</span></code> needs January 1, <code class="docutils literal notranslate"><span class="pre">&quot;QS&quot;</span></code> the
+    first of a quarter, <code class="docutils literal notranslate"><span class="pre">&quot;MS&quot;</span></code> the first of a month, <code class="docutils literal notranslate"><span class="pre">&quot;2W&quot;</span></code> Sundays two weeks
+    apart. The obs of the days left out would have no flux to fit.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">slv.inversion</span><span class="w"> </span><span class="kn">import</span> <span class="n">InversionConfig</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">config</span> <span class="o">=</span> <span class="n">InversionConfig</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">tstart</span><span class="o">=</span><span class="s2">&quot;2016-01-01&quot;</span><span class="p">,</span> <span class="n">tend</span><span class="o">=</span><span class="s2">&quot;2018-01-01&quot;</span><span class="p">,</span> <span class="n">flux_freq</span><span class="o">=</span><span class="s2">&quot;YS&quot;</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">b</span><span class="o">.</span><span class="n">left</span><span class="o">.</span><span class="n">date</span><span class="p">())</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">flux_time_bins</span><span class="p">]</span>
+<span class="go">[&#39;2016-01-01&#39;, &#39;2017-01-01&#39;]</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The flux intervals</p>
+</dd>
+</dl>
 </dd></dl>
 
 </section>

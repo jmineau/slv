@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
 
-    <script src="../_static/documentation_options.js?v=9925646b"></script>
+    <script src="../_static/documentation_options.js?v=cfb39b09"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -60,7 +60,7 @@
     <link rel="prev" title="slv.inversion.sweep" href="slv.inversion.sweep.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.10.2.dev2+g35a620d21" />
+  <meta name="docsearch:version" content="2026.10.2.dev4+g8fb7fdf73" />
   
     
     <script src="../_static/searchtools.js"></script>
@@ -671,6 +671,11 @@
 <dd><p>Extract goodness-of-fit and flux metrics from a solved <code class="docutils literal notranslate"><span class="pre">FluxProblem</span></code>.</p>
 <p>The primary target metric is <code class="docutils literal notranslate"><span class="pre">reduced_chi2</span></code> — ideally close to 1.0,
 which indicates the error covariances are well-specified.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">prior_conc_*</span></code> and <code class="docutils literal notranslate"><span class="pre">posterior_conc_*</span></code> columns summarize the residual
+<code class="docutils literal notranslate"><span class="pre">observed</span> <span class="pre">concentration</span> <span class="pre">-</span> <span class="pre">modeled</span> <span class="pre">concentration</span></code> (the model is
+<code class="docutils literal notranslate"><span class="pre">H</span> <span class="pre">x</span> <span class="pre">+</span> <span class="pre">background</span></code>) with its root mean square (<code class="docutils literal notranslate"><span class="pre">*_rmse</span></code>) and mean
+(<code class="docutils literal notranslate"><span class="pre">*_bias</span></code>, positive when the model is below the observations), in the
+units of the observations.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">

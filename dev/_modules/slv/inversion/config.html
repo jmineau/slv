@@ -39,7 +39,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
 
-    <script src="../../../_static/documentation_options.js?v=9925646b"></script>
+    <script src="../../../_static/documentation_options.js?v=cfb39b09"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -57,7 +57,7 @@
     <link rel="search" title="Search" href="../../../search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.10.2.dev2+g35a620d21" />
+  <meta name="docsearch:version" content="2026.10.2.dev4+g8fb7fdf73" />
   
     
     <script src="../../../_static/searchtools.js"></script>
@@ -658,7 +658,8 @@
 <span class="sd">    Settings for one :class:`~slv.inversion.pipelines.SLVMethaneInversion` run.</span>
 
 <span class="sd">    Invalid choices (``flux_freq``, ``background``, ``prior``, ``bias_grouping``, MDM</span>
-<span class="sd">    component names, an empty domain) raise ``ValueError`` at construction. Cached</span>
+<span class="sd">    component names, an empty domain, ``tstart`` or ``tend`` off the ``flux_freq``</span>
+<span class="sd">    boundaries) raise ``ValueError`` at construction. Cached</span>
 <span class="sd">    components are keyed on the fields each one depends on (see</span>
 <span class="sd">    :mod:`slv.inversion.cache`), so changing a field&#39;s default spelling forces a rebuild.</span>
 
@@ -666,7 +667,8 @@
 <span class="sd">    ----------</span>
 <span class="sd">    tstart, tend : str or pd.Timestamp</span>
 <span class="sd">        Inversion period; flux intervals start at ``tstart`` and the last one ends at</span>
-<span class="sd">        ``tend``.</span>
+<span class="sd">        ``tend``, so both must be on ``flux_freq`` boundaries (see</span>
+<span class="sd">        :attr:`flux_time_bins`).</span>
 <span class="sd">    flux_freq : str</span>
 <span class="sd">        Flux interval: ``&quot;YS&quot;``, ``&quot;QS&quot;``, ``&quot;MS&quot;``, ``&quot;2W&quot;`` or ``&quot;D&quot;``.</span>
 <span class="sd">    utc_offset : int</span>
@@ -855,6 +857,7 @@
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;dx and dy must be positive, got </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dx</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dy</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xmin</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">xmax</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">ymin</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">ymax</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;empty domain: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">bbox</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">flux_time_bins</span>  <span class="c1"># raises when they would not cover tstart..tend</span>
 
     <span class="c1">#: Derived values cached on first access; setting any field drops them, so a config</span>
     <span class="c1">#: changed after use (a sweep, a notebook) never serves a stale grid or MDM list.</span>
@@ -1086,10 +1089,41 @@
         <span class="k">return</span> <span class="n">kwargs</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">flux_time_bins</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Generates time bins for flux estimation based on the time range and flux frequency.&quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">flux_time_bins</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">IntervalIndex</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The flux intervals: whole ``flux_freq`` periods from ``tstart`` to ``tend``.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If ``tstart`` or ``tend`` is not on a ``flux_freq`` boundary, so whole periods</span>
+<span class="sd">            would cover less than ``tstart..tend``: ``&quot;YS&quot;`` needs January 1, ``&quot;QS&quot;`` the</span>
+<span class="sd">            first of a quarter, ``&quot;MS&quot;`` the first of a month, ``&quot;2W&quot;`` Sundays two weeks</span>
+<span class="sd">            apart. The obs of the days left out would have no flux to fit.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        &gt;&gt;&gt; from slv.inversion import InversionConfig</span>
+<span class="sd">        &gt;&gt;&gt; config = InversionConfig(</span>
+<span class="sd">        ...     tstart=&quot;2016-01-01&quot;, tend=&quot;2018-01-01&quot;, flux_freq=&quot;YS&quot;</span>
+<span class="sd">        ... )</span>
+<span class="sd">        &gt;&gt;&gt; [str(b.left.date()) for b in config.flux_time_bins]</span>
+<span class="sd">        [&#39;2016-01-01&#39;, &#39;2017-01-01&#39;]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">t0</span><span class="p">,</span> <span class="n">t1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_range</span>
-        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">interval_range</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="n">t0</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="n">t1</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">flux_freq</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">)</span>
+        <span class="n">bins</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">interval_range</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="n">t0</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="n">t1</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">flux_freq</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">bins</span><span class="p">)</span> <span class="ow">and</span> <span class="n">bins</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">left</span> <span class="o">==</span> <span class="n">t0</span> <span class="ow">and</span> <span class="n">bins</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">right</span> <span class="o">==</span> <span class="n">t1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">bins</span>
+        <span class="n">covered</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;would cover </span><span class="si">{</span><span class="n">bins</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">left</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">bins</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">right</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">bins</span><span class="p">)</span>
+            <span class="k">else</span> <span class="s2">&quot;would be empty&quot;</span>
+        <span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;tstart=</span><span class="si">{</span><span class="n">t0</span><span class="si">}</span><span class="s2"> and tend=</span><span class="si">{</span><span class="n">t1</span><span class="si">}</span><span class="s2"> must be on flux_freq=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">flux_freq</span><span class="si">!r}</span><span class="s2"> &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;boundaries: its whole periods </span><span class="si">{</span><span class="n">covered</span><span class="si">}</span><span class="s2">, and the obs outside them would &quot;</span>
+            <span class="s2">&quot;have no flux to fit.&quot;</span>
+        <span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">flux_times</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">:</span>
