@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
 
-    <script src="../_static/documentation_options.js?v=d0b3acc0"></script>
+    <script src="../_static/documentation_options.js?v=9925646b"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -56,11 +56,11 @@
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="slv.inversion.config.InversionConfig.bbox" href="slv.inversion.config.InversionConfig.bbox.html" />
+    <link rel="next" title="slv.inversion.config.InversionConfig.background_kwargs_key" href="slv.inversion.config.InversionConfig.background_kwargs_key.html" />
     <link rel="prev" title="slv.inversion.config.stilt_project_dir" href="slv.inversion.config.stilt_project_dir.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.10.2.dev1+g036ecddc0" />
+  <meta name="docsearch:version" content="2026.10.2.dev2+g35a620d21" />
   
     
     <script src="../_static/searchtools.js"></script>
@@ -748,49 +748,52 @@ sensitivity) at the prior. <code class="docutils literal notranslate"><span clas
 <p class="rubric">Attributes</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="slv.inversion.config.InversionConfig.bbox.html#slv.inversion.config.InversionConfig.bbox" title="slv.inversion.config.InversionConfig.bbox"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bbox</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="slv.inversion.config.InversionConfig.background_kwargs_key.html#slv.inversion.config.InversionConfig.background_kwargs_key" title="slv.inversion.config.InversionConfig.background_kwargs_key"><code class="xref py py-obj docutils literal notranslate"><span class="pre">background_kwargs_key</span></code></a></p></td>
+<td><p>a <code class="docutils literal notranslate"><span class="pre">csv_path</span></code> (the <code class="docutils literal notranslate"><span class="pre">ct_stilt</span></code> product) is replaced by its path plus size and mtime.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="slv.inversion.config.InversionConfig.bbox.html#slv.inversion.config.InversionConfig.bbox" title="slv.inversion.config.InversionConfig.bbox"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bbox</span></code></a></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">(xmin,</span> <span class="pre">ymin,</span> <span class="pre">xmax,</span> <span class="pre">ymax)</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="slv.inversion.config.InversionConfig.extent.html#slv.inversion.config.InversionConfig.extent" title="slv.inversion.config.InversionConfig.extent"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extent</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="slv.inversion.config.InversionConfig.extent.html#slv.inversion.config.InversionConfig.extent" title="slv.inversion.config.InversionConfig.extent"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extent</span></code></a></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">(xmin,</span> <span class="pre">xmax,</span> <span class="pre">ymin,</span> <span class="pre">ymax)</span></code>, cartopy's order.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="slv.inversion.config.InversionConfig.flux_time_bins.html#slv.inversion.config.InversionConfig.flux_time_bins" title="slv.inversion.config.InversionConfig.flux_time_bins"><code class="xref py py-obj docutils literal notranslate"><span class="pre">flux_time_bins</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="slv.inversion.config.InversionConfig.flux_time_bins.html#slv.inversion.config.InversionConfig.flux_time_bins" title="slv.inversion.config.InversionConfig.flux_time_bins"><code class="xref py py-obj docutils literal notranslate"><span class="pre">flux_time_bins</span></code></a></p></td>
 <td><p>Generates time bins for flux estimation based on the time range and flux frequency.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="slv.inversion.config.InversionConfig.flux_times.html#slv.inversion.config.InversionConfig.flux_times" title="slv.inversion.config.InversionConfig.flux_times"><code class="xref py py-obj docutils literal notranslate"><span class="pre">flux_times</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="slv.inversion.config.InversionConfig.flux_times.html#slv.inversion.config.InversionConfig.flux_times" title="slv.inversion.config.InversionConfig.flux_times"><code class="xref py py-obj docutils literal notranslate"><span class="pre">flux_times</span></code></a></p></td>
 <td><p>Returns the left edges of the flux time bins, which represent the time points for flux estimation.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="slv.inversion.config.InversionConfig.grid.html#slv.inversion.config.InversionConfig.grid" title="slv.inversion.config.InversionConfig.grid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">grid</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="slv.inversion.config.InversionConfig.grid.html#slv.inversion.config.InversionConfig.grid" title="slv.inversion.config.InversionConfig.grid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">grid</span></code></a></p></td>
 <td><p>the prior's regrid target.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="slv.inversion.config.InversionConfig.grid_coords.html#slv.inversion.config.InversionConfig.grid_coords" title="slv.inversion.config.InversionConfig.grid_coords"><code class="xref py py-obj docutils literal notranslate"><span class="pre">grid_coords</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="slv.inversion.config.InversionConfig.grid_coords.html#slv.inversion.config.InversionConfig.grid_coords" title="slv.inversion.config.InversionConfig.grid_coords"><code class="xref py py-obj docutils literal notranslate"><span class="pre">grid_coords</span></code></a></p></td>
 <td><p>Every cell centre as a <code class="docutils literal notranslate"><span class="pre">(lon,</span> <span class="pre">lat)</span></code> tuple.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="slv.inversion.config.InversionConfig.map_extent.html#slv.inversion.config.InversionConfig.map_extent" title="slv.inversion.config.InversionConfig.map_extent"><code class="xref py py-obj docutils literal notranslate"><span class="pre">map_extent</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="slv.inversion.config.InversionConfig.map_extent.html#slv.inversion.config.InversionConfig.map_extent" title="slv.inversion.config.InversionConfig.map_extent"><code class="xref py py-obj docutils literal notranslate"><span class="pre">map_extent</span></code></a></p></td>
 <td><p><code class="xref py py-attr docutils literal notranslate"><span class="pre">extent</span></code> padded by 0.05 degrees, for maps.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="slv.inversion.config.InversionConfig.mdm_components.html#slv.inversion.config.InversionConfig.mdm_components" title="slv.inversion.config.InversionConfig.mdm_components"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mdm_components</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="slv.inversion.config.InversionConfig.mdm_components.html#slv.inversion.config.InversionConfig.mdm_components" title="slv.inversion.config.InversionConfig.mdm_components"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mdm_components</span></code></a></p></td>
 <td><p>Build MDM components from config (merges with defaults).</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="slv.inversion.config.InversionConfig.mobile_obs_key.html#slv.inversion.config.InversionConfig.mobile_obs_key" title="slv.inversion.config.InversionConfig.mobile_obs_key"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mobile_obs_key</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="slv.inversion.config.InversionConfig.mobile_obs_key.html#slv.inversion.config.InversionConfig.mobile_obs_key" title="slv.inversion.config.InversionConfig.mobile_obs_key"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mobile_obs_key</span></code></a></p></td>
 <td><p>its path plus size and mtime.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="slv.inversion.config.InversionConfig.resolution.html#slv.inversion.config.InversionConfig.resolution" title="slv.inversion.config.InversionConfig.resolution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">resolution</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="slv.inversion.config.InversionConfig.resolution.html#slv.inversion.config.InversionConfig.resolution" title="slv.inversion.config.InversionConfig.resolution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">resolution</span></code></a></p></td>
 <td><p>Cell size as <code class="docutils literal notranslate"><span class="pre">&quot;{dx}x{dy}&quot;</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="slv.inversion.config.InversionConfig.site_config.html#slv.inversion.config.InversionConfig.site_config" title="slv.inversion.config.InversionConfig.site_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">site_config</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="slv.inversion.config.InversionConfig.site_config.html#slv.inversion.config.InversionConfig.site_config" title="slv.inversion.config.InversionConfig.site_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">site_config</span></code></a></p></td>
 <td><p>The packaged site config (<a class="reference internal" href="slv.measurements.sites.load_site_config.html#slv.measurements.sites.load_site_config" title="slv.measurements.sites.load_site_config"><code class="xref py py-func docutils literal notranslate"><span class="pre">load_site_config()</span></code></a>).</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="slv.inversion.config.InversionConfig.state_grid.html#slv.inversion.config.InversionConfig.state_grid" title="slv.inversion.config.InversionConfig.state_grid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">state_grid</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="slv.inversion.config.InversionConfig.state_grid.html#slv.inversion.config.InversionConfig.state_grid" title="slv.inversion.config.InversionConfig.state_grid"><code class="xref py py-obj docutils literal notranslate"><span class="pre">state_grid</span></code></a></p></td>
 <td><p>the domain snapped outward to whole cells.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="slv.inversion.config.InversionConfig.stilt_projects.html#slv.inversion.config.InversionConfig.stilt_projects" title="slv.inversion.config.InversionConfig.stilt_projects"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stilt_projects</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="slv.inversion.config.InversionConfig.stilt_projects.html#slv.inversion.config.InversionConfig.stilt_projects" title="slv.inversion.config.InversionConfig.stilt_projects"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stilt_projects</span></code></a></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">stilt_project</span></code> as a list of paths, whether one project or several was given.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="slv.inversion.config.InversionConfig.subset_hours_utc.html#slv.inversion.config.InversionConfig.subset_hours_utc" title="slv.inversion.config.InversionConfig.subset_hours_utc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">subset_hours_utc</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="slv.inversion.config.InversionConfig.subset_hours_utc.html#slv.inversion.config.InversionConfig.subset_hours_utc" title="slv.inversion.config.InversionConfig.subset_hours_utc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">subset_hours_utc</span></code></a></p></td>
 <td><p>Dynamically converts local afternoon hours to UTC for data subsetting.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="slv.inversion.config.InversionConfig.time_range.html#slv.inversion.config.InversionConfig.time_range" title="slv.inversion.config.InversionConfig.time_range"><code class="xref py py-obj docutils literal notranslate"><span class="pre">time_range</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="slv.inversion.config.InversionConfig.time_range.html#slv.inversion.config.InversionConfig.time_range" title="slv.inversion.config.InversionConfig.time_range"><code class="xref py py-obj docutils literal notranslate"><span class="pre">time_range</span></code></a></p></td>
 <td><p><code class="docutils literal notranslate"><span class="pre">(tstart,</span> <span class="pre">tend)</span></code> as timestamps.</p></td>
 </tr>
 </tbody>
@@ -818,11 +821,11 @@ sensitivity) at the prior. <code class="docutils literal notranslate"><span clas
       </div>
     </a>
     <a class="right-next"
-       href="slv.inversion.config.InversionConfig.bbox.html"
+       href="slv.inversion.config.InversionConfig.background_kwargs_key.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">slv.inversion.config.InversionConfig.bbox</p>
+        <p class="prev-next-title">slv.inversion.config.InversionConfig.background_kwargs_key</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
