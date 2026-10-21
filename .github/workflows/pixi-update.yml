@@ -1,0 +1,97 @@
+name: Pixi update
+
+# Once a month, and on demand from the Actions tab, `pixi update` moves pixi.lock
+# to the newest versions pyproject.toml allows. When the lock changes, one pull
+# request (branch chore/pixi-update) carries it; the next run replaces that
+# branch, so there is never more than one. Dependabot has no pixi ecosystem and
+# updates uv.lock only (.github/dependabot.yml), so without this the two
+# lockfiles drift apart.
+#
+# Pushes and pull requests made with the workflow's own token start no other
+# workflow (GitHub's guard against loops), except workflow_dispatch. So the last
+# step dispatches Tests on the branch; its checks appear on the pull request,
+# and its pixi job installs the new lock with --locked and runs the whole suite.
+# Code Quality and Documentation read uv.lock, which this branch does not
+# change, so they are not started.
+#
+# Needs the repository setting Settings > Actions > General > Workflow
+# permissions > "Allow GitHub Actions to create and approve pull requests".
+on:
+  schedule:
+    - cron: "17 6 2 * *"  # the 2nd of each month, after Dependabot's
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pixi-update
+  cancel-in-progress: false
+
+env:
+  BRANCH: chore/pixi-update
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write       # push the branch
+      pull-requests: write  # open or update the pull request
+      actions: write        # dispatch Tests on the branch
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+          fetch-depth: 0  # setuptools-scm reads the version from tags
+
+      - uses: prefix-dev/setup-pixi@v0.11.0
+        with:
+          run-install: false  # `pixi update` solves; it needs pixi, not the environment
+          cache: false
+
+      - name: Update pixi.lock
+        id: update
+        run: |
+          set -o pipefail
+          pixi update 2>&1 | tee "$RUNNER_TEMP/changes.txt"
+          if git diff --quiet -- pixi.lock; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "pixi.lock is already current." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Push the branch and open the pull request
+        if: steps.update.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh auth setup-git
+          git switch --create "$BRANCH"
+          git add pixi.lock
+          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+            commit --quiet -m "build(deps): update pixi.lock"
+          git push --force --quiet origin "HEAD:refs/heads/$BRANCH"
+
+          {
+            echo "\`pixi update\` moved \`pixi.lock\` to the newest versions \`pyproject.toml\` allows ([workflow run]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID)). Nothing else changes."
+            echo
+            echo "The workflow started Tests on this branch, because a pull request opened with its own token starts no checks by itself. They appear below when they finish; the \`pixi env (with xesmf)\` job installs this lock with \`--locked\` and runs the whole suite. Merge when they pass. The next monthly run replaces this branch, so do not push to it."
+            echo
+            echo '```'
+            cat "$RUNNER_TEMP/changes.txt"
+            echo '```'
+          } > "$RUNNER_TEMP/body.md"
+
+          number="$(gh pr list --head "$BRANCH" --state open --json number --jq '.[0].number // empty')"
+          if [ -n "$number" ]; then
+            gh pr edit "$number" --body-file "$RUNNER_TEMP/body.md"
+            url="$(gh pr view "$number" --json url --jq .url)"
+          else
+            url="$(gh pr create --head "$BRANCH" --base main --title "build(deps): update pixi.lock" \
+              --body-file "$RUNNER_TEMP/body.md")"
+          fi
+          echo "Pull request: $url" >> "$GITHUB_STEP_SUMMARY"
+
+          gh workflow run tests.yml --ref "$BRANCH"

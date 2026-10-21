@@ -254,7 +254,12 @@ makes the GitHub Release from a tag (Zenodo archives it). xesmf is not in `uv.lo
 `pyproject.toml`, locked in `pixi.lock`): conda-forge supplies ESMF and xesmf, and
 everything else comes from the dependencies in `pyproject.toml`, so nothing is listed
 twice. After changing a dependency, run `pixi lock` as well as `uv lock`; the job
-fails on a `pixi.lock` that is out of date. No CHPC data roots are
+fails on a `pixi.lock` that is out of date. Dependabot updates `uv.lock` only, so
+`pixi-update.yml` runs `pixi update` monthly (and on demand from the Actions tab) and
+opens one pull request, branch `chore/pixi-update`, when `pixi.lock` changes. A pull
+request opened with the workflow's own token starts no CI, so the workflow dispatches
+Tests on that branch; it needs the repository setting "Allow GitHub Actions to create
+and approve pull requests". No CHPC data roots are
 set in CI: tests must not read group data. Warnings are errors in the tests; a test
 that expects one asserts it with `pytest.warns`, and a third-party one is ignored by
 message in `[tool.pytest]`. pyrefly fails on any error not in `pyrefly-baseline.json`
