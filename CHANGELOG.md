@@ -61,6 +61,12 @@ versions are calendar-based (YYYY.M.PATCH).
   hot-cavity flag (-64, an accepted flag) over -63, so low-pressure rows on hot
   afternoons were kept untagged and `load_trax_obs(include_low_pressure=False)` left
   them in. Rebuild `obs.parquet` to pick this up
+- `InversionConfig` raises `ValueError` when `tstart` or `tend` is not on a `flux_freq`
+  boundary (`tstart="2015-06-01"` with `flux_freq="YS"`, any non-Sunday start with
+  `"2W"`). pandas rolled the first flux interval forward to the boundary and dropped the
+  partial last one, so the flux state covered less than the obs, and the obs at the ends
+  had no flux to fit. A config on the boundaries (paper 1's 2016 to 2023) gets the same
+  intervals and cache keys as before (#31)
 - An obs whose STILT receptor has no footprint (the simulation was not run, or failed)
   is dropped before the solve, as an obs with no background is, and the run prints how
   many. It used to stay in with a Jacobian row of zeros: it was fit as background only,

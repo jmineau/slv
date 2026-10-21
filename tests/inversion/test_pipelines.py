@@ -908,7 +908,9 @@ def pipelines_matrix(block):
 
 
 def test_total_units_are_mass_per_interval():
-    pipeline = make_pipeline(SLVMethaneInversion, flux_freq="QS")
+    pipeline = make_pipeline(
+        SLVMethaneInversion, tstart="2016-01-01", tend="2024-01-01", flux_freq="QS"
+    )
     assert pipeline._total_units() == "Gg per QS interval"
 
 
