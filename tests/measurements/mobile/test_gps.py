@@ -190,6 +190,16 @@ def test_trax_gps_fills_horel_gaps_from_lin(monkeypatch):
 X0, Y0 = 420000.0, 4508000.0
 
 
+def _record_gps(seen):
+    """A ``merge_gps`` stand-in that keeps the GPS it is given and returns the obs."""
+
+    def merge(obs, gps_df, on):
+        seen["gps"] = gps_df
+        return obs
+
+    return merge
+
+
 def test_merge_with_gps_filters_before_merging(monkeypatch):
     # 10 fixes eastward along a track; #0 has an outlier altitude, #9 is 200 m off the
     # track, #4-#5 are inside the storage yard
@@ -243,9 +253,7 @@ def test_altitude_range_keeps_mountains_and_missing_altitudes(monkeypatch):
     monkeypatch.setattr(uataq, "read_data", lambda site, **kw: {"gps": fixes})
     seen = {}
     monkeypatch.setattr(
-        uataq.sites.MobileSite,
-        "merge_gps",
-        staticmethod(lambda obs, g, on: seen.setdefault("gps", g)),
+        uataq.sites.MobileSite, "merge_gps", staticmethod(_record_gps(seen))
     )
     obs = pd.DataFrame({"Time_UTC": t, "CH4": 2.0})
     no_filters = {"routes": False, "storage_polygon": False}
@@ -266,10 +274,79 @@ def test_constant_altitude_keeps_every_fix(monkeypatch):
     monkeypatch.setattr(uataq, "read_data", lambda site, **kw: {"gps": fixes})
     seen = {}
     monkeypatch.setattr(
-        uataq.sites.MobileSite,
-        "merge_gps",
-        staticmethod(lambda obs, g, on: seen.setdefault("gps", g)),
+        uataq.sites.MobileSite, "merge_gps", staticmethod(_record_gps(seen))
     )
     obs = pd.DataFrame({"Time_UTC": t, "CH4": 2.0})
     gps.merge_with_gps("trx01", "UATAQ", obs, routes=False, storage_polygon=False)
     assert len(seen["gps"]) == 5
+
+
+# --------------------------------------------------------------------------- repeated rows
+
+
+def _lin_fixes(*pi_times):
+    """Lin GPS fixes, one per GPS second from 11:59:59, logged at ``pi_times``."""
+    t = pd.date_range("2024-01-01 11:59:59", periods=len(pi_times), freq="s")
+    return _frame(
+        t,
+        Pi_Time=pd.to_datetime(list(pi_times)),
+        Latitude_deg=[40.70, 40.71, 40.72][: len(pi_times)],
+        Longitude_deg=-111.9,
+        Altitude_msl=1300.0,
+    )
+
+
+def _merge(monkeypatch, fixes, pi_times, ch4, cal_source="pipeline"):
+    monkeypatch.setattr(uataq, "read_data", lambda site, **kw: {"gps": fixes})
+    obs = pd.DataFrame(
+        {
+            "Time_UTC": pd.to_datetime(list(pi_times)),
+            "CH4_ppm": ch4,
+            "cal_source": cal_source,
+        }
+    )
+    return gps.merge_with_gps(
+        "trx01",
+        "UATAQ",
+        obs,
+        routes=False,
+        storage_polygon=False,
+        horel_fallback=False,
+    )
+
+
+def test_a_reading_located_by_two_fixes_in_one_second_comes_out_once(monkeypatch):
+    # two fixes logged in Pi second 12:00:00 (uataq#93): the reading would come out
+    # twice, at GPS 11:59:59 and 12:00:00; the first fix (also the nearest) is kept
+    fixes = _lin_fixes("2024-01-01 12:00:00.02", "2024-01-01 12:00:00.98")
+    out = _merge(monkeypatch, fixes, ["2024-01-01 12:00:00.10"], [1.985770])
+    assert len(out) == 1
+    assert out["Latitude_deg"].tolist() == [40.70]
+    assert out["Time_UTC"].tolist() == [pd.Timestamp("2024-01-01 11:59:59")]
+
+
+def test_equal_readings_in_consecutive_seconds_are_kept(monkeypatch):
+    # two readings 1 s apart with the same CH4: real readings, each with its own fix
+    fixes = _lin_fixes(
+        "2024-01-01 12:00:00.50", "2024-01-01 12:00:01.50", "2024-01-01 12:00:02.50"
+    )
+    pi = ["2024-01-01 12:00:00.60", "2024-01-01 12:00:01.60", "2024-01-01 12:00:02.60"]
+    out = _merge(monkeypatch, fixes, pi, [2.0, 2.0, 2.0])
+    assert len(out) == 3
+    assert out["Latitude_deg"].tolist() == [40.70, 40.71, 40.72]
+
+
+def test_a_repeated_value_later_on_is_kept(monkeypatch):
+    fixes = _lin_fixes(
+        "2024-01-01 12:00:00.50", "2024-01-01 12:00:01.50", "2024-01-01 12:00:02.50"
+    )
+    pi = ["2024-01-01 12:00:00.60", "2024-01-01 12:00:01.60", "2024-01-01 12:00:02.60"]
+    out = _merge(monkeypatch, fixes, pi, [2.0, 2.1, 2.0])
+    assert out["CH4_ppm"].tolist() == [2.0, 2.1, 2.0]
+
+
+def test_two_streams_with_one_value_in_one_second_are_both_kept(monkeypatch):
+    fixes = _lin_fixes("2024-01-01 12:00:00.50")
+    pi = ["2024-01-01 12:00:00.20", "2024-01-01 12:00:00.70"]
+    out = _merge(monkeypatch, fixes, pi, [2.0, 2.0], ["pipeline", "manual_cal"])
+    assert out["cal_source"].tolist() == ["pipeline", "manual_cal"]
