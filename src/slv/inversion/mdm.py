@@ -25,7 +25,7 @@ class ModelDataMismatchMixin:
 
     Multiplicative terms scale with the run's prior and flux Jacobian; per-obs terms
     with data-derived stds. Expects the host pipeline's ``get_prior``,
-    ``_get_flux_jacobian``, ``get_constant`` and ``obs_sites``.
+    ``_get_flux_jacobian``, ``_footprint_key``, ``get_constant`` and ``obs_sites``.
     """
 
     config: InversionConfig
@@ -112,7 +112,12 @@ class ModelDataMismatchMixin:
         )
         return s.reindex(key).fillna(0.0).to_numpy()
 
-    @fips_cache(CovarianceMatrix, "modeldata_mismatch")
+    # keyed on the footprints too: a multiplicative term scales with the Jacobian's rows
+    @fips_cache(
+        CovarianceMatrix,
+        "modeldata_mismatch",
+        key=lambda self, obs: self._footprint_key(obs),
+    )
     def get_modeldata_mismatch(self, obs: Vector) -> CovarianceMatrix:
         """
         Model-data mismatch covariance: the sum of ``config.mdm_components``.

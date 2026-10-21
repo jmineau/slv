@@ -45,6 +45,21 @@ def stilt_project_dir() -> Path:
     return Path(os.environ.get("SLV_STILT_DIR", DEFAULT_STILT_PROJECT))
 
 
+def _file_key(path: str | Path) -> str:
+    """
+    Cache fingerprint of a file: its resolved path, size and mtime.
+
+    Hashing the path alone would miss a file rebuilt in place and silently reuse the
+    components built from the old one; the size and mtime change whenever it is
+    rewritten. A file that does not exist gives ``"<path>|missing"``.
+    """
+    path = Path(path)
+    if not path.exists():
+        return f"{path}|missing"
+    st = path.stat()
+    return f"{path.resolve()}|{st.st_size}|{st.st_mtime_ns}"
+
+
 def _default_tiler() -> GoogleTiles:
     """
     Satellite tiles cached on disk: the default ``InversionConfig.tiler``.
@@ -580,11 +595,41 @@ class InversionConfig:
         """
         if self.mobile_obs is None:
             return None
-        path = Path(self.mobile_obs)
-        if not path.exists():
-            return f"{path}|missing"
-        st = path.stat()
-        return f"{path.resolve()}|{st.st_size}|{st.st_mtime_ns}"
+        return _file_key(self.mobile_obs)
+
+    @property
+    def background_kwargs_key(self) -> dict:
+        """
+        ``background_kwargs`` as the cache keys see it: a ``csv_path`` (the ``ct_stilt``
+        product) is replaced by its path plus size and mtime.
+
+        The background and the model-data mismatch key on this instead of
+        ``background_kwargs``, so a CT-STILT CSV rewritten at the same path (a new
+        CarbonTracker version, an extended record) rebuilds them rather than being read
+        stale.
+
+        See Also
+        --------
+        mobile_obs_key : the same fingerprint for ``mobile_obs``.
+
+        Examples
+        --------
+        >>> import tempfile
+        >>> from pathlib import Path
+        >>> csv = Path(tempfile.mkdtemp()) / "ct.csv"
+        >>> _ = csv.write_text("obs_time,ct_ch4_ppm")
+        >>> cfg = InversionConfig(
+        ...     background="ct_stilt", background_kwargs={"csv_path": csv}
+        ... )
+        >>> key = cfg.background_kwargs_key["csv_path"]
+        >>> _ = csv.write_text("obs_time,ct_ch4_ppm,uncertainty")  # rewritten in place
+        >>> cfg.background_kwargs_key["csv_path"] != key
+        True
+        """
+        kwargs = dict(self.background_kwargs)
+        if "csv_path" in kwargs:
+            kwargs["csv_path"] = _file_key(kwargs["csv_path"])
+        return kwargs
 
     @property
     def flux_time_bins(self):

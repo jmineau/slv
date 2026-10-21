@@ -268,7 +268,11 @@ class SLVMethaneInversion(
         )
         return ForwardOperator([flux_blk, bias_blk])
 
-    @fips_cache(ForwardOperator, "forward_operator")
+    @fips_cache(
+        ForwardOperator,
+        "forward_operator",
+        key=lambda self, obs: self._footprint_key(obs),
+    )
     def _get_flux_jacobian(self, obs: Vector) -> ForwardOperator:
         """
         The flux Jacobian from the PYSTILT footprints (cached as ``forward_operator``).
@@ -277,7 +281,8 @@ class SLVMethaneInversion(
         UOU and DAQ footprints live in the paper-1 project and the TRAX ones in their own.
         Each project contributes the rows for the obs it has footprints for, and the rows are
         stacked into one Jacobian. All projects are aggregated onto the same state grid and
-        flux time bins, so their columns line up.
+        flux time bins, so their columns line up. The cache key also sees the footprints
+        (``_footprint_key``), so simulations run since a Jacobian was cached rebuild it.
         """
         obs_locations = set(obs.index.get_level_values("obs_location"))
         parts: list[tuple[Path, MatrixBlock]] = []
@@ -296,12 +301,59 @@ class SLVMethaneInversion(
             stack_jacobians(parts, sparse=self.config.sparse_jacobian)
         )
 
+    def _footprint_key(self, obs: Vector) -> list[tuple[str | None, int]]:
+        """
+        What the Jacobian's cache key sees of the footprints: per project, the folder its
+        footprints are read from and how many of the selected receptors have one.
+
+        The count changes when simulations missing from a cached Jacobian are run; the
+        folder (``settings=<variant>-<hash>``, named by the transport, met and footprint
+        settings) changes when they are rerun with other settings, such as a new met crop.
+        A project with no matching simulation is left out.
+        """
+        obs_locations = set(obs.index.get_level_values("obs_location"))
+        key = []
+        for project in self.config.stilt_projects:
+            selected = self._select_simulations(project, obs_locations)
+            if selected is None:
+                continue
+            proj, sel, _ = selected
+            folder = proj.output.folder(
+                "footprints", proj.variants[sel["variant"].iloc[0]]
+            )
+            count = int(proj.status(sel)["footprint"].sum())
+            print(f"  {project.name}: {count} of {len(sel)} receptors have a footprint")
+            key.append((None if folder is None else folder.name, count))
+        return key
+
     def _project_jacobian(
         self, project: Path, obs_locations: set
     ) -> MatrixBlock | None:
         """
         One project's Jacobian rows for the obs in ``obs_locations``, or None if it has
         no simulation matching any of them.
+        """
+        selected = self._select_simulations(project, obs_locations)
+        if selected is None:
+            return None
+        proj, sel, location_mapper = selected
+        return project_jacobian(
+            proj,
+            sel,
+            self.config.state_grid,
+            self.config.flux_time_bins,
+            location_mapper=location_mapper,
+            workers=self.config.num_processes,
+            sparse=self.config.sparse_jacobian,
+        )
+
+    def _select_simulations(
+        self, project: Path, obs_locations: set
+    ) -> tuple[Any, pd.DataFrame, dict[str, str]] | None:
+        """
+        The project, its simulations for the obs in ``obs_locations`` (the variant, the
+        flux period, the ``subset_hours``) and the location mapper, or None if no
+        simulation matches.
         """
         import stilt
 
@@ -354,15 +406,7 @@ class SLVMethaneInversion(
         if sel.empty:
             print(f"  {project.name}: no simulations in the time range; skipped")
             return None
-        return project_jacobian(
-            proj,
-            sel,
-            self.config.state_grid,
-            bins,
-            location_mapper=location_mapper,
-            workers=self.config.num_processes,
-            sparse=self.config.sparse_jacobian,
-        )
+        return proj, sel, location_mapper
 
     def _resolve_variant(self, proj, project: Path) -> str:
         """

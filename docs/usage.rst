@@ -46,6 +46,11 @@ An :class:`~slv.inversion.config.InversionConfig` describes the run and
 background, prior, Jacobian from the PYSTILT footprints, covariances) and solves.
 Components are cached under ``cache`` keyed on the settings they depend on, so a
 second run that changes only, say, ``prior_base_std`` reuses the obs and the Jacobian.
+The keys also see the input files: the CT-STILT CSV (``background_kwargs``) and
+``mobile_obs`` by their size and modification time, and the STILT projects by how many
+of the selected receptors have a footprint and which settings folder they are read
+from. A CSV rewritten in place, or simulations run since the last run, rebuild what
+depends on them; a cache keyed by path alone could not see either.
 An obs the model cannot simulate is dropped before the solve, and the run prints how
 many: one with no background, and one whose receptor has no footprint (its STILT
 simulation was not run, or failed). A receptor whose footprint is empty, because its
