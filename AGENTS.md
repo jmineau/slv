@@ -309,9 +309,16 @@ the branch. Never edit gh-pages by hand.
   columns differ (stale caches after a grid change). Components other than
   the Jacobian also hash the *release* of lair / uataq (`COMPONENT_PACKAGES`,
   `_release`: an editable checkout's static pyproject version or latest git tag, else
-  the installed version) -- a release, not an edit, rebuilds obs/prior/MDM/constant. Caveats: (1) slv's *own* rev is deliberately
+  the installed version) -- a release, not an edit, rebuilds obs/prior/MDM/constant. Input files
+  are keyed by what is in them, never by path alone: `mobile_obs_key` and `background_kwargs_key`
+  (the CT-STILT `csv_path`) are path + size + mtime (`config._file_key`), and the Jacobian and
+  MDM pass `fips_cache(..., key=...)` the footprints they use (`_footprint_key`: per project, the
+  footprint settings folder and how many selected receptors have a footprint), so it lists the
+  project on every cached run. Caveats: (1) slv's *own* rev is deliberately
   not in the key, so when you change slv component-building logic
-  (obs/prior/mdm/constant) force a rebuild via `config.cache_overwrite`;
+  (obs/prior/mdm/constant) force a rebuild via `config.cache_overwrite`; a change to
+  what a component holds for the same config (a reader of old files would misread
+  them) bumps its number in `DEFAULT_COMPONENT_REVISIONS` instead, which re-keys it;
   (2) reinstall editable packages (`uv sync` / `pip install -e`) when you cut a
   version so `importlib.metadata` matches the source — this does not affect the
   cache key but keeps `pip show` and other version consumers honest.
@@ -466,7 +473,9 @@ results = run_sweep_job(sweep)
   `sites`; tower-only runs need no TRAX data.
 - `merge_with_gps` drops fixes outside `gps.ALTITUDE_RANGE_MSL` (1000-3500 m, room for
   canyon and mountain roads); it is on the `build_trax_obs` path, so changing it changes
-  `obs.parquet` on the next rebuild.
+  `obs.parquet` on the next rebuild. It also drops a row with the same values as an
+  earlier one in the same Pi second: the copy uataq's `merge_gps` makes of a reading when
+  two lin fixes share that second (see the code comment).
 - `GMLDiscrete` never downloads into lair's shared GML dir (`$LAIR_GML_DIR`;
   lair main dropped the built-in `lair.noaa.GML_DIR` and all its CHPC paths,
   see `LAIR_*` env vars): it reads

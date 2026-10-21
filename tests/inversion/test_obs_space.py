@@ -168,3 +168,67 @@ def test_aggregate_obs_space_averages_to_days():
     np.testing.assert_allclose(H.data.to_numpy().ravel(), [2.0, 7.0])
     np.testing.assert_allclose(np.diag(S.data.to_numpy()), [0.5, 1.0])  # var / n
     np.testing.assert_allclose(c.to_series(), [1.95, 2.1])
+
+
+def _hours_with_and_without_footprints(zero_row_hours=()):
+    """
+    Five hourly obs on one day, each 0.02 ppm above the background; the receptors of the
+    last two hours have no footprint (no Jacobian row). ``zero_row_hours`` get a row of
+    zeros instead of 0.5 (an empty footprint).
+    """
+    hours = pd.date_range("2020-01-05 19:00", periods=5, freq="h")
+    index = pd.MultiIndex.from_arrays(
+        [["wbb"] * 5, hours], names=["obs_location", "obs_time"]
+    )
+    cells = pd.MultiIndex.from_product(
+        [[-112.0, -111.9], [40.5], pd.DatetimeIndex(["2020-01-01"])],
+        names=["lon", "lat", "time"],
+    )
+    H = pd.DataFrame(np.full((5, 2), 0.5), index=index, columns=cells)
+    H.iloc[list(zero_row_hours)] = 0.0
+    obs = Vector(
+        name="obs",
+        data=Block(name="concentration", data=pd.Series(1.92, index=index)),
+    )
+    forward_operator = ForwardOperator(
+        MatrixBlock(H.drop(index=index[[3, 4]]), "concentration", "flux")
+    )
+    mdm = CovarianceMatrix(
+        MatrixBlock(
+            pd.DataFrame(np.eye(5) * 1e-4, index, index),
+            "concentration",
+            "concentration",
+        )
+    )
+    constant = Vector(
+        name="background",
+        data=Block(name="concentration", data=pd.Series(1.9, index=index)),
+    )
+    return obs, forward_operator, mdm, constant
+
+
+def test_aggregate_obs_space_drops_obs_whose_receptor_has_no_footprint(capsys):
+    p = pipeline(aggregate_obs="1D")
+    obs, H, S, c = p.aggregate_obs_space(*_hours_with_and_without_footprints())
+    assert "Dropping 2/5 obs whose receptor has no footprint" in capsys.readouterr().out
+    # the day is the mean of the three hours with a footprint, not diluted by two zero
+    # rows (which gave [0.3, 0.3] and a flux 5/3 too high)
+    np.testing.assert_allclose(H.data.to_numpy(), [[0.5, 0.5]])
+    np.testing.assert_allclose(obs.to_series() - c.to_series(), [0.02])
+    np.testing.assert_allclose(np.diag(S.data.to_numpy()), [1e-4 / 3])
+
+
+def test_aggregate_obs_space_keeps_obs_with_an_empty_footprint():
+    # an empty footprint is a real zero: its row is all zeros and its obs stays
+    p = pipeline(aggregate_obs="1D")
+    obs, H, S, c = p.aggregate_obs_space(
+        *_hours_with_and_without_footprints(zero_row_hours=[2])
+    )
+    np.testing.assert_allclose(H.data.to_numpy(), [[1 / 3, 1 / 3]])
+    np.testing.assert_allclose(np.diag(S.data.to_numpy()), [1e-4 / 3])
+
+
+def test_aggregate_obs_space_drops_no_footprint_obs_without_aggregation():
+    p = pipeline()  # aggregate_obs=False
+    obs, H, S, c = p.aggregate_obs_space(*_hours_with_and_without_footprints())
+    assert len(obs.to_series()) == 3
