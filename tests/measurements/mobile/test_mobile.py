@@ -278,6 +278,40 @@ def test_gps_numeric_coercion_handles_all_na_string_columns():
     assert np.isnan(out["Speed_m_s"].median())
 
 
+def test_gps_numeric_coercion_converts_any_dtype_as_going_through_object_did():
+    from slv.measurements.mobile.gps import _coerce_numeric
+
+    columns = {
+        "float64": pd.Series([1.5, np.nan, -0.0, 3.0, 1e300]),
+        "float32": pd.Series(np.array([1.5, np.nan, 0.1, 2.25, 3.0], dtype="float32")),
+        "int64": pd.Series([1, 2, 3, 2**62 + 1, -5]),
+        "uint8": pd.Series(np.array([1, 2, 3, 4, 255], dtype="uint8")),
+        "bool": pd.Series([True, False, True, True, False]),
+        "Float64": pd.Series([1.5, None, 3.0, 4.0, 5.0], dtype="Float64"),
+        "Int64": pd.Series([1, None, 3, 4, 5], dtype="Int64"),
+        "float64[pyarrow]": pd.Series(
+            [1.5, None, 3.0, 4.0, 5.0], dtype="float64[pyarrow]"
+        ),
+        "int64[pyarrow]": pd.Series([1, None, 3, 4, 5], dtype="int64[pyarrow]"),
+        "string": pd.Series(["1.5", "x", None, "-2", " 3"]),
+        "string[pyarrow]": pd.Series(
+            ["1.5", "x", None, "-2", "3e2"], dtype="string[pyarrow]"
+        ),
+        "object": pd.Series([1.5, "x", None, 2, True], dtype=object),
+        "all-NA string[pyarrow]": pd.Series([None] * 5, dtype="string[pyarrow]"),
+    }
+    names = list(columns)
+    df = pd.DataFrame(columns, index=pd.date_range("2024-01-01", periods=5, freq="s"))
+    out = _coerce_numeric(df.copy(), cols=names)
+    for c in names:
+        was = pd.to_numeric(df[c].astype(object), errors="coerce").to_numpy(
+            dtype=float, na_value=np.nan
+        )
+        assert out[c].dtype == np.float64, c
+        assert np.array_equal(out[c].to_numpy(), was, equal_nan=True), c
+        assert out.index.equals(df.index)
+
+
 # --------------------------------------------------------------------------- load / build
 
 

@@ -6,6 +6,12 @@ versions are calendar-based (YYYY.M.PATCH).
 
 ## [Unreleased]
 
+### Changed
+
+- Reading the lin and horel GPS converts the columns that are already numbers to float
+  directly instead of through `object` and back, which took 49 s of the 2024 chunk of
+  `build_trax_obs`; it is under 1 s now. The values are the same
+
 ### Fixed
 
 - The inversion cache sees what is in its input files, not only their paths. The

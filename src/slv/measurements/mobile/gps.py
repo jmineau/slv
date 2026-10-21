@@ -52,9 +52,12 @@ def _coerce_numeric(df: pd.DataFrame, cols=GPS_NUMERIC) -> pd.DataFrame:
     """Cast the listed columns (where present) to plain float64, NaN for anything unparsable."""
     for c in cols:
         if c in df.columns:
-            df[c] = pd.to_numeric(df[c].astype(object), errors="coerce").to_numpy(
-                dtype=float, na_value=np.nan
-            )
+            s = df[c]
+            if not pd.api.types.is_numeric_dtype(s):  # strings and objects: parse
+                s = pd.to_numeric(s.astype(object), errors="coerce")
+            # a numeric column converts as it is: through object and back it took a
+            # minute per year of GPS (40 M rows)
+            df[c] = s.to_numpy(dtype=float, na_value=np.nan)
     return df
 
 
