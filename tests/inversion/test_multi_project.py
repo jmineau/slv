@@ -207,6 +207,20 @@ class _FakeProject:
             for n, has in variants.items()
         }
 
+    #: receptors with a footprint (None: all), and the folder they are read from
+    footprints: set | None = None
+    folder = "settings=hrrr-93278c"
+
+    def status(self, sel):
+        have = (
+            True if self.footprints is None else sel["receptor"].isin(self.footprints)
+        )
+        return sel.assign(footprint=have)
+
+    @property
+    def output(self):
+        return SimpleNamespace(folder=lambda kind, variant: Path(self.folder))
+
     def jacobian(self, sel, target, time_bins, workers=None):
         from scipy import sparse
 
@@ -236,6 +250,7 @@ def _fake_stilt(monkeypatch, projects):
         return _FakeProject(path, locations, variants, when)
 
     monkeypatch.setattr(stilt, "Project", project)
+    monkeypatch.setattr(_FakeProject, "footprints", None)
     _FakeProject.calls = []
 
 
@@ -322,6 +337,90 @@ def test_project_jacobian_drops_sims_outside_the_window_or_hours(monkeypatch):
     monkeypatch.setattr(stilt, "Project", project)
     H = p._project_jacobian(Path("/prod"), {"wbb"})
     assert list(H.data.index) == [("wbb", good)]
+
+
+# --------------------------------------------------------------------------- footprint key
+
+
+def _key_pipeline(cache=False):
+    obj = object.__new__(SLVMethaneInversion)
+    obj.config = InversionConfig(
+        cache=cache,
+        stilt_project="/prod",
+        variant="hrrr",
+        location_site_map={"loc_a": "wbb", "loc_b": "wbb", "loc_c": "ldf"},
+    )
+    return obj
+
+
+def test_footprint_key_counts_the_selected_receptors_with_a_footprint(monkeypatch):
+    _fake_stilt(
+        monkeypatch, {Path("/prod"): (["loc_a", "loc_b", "loc_c"], {"hrrr": True})}
+    )
+    monkeypatch.setattr(_FakeProject, "footprints", {"r0", "r2"})
+    obs = _obs(["wbb"], TIMES[:1])
+    # r0 and r1 are wbb's receptors (r2 is ldf's, not selected); only r0 has a footprint
+    assert _key_pipeline()._footprint_key(obs) == [("settings=hrrr-93278c", 1)]
+
+
+def test_footprint_key_leaves_out_a_project_with_no_matching_sims(monkeypatch):
+    _fake_stilt(monkeypatch, {Path("/prod"): (["multi_cccccccccc"], {"hrrr": True})})
+    assert _key_pipeline()._footprint_key(_obs(["wbb"], TIMES[:1])) == []
+
+
+def test_jacobian_cache_key_follows_the_footprints(tmp_path, monkeypatch):
+    # issue #30: simulations run after a Jacobian was cached must rebuild it
+    _fake_stilt(monkeypatch, {Path("/prod"): (["loc_a", "loc_b"], {"hrrr": True})})
+    monkeypatch.setattr(_FakeProject, "footprints", {"r0"})
+    obs = _obs(["wbb"], TIMES[:1])
+
+    def files():
+        return sorted(tmp_path.glob(".fips/*/forward_operator/*.pkl"))
+
+    def build():
+        return _key_pipeline(cache=str(tmp_path))._get_flux_jacobian(obs)
+
+    build()
+    build()  # an unchanged project: the same key, read from the cache
+    assert len(files()) == 1
+    assert len(_FakeProject.calls) == 1
+
+    monkeypatch.setattr(_FakeProject, "footprints", {"r0", "r1"})  # one more footprint
+    build()
+    assert len(files()) == 2
+    assert len(_FakeProject.calls) == 2
+
+    # rerun with other settings (a new met crop): the same count, another folder
+    monkeypatch.setattr(_FakeProject, "folder", "settings=hrrr-0c1d2e")
+    build()
+    assert len(files()) == 3
+
+
+def test_mdm_cache_key_follows_the_footprints(tmp_path, monkeypatch):
+    # a multiplicative MDM term scales with the Jacobian's rows, so it keys on them too
+    from fips import Block, Vector
+
+    _fake_stilt(monkeypatch, {Path("/prod"): (["loc_a", "loc_b"], {"hrrr": True})})
+    monkeypatch.setattr(_FakeProject, "footprints", {"r0"})
+    obs = Vector(
+        name="obs", data=Block(_obs(["wbb", "wbb"], TIMES), name="concentration")
+    )
+
+    def build():
+        p = _key_pipeline(cache=str(tmp_path))
+        p._multiplicative_scale = lambda obs, scale_on: np.ones(len(obs.index))
+        p._per_obs_std = lambda obs, src: np.ones(len(obs.index))
+        return p.get_modeldata_mismatch(obs)
+
+    def files():
+        return sorted(tmp_path.glob(".fips/*/modeldata_mismatch/*.pkl"))
+
+    build()
+    build()
+    assert len(files()) == 1
+    monkeypatch.setattr(_FakeProject, "footprints", {"r0", "r1"})
+    build()
+    assert len(files()) == 2
 
 
 # --------------------------------------------------------------------------- project_jacobian

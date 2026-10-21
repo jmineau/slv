@@ -6,6 +6,17 @@ versions are calendar-based (YYYY.M.PATCH).
 
 ## [Unreleased]
 
+### Fixed
+
+- The inversion cache sees what is in its input files, not only their paths. The
+  CT-STILT background CSV is keyed by its size and modification time, as `mobile_obs`
+  already was, so a CSV rewritten in place rebuilds the background and the model-data
+  mismatch (`InversionConfig.background_kwargs_key`). The Jacobian and the model-data
+  mismatch are keyed on how many of the selected receptors have a footprint, and on the
+  footprints' settings folder, so simulations run since the Jacobian was cached (or
+  rerun on other met) rebuild it. Every cached Jacobian, background and model-data
+  mismatch rebuilds once on the next run (#30)
+
 ## [2026.10.1] - 2026-10-20
 
 ### Added

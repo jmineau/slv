@@ -309,7 +309,12 @@ the branch. Never edit gh-pages by hand.
   columns differ (stale caches after a grid change). Components other than
   the Jacobian also hash the *release* of lair / uataq (`COMPONENT_PACKAGES`,
   `_release`: an editable checkout's static pyproject version or latest git tag, else
-  the installed version) -- a release, not an edit, rebuilds obs/prior/MDM/constant. Caveats: (1) slv's *own* rev is deliberately
+  the installed version) -- a release, not an edit, rebuilds obs/prior/MDM/constant. Input files
+  are keyed by what is in them, never by path alone: `mobile_obs_key` and `background_kwargs_key`
+  (the CT-STILT `csv_path`) are path + size + mtime (`config._file_key`), and the Jacobian and
+  MDM pass `fips_cache(..., key=...)` the footprints they use (`_footprint_key`: per project, the
+  footprint settings folder and how many selected receptors have a footprint), so it lists the
+  project on every cached run. Caveats: (1) slv's *own* rev is deliberately
   not in the key, so when you change slv component-building logic
   (obs/prior/mdm/constant) force a rebuild via `config.cache_overwrite`; a change to
   what a component holds for the same config (a reader of old files would misread
