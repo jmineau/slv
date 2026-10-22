@@ -7,6 +7,7 @@ location filter.
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Literal
 
 import geopandas as gpd
 import numpy as np
@@ -54,6 +55,7 @@ def label_trax_location(
     site: str = "trx01",
     time_range=None,
     states: pd.DataFrame | None = None,
+    num_processes: int | Literal["max"] = 1,
 ) -> pd.DataFrame:
     """
     Add ``state``, ``indoor`` and ``yard_name`` to a georeferenced TRAX obs frame.
@@ -61,7 +63,10 @@ def label_trax_location(
     Uses :mod:`slv.measurements.mobile.location`: per-minute states from the best GPS
     source for the era (``states`` may be passed in to reuse a classification).
     Observations are matched on ``Time_UTC`` floored to the minute; minutes without a
-    classification come back ``unknown`` / NA.
+    classification come back ``unknown`` / NA. ``num_processes`` is the number of threads
+    that measure the GPS fixes' distance to the track and the yards
+    (:func:`~slv.measurements.mobile.location.location_features`); the labels are the
+    same for any number.
     """
     from slv.measurements.mobile.gps import read_trax_gps
     from slv.measurements.mobile.location import (
@@ -78,7 +83,7 @@ def label_trax_location(
         if len(gps) == 0:
             states = None
         else:
-            feat = location_features(gps, cr1000=gps)
+            feat = location_features(gps, cr1000=gps, num_processes=num_processes)
             states = classify_location(feat)
     out = obs.copy()
     if states is None or len(states) == 0:
@@ -513,7 +518,9 @@ def _build_chunk(
     )
     if classify:
         print(f"[{t0:%Y-%m-%d} -> {t1:%Y-%m-%d}] classifying location ...", flush=True)
-        data = label_trax_location(data, site=site, time_range=time_range)
+        data = label_trax_location(
+            data, site=site, time_range=time_range, num_processes=num_processes
+        )
     return data
 
 
@@ -549,6 +556,10 @@ def build_trax_obs(
     :func:`label_trax_location` (``state``, ``indoor``, ``yard_name``) so that the location
     filter is applied at load time (:func:`load_trax_obs`). Pass ``routes`` /
     ``storage_polygon`` in ``gps_kwargs`` to restore the old pre-filtering.
+
+    ``num_processes`` is the number of processes that read the pipeline files and, in
+    the location step, the number of threads that measure the GPS fixes' distance to the
+    track and the yards (:func:`label_trax_location`).
 
     The archive is processed in ``chunk``-sized pieces (pandas offset alias, default one
     year) so that only one chunk of full-width pipeline files is in memory at a time (the
