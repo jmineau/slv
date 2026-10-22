@@ -6,6 +6,14 @@ versions are calendar-based (YYYY.M.PATCH).
 
 ## [Unreleased]
 
+### Changed
+
+- `build_trax_obs` measures every GPS fix's distance to the track and the yards on
+  `num_processes` threads, not on one core. `location_features` and
+  `label_trax_location` take the same `num_processes` (default 1). The location step
+  of the 2024 chunk goes from 183 s to 65 s on 8 threads, and its build from 439 s to
+  315 s, with the same `obs.parquet`
+
 ### Fixed
 
 - The inversion cache sees what is in its input files, not only their paths. The

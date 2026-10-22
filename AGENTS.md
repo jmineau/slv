@@ -74,7 +74,10 @@ src/slv/
                      scatter > 1 m or <= 6 sats, 15-min vote) / yard / line
                      (pass-by within 300 m of a yard) / route / stopped / unknown
                      (no fix, > 100 m off track, shed ejecta); speed_est fallback
-                     for GPGGA-only eras; state_intervals, label_observations
+                     for GPGGA-only eras; state_intervals, label_observations;
+                     location_features(num_processes=) measures every fix's distance to the
+                     track and the yards on that many threads (shapely releases the GIL;
+                     build_trax_obs passes its own num_processes)
       calibration.py cal_source tags + trax_uncalibrated_windows.csv handling;
                      trax_epoch_offsets.csv (manual-cal era analyzer offsets vs UOU,
                      -0.002..-0.024 ppm): epoch_offset_column stores them per row,
