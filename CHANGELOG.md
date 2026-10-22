@@ -8,6 +8,9 @@ versions are calendar-based (YYYY.M.PATCH).
 
 ### Changed
 
+- Reading the lin and horel GPS converts the columns that are already numbers to float
+  directly instead of through `object` and back, which took 49 s of the 2024 chunk of
+  `build_trax_obs`; it is under 1 s now. The values are the same
 - `build_trax_obs` measures every GPS fix's distance to the track and the yards on
   `num_processes` threads, not on one core. `location_features` and
   `label_trax_location` take the same `num_processes` (default 1). The location step
