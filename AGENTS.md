@@ -16,7 +16,10 @@ plumbing that ties together `lair`, `uataq`, `fips`, and `pystilt` to support
 methane (and other trace gas) emission estimation in the SLV. Active research
 code; calendar-versioned (e.g. `2026.2.0`).
 
-PyPI/import name: `slv`. Source in `src/slv/`.
+PyPI/import name: `slv`. Source in `src/slv/`. Contribution mechanics are in
+[CONTRIBUTING.md](CONTRIBUTING.md); the longer developer notes (module layout, the
+inversion package and its cache, writing the docs, a note on the tests) are on the
+Contributing page, [docs/contributing.rst](docs/contributing.rst).
 
 ## What slv is
 
@@ -30,210 +33,13 @@ PyPI/import name: `slv`. Source in `src/slv/`.
 
 ## Module layout
 
-```
-src/slv/
-  __init__.py        version metadata + get_data_dir(env_var) helper
-  domain.py          SLV inversion domain constants (XMIN/XMAX/YMIN/YMAX,
-                     BBOX, EXTENT)
-  basemap.py         SaltLake — cartopy map of the valley; chainable add_* layers
-                     (population, trax, sites, mesowest, points, interstates, borders,
-                     inventory, legend, inset, north_arrow). Data via load_* functions
-                     ($SLV_SPATIAL_DIR group data; $SLV_USER_DATA_DIR census ACS 2022 +
-                     mesowest/); tiles="terrain" = Stadia stamen_terrain ($STADIA_API_KEY,
-                     network when drawn; attribution added). cached_tiler builds any
-                     cartopy tiler with a disk cache (see Gotchas). Tests:
-                     tests/test_basemap.py, synthetic data, no network.
-                     (tiler, inventory, borders, TRAX, sites, ...)
-  measurements/
-    __init__.py      re-exports aggregate_obs, load_concentrations,
-                     get_site_coordinates, load_site_config
-    aggregate.py     observation aggregation helpers
-    background.py    background concentration logic
-    concentrations.py  load measurement concentrations
-    instruments.py   site/instrument metadata
-    mobile/          TRAX / mobile platform subpackage (one concern per module; the
-                     package __init__ re-exports every public function and table, so
-                     `from slv.measurements.mobile import X` works for them; classifier
-                     thresholds and GPS constants stay in their modules)
-      network.py     TRAX lines/points, storage yards (JRRSC and MRSC both
-                     packaged), shed footprints, filter_near_routes (dissolved
-                     buffers - no duplicates on shared track), get_geodf, UTM12;
-                     group_dir()/user_dir() resolve the data roots on use (GROUP_DIR /
-                     USER_DIR via module __getattr__) -- keep slv importable without
-                     the CHPC env vars, CI relies on it
-      gps.py         thin uataq wrappers: read_lin_gps (lin gps qaqc; uataq names
-                     the sat count N_Satellites -> renamed N_Sat), read_horel_cr1000
-                     (horel gps+cr1000 at lvl="raw" = the h5 files; the horel
-                     qaqc/final CSVs lack NSAT/RSTS), read_trax_gps (by era: lin
-                     before 2018-11-19, horel after, fill_gaps=True fills horel
-                     outages from the lin GPS), merge_with_gps (horel_fallback:
-                     rows the lin GPS never covered are georeferenced from the horel
-                     logger where the Pi clock checks out -- lin_clock_offset_by_day /
-                     clock_checked_days / fill_gps_gaps_with_horel; gps_source tags each row)
-      location.py    per-minute indoor/outdoor classifier: depot (degraded GPS:
-                     scatter > 1 m or <= 6 sats, 15-min vote) / yard / line
-                     (pass-by within 300 m of a yard) / route / stopped / unknown
-                     (no fix, > 100 m off track, shed ejecta); speed_est fallback
-                     for GPGGA-only eras; state_intervals, label_observations;
-                     location_features(num_processes=) measures every fix's distance to the
-                     track and the yards on that many threads (shapely releases the GIL;
-                     build_trax_obs passes its own num_processes)
-      calibration.py cal_source tags + trax_uncalibrated_windows.csv handling;
-                     trax_epoch_offsets.csv (manual-cal era analyzer offsets vs UOU,
-                     -0.002..-0.024 ppm): epoch_offset_column stores them per row,
-                     apply_epoch_offset subtracts them (load_trax_obs(epoch_offset=False)
-                     to test without, no rebuild needed)
-      obs.py         build_trax_obs (per-year chunks; slope guard on calibrated rows; every GPS fix + cal_source + low_pressure + state/indoor/
-                     yard_name) / load_trax_obs(location="on_track"|"outdoor"|"all")
-                     cached at $SLV_USER_DATA_DIR/trax/obs.parquet; LOCATION_SETS.
-                     load_trax_obs filters on the rows first (cal_source, low_pressure,
-                     location), then applies the epoch offset and builds the points for the
-                     rows kept only: the whole record is 105 M rows, about half on track.
-                     2026-09-22 audit rules, all from _read_support (qaqc CH4/flag/
-                     cavity P read WITHOUT normalize_pollutant): apply_pressure_rule
-                     (flag -64 overwrites -63 in lgr_ugga_qaqc.r, so pressure is
-                     re-checked here; manual_cal rows exempt -- apply_low_pressure_rule
-                     owns them and sets the low_pressure tag from the measured pressure,
-                     never from flag -63 alone, for the same reason), apply_dropout_rule + dropout_times (+-8 min around any
-                     atmosphere row < 1.70 ppm: a laser dropout reads low for minutes to
-                     hours and its shoulder passes QC), recover_hot_rows (flag -64 rows
-                     have a fitted CH4d_m but a blanked CH4d_ppm_cal: qaqc value / slope)
-      transects.py   transect matrices obs[transect, point]: build_network_transects
-                     (one matrix over the 50-m network points for all lines: per-epoch
-                     inlet lag -> snap 60 m -> line by windowed vote among the point's
-                     own letters (assign_lines) -> transits per line via
-                     lair.transects.split_transits -> cell means with terminus dwells
-                     trimmed), build_trax_transects (one NetCDF per year under
-                     $SLV_USER_DATA_DIR/trax/transects/network/), load_network_transects;
-                     load_transects reads the archived per-line matrices (to 2023-04,
-                     provenance only). load_trax_obs(time_range=) reads one year of
-                     obs.parquet via a row-group filter; apply_epoch_offset computes the
-                     offset column when a parquet predates it
-      receptors.py   STILT receptors for paper 2: load_trax_network_points (the 50-m
-                     points from load_trax_points(50) — same points_along_line generator
-                     as the 2-km points, so shared track is one row of points — each
-                     tagged with its nearest 2-km segment; cached points_50m_network.geojson),
-                     load_trax_fixes (GPS columns of obs.parquet only), find_segment_crossings
-                     (runs of fixes on one segment, gap <= 10 min; `lines` = letters common
-                     to the points hit), release_points (segment points on the crossing's
-                     line — a junction segment holds several lines' arms), build_trax_receptors
-                     (one PYSTILT MultiPointReceptor per crossing at the median time;
-                     coverage measured along the route via s_<line>, duration filter),
-                     find_dwells / build_dwell_receptors (parked-train point receptors,
-                     r_idx dwell_<d>_<YYYYMMDDHH>, freq >= 1h) / label_dwell_site (yard),
-                     filter_receptor_hours (fixed UTC_OFFSET, standard-time hours).
-                     Driver: SLV/stilt/ops/build_trax_receptors.py
-      receptor_obs.py the CH4 observation for each TRAX receptor: trax_receptor_observations
-                     (mean CH4 over a crossing's pass / a dwell's hour, window shifted by the
-                     per-epoch inlet lag, keyed (obs_location, obs_time) via
-                     stilt.read_receptors so it matches the footprints exactly),
-                     inlet_lag_seconds. Driver: SLV/stilt/ops/build_trax_receptor_obs.py.
-                     Consumed by InversionConfig.mobile_obs -> get_slv_observations
-                     (load_mobile_obs); cache keys on mobile_obs_key (path+size+mtime).
-      wyoming.py     Wyoming mobile lab (Aeris + met readers, ratios, wind-barb map)
-      jrrsc.geojson, mrsc.geojson (yards), trax_depots.geojson (sheds),
-      trax_uncalibrated_windows.csv  packaged data; the yard polygons ship with
-                     the package so nothing but UTA_TRAX.geojson comes from group data
-    pollutants.py    pollutant metadata
-    sites.py         site_config loader; site_coordinates resolver
-    site_config.csv  packaged data
-  emissions/
-    __init__.py      re-exports plot_point_sources
-    point_sources.py  CH4 point source plotting
-    ch4_point_sources.csv  packaged data
-  meteorology/
-    __init__.py      (currently empty)
-    pcaps.py         SLV-specific PCAP wrappers
-  inversion/
-    __init__.py      re-exports InversionConfig, SLVMethaneInversion, Sweep,
-                     run_sweep_job, SweepResults
-    config.py        InversionConfig — pydantic-ish config for an inversion;
-                     DEFAULT_STILT_PROJECT + stilt_project_dir() ($SLV_STILT_DIR);
-                     state_grid (stilt Grid, domain snapped outward to whole cells) is
-                     the one definition of the flux cells, `grid` takes its axes
-    pipelines.py     SLVMethaneInversion — the pipeline proper: get_obs / get_prior /
-                     get_forward_operator (+ cached _get_flux_jacobian) / get_prior_error /
-                     get_constant, state filtering, obs aggregation, run, obs_sites.
-                     Composed from the mixins below (MRO: Reporting, CoverageFilter, Bias,
-                     ModelDataMismatch, fips FluxInversionPipeline); every method keeps its
-                     name, so subclasses override as before. Re-exports the cache helpers.
-    cache.py         component cache: COMPONENT_DEPS sets, _component_hash, _pkg_rev /
-                     _version_tag, fips_cache
-    mdm.py           ModelDataMismatchMixin: get_modeldata_mismatch, multiplicative scale,
-                     per-obs (subhour) std
-    bias.py          BiasMixin: get_bias, get_bias_jacobian, get_site_group
-    coverage.py      check_state_cells; CoverageFilterMixin (Jacobian coverage filter,
-                     reconstruct_posterior)
-    report.py        ReportingMixin: domain totals, summarize, desroziers, plot_*
-    priors.py        prior flux construction
-    covariances.py   covariance construction (kernels, scaling)
-    data.py          inversion-time data loading
-    background.py    inversion background model
-    viz.py           inversion-specific plotting
-    sweep.py         Sweep / run_sweep_job / SweepResults — hyperparam sweeps
-  py.typed           ships type hints
-tests/               pytest
-docs/                Sphinx
-pixi.lock            the environment with xesmf, locked (`[tool.pixi]` in pyproject.toml)
-.claude/             local Claude Code settings (`settings.local.json`)
-```
-
-## Data files and env vars
-
-`slv.get_data_dir(env_var)` is the canonical way to resolve external data
-paths. Pattern:
-
-```python
-from slv import get_data_dir
-DAQ_DIR = get_data_dir("SLV_DAQ_DIR")
-```
-
-One exception: `InversionConfig.stilt_project` defaults to `SLV_STILT_DIR` if set,
-else `DEFAULT_STILT_PROJECT` (the CHPC paper-1 PYSTILT project), so the config
-stays usable without the env var.
-
-Raises `OSError` with a clear message if `env_var` is unset — don't paper
-over with `os.environ.get(...)`. Documented env vars belong in the README
-or here.
-
-Packaged CSV data (`site_config.csv`, `trax_uncalibrated_windows.csv`,
-`ch4_point_sources.csv`) ships via
-`[tool.setuptools.package-data]` in `pyproject.toml`. Don't move these
-without updating that.
-
-## Public API (effective)
-
-`slv.__init__` is intentionally small (just `get_data_dir` and version
-metadata). Subpackages are the API surface:
-
-```python
-from slv.domain import BBOX, EXTENT, XMIN, XMAX, YMIN, YMAX
-from slv.basemap import SaltLake
-from slv.measurements import aggregate_obs, load_concentrations, get_site_coordinates
-from slv.emissions import plot_point_sources
-from slv.inversion import (
-    InversionConfig, SLVMethaneInversion,
-    Sweep, run_sweep_job, SweepResults,
-)
-```
-
-## Install paths
-
-Two paths depending on `xesmf` (regridding) needs:
-
-```bash
-# Standard (uv) — what the user runs day-to-day
-uv sync                        # slv, the inversion extra (via the dev group), dev tools
-uv sync --no-dev               # slv alone; add --extra inversion for fips[flux] etc.
-
-# With xesmf (needs conda-built ESMF): pixi installs it beside everything else
-pixi install                   # .pixi/envs/default, from pixi.lock
-pixi run pytest                # or call .pixi/envs/default/bin/python
-```
-
-The `inversion` extra is what unlocks `slv.inversion` (it depends on
-`fips[flux]`, which in turn depends on `pystilt`). The base install is
-enough for `domain`, `basemap`, `measurements`, `emissions`.
+Subpackages: `domain`, `basemap`, `measurements` (`mobile/` holds the TRAX code),
+`emissions`, `meteorology`, `inversion`. `slv.__init__` is intentionally small (just
+`get_data_dir` and version metadata); the subpackages are the API surface. The
+module-by-module tour is in `docs/contributing.rst` ("Module layout", "The inversion
+package"). Packaged data files (CSVs, GeoJSON) ship via
+`[tool.setuptools.package-data]` in `pyproject.toml`: don't move them without updating
+that.
 
 ## Dev commands
 
@@ -252,80 +58,54 @@ Driven by `just` + `uv`; CI runs the same recipes (`just` lists them all).
 | `just changelog` / `just release X` | draft CHANGELOG entries / tag and push a release |
 | `just clean` | wipe build artifacts, caches, coverage, docs |
 
-CI (`.github/workflows/`): `tests.yml`, `quality.yml` and `docs.yml` install
-`uv.lock` and run the recipes above, on Linux and Python 3.11 to 3.14; `publish.yml`
-makes the GitHub Release from a tag (Zenodo archives it). xesmf is not in `uv.lock`
-(conda-forge only), so there the tests that need it skip; the Tests workflow's
-`pixi` job runs the whole suite in the pixi environment (`[tool.pixi]` in
-`pyproject.toml`, locked in `pixi.lock`): conda-forge supplies ESMF and xesmf, and
-everything else comes from the dependencies in `pyproject.toml`, so nothing is listed
-twice. After changing a dependency, run `pixi lock` as well as `uv lock`; the job
-fails on a `pixi.lock` that is out of date. Dependabot updates `uv.lock` only, so
-`pixi-update.yml` runs `pixi update` monthly (and on demand from the Actions tab) and
-opens one pull request, branch `chore/pixi-update`, when `pixi.lock` changes. A pull
-request opened with the workflow's own token starts no CI, so the workflow dispatches
-Tests on that branch; it needs the repository setting "Allow GitHub Actions to create
-and approve pull requests". No CHPC data roots are
-set in CI: tests must not read group data. Warnings are errors in the tests; a test
-that expects one asserts it with `pytest.warns`, and a third-party one is ignored by
-message in `[tool.pytest]`. pyrefly fails on any error not in `pyrefly-baseline.json`
-(the 2026-10 errors, nearly all pandas-stubs noise; fix them over time and
-`--update-baseline`). The tooling comes from
-[jmineau/python-template](https://github.com/jmineau/python-template)
-(`.copier-answers.yml`); `copier update` pulls in its changes. Numpy docstring
-sections must be ones napoleon knows (an unknown header such as "Cache layout" is
-read as more parameters).
+What each CI workflow does, the pixi job and the monthly `pixi update` are in
+[CONTRIBUTING.md](CONTRIBUTING.md) ("Continuous integration"). What keeps CI green:
 
-The API reference has a page for each class, with tables of its attributes and
-methods, and a page for each member; a subclass lists what it defines and links
-to what it inherits (`docs/_templates/autosummary/` and `docs/_ext/api_pages.py`,
-from python-template). The extension also drops from a class docstring the
-`Methods` section and the `Attributes` entries that the tables list. A property
-or attribute's page is where its See Also and Examples go, as in pandas: give each
-public one a docstring that says what it is, and add See Also or Examples where
-they help. One with no docstring shows an empty row.
-The docs are versioned on GitHub Pages, which serves the gh-pages branch (`dev/`,
-one folder per release, `stable/`); `.github/scripts/docs_versions.py` maintains
-the branch. Never edit gh-pages by hand.
+- **After changing a dependency, run `pixi lock` as well as `uv lock`**: the pixi job
+  fails on a `pixi.lock` that is out of date. xesmf is not in `uv.lock` (conda-forge
+  only), so there the tests that need it skip; the `inversion` extra keeps
+  `# "xesmf"` commented out on purpose.
+- **No CHPC data roots are set in CI**: tests must not read group data.
+- **Warnings are errors in the tests**; a test that expects one asserts it with
+  `pytest.warns`, and a third-party one is ignored by message in `[tool.pytest]`.
+- **pyrefly fails on any error not in `pyrefly-baseline.json`**: fix them over time and
+  `--update-baseline`.
+- **The tooling comes from**
+  [jmineau/python-template](https://github.com/jmineau/python-template)
+  (`.copier-answers.yml`); `copier update` pulls in its changes.
+- **Numpy docstring sections must be ones napoleon knows**: an unknown header such as
+  "Cache layout" is read as more parameters.
+- **Give each public class attribute and property a docstring that says what it is**
+  (and See Also or Examples where they help, as in pandas): it has its own API page,
+  and one with no docstring shows an empty row (`docs/contributing.rst`, "Writing the
+  docs", says how the pages are generated).
+- **Never edit the `gh-pages` branch by hand**: `.github/scripts/docs_versions.py`
+  maintains it.
 
 ## Invariants to respect
 
 - **Domain constants live in one place** (`slv.domain`). Don't hardcode
   `XMIN`/`XMAX`/`YMIN`/`YMAX` elsewhere; import from `slv.domain`.
-- **Data paths via `get_data_dir`**, not raw `os.environ.get`. The
-  error message tells users which env var to set.
+- **Data paths via `get_data_dir`** (`get_data_dir("SLV_DAQ_DIR")`), not raw
+  `os.environ.get`. It raises `OSError` (not `KeyError`, on purpose) naming the env
+  var to set, so don't paper over it. The one exception is
+  `InversionConfig.stilt_project`, which defaults to `SLV_STILT_DIR` if set, else
+  `DEFAULT_STILT_PROJECT`, so the config stays usable without the env var. Env vars
+  are documented on the docs' installation page ("Data locations").
 - **Upstream pins**: `lair` and `uataq` are pinned to release tags (`@vYYYY.MM.PATCH`
   and `@vYYYY.M.PATCH`, in `pyproject.toml`; bump them and relock with `uv lock` and
   `pixi lock`). Bumping behavior in those repos can
-  silently change `slv` results — coordinate changes. `load_epa_prior` reads EPA's
-  express product either way (`EPAv2(express=True, scale_by_month=not express)`), so the
-  monthly default and paper 1's annual `express=True` hold the same emissions (27 sectors
-  incl. post-meter, 2012-2020); it relies on lair >= v2026.12.6 holding sectors without
-  monthly scale factors at their annual rate.
+  silently change `slv` results — coordinate changes.
 - **Inversion pipeline structure** mirrors `fips.InversionPipeline`'s
   template-method pattern. New inversion variants should subclass
   `SLVMethaneInversion` (or `fips.InversionPipeline`), not rewrite the
   loop.
 - **Packaged CSVs are part of the API contract.** Schema changes break
   downstream notebooks.
-- **Inversion cache keying** (`inversion/cache.py`): `@fips_cache` writes to
-  `{cache_dir}/.fips/{version_tag}/{component}/{hash}.pkl`, where `version_tag` is
-  the `git describe` rev of the editable fips/pystilt checkouts (`_version_tag` /
-  `_pkg_rev`) — so committing or editing those packages busts the cache
-  automatically, no reinstall needed. A copy under `site-packages` (the uv `.venv`,
-  which sits inside the slv repo, or the pixi env) uses its metadata version instead,
-  written as the release's tag (`v0.1.0b9`): `git describe` there would answer with
-  slv's rev, and a release names the same folder installed or checked out.
-  `get_inputs` raises when the prior's cells and the Jacobian's
-  columns differ (stale caches after a grid change). Components other than
-  the Jacobian also hash the *release* of lair / uataq (`COMPONENT_PACKAGES`,
-  `_release`: an editable checkout's static pyproject version or latest git tag, else
-  the installed version) -- a release, not an edit, rebuilds obs/prior/MDM/constant. Input files
-  are keyed by what is in them, never by path alone: `mobile_obs_key` and `background_kwargs_key`
-  (the CT-STILT `csv_path`) are path + size + mtime (`config._file_key`), and the Jacobian and
-  MDM pass `fips_cache(..., key=...)` the footprints they use (`_footprint_key`: per project, the
-  footprint settings folder and how many selected receptors have a footprint), so it lists the
-  project on every cached run. Caveats: (1) slv's *own* rev is deliberately
+- **Inversion cache keying** (`inversion/cache.py`; how the folder, version tag,
+  release hashes and input-file keys work: `docs/contributing.rst`, "The component
+  cache"). Input files are keyed by what is in them, never by path alone. Caveats:
+  (1) slv's *own* rev is deliberately
   not in the key, so when you change slv component-building logic
   (obs/prior/mdm/constant) force a rebuild via `config.cache_overwrite`; a change to
   what a component holds for the same config (a reader of old files would misread
@@ -337,46 +117,13 @@ the branch. Never edit gh-pages by hand.
 ## Examples in the docs
 
 Examples run when the docs build, so they show real output, and the build fails
-when one breaks.
+when one breaks. A figure in a docstring is a `.. plot::` directive in its Examples
+section; code in an `.rst` page is a `.. ipython:: python` block (a worked example of
+each, the `@savefig`, `:okexcept:` and `:okwarning:` options, and the notebook switch:
+`docs/contributing.rst`, "Writing the docs"). All `.rst` pages share one session, so
+each page imports and defines what it uses. `just build-docs` runs everything, as CI
+does.
 
-- **A figure in a docstring:** put a `.. plot::` directive in the Examples
-  section. Its code runs (doctest `>>>` lines work), and the figure appears
-  under it.
-
-  ```rst
-  Examples
-  --------
-  .. plot::
-
-     >>> import matplotlib.pyplot as plt
-     >>> _ = plt.plot([0, 1, 2], [0, 1, 4])
-  ```
-
-- **Code in an `.rst` page:** a `.. ipython:: python` block runs, and shows each
-  line with its output, as in an IPython session. Changing a
-  `.. code-block:: python` to `.. ipython:: python` is enough to make it run. For
-  a figure, put `@savefig name.png` on the line above the plotting call.
-
-  ```rst
-  .. ipython:: python
-
-     import matplotlib.pyplot as plt
-     import slv
-
-     slv.__version__
-
-     @savefig squares.png width=5in
-     plt.plot([0, 1, 2], [0, 1, 4]);
-  ```
-
-  A block that raises or warns fails the build; `:okexcept:` or `:okwarning:`
-  under the directive allows one that is meant to. All `.rst` pages share one
-  session, so each page imports and defines what it uses.
-- **When they run:** `just build-docs` runs everything, as CI does;
-  `just docs-serve` reruns a page's blocks whenever that page is rebuilt.
-- **Notebooks, and code cells in Markdown pages,** are off in this project.
-  `copier update --data docs_notebooks=true` turns them on; it adds myst-nb, and
-  Jupyter with it, to the dev tools.
 - **Data:** the docs build on GitHub Actions, so an example uses synthetic data,
   a small file in the repository, or a public download, never a machine-specific
   path. Seed random numbers so the figures don't change from build to build.
@@ -388,78 +135,28 @@ when one breaks.
 ## Conventions and tooling
 
 - **Python**: 3.11+ (`requires-python`, which ruff also reads; pandas 3 and current xarray need 3.11).
-- **Linting**: ruff selects `E, F, UP, B, SIM, I, D, D213, NPY, RUF100` and ignores
-  `E501`, over `src/` and `tests/`. pydocstyle uses the NumPy convention, with the
-  summary on the line after the opening quotes (D213). slv's summaries may be noun
-  phrases ("The directory a package is imported from") spanning several lines, so
-  D401 and D205 are off.
+- **Linting and docstrings**: ruff, with the NumPy convention and the summary on the
+  line after the opening quotes (D213); the rules, and why D401 and D205 are off,
+  are in `pyproject.toml`.
 - **Types**: pyrefly (default preset) on `src/`, with a baseline of the errors it
   found on adoption; a new error fails. Suppress one only with
   `# pyrefly: ignore[<code>]` on the line above, after a comment saying why.
   `py.typed` shipped.
-- **Coverage**: `tests/` only; standard `coverage.exclude_also` patterns.
-- **Dev group**: brings in `slv[inversion]`, ipykernel, ruff, pyrefly,
-  pytest, sphinx, pre-commit.
-
-## Common workflows
-
-### Standard SLV figure
-```python
-from slv.basemap import SaltLake
-m = (SaltLake(tiles="terrain")            # Stadia stamen_terrain; None = no tiles
-     .add_population()                    # block-group density + colorbar panel
-     .add_trax(lines="RG")
-     .add_sites(["wbb", "ldf", "hdp"], labels={"wbb": "UOU"},
-                label_offset={"ldf": (-45, 12)})
-     .add_mesowest()
-     .add_legend().add_inset().add_north_arrow())
-m.fig.savefig("slv.png", dpi=300)
-```
-
-### Methane inversion
-```python
-from slv.inversion import SLVMethaneInversion, InversionConfig
-cfg = InversionConfig(...)
-inv = SLVMethaneInversion(cfg)
-result = inv.run()    # internally drives fips.InverseProblem.solve()
-```
-
-### Hyperparameter sweep
-```python
-from slv.inversion import Sweep, run_sweep_job
-sweep = Sweep(...)
-results = run_sweep_job(sweep)
-```
 
 ## Gotchas
 
-- `slv.meteorology.__init__` is currently empty — submodules
-  (`pcaps`) must be imported explicitly (`from slv.meteorology import pcaps`).
-- The `inversion` extra has `# "xesmf"` commented out — installing
-  `xesmf` is intentionally out of `pip`'s scope here.
-- `get_data_dir` raises `OSError` rather than `KeyError` (intentional;
-  matches the user's expectation for "missing config file" semantics).
 - `basemap.SaltLake` mutates a matplotlib figure with cartopy axes;
   it is not thread-safe.
 - Mobile (TRAX) obs are keyed by PYSTILT location_id, not site. Anything keyed by
   site must resolve through `SLVMethaneInversion.obs_sites` (receptor -> the single
-  mobile site in `config.sites`) -- the MDM and the bias Jacobian do. The rolling
-  background uses stationary sites only (`split_sites`; override with
-  `background_kwargs={"background_sites": [...]}`) and each obs takes its hour's
-  value; `get_slv_subhour_std` skips mobile sites.
-- `get_forward_operator` is a thin wrapper: `_get_flux_jacobian` is the cached
-  (`forward_operator`) flux Jacobian; the bias block is rebuilt every run. `get_prior`
-  memoizes `_build_prior` per pipeline; `_multiplicative_scale` reuses both.
-- `InversionConfig.__post_init__` validates flux_freq / bias_grouping / background /
-  prior / mdm_config / domain; setting any field drops the cached derived values.
-- cartopy's cached tilers (`GoogleTiles(cache=True)`) make their cache folder with a
-  plain `mkdir` when they are built, so when two processes build one at the same
-  moment (test workers, sweep jobs on one node) one of them raises `FileExistsError`.
-  Build a cached tiler with `basemap.cached_tiler(GoogleTiles, style=...)`, never with
-  `cache=True`: it tries a second time, and the folder exists by then. `stadia_tiles`
-  and `InversionConfig`'s default `tiler` (`config._default_tiler`) both use it. It is
-  in `slv.basemap`, which the base install has and which imports nothing from
-  `slv.inversion`.
+  mobile site in `config.sites`) -- the MDM and the bias Jacobian do (the rolling
+  background and the subhour std use stationary sites only; see `docs/contributing.rst`,
+  "Notes on the pipeline").
+- Build a cached cartopy tiler with `basemap.cached_tiler(GoogleTiles, style=...)`,
+  never with `cache=True`: two processes building one at the same moment (test workers,
+  sweep jobs on one node) can fail with `FileExistsError` (the docstring says why).
+  `stadia_tiles` and `InversionConfig`'s default `tiler` both use it. It stays in
+  `slv.basemap`, which the base install has and which imports nothing from `slv.inversion`.
 - Never change a config field's default spelling (e.g. `"32d"`) or a
   `COMPONENT_DEPS` set casually: both are hashed into cache keys (a forward_operator
   key change means a full Jacobian rebuild) and sweep config_ids. Normalize at the
@@ -469,37 +166,15 @@ results = run_sweep_job(sweep)
   of scanning the paper-1 project. Pipeline methods are tested on
   `object.__new__(SLVMethaneInversion)` with only `config` set (no fips `__init__`, no
   data); viz tests stub `GeoAxes.add_image` so no tiles are fetched; the TRAX loaders run
-  on a synthetic two-line network (`tests/measurements/mobile/test_network.py`). Tests
-  needing xesmf (lair cell areas) `importorskip` it: they run in the pixi env / CI only.
-  The pixi env pins the no-MPI ESMF build (`build = "nompi*"`): with the MPICH build,
-  the MPI start-up on `import xesmf` sometimes killed the whole pytest process (exit 143, no
-  traceback), about half the runs until 2026-10-05.
-  Measure coverage with `--cov=slv`: `--cov=slv.inversion.viz` imports numpy twice and
-  fails collection.
+  on a synthetic two-line network (`tests/measurements/mobile/test_network.py`); tests of
+  `GMLDiscrete` stub `noaa.GMLData.download`. Tests needing xesmf (lair cell areas)
+  `importorskip` it: they run in the pixi env / CI only. A test that looks for fips cache
+  files builds the path the way the cache does (`_version_tag()`). Measure coverage with
+  `--cov=slv`: `--cov=slv.inversion.viz` imports numpy twice and fails collection. Why the
+  pixi env pins the no-MPI ESMF build: `docs/contributing.rst`, "Notes on the tests".
 - fips `Block` squeezes its data, so a one-element Series becomes a scalar and fails
   validation ("All levels in the row index of Block must be named"). Build test
   vectors with at least two entries; a real one-interval bias block would hit it too
-  (fips bug, not fixed there yet).
-- `get_slv_observations` loads the TRAX route points only when a mobile site is in
-  `sites`; tower-only runs need no TRAX data.
-- `merge_with_gps` drops fixes outside `gps.ALTITUDE_RANGE_MSL` (1000-3500 m, room for
-  canyon and mountain roads); it is on the `build_trax_obs` path, so changing it changes
-  `obs.parquet` on the next rebuild. It also drops a row with the same values as an
-  earlier one in the same Pi second: the copy uataq's `merge_gps` makes of a reading when
-  two lin fixes share that second (see the code comment).
-- `GMLDiscrete` never downloads into lair's shared GML dir (`$LAIR_GML_DIR`;
-  lair main dropped the built-in `lair.noaa.GML_DIR` and all its CHPC paths,
-  see `LAIR_*` env vars): it reads
-  `$SLV_USER_DATA_DIR/gml`, then the group copy, then downloads into the user cache.
-  Tests stub `noaa.GMLData.download`.
-- `InversionConfig.mdm_config` keys must be names in `DEFAULT_MDM_CONFIG`
-  (part, instr, aggr, subhour, bg, transport); `get_mdm_comp_configs` raises on
-  anything else. Retired keys (`transport_pbl`, `transport_wind`) used to be
-  ignored silently, leaving the MDM cache hash unchanged.
-- fips-managed cache files live under `<cache>/.fips/<fips+pystilt version
-  tag>/<component>/<hash>.pkl` (`_version_tag()`); tests that look for cache
-  files must build the path the same way.
-- uataq names the GPS satellite count `N_Satellites`; the horel `qaqc`/`final`
-  CSVs lack it (and RMC status) but `lvl="raw"` (the h5 files) has both. The
-  pilot-era horel logger (to 2018-11-19) is 1-min and unusable for the
-  location classifier -- `read_trax_gps` switches sources by era.
+  (fixed on fips's main, not in the release locked here).
+- `merge_with_gps` is on the `build_trax_obs` path, so changing what it drops (the
+  altitude range, a repeated reading) changes `obs.parquet` on the next rebuild.
