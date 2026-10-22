@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
 
-    <script src="../_static/documentation_options.js?v=9ec62a31"></script>
+    <script src="../_static/documentation_options.js?v=d656ca6c"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -60,7 +60,7 @@
     <link rel="prev" title="slv.measurements.mobile.location.label_observations" href="slv.measurements.mobile.location.label_observations.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.10.2.dev5+g92439aed1" />
+  <meta name="docsearch:version" content="2026.10.2.dev6+g116fcca83" />
   
     
     <script src="../_static/searchtools.js"></script>
@@ -670,7 +670,7 @@
 <h1>slv.measurements.mobile.location.location_features<a class="headerlink" href="#slv-measurements-mobile-location-location-features" title="Link to this heading">#</a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="slv.measurements.mobile.location.location_features">
-<span class="sig-prename descclassname"><span class="pre">slv.measurements.mobile.location.</span></span><span class="sig-name descname"><span class="pre">location_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cr1000</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">freq</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'1min'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">storage_polygons</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/slv/measurements/mobile/location.html#location_features"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#slv.measurements.mobile.location.location_features" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">slv.measurements.mobile.location.</span></span><span class="sig-name descname"><span class="pre">location_features</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gps</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cr1000</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">freq</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'1min'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">storage_polygons</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_processes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/slv/measurements/mobile/location.html#location_features"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#slv.measurements.mobile.location.location_features" title="Link to this definition">#</a></dt>
 <dd><p>Per-<code class="docutils literal notranslate"><span class="pre">freq</span></code> GPS features that the classifier needs (plus power, if available).</p>
 <p>Columns: <code class="docutils literal notranslate"><span class="pre">n_gps</span></code>, <code class="docutils literal notranslate"><span class="pre">x</span></code>/<code class="docutils literal notranslate"><span class="pre">y</span></code> (UTM median), <code class="docutils literal notranslate"><span class="pre">scatter</span></code> (max of x/y std, m),
 <code class="docutils literal notranslate"><span class="pre">speed</span></code> (median m/s), <code class="docutils literal notranslate"><span class="pre">speed_max</span></code>, <code class="docutils literal notranslate"><span class="pre">speed_est</span></code> (position-derived, see
@@ -681,10 +681,13 @@
 inside a <code class="xref py py-func docutils literal notranslate"><span class="pre">load_depot_footprint()</span></code> shed), <code class="docutils literal notranslate"><span class="pre">nsat</span></code> (median, if present), and
 from <code class="docutils literal notranslate"><span class="pre">cr1000</span></code>: <code class="docutils literal notranslate"><span class="pre">volt</span></code> (median), <code class="docutils literal notranslate"><span class="pre">volt_min</span></code>, <code class="docutils literal notranslate"><span class="pre">amb_T</span></code>, <code class="docutils literal notranslate"><span class="pre">amb_RH</span></code>.
 <code class="docutils literal notranslate"><span class="pre">storage_polygons</span></code> defaults to <code class="xref py py-func docutils literal notranslate"><span class="pre">load_storage_polygons()</span></code> (all yards); pass a
-frame with a <code class="docutils literal notranslate"><span class="pre">name</span></code> column to restrict or replace them.</p>
+frame with a <code class="docutils literal notranslate"><span class="pre">name</span></code> column to restrict or replace them. <code class="docutils literal notranslate"><span class="pre">num_processes</span></code> threads
+measure the distance of every fix to the track and to the yards (the slow part of
+a year of fixes; the result is the same for any number; <code class="docutils literal notranslate"><span class="pre">&quot;max&quot;</span></code> is every CPU the
+job was given).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.6)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a></span></p>
+<dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a></span></p>
 </dd>
 </dl>
 </dd></dl>

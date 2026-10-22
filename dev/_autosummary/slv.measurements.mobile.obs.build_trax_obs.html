@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
 
-    <script src="../_static/documentation_options.js?v=9ec62a31"></script>
+    <script src="../_static/documentation_options.js?v=d656ca6c"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -60,7 +60,7 @@
     <link rel="prev" title="slv.measurements.mobile.obs.apply_slope_guard" href="slv.measurements.mobile.obs.apply_slope_guard.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.10.2.dev5+g92439aed1" />
+  <meta name="docsearch:version" content="2026.10.2.dev6+g116fcca83" />
   
     
     <script src="../_static/searchtools.js"></script>
@@ -687,6 +687,9 @@ no storage-yard removal) and, with <code class="docutils literal notranslate"><s
 <a class="reference internal" href="slv.measurements.mobile.obs.label_trax_location.html#slv.measurements.mobile.obs.label_trax_location" title="slv.measurements.mobile.obs.label_trax_location"><code class="xref py py-func docutils literal notranslate"><span class="pre">label_trax_location()</span></code></a> (<code class="docutils literal notranslate"><span class="pre">state</span></code>, <code class="docutils literal notranslate"><span class="pre">indoor</span></code>, <code class="docutils literal notranslate"><span class="pre">yard_name</span></code>) so that the location
 filter is applied at load time (<a class="reference internal" href="slv.measurements.mobile.obs.load_trax_obs.html#slv.measurements.mobile.obs.load_trax_obs" title="slv.measurements.mobile.obs.load_trax_obs"><code class="xref py py-func docutils literal notranslate"><span class="pre">load_trax_obs()</span></code></a>). Pass <code class="docutils literal notranslate"><span class="pre">routes</span></code> /
 <code class="docutils literal notranslate"><span class="pre">storage_polygon</span></code> in <code class="docutils literal notranslate"><span class="pre">gps_kwargs</span></code> to restore the old pre-filtering.</p>
+<p><code class="docutils literal notranslate"><span class="pre">num_processes</span></code> is the number of processes that read the pipeline files and, in
+the location step, the number of threads that measure the GPS fixes’ distance to the
+track and the yards (<a class="reference internal" href="slv.measurements.mobile.obs.label_trax_location.html#slv.measurements.mobile.obs.label_trax_location" title="slv.measurements.mobile.obs.label_trax_location"><code class="xref py py-func docutils literal notranslate"><span class="pre">label_trax_location()</span></code></a>).</p>
 <p>The archive is processed in <code class="docutils literal notranslate"><span class="pre">chunk</span></code>-sized pieces (pandas offset alias, default one
 year) so that only one chunk of full-width pipeline files is in memory at a time (the
 whole-archive read peaked at 250 GB). Still heavy — run on a compute node.</p>
