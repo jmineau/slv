@@ -139,15 +139,13 @@ def test_speed_est_fallback_when_no_speed_recorded():
     assert (classify_location(f, smooth_min=1).state == "yard").all()
 
 
-def test_location_features_without_speed_column(monkeypatch):
+def _use_stand_in_track(monkeypatch):
+    """A track through the test fixes, instead of UTA_TRAX.geojson from group data."""
     import geopandas as gpd
     from shapely import LineString
 
     import slv.measurements.mobile.location as location
-    from slv.measurements.mobile.location import location_features
 
-    # A stand-in track through the fixes, instead of UTA_TRAX.geojson from group data
-    # (the yard polygons are packaged).
     track = gpd.GeoDataFrame(
         geometry=[LineString([(-111.921, 40.7234), (-111.917, 40.7237)])],
         crs="EPSG:4326",
@@ -155,6 +153,13 @@ def test_location_features_without_speed_column(monkeypatch):
     monkeypatch.setattr(
         location, "load_trax_lines", lambda meters=False: track.to_crs("EPSG:32612")
     )
+
+
+def test_location_features_without_speed_column(monkeypatch):
+    from slv.measurements.mobile.location import location_features
+
+    # A stand-in track through the fixes (the yard polygons are packaged).
+    _use_stand_in_track(monkeypatch)
 
     idx = pd.date_range("2025-03-01", periods=180, freq="1s")
     gps = pd.DataFrame(
@@ -168,6 +173,53 @@ def test_location_features_without_speed_column(monkeypatch):
     assert f.yard_name.tolist() == ["JRRSC"] * 3
     assert len(f) == 3 and f.speed_max.isna().all() and f.speed_est.notna().sum() == 1
     assert f.speed_est.dropna().iloc[0] > 0.5
+
+
+def test_distance_over_threads_is_the_serial_distance():
+    import geopandas as gpd
+    import shapely
+
+    from slv.measurements.mobile.location import _distance
+
+    rng = np.random.default_rng(0)
+    pts = gpd.GeoSeries(
+        gpd.points_from_xy(rng.uniform(0, 100, 500), rng.uniform(0, 100, 500))
+    )
+    line = shapely.union_all(
+        [
+            shapely.LineString([(0, 0), (100, 60)]),
+            shapely.LineString([(0, 90), (100, 10)]),
+        ]
+    )
+    box = shapely.box(20, 20, 40, 40)
+    for geom in (line, box):
+        want = pts.distance(geom).to_numpy()
+        for n in (1, 2, 7, "max"):
+            assert np.array_equal(_distance(pts, geom, n), want)
+    # fewer points than threads, and none
+    assert np.array_equal(
+        _distance(pts[:3], line, 8), pts[:3].distance(line).to_numpy()
+    )
+    assert len(_distance(pts[:0], line, 4)) == 0
+
+
+def test_location_features_are_the_same_on_any_number_of_threads(monkeypatch):
+    from slv.measurements.mobile.location import location_features
+
+    _use_stand_in_track(monkeypatch)
+    rng = np.random.default_rng(1)
+    idx = pd.date_range("2025-03-01", periods=900, freq="1s")
+    gps = pd.DataFrame(
+        {
+            "Latitude_deg": 40.7235 + rng.normal(0, 3e-4, 900),
+            "Longitude_deg": np.linspace(-111.922, -111.916, 900),
+            "Speed_m_s": rng.uniform(0, 15, 900),
+        },
+        index=idx,
+    )
+    one = location_features(gps)
+    pd.testing.assert_frame_equal(location_features(gps, num_processes=3), one)
+    assert one.d_track.nunique() > 3 and one.d_yard.nunique() > 3
 
 
 def test_untrusted_positions_are_unknown():
