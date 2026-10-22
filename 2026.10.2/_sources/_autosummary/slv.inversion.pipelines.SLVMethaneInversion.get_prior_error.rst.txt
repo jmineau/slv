@@ -1,0 +1,6 @@
+slv.inversion.pipelines.SLVMethaneInversion.get\_prior\_error
+=============================================================
+
+.. currentmodule:: slv.inversion.pipelines
+
+.. automethod:: SLVMethaneInversion.get_prior_error

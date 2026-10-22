@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Contributing &#8212; slv 2026.10.2</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=64cc4de3f052d77215f0" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=64cc4de3f052d77215f0" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css?v=ba117b66" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="_static/scripts/fontawesome.js?digest=64cc4de3f052d77215f0"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
+
+    <script src="_static/documentation_options.js?v=52372788"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=f281be69"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'contributing';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.22.0';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://jmineau.github.io/slv/switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '2026.10.2';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            true;
+        </script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="slv.meteorology.vhd.load_vhd" href="_autosummary/slv.meteorology.vhd.load_vhd.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="2026.10.2" />
+  
+    
+    <script src="_static/searchtools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script src="searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button type="button" class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class=" navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">slv 2026.10.2</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class=" navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="usage.html">
+    Usage
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="api.html">
+    API Reference
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="#" aria-current="page">
+    Contributing
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+      
+        <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+      
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/jmineau/slv" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button type="button" class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button type="button" class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="usage.html">
+    Usage
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="api.html">
+    API Reference
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="#" aria-current="page">
+    Contributing
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-3"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-3"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-3"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-3">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+        
+          <div class="navbar-item">
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button type="button" class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button type="button" class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/jmineau/slv" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i><span class="visually-hidden">GitHub</span></a>
+        </li>
+</ul></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item pst-sidebar-collapse"><button type="button" id="pst-collapse-sidebar-button" aria-expanded="true" aria-controls="pst-primary-sidebar">
+  <svg class="pst-icon" role="img" aria-hidden="true" focusable="false" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+    <path fill="currentColor" d="M3 15.5C2.36232 15.5 1.74874 15.2564 1.28478 14.8189C0.820828 14.3815 0.541576 13.7832 0.504167 13.1467L0.5 13L0.5 3C0.499965 2.36232 0.743605 1.74874 1.18107 1.28478C1.61854 0.820828 2.21676 0.541576 2.85333 0.504167L3 0.5L13 0.5C13.6377 0.499965 14.2513 0.743605 14.7152 1.18107C15.1792 1.61854 15.4584 2.21676 15.4958 2.85333L15.5 3L15.5 13C15.5 13.6377 15.2564 14.2513 14.8189 14.7152C14.3815 15.1792 13.7832 15.4584 13.1467 15.4958L13 15.5L3 15.5ZM3 13.8333L10.5 13.8333L10.5 2.16667L3 2.16667C2.79589 2.16669 2.59889 2.24163 2.44636 2.37726C2.29383 2.5129 2.19638 2.69979 2.1725 2.9025L2.16667 3L2.16667 13C2.16669 13.2041 2.24163 13.4011 2.37726 13.5536C2.5129 13.7062 2.69979 13.8036 2.9025 13.8275L3 13.8333ZM6.65583 10.325L6.5775 10.2558L4.91083 8.58917C4.76735 8.44567 4.68116 8.25476 4.66843 8.05223C4.65569 7.84971 4.71729 7.6495 4.84167 7.48917L4.91083 7.41083L6.5775 5.74417C6.72747 5.59471 6.9287 5.50794 7.14032 5.50148C7.35194 5.49502 7.55809 5.56935 7.7169 5.70937C7.8757 5.8494 7.97525 6.04463 7.99533 6.25539C8.01541 6.46616 7.95451 6.67667 7.825 6.84417L7.75583 6.9225L6.67917 8L7.75583 9.0775C7.89931 9.22099 7.98551 9.41191 7.99824 9.61443C8.01097 9.81695 7.94938 10.0172 7.825 10.1775L7.75583 10.2558C7.61234 10.3993 7.42142 10.4855 7.2189 10.4982C7.01638 10.511 6.81617 10.4494 6.65583 10.325Z"/>
+  </svg>
+  <span class="pst-collapse-sidebar-label">Collapse Sidebar</span>
+  <span class="pst-expand-sidebar-label">Expand Sidebar</span>
+</button></div>
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"></div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Contributing</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="contributing">
+<h1>Contributing<a class="headerlink" href="#contributing" title="Link to this heading">#</a></h1>
+<p>Contributions are welcome. <a class="reference external" href="https://github.com/jmineau/slv/blob/main/CONTRIBUTING.md">CONTRIBUTING.md</a>
+explains how to set up a development environment, run the checks, what each CI workflow
+does, and how a pull request and a release go.
+<a class="reference external" href="https://github.com/jmineau/slv/blob/main/AGENTS.md">AGENTS.md</a> is the short guide for
+contributors and coding agents: the rules the code keeps, the commands, and the gotchas.
+This page holds the longer notes it points to: the module layout, the inversion package
+and its component cache, how the docs are written and generated, and a note on the tests.</p>
+<p>This project is developed with the help of AI coding agents, directed and
+reviewed by the maintainer, who owns the design and the science. If you
+contribute with an agent, <code class="docutils literal notranslate"><span class="pre">AGENTS.md</span></code> at the repository root is the
+orientation file it should read.</p>
+<section id="module-layout">
+<h2>Module layout<a class="headerlink" href="#module-layout" title="Link to this heading">#</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>src/slv/
+  __init__.py        version metadata + get_data_dir(env_var) helper
+  domain.py          SLV inversion domain constants (XMIN/XMAX/YMIN/YMAX,
+                     BBOX, EXTENT)
+  basemap.py         SaltLake — cartopy map of the valley; chainable add_* layers
+                     (population, trax, sites, mesowest, points, interstates, borders,
+                     inventory, legend, inset, north_arrow). Data via load_* functions
+                     ($SLV_SPATIAL_DIR group data; $SLV_USER_DATA_DIR census ACS 2022 +
+                     mesowest/); tiles=&quot;terrain&quot; = Stadia stamen_terrain ($STADIA_API_KEY,
+                     network when drawn; attribution added). cached_tiler builds any
+                     cartopy tiler with a disk cache (see its docstring). Tests:
+                     tests/test_basemap.py, synthetic data, no network.
+                     (tiler, inventory, borders, TRAX, sites, ...)
+  measurements/
+    __init__.py      re-exports aggregate_obs, load_concentrations,
+                     get_site_coordinates, load_site_config
+    aggregate.py     observation aggregation helpers
+    background.py    background concentration logic
+    concentrations.py  load measurement concentrations
+    instruments.py   site/instrument metadata
+    mobile/          TRAX / mobile platform subpackage (one concern per module; the
+                     package __init__ re-exports every public function and table, so
+                     `from slv.measurements.mobile import X` works for them; classifier
+                     thresholds and GPS constants stay in their modules)
+      network.py     TRAX lines/points, storage yards (JRRSC and MRSC both
+                     packaged), shed footprints, filter_near_routes (dissolved
+                     buffers - no duplicates on shared track), get_geodf, UTM12;
+                     group_dir()/user_dir() resolve the data roots on use (GROUP_DIR /
+                     USER_DIR via module __getattr__) -- keep slv importable without
+                     the CHPC env vars, CI relies on it
+      gps.py         thin uataq wrappers: read_lin_gps (lin gps qaqc; uataq names
+                     the sat count N_Satellites -&gt; renamed N_Sat), read_horel_cr1000
+                     (horel gps+cr1000 at lvl=&quot;raw&quot; = the h5 files; the horel
+                     qaqc/final CSVs lack NSAT/RSTS), read_trax_gps (by era: lin
+                     before 2018-11-19, horel after, fill_gaps=True fills horel
+                     outages from the lin GPS), merge_with_gps (horel_fallback:
+                     rows the lin GPS never covered are georeferenced from the horel
+                     logger where the Pi clock checks out -- lin_clock_offset_by_day /
+                     clock_checked_days / fill_gps_gaps_with_horel; gps_source tags each row)
+      location.py    per-minute indoor/outdoor classifier: depot (degraded GPS:
+                     scatter &gt; 1 m or &lt;= 6 sats, 15-min vote) / yard / line
+                     (pass-by within 300 m of a yard) / route / stopped / unknown
+                     (no fix, &gt; 100 m off track, shed ejecta); speed_est fallback
+                     for GPGGA-only eras; state_intervals, label_observations;
+                     location_features(num_processes=) measures every fix&#39;s distance to the
+                     track and the yards on that many threads (shapely releases the GIL;
+                     build_trax_obs passes its own num_processes)
+      calibration.py cal_source tags + trax_uncalibrated_windows.csv handling;
+                     trax_epoch_offsets.csv (manual-cal era analyzer offsets vs UOU,
+                     -0.002..-0.024 ppm): epoch_offset_column stores them per row,
+                     apply_epoch_offset subtracts them (load_trax_obs(epoch_offset=False)
+                     to test without, no rebuild needed)
+      obs.py         build_trax_obs (per-year chunks; slope guard on calibrated rows; every GPS fix + cal_source + low_pressure + state/indoor/
+                     yard_name) / load_trax_obs(location=&quot;on_track&quot;|&quot;outdoor&quot;|&quot;all&quot;)
+                     cached at $SLV_USER_DATA_DIR/trax/obs.parquet; LOCATION_SETS.
+                     load_trax_obs filters on the rows first (cal_source, low_pressure,
+                     location), then applies the epoch offset and builds the points for the
+                     rows kept only: the whole record is 105 M rows, about half on track.
+                     2026-09-22 audit rules, all from _read_support (qaqc CH4/flag/
+                     cavity P read WITHOUT normalize_pollutant): apply_pressure_rule
+                     (flag -64 overwrites -63 in lgr_ugga_qaqc.r, so pressure is
+                     re-checked here; manual_cal rows exempt -- apply_low_pressure_rule
+                     owns them and sets the low_pressure tag from the measured pressure,
+                     never from flag -63 alone, for the same reason), apply_dropout_rule + dropout_times (+-8 min around any
+                     atmosphere row &lt; 1.70 ppm: a laser dropout reads low for minutes to
+                     hours and its shoulder passes QC), recover_hot_rows (flag -64 rows
+                     have a fitted CH4d_m but a blanked CH4d_ppm_cal: qaqc value / slope)
+      transects.py   transect matrices obs[transect, point]: build_network_transects
+                     (one matrix over the 50-m network points for all lines: per-epoch
+                     inlet lag -&gt; snap 60 m -&gt; line by windowed vote among the point&#39;s
+                     own letters (assign_lines) -&gt; transits per line via
+                     lair.transects.split_transits -&gt; cell means with terminus dwells
+                     trimmed), build_trax_transects (one NetCDF per year under
+                     $SLV_USER_DATA_DIR/trax/transects/network/), load_network_transects;
+                     load_transects reads the archived per-line matrices (to 2023-04,
+                     provenance only). load_trax_obs(time_range=) reads one year of
+                     obs.parquet via a row-group filter; apply_epoch_offset computes the
+                     offset column when a parquet predates it
+      receptors.py   STILT receptors for paper 2: load_trax_network_points (the 50-m
+                     points from load_trax_points(50) — same points_along_line generator
+                     as the 2-km points, so shared track is one row of points — each
+                     tagged with its nearest 2-km segment; cached points_50m_network.geojson),
+                     load_trax_fixes (GPS columns of obs.parquet only), find_segment_crossings
+                     (runs of fixes on one segment, gap &lt;= 10 min; `lines` = letters common
+                     to the points hit), release_points (segment points on the crossing&#39;s
+                     line — a junction segment holds several lines&#39; arms), build_trax_receptors
+                     (one PYSTILT MultiPointReceptor per crossing at the median time;
+                     coverage measured along the route via s_&lt;line&gt;, duration filter),
+                     find_dwells / build_dwell_receptors (parked-train point receptors,
+                     r_idx dwell_&lt;d&gt;_&lt;YYYYMMDDHH&gt;, freq &gt;= 1h) / label_dwell_site (yard),
+                     filter_receptor_hours (fixed UTC_OFFSET, standard-time hours).
+                     Driver: SLV/stilt/ops/build_trax_receptors.py
+      receptor_obs.py the CH4 observation for each TRAX receptor: trax_receptor_observations
+                     (mean CH4 over a crossing&#39;s pass / a dwell&#39;s hour, window shifted by the
+                     per-epoch inlet lag, keyed (obs_location, obs_time) via
+                     stilt.read_receptors so it matches the footprints exactly),
+                     inlet_lag_seconds. Driver: SLV/stilt/ops/build_trax_receptor_obs.py.
+                     Consumed by InversionConfig.mobile_obs -&gt; get_slv_observations
+                     (load_mobile_obs); cache keys on mobile_obs_key (path+size+mtime).
+      wyoming.py     Wyoming mobile lab (Aeris + met readers, ratios, wind-barb map)
+      jrrsc.geojson, mrsc.geojson (yards), trax_depots.geojson (sheds),
+      trax_uncalibrated_windows.csv  packaged data; the yard polygons ship with
+                     the package so nothing but UTA_TRAX.geojson comes from group data
+    pollutants.py    pollutant metadata
+    sites.py         site_config loader (load_site_config); get_site_coordinates resolver
+    site_config.csv  packaged data
+  emissions/
+    __init__.py      re-exports plot_point_sources
+    point_sources.py  CH4 point source plotting
+    ch4_point_sources.csv  packaged data
+  meteorology/
+    __init__.py      no imports: import the submodules explicitly
+                     (`from slv.meteorology import pcaps`)
+    mesowest.py      MesoWest surface observations for the SLV sites (hourly station
+                     archives under $SLV_USER_DATA_DIR/mesowest)
+    pcaps.py         SLV-specific PCAP wrappers
+    vhd.py           valley heat deficit (VHD) from the SLC soundings
+  inversion/         the inversion package, below
+  py.typed           ships type hints
+tests/               pytest
+docs/                Sphinx
+pixi.lock            the environment with xesmf, locked ([tool.pixi] in pyproject.toml)
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">slv.__init__</span></code> is intentionally small (just <code class="docutils literal notranslate"><span class="pre">get_data_dir</span></code> and the version
+metadata). The subpackages are the API surface:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">slv.domain</span><span class="w"> </span><span class="kn">import</span> <span class="n">BBOX</span><span class="p">,</span> <span class="n">EXTENT</span><span class="p">,</span> <span class="n">XMIN</span><span class="p">,</span> <span class="n">XMAX</span><span class="p">,</span> <span class="n">YMIN</span><span class="p">,</span> <span class="n">YMAX</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">slv.basemap</span><span class="w"> </span><span class="kn">import</span> <span class="n">SaltLake</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">slv.measurements</span><span class="w"> </span><span class="kn">import</span> <span class="n">aggregate_obs</span><span class="p">,</span> <span class="n">load_concentrations</span><span class="p">,</span> <span class="n">get_site_coordinates</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">slv.emissions</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_point_sources</span>
+</pre></div>
+</div>
+<p>The base install is enough for <code class="docutils literal notranslate"><span class="pre">domain</span></code>, <code class="docutils literal notranslate"><span class="pre">basemap</span></code>, <code class="docutils literal notranslate"><span class="pre">measurements</span></code> and
+<code class="docutils literal notranslate"><span class="pre">emissions</span></code>; the <code class="docutils literal notranslate"><span class="pre">inversion</span></code> extra unlocks <code class="docutils literal notranslate"><span class="pre">slv.inversion</span></code> (it depends on
+<code class="docutils literal notranslate"><span class="pre">fips[flux]</span></code>, which in turn depends on <code class="docutils literal notranslate"><span class="pre">pystilt</span></code>).</p>
+</section>
+<section id="the-inversion-package">
+<h2>The inversion package<a class="headerlink" href="#the-inversion-package" title="Link to this heading">#</a></h2>
+<p>This section holds everything about the inversion package’s layout, exports, cache
+and pipeline internals, in one place.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>src/slv/inversion/
+  __init__.py      re-exports InversionConfig, SLVMethaneInversion, Sweep,
+                   run_sweep_job, SweepResults
+  config.py        InversionConfig — pydantic-ish config for an inversion;
+                   DEFAULT_STILT_PROJECT + stilt_project_dir() ($SLV_STILT_DIR);
+                   state_grid (stilt Grid, domain snapped outward to whole cells) is
+                   the one definition of the flux cells, `grid` takes its axes
+  pipelines.py     SLVMethaneInversion — the pipeline proper: get_obs / get_prior /
+                   get_forward_operator (+ cached _get_flux_jacobian) / get_prior_error /
+                   get_constant, state filtering, obs aggregation, run, obs_sites.
+                   Composed from the mixins below (MRO: Reporting, CoverageFilter, Bias,
+                   ModelDataMismatch, fips FluxInversionPipeline); every method keeps its
+                   name, so subclasses override as before. Re-exports the cache helpers.
+  cache.py         component cache: COMPONENT_DEPS sets, _component_hash, _pkg_rev /
+                   _version_tag, fips_cache
+  mdm.py           ModelDataMismatchMixin: get_modeldata_mismatch, multiplicative scale,
+                   per-obs (subhour) std
+  bias.py          BiasMixin: get_bias, get_bias_jacobian, get_site_group
+  coverage.py      check_state_cells; CoverageFilterMixin (Jacobian coverage filter,
+                   reconstruct_posterior)
+  report.py        ReportingMixin: domain totals, summarize, desroziers, plot_*
+  priors.py        prior flux construction
+  covariances.py   covariance construction (kernels, scaling)
+  data.py          inversion-time data loading
+  background.py    inversion background model
+  viz.py           inversion-specific plotting
+  sweep.py         Sweep / run_sweep_job / SweepResults — hyperparam sweeps
+</pre></div>
+</div>
+<p>What <code class="docutils literal notranslate"><span class="pre">slv.inversion</span></code> exports:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">slv.inversion</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">InversionConfig</span><span class="p">,</span> <span class="n">SLVMethaneInversion</span><span class="p">,</span>
+    <span class="n">Sweep</span><span class="p">,</span> <span class="n">run_sweep_job</span><span class="p">,</span> <span class="n">SweepResults</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<section id="the-component-cache">
+<h3>The component cache<a class="headerlink" href="#the-component-cache" title="Link to this heading">#</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">&#64;fips_cache</span></code> (<code class="docutils literal notranslate"><span class="pre">inversion/cache.py</span></code>) writes each component to
+<code class="docutils literal notranslate"><span class="pre">{cache_dir}/.fips/{version_tag}/{component}/{hash}.pkl</span></code>. <code class="docutils literal notranslate"><span class="pre">version_tag</span></code> is the
+<code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">describe</span></code> rev of the editable fips and pystilt checkouts (<code class="docutils literal notranslate"><span class="pre">_version_tag</span></code> and
+<code class="docutils literal notranslate"><span class="pre">_pkg_rev</span></code>), so committing or editing those packages busts the cache automatically,
+with no reinstall. A copy under <code class="docutils literal notranslate"><span class="pre">site-packages</span></code> (the uv <code class="docutils literal notranslate"><span class="pre">.venv</span></code>, which sits inside
+the slv repo, or the pixi env) uses its metadata version instead, written as the
+release’s tag (<code class="docutils literal notranslate"><span class="pre">v0.1.0b9</span></code>): <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">describe</span></code> there would answer with slv’s rev, and a
+release names the same folder installed or checked out.</p>
+<p><code class="docutils literal notranslate"><span class="pre">get_inputs</span></code> raises when the prior’s cells and the Jacobian’s columns differ (stale
+caches after a grid change).</p>
+<p>Components other than the Jacobian also hash the <em>release</em> of lair and uataq
+(<code class="docutils literal notranslate"><span class="pre">COMPONENT_PACKAGES</span></code>, <code class="docutils literal notranslate"><span class="pre">_release</span></code>: an editable checkout’s static pyproject version
+or latest git tag, else the installed version). A release, not an edit, rebuilds the
+obs, prior, MDM and constant.</p>
+<p>Input files are keyed by what is in them, never by path alone: <code class="docutils literal notranslate"><span class="pre">mobile_obs_key</span></code> and
+<code class="docutils literal notranslate"><span class="pre">background_kwargs_key</span></code> (the CT-STILT <code class="docutils literal notranslate"><span class="pre">csv_path</span></code>) are path + size + mtime
+(<code class="docutils literal notranslate"><span class="pre">config._file_key</span></code>), and the Jacobian and MDM pass <code class="docutils literal notranslate"><span class="pre">fips_cache(...,</span> <span class="pre">key=...)</span></code> the
+footprints they use (<code class="docutils literal notranslate"><span class="pre">_footprint_key</span></code>: per project, the footprint settings folder and
+how many selected receptors have a footprint), so it lists the project on every cached
+run.</p>
+<p>The cache key does not hold slv’s own rev (so a change to slv’s component-building
+logic is forced with <code class="docutils literal notranslate"><span class="pre">config.cache_overwrite</span></code>, or re-keyed by bumping its number in
+<code class="docutils literal notranslate"><span class="pre">DEFAULT_COMPONENT_REVISIONS</span></code>, as AGENTS.md says). When you cut a version, reinstall
+the editable packages (<code class="docutils literal notranslate"><span class="pre">uv</span> <span class="pre">sync</span></code> or <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-e</span></code>) so that <code class="docutils literal notranslate"><span class="pre">importlib.metadata</span></code>
+matches the source: this does not affect the cache key but keeps <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">show</span></code> and
+other version consumers honest.</p>
+</section>
+<section id="notes-on-the-pipeline">
+<h3>Notes on the pipeline<a class="headerlink" href="#notes-on-the-pipeline" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Mobile (TRAX) obs are keyed by PYSTILT location_id, not site. Anything keyed by
+site must resolve through <code class="docutils literal notranslate"><span class="pre">SLVMethaneInversion.obs_sites</span></code> (receptor -&gt; the single
+mobile site in <code class="docutils literal notranslate"><span class="pre">config.sites</span></code>); the MDM and the bias Jacobian do. The rolling
+background uses stationary sites only (<code class="docutils literal notranslate"><span class="pre">split_sites</span></code>; override with
+<code class="docutils literal notranslate"><span class="pre">background_kwargs={&quot;background_sites&quot;:</span> <span class="pre">[...]}</span></code>) and each obs takes its hour’s
+value; <code class="docutils literal notranslate"><span class="pre">get_slv_subhour_std</span></code> skips mobile sites.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">get_forward_operator</span></code> is a thin wrapper: <code class="docutils literal notranslate"><span class="pre">_get_flux_jacobian</span></code> is the cached
+(<code class="docutils literal notranslate"><span class="pre">forward_operator</span></code>) flux Jacobian; the bias block is rebuilt every run.
+<code class="docutils literal notranslate"><span class="pre">get_prior</span></code> memoizes <code class="docutils literal notranslate"><span class="pre">_build_prior</span></code> per pipeline; <code class="docutils literal notranslate"><span class="pre">_multiplicative_scale</span></code>
+reuses both.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">InversionConfig.__post_init__</span></code> validates flux_freq, bias_grouping, background,
+prior, mdm_config and domain; setting any field drops the cached derived values.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">InversionConfig.mdm_config</span></code> keys must be names in <code class="docutils literal notranslate"><span class="pre">DEFAULT_MDM_CONFIG</span></code> (part,
+instr, aggr, subhour, bg, transport); <code class="docutils literal notranslate"><span class="pre">get_mdm_comp_configs</span></code> raises on anything
+else. Retired keys (<code class="docutils literal notranslate"><span class="pre">transport_pbl</span></code>, <code class="docutils literal notranslate"><span class="pre">transport_wind</span></code>) used to be ignored
+silently, leaving the MDM cache hash unchanged.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">get_slv_observations</span></code> loads the TRAX route points only when a mobile site is in
+<code class="docutils literal notranslate"><span class="pre">sites</span></code>; tower-only runs need no TRAX data.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">InversionConfig.stilt_project</span></code> defaults to <code class="docutils literal notranslate"><span class="pre">SLV_STILT_DIR</span></code> if set, else
+<code class="docutils literal notranslate"><span class="pre">DEFAULT_STILT_PROJECT</span></code> (the CHPC paper-1 PYSTILT project), so the config stays
+usable without the environment variable.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">load_epa_prior</span></code> reads EPA’s express product either way
+(<code class="docutils literal notranslate"><span class="pre">EPAv2(express=True,</span> <span class="pre">scale_by_month=not</span> <span class="pre">express)</span></code>), so the monthly default and
+paper 1’s annual <code class="docutils literal notranslate"><span class="pre">express=True</span></code> hold the same emissions (27 sectors including
+post-meter, 2012-2020); it relies on lair &gt;= v2026.12.6 holding sectors without
+monthly scale factors at their annual rate.</p></li>
+</ul>
+</section>
+</section>
+<section id="writing-the-docs">
+<h2>Writing the docs<a class="headerlink" href="#writing-the-docs" title="Link to this heading">#</a></h2>
+<p>Examples run when the docs build, so they show real output, and the build fails when
+one breaks.</p>
+<p><strong>A figure in a docstring:</strong> put a <code class="docutils literal notranslate"><span class="pre">..</span> <span class="pre">plot::</span></code> directive in the Examples section.
+Its code runs (doctest <code class="docutils literal notranslate"><span class="pre">&gt;&gt;&gt;</span></code> lines work), and the figure appears under it.</p>
+<div class="highlight-rst notranslate"><div class="highlight"><pre><span></span><span class="gh">Examples</span>
+<span class="gh">--------</span>
+<span class="p">..</span> <span class="ow">plot</span><span class="p">::</span>
+
+   &gt;&gt;&gt; import matplotlib.pyplot as plt
+   &gt;&gt;&gt; _ = plt.plot([0, 1, 2], [0, 1, 4])
+</pre></div>
+</div>
+<p><strong>Code in an</strong> <code class="docutils literal notranslate"><span class="pre">.rst</span></code> <strong>page:</strong> a <code class="docutils literal notranslate"><span class="pre">..</span> <span class="pre">ipython::</span> <span class="pre">python</span></code> block runs, and shows each
+line with its output, as in an IPython session. Changing a <code class="docutils literal notranslate"><span class="pre">..</span> <span class="pre">code-block::</span> <span class="pre">python</span></code> to
+<code class="docutils literal notranslate"><span class="pre">..</span> <span class="pre">ipython::</span> <span class="pre">python</span></code> is enough to make it run. For a figure, put <code class="docutils literal notranslate"><span class="pre">&#64;savefig</span> <span class="pre">name.png</span></code>
+on the line above the plotting call.</p>
+<div class="highlight-rst notranslate"><div class="highlight"><pre><span></span><span class="p">..</span> <span class="ow">ipython</span><span class="p">::</span> python
+
+   import matplotlib.pyplot as plt
+   import slv
+
+   slv.__version__
+
+   @savefig squares.png width=5in
+   plt.plot([0, 1, 2], [0, 1, 4]);
+</pre></div>
+</div>
+<p>A block that raises or warns fails the build; <code class="docutils literal notranslate"><span class="pre">:okexcept:</span></code> or <code class="docutils literal notranslate"><span class="pre">:okwarning:</span></code> under
+the directive allows one that is meant to. All <code class="docutils literal notranslate"><span class="pre">.rst</span></code> pages share one session, so
+each page imports and defines what it uses.</p>
+<p><strong>When they run:</strong> <code class="docutils literal notranslate"><span class="pre">just</span> <span class="pre">build-docs</span></code> runs everything, as CI does; <code class="docutils literal notranslate"><span class="pre">just</span> <span class="pre">docs-serve</span></code>
+reruns a page’s blocks whenever that page is rebuilt.</p>
+<p><strong>Notebooks, and code cells in Markdown pages,</strong> are off in this project.
+<code class="docutils literal notranslate"><span class="pre">copier</span> <span class="pre">update</span> <span class="pre">--data</span> <span class="pre">docs_notebooks=true</span></code> turns them on; it adds myst-nb, and
+Jupyter with it, to the dev tools.</p>
+<p><strong>The API reference</strong> has a page for each class, with tables of its attributes and
+methods, and a page for each member; a subclass lists what it defines and links to what
+it inherits (<code class="docutils literal notranslate"><span class="pre">docs/_templates/autosummary/</span></code> and <code class="docutils literal notranslate"><span class="pre">docs/_ext/api_pages.py</span></code>, from
+python-template). The extension also drops from a class docstring the <code class="docutils literal notranslate"><span class="pre">Methods</span></code>
+section and the <code class="docutils literal notranslate"><span class="pre">Attributes</span></code> entries that the tables list. A property or attribute’s
+page is where its See Also and Examples go, as in pandas: give each public one a
+docstring that says what it is, and add See Also or Examples where they help. One with
+no docstring shows an empty row.</p>
+</section>
+<section id="notes-on-the-tests">
+<h2>Notes on the tests<a class="headerlink" href="#notes-on-the-tests" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>The pixi env pins the no-MPI ESMF build (<code class="docutils literal notranslate"><span class="pre">build</span> <span class="pre">=</span> <span class="pre">&quot;nompi*&quot;</span></code>): with the MPICH build,
+the MPI start-up on <code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">xesmf</span></code> sometimes killed the whole pytest process (exit
+143, no traceback), about half the runs until 2026-10-05.</p></li>
+</ul>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="_autosummary/slv.meteorology.vhd.load_vhd.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">slv.meteorology.vhd.load_vhd</p>
+      </div>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-layout">Module layout</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-inversion-package">The inversion package</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-component-cache">The component cache</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#notes-on-the-pipeline">Notes on the pipeline</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#writing-the-docs">Writing the docs</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#notes-on-the-tests">Notes on the tests</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  <div class="tocsection sourcelink">
+    <a href="_sources/contributing.rst.txt">
+      <i class="fa-solid fa-file-lines"></i> Show Source
+    </a>
+  </div>
+</div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2026, James Mineau.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.22.0.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

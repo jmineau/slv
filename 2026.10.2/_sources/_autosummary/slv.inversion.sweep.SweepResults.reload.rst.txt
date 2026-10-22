@@ -1,0 +1,6 @@
+slv.inversion.sweep.SweepResults.reload
+=======================================
+
+.. currentmodule:: slv.inversion.sweep
+
+.. automethod:: SweepResults.reload

@@ -1,0 +1,6 @@
+slv.emissions.point\_sources.load\_point\_sources
+=================================================
+
+.. currentmodule:: slv.emissions.point_sources
+
+.. autofunction:: load_point_sources

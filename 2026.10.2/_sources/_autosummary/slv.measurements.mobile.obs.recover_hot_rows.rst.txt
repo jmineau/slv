@@ -1,0 +1,6 @@
+slv.measurements.mobile.obs.recover\_hot\_rows
+==============================================
+
+.. currentmodule:: slv.measurements.mobile.obs
+
+.. autofunction:: recover_hot_rows

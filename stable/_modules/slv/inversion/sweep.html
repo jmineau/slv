@@ -6,7 +6,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>slv.inversion.sweep &#8212; slv 2026.10.1</title>
+    <title>slv.inversion.sweep &#8212; slv 2026.10.2</title>
   
   
   
@@ -39,7 +39,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
 
-    <script src="../../../_static/documentation_options.js?v=65cfade2"></script>
+    <script src="../../../_static/documentation_options.js?v=52372788"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -48,7 +48,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.22.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://jmineau.github.io/slv/switcher.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '2026.10.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '2026.10.2';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             true;
         </script>
@@ -57,7 +57,7 @@
     <link rel="search" title="Search" href="../../../search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.10.1" />
+  <meta name="docsearch:version" content="2026.10.2" />
   
     
     <script src="../../../_static/searchtools.js"></script>
@@ -125,7 +125,7 @@
   
   
   
-    <p class="title logo__title">slv 2026.10.1</p>
+    <p class="title logo__title">slv 2026.10.2</p>
   
 </a></div>
     
@@ -1039,6 +1039,12 @@
 <span class="sd">    The primary target metric is ``reduced_chi2`` — ideally close to 1.0,</span>
 <span class="sd">    which indicates the error covariances are well-specified.</span>
 
+<span class="sd">    The ``prior_conc_*`` and ``posterior_conc_*`` columns summarize the residual</span>
+<span class="sd">    ``observed concentration - modeled concentration`` (the model is</span>
+<span class="sd">    ``H x + background``) with its root mean square (``*_rmse``) and mean</span>
+<span class="sd">    (``*_bias``, positive when the model is below the observations), in the</span>
+<span class="sd">    units of the observations.</span>
+
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    problem :</span>
@@ -1093,18 +1099,18 @@
         <span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;prior_flux_mean&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;posterior_flux_mean&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;posterior_flux_std&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;flux_change_pct&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 
-    <span class="c1"># Concentration residuals</span>
+    <span class="c1"># Concentration residuals: observed minus modeled concentration. The modeled</span>
+    <span class="c1"># concentrations are H x + background, so they are compared with the observed</span>
+    <span class="c1"># concentration, not the enhancement (obs - background).</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="n">obs_enh</span> <span class="o">=</span> <span class="n">problem</span><span class="o">.</span><span class="n">enhancement</span>
-        <span class="n">prior_c</span> <span class="o">=</span> <span class="n">problem</span><span class="o">.</span><span class="n">prior_concentrations</span>
-        <span class="n">post_c</span> <span class="o">=</span> <span class="n">problem</span><span class="o">.</span><span class="n">posterior_concentrations</span>
-        <span class="n">rp</span> <span class="o">=</span> <span class="n">obs_enh</span> <span class="o">-</span> <span class="n">prior_c</span>
-        <span class="n">rq</span> <span class="o">=</span> <span class="n">obs_enh</span> <span class="o">-</span> <span class="n">post_c</span>
+        <span class="n">obs_c</span> <span class="o">=</span> <span class="n">problem</span><span class="o">.</span><span class="n">concentrations</span>
+        <span class="n">rp</span> <span class="o">=</span> <span class="n">obs_c</span> <span class="o">-</span> <span class="n">problem</span><span class="o">.</span><span class="n">prior_concentrations</span>
+        <span class="n">rq</span> <span class="o">=</span> <span class="n">obs_c</span> <span class="o">-</span> <span class="n">problem</span><span class="o">.</span><span class="n">posterior_concentrations</span>
         <span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;prior_conc_rmse&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">((</span><span class="n">rp</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">**</span> <span class="mf">0.5</span><span class="p">)</span>
         <span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;posterior_conc_rmse&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">((</span><span class="n">rq</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">**</span> <span class="mf">0.5</span><span class="p">)</span>
         <span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;prior_conc_bias&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">rp</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span>
         <span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;posterior_conc_bias&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">rq</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span>
-        <span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;n_obs&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">obs_enh</span><span class="p">))</span>
+        <span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;n_obs&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">obs_c</span><span class="p">))</span>
         <span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;n_state&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">problem</span><span class="o">.</span><span class="n">prior_fluxes</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
     <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;collect_metrics: concentration residuals failed&quot;</span><span class="p">,</span> <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>

@@ -1,0 +1,6 @@
+slv.inversion.pipelines.stack\_jacobians
+========================================
+
+.. currentmodule:: slv.inversion.pipelines
+
+.. autofunction:: stack_jacobians

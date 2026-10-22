@@ -1,0 +1,6 @@
+slv.measurements.mobile.gps.clock\_checked\_days
+================================================
+
+.. currentmodule:: slv.measurements.mobile.gps
+
+.. autofunction:: clock_checked_days

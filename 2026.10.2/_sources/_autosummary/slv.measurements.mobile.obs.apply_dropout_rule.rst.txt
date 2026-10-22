@@ -1,0 +1,6 @@
+slv.measurements.mobile.obs.apply\_dropout\_rule
+================================================
+
+.. currentmodule:: slv.measurements.mobile.obs
+
+.. autofunction:: apply_dropout_rule

@@ -1,0 +1,58 @@
+slv.inversion.pipelines.SLVMethaneInversion
+===========================================
+
+.. currentmodule:: slv.inversion.pipelines
+
+.. autoclass:: SLVMethaneInversion
+   :no-members:
+   :show-inheritance:
+
+
+
+
+.. rubric:: Attributes
+
+.. autosummary::
+   :toctree:
+
+   ~SLVMethaneInversion.COMPONENT_DEPS
+
+
+
+.. rubric:: Methods
+
+.. autosummary::
+   :toctree:
+
+   ~SLVMethaneInversion.aggregate_obs_space
+   ~SLVMethaneInversion.filter_state_space
+   ~SLVMethaneInversion.get_constant
+   ~SLVMethaneInversion.get_forward_operator
+   ~SLVMethaneInversion.get_inputs
+   ~SLVMethaneInversion.get_obs
+   ~SLVMethaneInversion.get_prior
+   ~SLVMethaneInversion.get_prior_error
+   ~SLVMethaneInversion.obs_sites
+   ~SLVMethaneInversion.run
+
+
+
+
+.. rubric:: Inherited
+
+
+From :class:`~.ReportingMixin`: :py:obj:`~.ReportingMixin.calculate_total_flux`, :py:obj:`~.ReportingMixin.desroziers_diagnostic`, :py:obj:`~.ReportingMixin.fluxes_as_inventory`, :py:obj:`~.ReportingMixin.plot_diagnostics`, :py:obj:`~.ReportingMixin.plot_inputs`, :py:obj:`~.ReportingMixin.plot_results`, :py:obj:`~.ReportingMixin.summarize`
+
+
+
+From :class:`~.CoverageFilterMixin`: :py:obj:`~.CoverageFilterMixin.reconstruct_posterior`
+
+
+
+From :class:`~.BiasMixin`: :py:obj:`~.BiasMixin.get_bias`, :py:obj:`~.BiasMixin.get_bias_jacobian`, :py:obj:`~.BiasMixin.get_site_group`
+
+
+
+From :class:`~.ModelDataMismatchMixin`: :py:obj:`~.ModelDataMismatchMixin.get_modeldata_mismatch`
+
+

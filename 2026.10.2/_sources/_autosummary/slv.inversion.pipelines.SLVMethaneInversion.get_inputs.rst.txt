@@ -1,0 +1,6 @@
+slv.inversion.pipelines.SLVMethaneInversion.get\_inputs
+=======================================================
+
+.. currentmodule:: slv.inversion.pipelines
+
+.. automethod:: SLVMethaneInversion.get_inputs

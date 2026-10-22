@@ -1,0 +1,6 @@
+slv.measurements.mobile.obs.dropout\_times
+==========================================
+
+.. currentmodule:: slv.measurements.mobile.obs
+
+.. autofunction:: dropout_times

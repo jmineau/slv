@@ -1,0 +1,6 @@
+slv.inversion.viz.plot\_inventory
+=================================
+
+.. currentmodule:: slv.inversion.viz
+
+.. autofunction:: plot_inventory

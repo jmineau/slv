@@ -1,0 +1,6 @@
+slv.inversion.viz.plot\_total\_fluxes\_over\_time
+=================================================
+
+.. currentmodule:: slv.inversion.viz
+
+.. autofunction:: plot_total_fluxes_over_time

@@ -1,0 +1,39 @@
+slv.inversion.viz
+=================
+
+.. automodule:: slv.inversion.viz
+   :no-members:
+
+
+
+
+.. rubric:: Functions
+
+.. autosummary::
+   :toctree:
+   :nosignatures:
+
+   plot_background_and_bias
+   plot_concentrations
+   plot_desroziers
+   plot_fluxes
+   plot_fluxes_by_timestep
+   plot_grid
+   plot_inventory
+   plot_mdm_components
+   plot_prior_with_coverage
+   plot_reconstructed_posterior
+   plot_removed_contribution
+   plot_residuals
+   plot_sites
+   plot_total_fluxes_over_time
+   shade_removed_cells
+
+
+
+
+
+
+
+
+

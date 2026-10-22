@@ -1,0 +1,6 @@
+slv.inversion.sweep.SweepResults.failed
+=======================================
+
+.. currentmodule:: slv.inversion.sweep
+
+.. automethod:: SweepResults.failed

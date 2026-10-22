@@ -1,0 +1,6 @@
+slv.basemap.SaltLake.add\_north\_arrow
+======================================
+
+.. currentmodule:: slv.basemap
+
+.. automethod:: SaltLake.add_north_arrow

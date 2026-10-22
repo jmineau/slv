@@ -1,0 +1,6 @@
+slv.inversion.sweep.SweepResults.to\_config
+===========================================
+
+.. currentmodule:: slv.inversion.sweep
+
+.. automethod:: SweepResults.to_config

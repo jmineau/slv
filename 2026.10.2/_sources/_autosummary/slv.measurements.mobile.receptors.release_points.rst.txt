@@ -1,0 +1,6 @@
+slv.measurements.mobile.receptors.release\_points
+=================================================
+
+.. currentmodule:: slv.measurements.mobile.receptors
+
+.. autofunction:: release_points

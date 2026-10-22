@@ -1,0 +1,6 @@
+slv.inversion.viz.plot\_residuals
+=================================
+
+.. currentmodule:: slv.inversion.viz
+
+.. autofunction:: plot_residuals

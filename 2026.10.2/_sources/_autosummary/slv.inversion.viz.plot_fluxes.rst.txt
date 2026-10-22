@@ -1,0 +1,6 @@
+slv.inversion.viz.plot\_fluxes
+==============================
+
+.. currentmodule:: slv.inversion.viz
+
+.. autofunction:: plot_fluxes

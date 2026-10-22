@@ -1,0 +1,6 @@
+slv.inversion.report.ReportingMixin.plot\_diagnostics
+=====================================================
+
+.. currentmodule:: slv.inversion.report
+
+.. automethod:: ReportingMixin.plot_diagnostics

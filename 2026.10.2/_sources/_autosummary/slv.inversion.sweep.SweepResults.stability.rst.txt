@@ -1,0 +1,6 @@
+slv.inversion.sweep.SweepResults.stability
+==========================================
+
+.. currentmodule:: slv.inversion.sweep
+
+.. automethod:: SweepResults.stability
