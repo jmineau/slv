@@ -6,6 +6,8 @@ versions are calendar-based (YYYY.M.PATCH).
 
 ## [Unreleased]
 
+## [2026.10.2] - 2026-10-22
+
 ### Changed
 
 - `load_trax_obs` keeps the rows you asked for first, and then applies the epoch offset
