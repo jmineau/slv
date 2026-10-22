@@ -37,6 +37,19 @@ versions are calendar-based (YYYY.M.PATCH).
   the 1,723,627 TRAX rows of March 2015, 5 of 239,072 in September 2026, most of them in
   2014-2017. A row with the same values as an earlier one in the same Pi second is now
   dropped, keeping the first fix. The TRAX `obs.parquet` changes on its next rebuild
+- `InversionConfig` raises `ValueError` when `tstart` or `tend` is not on a `flux_freq`
+  boundary (`tstart="2015-06-01"` with `flux_freq="YS"`, any non-Sunday start with
+  `"2W"`). pandas rolled the first flux interval forward to the boundary and dropped the
+  partial last one, so the flux state covered less than the obs, and the obs at the ends
+  had no flux to fit. A config on the boundaries (paper 1's 2016 to 2023) gets the same
+  intervals and cache keys as before (#31)
+- The sweep's concentration residuals (`prior_conc_rmse`, `posterior_conc_rmse`,
+  `prior_conc_bias`, `posterior_conc_bias`) compare the observed concentration with the
+  modeled concentration. They compared the observed enhancement (obs minus background)
+  with the modeled concentration (`H x + background`), so each was off by the background,
+  about 1.9 ppm for CH4: a prior that fitted the obs exactly gave an RMSE of 1.9 ppm.
+  `reduced_chi2`, `R2`, `RMSE`, `DOFS` and the flux columns, and so `SweepResults.best`,
+  were not affected. Sweep CSVs written before this hold the offset values (#27)
 
 ## [2026.10.1] - 2026-10-20
 
@@ -75,19 +88,6 @@ versions are calendar-based (YYYY.M.PATCH).
   hot-cavity flag (-64, an accepted flag) over -63, so low-pressure rows on hot
   afternoons were kept untagged and `load_trax_obs(include_low_pressure=False)` left
   them in. Rebuild `obs.parquet` to pick this up
-- The sweep's concentration residuals (`prior_conc_rmse`, `posterior_conc_rmse`,
-  `prior_conc_bias`, `posterior_conc_bias`) compare the observed concentration with the
-  modeled concentration. They compared the observed enhancement (obs minus background)
-  with the modeled concentration (`H x + background`), so each was off by the background,
-  about 1.9 ppm for CH4: a prior that fitted the obs exactly gave an RMSE of 1.9 ppm.
-  `reduced_chi2`, `R2`, `RMSE`, `DOFS` and the flux columns, and so `SweepResults.best`,
-  were not affected. Sweep CSVs written before this hold the offset values (#27)
-- `InversionConfig` raises `ValueError` when `tstart` or `tend` is not on a `flux_freq`
-  boundary (`tstart="2015-06-01"` with `flux_freq="YS"`, any non-Sunday start with
-  `"2W"`). pandas rolled the first flux interval forward to the boundary and dropped the
-  partial last one, so the flux state covered less than the obs, and the obs at the ends
-  had no flux to fit. A config on the boundaries (paper 1's 2016 to 2023) gets the same
-  intervals and cache keys as before (#31)
 - An obs whose STILT receptor has no footprint (the simulation was not run, or failed)
   is dropped before the solve, as an obs with no background is, and the run prints how
   many. It used to stay in with a Jacobian row of zeros: it was fit as background only,
