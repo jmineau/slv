@@ -24,6 +24,12 @@ the orientation file it should read.
    pixi install
    ```
 
+   `uv sync --no-dev` installs slv alone (add `--extra inversion` for `fips[flux]`
+   and `pystilt`); `pixi run pytest` runs the tests in the pixi environment
+   (`.pixi/envs/default`). The base install is enough for `domain`, `basemap`,
+   `measurements` and `emissions`; the `inversion` extra is what unlocks
+   `slv.inversion`.
+
 4. Install pre-commit hooks:
    ```bash
    uv run pre-commit install
@@ -80,6 +86,30 @@ the orientation file it should read.
 - Maintain or improve test coverage
 - Update documentation as needed
 
+## Continuous integration
+
+CI (`.github/workflows/`) runs the same `just` recipes:
+
+- `tests.yml` runs `just cov` from `uv.lock` on Linux and Python 3.11 to 3.14.
+  xesmf is not in `uv.lock` (conda-forge only), so the tests that need it skip there.
+  Its `pixi` job runs the whole suite in the pixi environment (`[tool.pixi]` in
+  `pyproject.toml`, locked in `pixi.lock`): conda-forge supplies ESMF and xesmf, and
+  everything else comes from the dependencies in `pyproject.toml`, so nothing is
+  listed twice. The job fails on a `pixi.lock` that is out of date.
+- `quality.yml` runs lint, type check and docstring coverage on Python 3.11.
+- `docs.yml` builds the docs on every pull request (warnings fail the build). Pushes
+  to `main` publish them as `dev/`, and release tags as one folder per release (and
+  `stable/`), on the `gh-pages` branch that GitHub Pages serves;
+  `.github/scripts/docs_versions.py` maintains that branch.
+- `publish.yml` makes the GitHub Release from a tag (Zenodo archives it).
+- `pixi-update.yml` is described under Dependency updates.
+
+No CHPC data roots are set in CI, so tests must not read group data. Warnings are
+errors in the tests: a test that expects one asserts it with `pytest.warns`, and a
+third-party one is ignored by message in `[tool.pytest]`. pyrefly fails on any error
+not in `pyrefly-baseline.json`; fix the listed ones over time and run
+`uv run pyrefly check --update-baseline`.
+
 ## Releasing
 
 The version comes from git tags, through setuptools-scm, so there is no
@@ -105,6 +135,13 @@ pre-commit hooks, and `uv.lock` (it never raises the minimum versions in
 `pyproject.toml`). Merge it when CI passes. `pixi.lock` (the
 environment with xesmf) is separate: after changing a dependency in
 `pyproject.toml`, run `pixi lock` as well as `uv lock`.
+
+Dependabot updates `uv.lock` only, so `pixi-update.yml` runs `pixi update` monthly
+(and on demand from the Actions tab) and opens one pull request, branch
+`chore/pixi-update`, when `pixi.lock` changes. A pull request opened with a
+workflow's own token starts no CI, so the workflow dispatches Tests on that branch;
+it needs the repository setting "Allow GitHub Actions to create and approve pull
+requests".
 
 ## Template
 
