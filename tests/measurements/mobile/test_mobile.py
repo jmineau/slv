@@ -112,6 +112,29 @@ def test_label_trax_location_with_given_states():
     assert out.yard_name.tolist()[:2] == ["JRRSC", "JRRSC"]
 
 
+@pytest.mark.parametrize(("kwargs", "expected"), [({}, 1), ({"num_processes": 3}, 3)])
+def test_label_trax_location_reads_the_gps_on_num_processes(
+    monkeypatch, kwargs, expected
+):
+    """The location step reads the GPS files on the same processes as its distances."""
+    from slv.measurements.mobile import gps
+    from slv.measurements.mobile.obs import label_trax_location
+
+    seen = {}
+
+    def fake_read_trax_gps(time_range, site="trx01", **kw):
+        seen.update(time_range=time_range, site=site, **kw)
+        return pd.DataFrame()  # no GPS: every minute comes back unknown
+
+    monkeypatch.setattr(gps, "read_trax_gps", fake_read_trax_gps)
+    obs = pd.DataFrame(
+        {"Time_UTC": pd.to_datetime(["2025-03-01 00:00:10"]), "CH4_ppm": [2.0]}
+    )
+    out = label_trax_location(obs, site="trx02", **kwargs)
+    assert seen["num_processes"] == expected and seen["site"] == "trx02"
+    assert out.state.tolist() == ["unknown"]
+
+
 def test_filter_near_routes_does_not_duplicate_on_shared_track():
     import geopandas as gpd
     from shapely.geometry import LineString

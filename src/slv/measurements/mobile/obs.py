@@ -63,8 +63,9 @@ def label_trax_location(
     Uses :mod:`slv.measurements.mobile.location`: per-minute states from the best GPS
     source for the era (``states`` may be passed in to reuse a classification).
     Observations are matched on ``Time_UTC`` floored to the minute; minutes without a
-    classification come back ``unknown`` / NA. ``num_processes`` is the number of threads
-    that measure the GPS fixes' distance to the track and the yards
+    classification come back ``unknown`` / NA. ``num_processes`` is the number of processes
+    that read the GPS files (:func:`~slv.measurements.mobile.gps.read_trax_gps`) and of
+    threads that measure the fixes' distance to the track and the yards
     (:func:`~slv.measurements.mobile.location.location_features`); the labels are the
     same for any number.
     """
@@ -79,7 +80,7 @@ def label_trax_location(
         if time_range is None:
             t = pd.to_datetime(obs["Time_UTC"])
             time_range = (t.min().floor("D"), t.max().ceil("D"))
-        gps = read_trax_gps(time_range, site=site)
+        gps = read_trax_gps(time_range, site=site, num_processes=num_processes)
         if len(gps) == 0:
             states = None
         else:
@@ -558,7 +559,7 @@ def build_trax_obs(
     ``storage_polygon`` in ``gps_kwargs`` to restore the old pre-filtering.
 
     ``num_processes`` is the number of processes that read the pipeline files and, in
-    the location step, the number of threads that measure the GPS fixes' distance to the
+    the location step, that read the GPS files and measure the fixes' distance to the
     track and the yards (:func:`label_trax_location`).
 
     The archive is processed in ``chunk``-sized pieces (pandas offset alias, default one
