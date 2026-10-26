@@ -47,6 +47,20 @@ def test_read_lin_gps_renames_drops_flags_and_sorts(monkeypatch):
     assert out.Speed_m_s.dtype == np.float64 and out.Speed_m_s.isna().all()
 
 
+def test_read_lin_gps_passes_num_processes_to_uataq(monkeypatch):
+    seen = []
+
+    def fake_read(site, **kwargs):
+        seen.append(kwargs["num_processes"])
+        return {"gps": _frame(["2016-01-01 00:00:00"], Latitude_deg=[40.0])}
+
+    monkeypatch.setattr(uataq, "read_data", fake_read)
+    gps.read_lin_gps(("2016-01-01", "2016-01-02"))
+    gps.read_lin_gps(("2016-01-01", "2016-01-02"), num_processes=4)
+    gps.read_lin_gps(("2016-01-01", "2016-01-02"), num_processes="max")
+    assert seen == [1, 4, "max"]
+
+
 def test_read_lin_gps_without_files_is_empty(monkeypatch):
     monkeypatch.setattr(uataq, "read_data", _raise_reader_error)
     assert gps.read_lin_gps(("2016-01-01", "2016-01-02")).empty
@@ -77,6 +91,20 @@ def test_read_horel_cr1000_joins_gps_and_logger(monkeypatch):
         out.Battery_Voltage_V.iloc[1]
     )
     assert out.Speed_m_s.isna().all()  # the pilot logger has no speed: added as NaN
+
+
+def test_read_horel_cr1000_passes_num_processes_to_uataq(monkeypatch):
+    seen = []
+
+    def fake_read(site, **kwargs):
+        seen.append(kwargs["num_processes"])
+        return {"gps": _frame(["2020-01-01 00:00:00"], Latitude_deg=[40.0])}
+
+    monkeypatch.setattr(uataq, "read_data", fake_read)
+    gps.read_horel_cr1000(("2020-01-01", "2020-01-02"))
+    gps.read_horel_cr1000(("2020-01-01", "2020-01-02"), num_processes=4)
+    gps.read_horel_cr1000(("2020-01-01", "2020-01-02"), num_processes="max")
+    assert seen == [1, 4, "max"]
 
 
 def test_read_horel_cr1000_moves_rows_onto_gps_time(monkeypatch):
@@ -128,7 +156,7 @@ def era_calls(monkeypatch):
     calls = []
 
     def reader(name):
-        def read(time_range, site="trx01"):
+        def read(time_range, site="trx01", num_processes=1):
             calls.append((name, *time_range))
             return _frame([time_range[0]], source=[name])
 
@@ -166,12 +194,16 @@ def test_trax_gps_fills_horel_gaps_from_lin(monkeypatch):
     monkeypatch.setattr(
         gps,
         "read_horel_cr1000",
-        lambda time_range, site="trx01": _frame(horel_t, source=["horel"] * 2),
+        lambda time_range, site="trx01", num_processes=1: _frame(
+            horel_t, source=["horel"] * 2
+        ),
     )
     monkeypatch.setattr(
         gps,
         "read_lin_gps",
-        lambda time_range, site="trx01": _frame(lin_t, source=["lin"] * 4),
+        lambda time_range, site="trx01", num_processes=1: _frame(
+            lin_t, source=["lin"] * 4
+        ),
     )
     out = gps.read_trax_gps(("2025-01-01", "2025-01-02"))
     assert out.source.tolist() == ["horel", "horel", "lin", "lin"]
@@ -182,6 +214,44 @@ def test_trax_gps_fills_horel_gaps_from_lin(monkeypatch):
         "horel",
         "horel",
     ]
+
+
+@pytest.mark.parametrize("num_processes", [1, 3, "max"])
+def test_trax_gps_passes_num_processes_to_every_read(monkeypatch, num_processes):
+    """The pilot-era lin read, the horel read and the lin gap-fill all get the same count."""
+    seen = []
+
+    def reader(name):
+        def read(time_range, site="trx01", num_processes=1):
+            seen.append((name, num_processes))
+            return _frame([time_range[0]], source=[name])
+
+        return read
+
+    monkeypatch.setattr(gps, "read_lin_gps", reader("lin"))
+    monkeypatch.setattr(gps, "read_horel_cr1000", reader("horel"))
+    gps.read_trax_gps(
+        ("2018-11-01", "2018-12-01"), fill_gaps=True, num_processes=num_processes
+    )
+    # lin before the switch, horel after it, and the lin read that fills horel's gaps
+    assert seen == [
+        ("lin", num_processes),
+        ("horel", num_processes),
+        ("lin", num_processes),
+    ]
+
+
+def test_trax_gps_reads_on_one_process_by_default(monkeypatch):
+    seen = []
+
+    def read(time_range, site="trx01", num_processes=None):
+        seen.append(num_processes)
+        return _frame([time_range[0]], source=["x"])
+
+    monkeypatch.setattr(gps, "read_lin_gps", read)
+    monkeypatch.setattr(gps, "read_horel_cr1000", read)
+    gps.read_trax_gps(("2018-11-01", "2018-12-01"))
+    assert seen == [1, 1, 1]
 
 
 # --------------------------------------------------------------------------- merge

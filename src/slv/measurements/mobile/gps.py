@@ -17,6 +17,8 @@ observation frame (the pipeline's ``final`` GPS on the Pi clock).
 
 from __future__ import annotations
 
+from typing import Literal
+
 import geopandas as gpd
 import numpy as np
 import pandas as pd
@@ -75,7 +77,9 @@ HOREL_POST_PILOT = pd.Timestamp("2018-11-19T20:04")
 LIN_GPS_DROP_FLAGS = (-21, -22, -23, -200)
 
 
-def read_horel_cr1000(time_range, site: str = "trx01") -> pd.DataFrame:
+def read_horel_cr1000(
+    time_range, site: str = "trx01", num_processes: int | Literal["max"] = 1
+) -> pd.DataFrame:
     """
     Horel-group CR1000 logger record (5 s): GPS + battery voltage + roof T/RH.
 
@@ -93,7 +97,9 @@ def read_horel_cr1000(time_range, site: str = "trx01") -> pd.DataFrame:
     (to :data:`HOREL_POST_PILOT`) are a different setup: one fix per minute (so the
     scatter feature is undefined), a receiver that reports 3–8 satellites, and no
     speed or RMC status. Do not classify from them — use :func:`read_lin_gps` for the
-    pilot era. ``time_range`` is any pair pandas can parse.
+    pilot era. ``time_range`` is any pair pandas can parse. ``num_processes`` is the number of
+    processes that read the files (passed to ``uataq.read_data``); the frame is the same for
+    any number.
     """
     try:
         d = uataq.read_data(
@@ -102,6 +108,7 @@ def read_horel_cr1000(time_range, site: str = "trx01") -> pd.DataFrame:
             group="horel",
             lvl="raw",
             time_range=time_range,
+            num_processes=num_processes,
         )
     except uataq.errors.ReaderError:
         return pd.DataFrame()
@@ -150,7 +157,12 @@ def _to_gps_time(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def read_lin_gps(time_range, site: str = "trx01", lvl: str = "qaqc") -> pd.DataFrame:
+def read_lin_gps(
+    time_range,
+    site: str = "trx01",
+    lvl: str = "qaqc",
+    num_processes: int | Literal["max"] = 1,
+) -> pd.DataFrame:
     """
     Lin-group (air-trend) GPS at 1 s from the pipeline ``qaqc`` level, Dec 2014 on.
 
@@ -158,12 +170,18 @@ def read_lin_gps(time_range, site: str = "trx01", lvl: str = "qaqc") -> pd.DataF
     :data:`LIN_GPS_DROP_FLAGS` are removed. ``Speed_m_s`` is NA from Dec 2015 to
     19 Jan 2018 (GPGGA only), which :func:`~.location.classify_location` handles via
     ``speed_est``. Indexed by GPS ``Time_UTC``; ``Pi_Time`` is kept for merging with
-    the LGR. Only records while the Pi has train power.
+    the LGR. Only records while the Pi has train power. ``num_processes`` is the number of
+    processes that read the files (passed to ``uataq.read_data``); the frame is the same for
+    any number.
     """
     try:
-        df = uataq.read_data(site, instruments="gps", lvl=lvl, time_range=time_range)[
-            "gps"
-        ]
+        df = uataq.read_data(
+            site,
+            instruments="gps",
+            lvl=lvl,
+            time_range=time_range,
+            num_processes=num_processes,
+        )["gps"]
     except uataq.errors.ReaderError:
         return pd.DataFrame()
     df = _coerce_numeric(df.rename(columns={"N_Satellites": "N_Sat"}))
@@ -174,7 +192,10 @@ def read_lin_gps(time_range, site: str = "trx01", lvl: str = "qaqc") -> pd.DataF
 
 
 def read_trax_gps(
-    time_range, site: str = "trx01", fill_gaps: bool = True
+    time_range,
+    site: str = "trx01",
+    fill_gaps: bool = True,
+    num_processes: int | Literal["max"] = 1,
 ) -> pd.DataFrame:
     """
     Best GPS source for classifying, by era: lin-group GPS before
@@ -186,17 +207,26 @@ def read_trax_gps(
     such minute ``unknown`` — ~235 on-track hours of a normally running train, mostly Jul 2024,
     Jan 2025, Sep 2025 and Jul 2026. Filled rows carry no ``Battery_Voltage_V``, so the
     depot/yard rules fall back to their GPS-only form.
+
+    ``num_processes`` is the number of processes that read the GPS files
+    (:func:`read_lin_gps`, :func:`read_horel_cr1000`); the frame is the same for any number.
     """
     start, end = (pd.Timestamp(t) for t in time_range)
     parts = []
     if start < HOREL_POST_PILOT:
-        parts.append(read_lin_gps((start, min(end, HOREL_POST_PILOT)), site))
+        parts.append(
+            read_lin_gps(
+                (start, min(end, HOREL_POST_PILOT)),
+                site,
+                num_processes=num_processes,
+            )
+        )
     if end >= HOREL_POST_PILOT:
         post = (max(start, HOREL_POST_PILOT), end)
-        horel = read_horel_cr1000(post, site)
+        horel = read_horel_cr1000(post, site, num_processes=num_processes)
         parts.append(horel)
         if fill_gaps:
-            lin = read_lin_gps(post, site)
+            lin = read_lin_gps(post, site, num_processes=num_processes)
             if len(lin):
                 covered = (
                     pd.DatetimeIndex(horel.index).floor("min").unique()

@@ -6,6 +6,14 @@ versions are calendar-based (YYYY.M.PATCH).
 
 ## [Unreleased]
 
+### Changed
+
+- The location step of `build_trax_obs` reads the GPS files on `num_processes` processes,
+  not on one. `read_trax_gps`, `read_lin_gps` and `read_horel_cr1000` take
+  `num_processes` (default 1) and pass it to `uataq.read_data`; `label_trax_location`
+  passes its own on. Reading the 2024 GPS (15.9 M fixes) takes 68 s on 8 processes, from
+  120 s, and `label_trax_location` on that year 126 s, from 191 s. The frames are the same
+
 ## [2026.10.2] - 2026-10-22
 
 ### Changed
