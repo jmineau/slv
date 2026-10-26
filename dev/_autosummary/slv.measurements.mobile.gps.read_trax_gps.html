@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
 
-    <script src="../_static/documentation_options.js?v=048f5c23"></script>
+    <script src="../_static/documentation_options.js?v=ecd055a9"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -60,7 +60,7 @@
     <link rel="prev" title="slv.measurements.mobile.gps.read_lin_gps" href="slv.measurements.mobile.gps.read_lin_gps.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.10.3.dev1+g7e6d246a2" />
+  <meta name="docsearch:version" content="2026.10.3.dev2+gb9b6e6e05" />
   
     
     <script src="../_static/searchtools.js"></script>
@@ -670,7 +670,7 @@
 <h1>slv.measurements.mobile.gps.read_trax_gps<a class="headerlink" href="#slv-measurements-mobile-gps-read-trax-gps" title="Link to this heading">#</a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="slv.measurements.mobile.gps.read_trax_gps">
-<span class="sig-prename descclassname"><span class="pre">slv.measurements.mobile.gps.</span></span><span class="sig-name descname"><span class="pre">read_trax_gps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time_range</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">site</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'trx01'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fill_gaps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/slv/measurements/mobile/gps.html#read_trax_gps"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#slv.measurements.mobile.gps.read_trax_gps" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">slv.measurements.mobile.gps.</span></span><span class="sig-name descname"><span class="pre">read_trax_gps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time_range</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">site</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'trx01'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fill_gaps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_processes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/slv/measurements/mobile/gps.html#read_trax_gps"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#slv.measurements.mobile.gps.read_trax_gps" title="Link to this definition">#</a></dt>
 <dd><p>Best GPS source for classifying, by era: lin-group GPS before
 <a class="reference internal" href="slv.measurements.mobile.gps.HOREL_POST_PILOT.html#slv.measurements.mobile.gps.HOREL_POST_PILOT" title="slv.measurements.mobile.gps.HOREL_POST_PILOT"><code class="xref py py-data docutils literal notranslate"><span class="pre">HOREL_POST_PILOT</span></code></a>, horel logger (with battery/T/RH) after.</p>
 <p>With <code class="docutils literal notranslate"><span class="pre">fill_gaps</span></code> (default), minutes the horel logger did not record are filled from the
@@ -679,6 +679,8 @@ lin GPS. The horel logger goes down for days at a time (its battery drained 2024
 such minute <code class="docutils literal notranslate"><span class="pre">unknown</span></code> — ~235 on-track hours of a normally running train, mostly Jul 2024,
 Jan 2025, Sep 2025 and Jul 2026. Filled rows carry no <code class="docutils literal notranslate"><span class="pre">Battery_Voltage_V</span></code>, so the
 depot/yard rules fall back to their GPS-only form.</p>
+<p><code class="docutils literal notranslate"><span class="pre">num_processes</span></code> is the number of processes that read the GPS files
+(<a class="reference internal" href="slv.measurements.mobile.gps.read_lin_gps.html#slv.measurements.mobile.gps.read_lin_gps" title="slv.measurements.mobile.gps.read_lin_gps"><code class="xref py py-func docutils literal notranslate"><span class="pre">read_lin_gps()</span></code></a>, <a class="reference internal" href="slv.measurements.mobile.gps.read_horel_cr1000.html#slv.measurements.mobile.gps.read_horel_cr1000" title="slv.measurements.mobile.gps.read_horel_cr1000"><code class="xref py py-func docutils literal notranslate"><span class="pre">read_horel_cr1000()</span></code></a>); the frame is the same for any number.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a></span></p>

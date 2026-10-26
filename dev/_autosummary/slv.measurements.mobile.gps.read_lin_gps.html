@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
 
-    <script src="../_static/documentation_options.js?v=048f5c23"></script>
+    <script src="../_static/documentation_options.js?v=ecd055a9"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -60,7 +60,7 @@
     <link rel="prev" title="slv.measurements.mobile.gps.read_horel_cr1000" href="slv.measurements.mobile.gps.read_horel_cr1000.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.10.3.dev1+g7e6d246a2" />
+  <meta name="docsearch:version" content="2026.10.3.dev2+gb9b6e6e05" />
   
     
     <script src="../_static/searchtools.js"></script>
@@ -670,13 +670,15 @@
 <h1>slv.measurements.mobile.gps.read_lin_gps<a class="headerlink" href="#slv-measurements-mobile-gps-read-lin-gps" title="Link to this heading">#</a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="slv.measurements.mobile.gps.read_lin_gps">
-<span class="sig-prename descclassname"><span class="pre">slv.measurements.mobile.gps.</span></span><span class="sig-name descname"><span class="pre">read_lin_gps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time_range</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">site</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'trx01'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lvl</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'qaqc'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/slv/measurements/mobile/gps.html#read_lin_gps"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#slv.measurements.mobile.gps.read_lin_gps" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">slv.measurements.mobile.gps.</span></span><span class="sig-name descname"><span class="pre">read_lin_gps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time_range</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">site</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'trx01'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lvl</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'qaqc'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_processes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/slv/measurements/mobile/gps.html#read_lin_gps"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#slv.measurements.mobile.gps.read_lin_gps" title="Link to this definition">#</a></dt>
 <dd><p>Lin-group (air-trend) GPS at 1 s from the pipeline <code class="docutils literal notranslate"><span class="pre">qaqc</span></code> level, Dec 2014 on.</p>
 <p><code class="docutils literal notranslate"><span class="pre">uataq</span></code> read with <code class="docutils literal notranslate"><span class="pre">N_Satellites</span></code> renamed to <code class="docutils literal notranslate"><span class="pre">N_Sat</span></code>; rows with
 <a class="reference internal" href="slv.measurements.mobile.gps.LIN_GPS_DROP_FLAGS.html#slv.measurements.mobile.gps.LIN_GPS_DROP_FLAGS" title="slv.measurements.mobile.gps.LIN_GPS_DROP_FLAGS"><code class="xref py py-data docutils literal notranslate"><span class="pre">LIN_GPS_DROP_FLAGS</span></code></a> are removed. <code class="docutils literal notranslate"><span class="pre">Speed_m_s</span></code> is NA from Dec 2015 to
 19 Jan 2018 (GPGGA only), which <a class="reference internal" href="slv.measurements.mobile.location.classify_location.html#slv.measurements.mobile.location.classify_location" title="slv.measurements.mobile.location.classify_location"><code class="xref py py-func docutils literal notranslate"><span class="pre">classify_location()</span></code></a> handles via
 <code class="docutils literal notranslate"><span class="pre">speed_est</span></code>. Indexed by GPS <code class="docutils literal notranslate"><span class="pre">Time_UTC</span></code>; <code class="docutils literal notranslate"><span class="pre">Pi_Time</span></code> is kept for merging with
-the LGR. Only records while the Pi has train power.</p>
+the LGR. Only records while the Pi has train power. <code class="docutils literal notranslate"><span class="pre">num_processes</span></code> is the number of
+processes that read the files (passed to <code class="docutils literal notranslate"><span class="pre">uataq.read_data</span></code>); the frame is the same for
+any number.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a></span></p>
