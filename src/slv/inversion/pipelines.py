@@ -412,9 +412,9 @@ def get_constant(config: InversionConfig, obs: pd.Series) -> pd.Series:
 
     # Align background to obs index
     data = (
-        obs.to_frame()
+        obs.to_frame("obs")
         .reset_index()
-        .join(data, on="obs_time", lsuffix="_obs")
+        .join(data, on="obs_time")
         .set_index(["obs_location", "obs_time"])["concentration"]
     )
     return data.dropna().rename("background")

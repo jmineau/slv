@@ -1,8 +1,11 @@
 """Prior flux fields for the SLV inversion (EPA, EDGAR or constant) on the state grid."""
 
+import warnings
+
 import pandas as pd
 import xarray as xr
 from lair import inventories
+from pandas.tseries.offsets import BaseOffset
 
 
 def get_slv_prior(
@@ -69,6 +72,22 @@ def get_slv_prior(
         )
     else:
         raise ValueError(f"Unsupported prior: {prior}")
+
+
+def _infer_freq(times) -> BaseOffset | None:
+    """
+    The step of regular ``times`` as an offset (``pd.infer_freq``), or None if irregular.
+
+    pandas 3.1 warns that ``infer_freq`` will return an offset rather than a string, and
+    the option that asks for the offset is not in pandas 3.0; so the warning is silenced
+    here and the result made an offset, which both versions agree on.
+    """
+    with warnings.catch_warnings():
+        warnings.filterwarnings(
+            "ignore", "A future version of pandas will return a BaseOffset"
+        )
+        freq = pd.infer_freq(times)
+    return None if freq is None else pd.tseries.frequencies.to_offset(freq)
 
 
 def align_to_flux_times(inventory: xr.DataArray | xr.Dataset, flux_times):
@@ -186,11 +205,11 @@ def load_epa_prior(
 
     # Resample inventory to target flux frequency if needed
     if flux_freq is not None:
-        inv_freq = pd.infer_freq(inventory.time.values)
+        inv_freq = _infer_freq(inventory.time.values)
         if inv_freq is not None:
             ref = pd.Timestamp("2020-01-01")
             target_step = ref + pd.tseries.frequencies.to_offset(flux_freq)
-            inv_step = ref + pd.tseries.frequencies.to_offset(inv_freq)
+            inv_step = ref + inv_freq
             if target_step > inv_step:
                 inventory = inventory.resample(time=flux_freq).mean()
 
@@ -237,11 +256,11 @@ def load_edgar_prior(
     inventory.attrs["units"] = total.attrs["units"]
 
     if flux_freq is not None:
-        inv_freq = pd.infer_freq(inventory.time.values)
+        inv_freq = _infer_freq(inventory.time.values)
         if inv_freq is not None:
             ref = pd.Timestamp("2020-01-01")
             target_step = ref + pd.tseries.frequencies.to_offset(flux_freq)
-            inv_step = ref + pd.tseries.frequencies.to_offset(inv_freq)
+            inv_step = ref + inv_freq
             if target_step > inv_step:
                 inventory = inventory.resample(time=flux_freq).mean()
 

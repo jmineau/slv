@@ -42,6 +42,11 @@ versions are calendar-based (YYYY.M.PATCH).
   passes its own on. Reading the 2024 GPS (15.9 M fixes) takes 68 s on 8 processes, from
   120 s, and `label_trax_location` on that year 126 s, from 191 s. The frames are the same
 
+### Fixed
+
+- slv runs on pandas 3.1 without its new deprecation warnings (`DataFrame.join`'s
+  `lsuffix`, `inplace=`, `infer_freq` returning a string), and still on pandas 3.0.
+
 ## [2026.10.2] - 2026-10-22
 
 ### Changed
