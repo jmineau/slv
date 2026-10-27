@@ -28,8 +28,8 @@ Contributing page, [docs/contributing.rst](docs/contributing.rst).
   measurements and inventories, running flux inversions (via `fips`),
   building figures.
 - Depends directly on the user's own packages — `lair[science,geo]` and `uataq` (each pinned
-  to a release tag) are git-installed; `fips[flux]` (which pulls in
-  `pystilt`) lives in the `inversion` extra.
+  to a release tag) are git-installed; `fips[viz]` and `pystilt`
+  live in the `inversion` extra.
 
 ## Module layout
 
@@ -96,10 +96,16 @@ What each CI workflow does, the pixi job and the monthly `pixi update` are in
   and `@vYYYY.M.PATCH`, in `pyproject.toml`; bump them and relock with `uv lock` and
   `pixi lock`). Bumping behavior in those repos can
   silently change `slv` results — coordinate changes.
-- **Inversion pipeline structure** mirrors `fips.InversionPipeline`'s
-  template-method pattern. New inversion variants should subclass
-  `SLVMethaneInversion` (or `fips.InversionPipeline`), not rewrite the
-  loop.
+- **The inversion pipeline is functions of the config** (fips has no pipeline):
+  `build_problem` composes the `get_*` components into a `fips.Problem`, and `run`
+  solves it with `fips.solve`. A new variant composes its own `build_problem` from the
+  same functions; the cached components keep their names and keys.
+- **Labels are matched exactly.** fips 0.2 joins labels exactly and never rounds them;
+  `build_problem` rounds the float labels of the prior and the Jacobian's columns to
+  `LABEL_DECIMALS` (6) so the regridded prior's cells meet the Jacobian's.
+- **A receptor with an empty footprint is a row of zeros; one with no footprint drops
+  its obs** (`project_jacobian`, `build_problem`): an empty footprint saw no emissions,
+  a missing one was never run.
 - **Packaged CSVs are part of the API contract.** Schema changes break
   downstream notebooks.
 - **Inversion cache keying** (`inversion/cache.py`; how the folder, version tag,
@@ -148,7 +154,7 @@ does.
 - `basemap.SaltLake` mutates a matplotlib figure with cartopy axes;
   it is not thread-safe.
 - Mobile (TRAX) obs are keyed by PYSTILT location_id, not site. Anything keyed by
-  site must resolve through `SLVMethaneInversion.obs_sites` (receptor -> the single
+  site must resolve through `pipelines.obs_sites` (receptor -> the single
   mobile site in `config.sites`) -- the MDM and the bias Jacobian do (the rolling
   background and the subhour std use stationary sites only; see `docs/contributing.rst`,
   "Notes on the pipeline").
@@ -162,19 +168,15 @@ does.
   key change means a full Jacobian rebuild) and sweep config_ids. Normalize at the
   parse site instead (`covariances.normalize_duration`).
 - Tests: `tests/conftest.py` points `SLV_STILT_DIR` at an empty tmp dir, so a test that
-  reaches the Jacobian build without stubbing `_get_flux_jacobian` fails fast instead
-  of scanning the paper-1 project. Pipeline methods are tested on
-  `object.__new__(SLVMethaneInversion)` with only `config` set (no fips `__init__`, no
-  data); viz tests stub `GeoAxes.add_image` so no tiles are fetched; the TRAX loaders run
+  reaches the Jacobian build without stubbing `_project_jacobian` fails fast instead
+  of scanning the paper-1 project. The pipeline functions are tested on a made-up
+  inversion: `tests/inversion/conftest.py`'s `synthetic` fixture stubs the loaders and
+  makes a config; viz tests stub `GeoAxes.add_image` so no tiles are fetched; the TRAX loaders run
   on a synthetic two-line network (`tests/measurements/mobile/test_network.py`); tests of
   `GMLDiscrete` stub `noaa.GMLData.download`. Tests needing xesmf (lair cell areas)
   `importorskip` it: they run in the pixi env / CI only. A test that looks for fips cache
   files builds the path the way the cache does (`_version_tag()`). Measure coverage with
   `--cov=slv`: `--cov=slv.inversion.viz` imports numpy twice and fails collection. Why the
   pixi env pins the no-MPI ESMF build: `docs/contributing.rst`, "Notes on the tests".
-- fips `Block` squeezes its data, so a one-element Series becomes a scalar and fails
-  validation ("All levels in the row index of Block must be named"). Build test
-  vectors with at least two entries; a real one-interval bias block would hit it too
-  (fixed on fips's main, not in the release locked here).
 - `merge_with_gps` is on the `build_trax_obs` path, so changing what it drops (the
   altitude range, a repeated reading) changes `obs.parquet` on the next rebuild.
