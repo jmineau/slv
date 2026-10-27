@@ -32,8 +32,7 @@ versions are calendar-based (YYYY.M.PATCH).
 - `desroziers_diagnostic`'s `specified` is the obs error the solve used, the
   model-data mismatch divided by `gamma` (fips's Desroziers); it is the same for
   `gamma=None`
-- The `inversion` extra needs `fips[viz]` 0.2 (fips's `flux` extra is gone), for now
-  from a fips commit
+- The `inversion` extra needs `fips[viz]>=0.2.0b1` (fips's `flux` extra is gone)
 - The sweep's `R2` is fips's `Posterior.r2`, the R² of the enhancement,
   `corr(obs - background, H x_hat)²`. fips 0.1's was `corr(obs, H x_hat + background)²`,
   which a background that varies from day to day raises whatever the fit of the fluxes
