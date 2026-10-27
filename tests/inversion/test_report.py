@@ -38,7 +38,7 @@ def solved(prior, obs_std=(1.0, 1.0, 2.0, 2.0), gamma=1.0):
         prior=x0,
         prior_cov=Independent().with_std(0.5),
         obs=obs,
-        obs_cov=Independent().with_std(np.asarray(obs_std)),
+        obs_cov=Independent().with_std(pd.Series(obs_std, index=OBS_INDEX)),
         forward=Operator(H[:, : len(x0)], obs.space, x0.space),
         offset=1.0,
     )

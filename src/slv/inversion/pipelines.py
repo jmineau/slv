@@ -24,7 +24,7 @@ from slv.inversion.background import get_slv_background
 from slv.inversion.cache import fips_cache
 from slv.inversion.config import InversionConfig
 from slv.inversion.covariances import build_prior_error
-from slv.inversion.coverage import check_state_cells, covered_state, matrix
+from slv.inversion.coverage import check_state_cells, covered_state
 from slv.inversion.data import get_slv_observations, split_sites
 from slv.inversion.mdm import get_modeldata_mismatch
 
@@ -70,7 +70,7 @@ def stack_jacobians(parts: list[tuple[Path, Operator]]) -> Operator:
     blocks = []
     for _, H in parts:
         where = cols.get_indexer(H.cols.select("flux"))
-        m = sp.coo_array(matrix(H))
+        m = H.sparse().tocoo()
         blocks.append(
             sp.csr_array((m.data, (m.row, where[m.col])), shape=(H.shape[0], len(cols)))
         )
@@ -101,20 +101,33 @@ def project_jacobian(
     obs_time)``: the receptor's location id, renamed by ``location_mapper`` when it names a
     site, and its time; they are the one block ``concentration``. Columns are the target's
     cells and the bins' left edges (``(lon, lat, time)`` for a longitude/latitude grid), the
-    one block ``flux``. A receptor whose footprint is empty or misses the target gets no
-    row, and entries below ``threshold`` are zero. Returns None when no receptor has a row.
+    one block ``flux``. Entries below ``threshold`` are zero.
+
+    Every receptor with a footprint gets a row. One whose footprint is empty (all its
+    particles left the domain) or misses the target gets a row of zeros: it saw no
+    emissions, which is a real observation. A receptor with no footprint (not run yet, or
+    failed) gets no row, and :func:`build_problem` drops its obs. Returns None when no
+    receptor has a footprint.
     """
     J = project.jacobian(sel, target, flux_bins, workers=workers)
     if J.missing:
-        print(f"  {len(J.missing)} receptors have no footprint yet; skipped")
+        print(
+            f"  {len(J.missing)} receptors have no footprint yet; their obs are dropped"
+        )
     data = J.data.tocsr(copy=True)
     if threshold is not None:
         data.data[np.abs(data.data) < threshold] = 0.0
         data.eliminate_zeros()
-    keep = np.flatnonzero(data.getnnz(axis=1))
-    if not len(keep):
+    receptors = np.asarray(J.receptors)
+    if J.empty:
+        print(f"  {len(J.empty)} receptors have an empty footprint; kept as zero rows")
+        zeros = sp.csr_array((len(J.empty), data.shape[1]), dtype=data.dtype)
+        data = sp.vstack([data, zeros], format="csr")
+        receptors = np.concatenate(
+            [receptors, np.asarray(J.empty, dtype=receptors.dtype)]
+        )
+    if not len(receptors):
         return None
-    receptors = np.asarray(J.receptors)[keep]
 
     info = sel.drop_duplicates("receptor").set_index("receptor").loc[receptors]
     mapper = location_mapper or {}
@@ -124,7 +137,7 @@ def project_jacobian(
     )
     cells = [n for n in J.columns.names if n != "time"]
     cols = J.columns.reorder_levels([*cells, "time"])
-    kept = sp.csr_array(data[keep])
+    kept = sp.csr_array(data)
     return Operator(
         kept if sparse else kept.toarray(),
         Space({"concentration": rows}),
@@ -174,7 +187,7 @@ def get_prior(config: InversionConfig) -> pd.Series:
     return prior.rename("prior")
 
 
-@fips_cache("forward_operator")
+@fips_cache("forward_operator", key=lambda config, obs: _footprint_key(config, obs))
 def get_flux_jacobian(config: InversionConfig, obs: pd.Series) -> Operator:
     """
     The flux Jacobian from the PYSTILT footprints (cached as ``forward_operator``).
@@ -186,6 +199,8 @@ def get_flux_jacobian(config: InversionConfig, obs: pd.Series) -> Operator:
     project and the TRAX ones in their own. Each project contributes the rows for the
     obs it has footprints for, and the rows are stacked into one Jacobian. All projects
     are aggregated onto the same state grid and flux time bins, so their columns line up.
+    The cache key also sees the footprints (:func:`_footprint_key`), so simulations run
+    since a Jacobian was cached rebuild it.
     """
     obs_locations = set(obs.index.get_level_values("obs_location"))
     parts: list[tuple[Path, Operator]] = []
@@ -203,12 +218,61 @@ def get_flux_jacobian(config: InversionConfig, obs: pd.Series) -> Operator:
     return stack_jacobians(parts)
 
 
+def _footprint_key(
+    config: InversionConfig, obs: pd.Series
+) -> list[tuple[str | None, int]]:
+    """
+    What the Jacobian's cache key sees of the footprints: per project, the folder its
+    footprints are read from and how many of the selected receptors have one.
+
+    The count changes when simulations missing from a cached Jacobian are run; the
+    folder (``settings=<variant>-<hash>``, named by the transport, met and footprint
+    settings) changes when they are rerun with other settings, such as a new met crop.
+    A project with no matching simulation is left out.
+    """
+    obs_locations = set(obs.index.get_level_values("obs_location"))
+    key = []
+    for project in config.stilt_projects:
+        selected = _select_simulations(config, project, obs_locations)
+        if selected is None:
+            continue
+        proj, sel, _ = selected
+        folder = proj.output.folder("footprints", proj.variants[sel["variant"].iloc[0]])
+        count = int(proj.status(sel)["footprint"].sum())
+        print(f"  {project.name}: {count} of {len(sel)} receptors have a footprint")
+        key.append((None if folder is None else folder.name, count))
+    return key
+
+
 def _project_jacobian(
     config: InversionConfig, project: Path, obs_locations: set
 ) -> Operator | None:
     """
     One project's Jacobian rows for the obs in ``obs_locations``, or None if it has
     no simulation matching any of them.
+    """
+    selected = _select_simulations(config, project, obs_locations)
+    if selected is None:
+        return None
+    proj, sel, location_mapper = selected
+    return project_jacobian(
+        proj,
+        sel,
+        config.state_grid,
+        config.flux_time_bins,
+        location_mapper=location_mapper,
+        workers=config.num_processes,
+        sparse=config.sparse_jacobian,
+    )
+
+
+def _select_simulations(
+    config: InversionConfig, project: Path, obs_locations: set
+) -> tuple[Any, pd.DataFrame, dict[str, str]] | None:
+    """
+    The project, its simulations for the obs in ``obs_locations`` (the variant, the
+    flux period, the ``subset_hours``) and the location mapper, or None if no
+    simulation matches.
     """
     import stilt
 
@@ -259,15 +323,7 @@ def _project_jacobian(
     if sel.empty:
         print(f"  {project.name}: no simulations in the time range; skipped")
         return None
-    return project_jacobian(
-        proj,
-        sel,
-        config.state_grid,
-        bins,
-        location_mapper=location_mapper,
-        workers=config.num_processes,
-        sparse=config.sparse_jacobian,
-    )
+    return proj, sel, location_mapper
 
 
 def _resolve_variant(config: InversionConfig, proj, project: Path) -> str:
@@ -449,9 +505,10 @@ def build_problem(config: InversionConfig) -> Problem:
     (:func:`~slv.inversion.coverage.check_state_cells`); the prior error; the obs without
     a background are dropped; the model-data mismatch on the obs that are left; the
     bias block when ``config.bias_std`` is set; and the means of the obs over
-    ``config.aggregate_obs`` (a day) when it is set. The Jacobian's rows for the obs are
-    placed on them (an obs without a footprint is a row of zeros), and the float labels
-    are rounded to :data:`LABEL_DECIMALS`.
+    ``config.aggregate_obs`` (a day) when it is set. The obs whose receptor has no
+    footprint are dropped too (a receptor with an empty footprint has a row of zeros and
+    keeps its obs; :func:`project_jacobian`). The Jacobian's rows for the obs are placed
+    on them, and the float labels are rounded to :data:`LABEL_DECIMALS`.
 
     Returns
     -------
@@ -501,6 +558,16 @@ def build_problem(config: InversionConfig) -> Problem:
             "with missing background"
         )
         obs = obs[have_bg]
+    # The obs whose receptor has no footprint (not run, or failed) are dropped: a row
+    # of zeros would say they saw no emissions
+    receptors = jacobian.rows.select("concentration")
+    have_footprint = obs.index.isin(receptors)
+    if not have_footprint.all():
+        print(
+            f"  Dropping {int((~have_footprint).sum())}/{len(have_footprint)} obs "
+            "whose receptor has no footprint"
+        )
+        obs = obs[have_footprint]
 
     step_start = time.perf_counter()
     print("Building model-data mismatch covariance...")
@@ -520,11 +587,10 @@ def build_problem(config: InversionConfig) -> Problem:
     obs_vector = Vector.from_series(obs, block="concentration")
     state = Vector.from_series(prior, block="flux")
     offset = Vector.from_series(constant.reindex(obs.index), block="concentration")
-    receptors = jacobian.rows.select("concentration")
-    in_obs = np.flatnonzero(receptors.isin(obs.index))
+    in_obs = receptors.isin(obs.index)
     blocks: dict[tuple[str, str], Any] = {
         ("concentration", "flux"): (
-            matrix(jacobian)[in_obs],
+            jacobian.sparse()[in_obs],
             receptors[in_obs],
             _rounded(jacobian.cols.select("flux")),
         )

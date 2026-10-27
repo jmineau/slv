@@ -17,7 +17,6 @@ from lair import inventories
 
 from slv.inversion import viz
 from slv.inversion.config import InversionConfig
-from slv.inversion.viz import block_series
 
 
 def fluxes_as_inventory(
@@ -118,8 +117,8 @@ def _totals(
     prior in the posterior.
     """
     estimate = post.estimate.combine_first(problem.prior)
-    prior = block_series(problem.prior, "flux", "prior")
-    posterior = block_series(estimate, "flux", "posterior")
+    prior = problem.prior.to_series("flux").rename("prior")
+    posterior = estimate.to_series("flux").rename("posterior")
     return (
         calculate_total_flux(config, prior, units=config.output_units),
         calculate_total_flux(config, posterior, units=config.output_units),
@@ -131,15 +130,15 @@ def _print_fit(post: Posterior) -> None:
     from scipy import stats
 
     problem = post.problem
-    obs = block_series(problem.obs, "concentration")
+    obs = problem.obs.to_series("concentration")
     background = 0.0
     if problem.offset is not None:
-        background = block_series(problem.offset, "concentration")
+        background = problem.offset.to_series("concentration")
     enhancement = obs - background
-    prior_flux = block_series(problem.prior, "flux")
-    post_flux = block_series(post.estimate, "flux")
-    prior_obs = block_series(problem.predict(problem.prior), "concentration")
-    post_obs = block_series(post.modeled_obs, "concentration")
+    prior_flux = problem.prior.to_series("flux")
+    post_flux = post.estimate.to_series("flux")
+    prior_obs = problem.predict(problem.prior).to_series("concentration")
+    post_obs = post.modeled_obs.to_series("concentration")
 
     # --- Atmospheric metrics ---
     mean_enhancement = np.mean(enhancement)
@@ -302,9 +301,9 @@ def plot_obs(
     problem = post.problem
     data = pd.concat(
         [
-            block_series(problem.obs, "concentration", "observed"),
-            block_series(post.modeled_obs, "concentration", "posterior"),
-            block_series(problem.predict(problem.prior), "concentration", "prior"),
+            problem.obs.to_series("concentration").rename("observed"),
+            post.modeled_obs.to_series("concentration").rename("posterior"),
+            problem.predict(problem.prior).to_series("concentration").rename("prior"),
         ],
         axis=1,
     )
@@ -384,9 +383,9 @@ def plot_inputs(config: InversionConfig, problem: Problem, solved: Problem) -> N
         sites=config.sites,
         site_config=config.site_config,
     )
-    viz.plot_concentrations(block_series(problem.obs, "concentration"))
+    viz.plot_concentrations(problem.obs.to_series("concentration"))
 
-    prior = block_series(problem.prior, "flux", "prior").to_xarray()
+    prior = problem.prior.to_series("flux").rename("prior").to_xarray()
     if len(solved.prior) < len(problem.prior):
         viz.plot_prior_with_coverage(
             prior,
@@ -423,7 +422,7 @@ def plot_results(config: InversionConfig, post: Posterior, problem: Problem) -> 
     if len(post.problem.prior) < len(problem.prior):
         estimate = post.estimate.combine_first(problem.prior)
         viz.plot_reconstructed_posterior(
-            block_series(estimate, "flux", "posterior").to_xarray(),
+            estimate.to_series("flux").rename("posterior").to_xarray(),
             _cells(post.problem.prior),
             _cells(problem.prior),
             dx=config.dx,
@@ -470,7 +469,7 @@ def plot_diagnostics(
     solved = post.problem
     filtered = len(solved.prior) < len(problem.prior)
     if filtered and solved.offset is not None and problem.offset is not None:
-        offset = block_series(solved.offset, "concentration")
-        removed = offset - block_series(problem.offset, "concentration")
+        offset = solved.offset.to_series("concentration")
+        removed = offset - problem.offset.to_series("concentration")
         viz.plot_removed_contribution(removed, offset)
     plt.show()

@@ -8,7 +8,6 @@ from slv.inversion import viz
 from slv.inversion.cache import fips_cache
 from slv.inversion.config import InversionConfig
 from slv.inversion.covariances import build_mdm_error
-from slv.inversion.coverage import matrix
 from slv.inversion.data import get_slv_subhour_std
 
 
@@ -59,7 +58,7 @@ def multiplicative_scale(
     receptors = jacobian.rows.select("concentration")
     if scale_on == "footprint":
         xref = float(np.mean(prior.to_numpy()))
-        row_abs = np.asarray(abs(matrix(jacobian)).sum(axis=1)).ravel()
+        row_abs = np.asarray(abs(jacobian.sparse()).sum(axis=1)).ravel()
         return _on_obs(pd.Series(row_abs * xref, index=receptors), obs)
     if scale_on == "obs":
         key = obs.index.droplevel(
@@ -71,7 +70,7 @@ def multiplicative_scale(
     # orders differ (the EPA prior is (time, lat, lon), the Jacobian (lon, lat, time)).
     cells = jacobian.cols.select("flux")
     x = prior.reorder_levels(cells.names).reindex(cells, fill_value=0.0)
-    e = pd.Series(matrix(jacobian) @ x.to_numpy(dtype=float), index=receptors)
+    e = pd.Series(jacobian.sparse() @ x.to_numpy(dtype=float), index=receptors)
     return np.abs(_on_obs(e, obs))
 
 
@@ -97,7 +96,15 @@ def per_obs_std(config: InversionConfig, obs: pd.Series, src: str) -> np.ndarray
     return _on_obs(s, obs)
 
 
-@fips_cache("modeldata_mismatch")
+def _footprint_key(config: InversionConfig, obs: pd.Series, **_) -> list:
+    """The footprints the MDM is built from, for its cache key (a multiplicative term scales with the Jacobian's rows)."""
+    # imported here: pipelines imports this module
+    from slv.inversion.pipelines import _footprint_key as footprints
+
+    return footprints(config, obs)
+
+
+@fips_cache("modeldata_mismatch", key=_footprint_key)
 def get_modeldata_mismatch(
     config: InversionConfig,
     obs: pd.Series,

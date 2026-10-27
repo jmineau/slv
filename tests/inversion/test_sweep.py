@@ -347,6 +347,87 @@ class TestCollectMetrics:
         assert row["cfg_prior_std_frac"] == pytest.approx(0.5)
 
 
+def _solved_with_background(background: float, truth_scale: float = 1.0):
+    """
+    A solved inversion with a constant *background*.
+
+    The observations are ``H @ (truth_scale * x0) + background``, so the prior
+    fits them exactly when ``truth_scale`` is 1.
+    """
+    obs_index = pd.MultiIndex.from_arrays(
+        [["wbb"] * 3, pd.date_range("2020-01-05", periods=3, freq="D")],
+        names=["obs_location", "obs_time"],
+    )
+    cells = pd.MultiIndex.from_product(
+        [pd.to_datetime(["2020-01-01"]), [40.5], [-112.0, -111.9]],
+        names=["time", "lat", "lon"],
+    )
+    H = np.array([[1.0, 0.5], [0.2, 1.0], [0.7, 0.7]])
+    x0 = np.array([0.01, 0.02])
+    z = H @ (truth_scale * x0) + background
+    prior = Vector.from_series(pd.Series(x0, index=cells), block="flux")
+    obs = Vector.from_series(pd.Series(z, index=obs_index), block="concentration")
+    problem = Problem(
+        prior=prior,
+        prior_cov=Independent().with_std(0.01),
+        obs=obs,
+        obs_cov=Independent().with_std(0.01),
+        forward=Operator(H, obs.space, prior.space),
+        offset=background,
+    )
+    return fips.solve(problem)
+
+
+class TestConcentrationResiduals:
+    """
+    The residuals compare the observed concentration with the modeled one.
+
+    The model adds the background to ``H x``, so a residual taken against the
+    observed enhancement (obs minus background) is off by the background (#27).
+    """
+
+    def test_prior_that_fits_the_obs_has_no_residual(self, summing):
+        # The issue's reproduction: z = H x0 + c with c = 1.9 ppm.
+        row = collect_metrics(_solved_with_background(1.9), _cfg())
+        for col in ("prior_conc_rmse", "prior_conc_bias"):
+            assert row[col] == pytest.approx(0.0, abs=1e-12)
+        for col in ("posterior_conc_rmse", "posterior_conc_bias"):
+            assert row[col] == pytest.approx(0.0, abs=1e-9)
+
+    def test_residuals_are_obs_minus_model(self, summing):
+        # The prior flux is two thirds of the truth: residual = obs - (H x + c).
+        post = _solved_with_background(1.9, truth_scale=1.5)
+        problem = post.problem
+        obs = problem.obs.to_series("concentration")
+        prior_resid = obs - problem.predict(problem.prior).to_series("concentration")
+        post_resid = obs - post.modeled_obs.to_series("concentration")
+
+        row = collect_metrics(post, _cfg())
+
+        assert row["prior_conc_rmse"] == pytest.approx(np.sqrt((prior_resid**2).mean()))
+        assert row["prior_conc_bias"] == pytest.approx(prior_resid.mean())
+        assert row["posterior_conc_rmse"] == pytest.approx(
+            np.sqrt((post_resid**2).mean())
+        )
+        assert row["posterior_conc_bias"] == pytest.approx(post_resid.mean())
+        assert row["prior_conc_bias"] > 0  # the model is below the obs
+        assert row["n_obs"] == 3
+
+    def test_residuals_do_not_depend_on_the_background(self, summing):
+        keys = (
+            "prior_conc_rmse",
+            "posterior_conc_rmse",
+            "prior_conc_bias",
+            "posterior_conc_bias",
+        )
+        rows = [
+            collect_metrics(_solved_with_background(bg, truth_scale=1.5), _cfg())
+            for bg in (0.0, 1.9)
+        ]
+        for key in keys:
+            assert rows[0][key] == pytest.approx(rows[1][key], abs=1e-9)
+
+
 # ---------------------------------------------------------------------------
 # 6. Sweep.run() resume behaviour
 # ---------------------------------------------------------------------------

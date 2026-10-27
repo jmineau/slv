@@ -191,24 +191,18 @@ def test_constant_and_mdm_key_on_the_csv_fingerprint_not_the_path():
 
 def test_ct_stilt_background_rebuilt_when_the_csv_is_rewritten(tmp_path):
     # issue #30: the cached background was read after its CSV was rewritten in place
-    from fips import Block, Vector
-
-    from slv.inversion import SLVMethaneInversion
+    from slv.inversion.pipelines import get_constant
 
     csv = tmp_path / "ct.csv"
     idx = pd.MultiIndex.from_arrays(
         [["wbb"] * 3, pd.date_range("2020-01-01 20:00", periods=3, freq="D")],
         names=["obs_location", "obs_time"],
     )
-    obs = Vector(
-        name="obs",
-        data=Block(pd.Series([2.0, 2.1, 2.2], index=idx), name="concentration"),
-    )
+    obs = pd.Series([2.0, 2.1, 2.2], index=idx, name="obs")
 
     def background():
-        inv = object.__new__(SLVMethaneInversion)
-        inv.config = _ct_config(csv, tmp_path / "cache")
-        return inv.get_constant(obs).to_series().round(3).to_list()
+        config = _ct_config(csv, tmp_path / "cache")
+        return get_constant(config, obs).round(3).to_list()
 
     _write_ct(csv, [1.90, 1.91, 1.92], 1_000_000_000_000_000_000)
     assert background() == [1.9, 1.91, 1.92]
