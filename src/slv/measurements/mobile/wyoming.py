@@ -28,8 +28,7 @@ def read_aeris(file):
     aeris = aeris.dropna(subset=["Time_UTC"]).set_index("Time_UTC").sort_index()
     aeris = aeris[["CH4 (ppm)", "C2H6 (ppb)", "R", "C2/C1"]]
     aeris["CH4 (ppm)"] *= 1000
-    aeris.rename(columns={"CH4 (ppm)": "CH4 (ppb)"}, inplace=True)
-    return aeris
+    return aeris.rename(columns={"CH4 (ppm)": "CH4 (ppb)"})
 
 
 def read_met(file):
@@ -198,7 +197,8 @@ def enhanced_R_and_ratio(data, window="30s"):
     their ratio ``C2/C1`` (after :func:`calculate_enhancements`); the analyzer's own
     columns are kept as ``R_aeris`` and ``C2C1_aeris``. Modifies ``data`` in place.
     """
-    data.rename(columns={"R": "R_aeris", "C2/C1": "C2C1_aeris"}, inplace=True)
+    names = {"R": "R_aeris", "C2/C1": "C2C1_aeris"}
+    data.columns = [names.get(c, c) for c in data.columns]
 
     data["R"] = data.CH4_ex.rolling(window).corr(data.C2H6_ex)
     data["C2/C1"] = data["C2H6_ex"] / data["CH4_ex"]

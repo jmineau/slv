@@ -167,7 +167,7 @@ def test_lag_shifts_the_window_later(tmp_path):
     lagged = trax_receptor_observations(
         f, cr, pd.DataFrame(columns=["dwell"]), ch4, lag=30
     )
-    j = base.join(lagged, rsuffix="_lag")
+    j = base.join(lagged.add_suffix("_lag"))
     # on a rising ramp, reading 30 s later gives +30 s * 1e-4 ppm
     assert np.allclose(j.CH4_lag - j.CH4, 30 * 1e-4, atol=2e-4)
     assert (lagged.lag_s == 30).all() and (lagged.lag_source == "constant").all()
