@@ -8,6 +8,35 @@ versions are calendar-based (YYYY.M.PATCH).
 
 ### Changed
 
+- **The inversion runs on fips 0.2's API** (labeled vectors and operators,
+  `fips.Problem`, `fips.solve` returning a `fips.Posterior`), and the pipeline is
+  functions of the config instead of the `SLVMethaneInversion` class:
+  `build_problem(config)` gives the problem and `run(config)` solves it and returns the
+  posterior. `post.estimate["flux"]` replaces `problem.posterior_fluxes`,
+  `post.problem.prior["flux"]` the `prior_fluxes`, `post.cov(W)` the aggregated
+  posterior error, and so on. `fluxes_as_inventory`, `calculate_total_flux`,
+  `desroziers_diagnostic`, `summarize` and the plots are functions in
+  `slv.inversion.report` that take the config and the posterior. `Sweep` takes a
+  `pipeline` function (`run` by default) instead of `pipeline_cls`, and
+  `Sweep.get_posterior` replaces `get_problem`. The printed summary is unchanged
+- The bias block is fips's `offset_block`: one offset per group that has obs (a group
+  without obs is no longer in the state), labeled by the interval's start on an
+  `obs_time` level. The coverage filter is `coverage.covered_state` plus
+  `fips.Problem.restrict`; `post.estimate.combine_first(problem.prior)` replaces
+  `reconstruct_posterior`
+- The prior error is kept as its two Kronecker factors and the model-data mismatch is
+  a sum of fips covariance models, built on the obs that have a background. The bias
+  fields left the cache keys of the prior, the prior error and the Jacobian, which hold
+  the flux block only. A cache written with fips 0.1 is not read (its folder is named
+  after the fips version)
+- `desroziers_diagnostic`'s `specified` is the obs error the solve used, the
+  model-data mismatch divided by `gamma` (fips's Desroziers); it is the same for
+  `gamma=None`
+- The `inversion` extra needs `fips[viz]` 0.2 (fips's `flux` extra is gone), for now
+  from a fips commit
+- The sweep's `R2` is fips's `Posterior.r2`, the R² of the enhancement,
+  `corr(obs - background, H x_hat)²`. fips 0.1's was `corr(obs, H x_hat + background)²`,
+  which a background that varies from day to day raises whatever the fit of the fluxes
 - The location step of `build_trax_obs` reads the GPS files on `num_processes` processes,
   not on one. `read_trax_gps`, `read_lin_gps` and `read_horel_cr1000` take
   `num_processes` (default 1) and pass it to `uataq.read_data`; `label_trax_location`
@@ -75,33 +104,6 @@ versions are calendar-based (YYYY.M.PATCH).
   file's own `time` is the period end), grid-cell areas are the exact WGS84 ellipsoid areas
   (domain totals of any flux +0.18% over the Salt Lake Valley, prior and posterior alike), and
   PCAP events are counted in time (one missing sounding is bridged, two end the event)
-- **The inversion runs on fips 0.2's API** (labeled vectors and operators, `fips.Problem`,
-  `fips.solve` returning a `fips.Posterior`), and the pipeline is functions of the
-  config instead of the `SLVMethaneInversion` class: `build_problem(config)` gives the
-  problem and `run(config)` solves it and returns the posterior. `post.estimate["flux"]`
-  replaces `problem.posterior_fluxes`, `post.problem.prior["flux"]` the
-  `prior_fluxes`, `post.cov(W)` the aggregated posterior error, and so on (fips's
-  migration guide has the table). `fluxes_as_inventory`, `calculate_total_flux`,
-  `desroziers_diagnostic`, `summarize` and the plots are functions in
-  `slv.inversion.report` that take the config and the posterior. `Sweep` takes a
-  `pipeline` function (`run` by default) instead of `pipeline_cls`, and
-  `Sweep.get_posterior` replaces `get_problem`. The printed summary is unchanged
-- The bias block is fips's `offset_block`: one offset per group that has obs (a group
-  without obs is no longer in the state), labeled by the interval's start on an
-  `obs_time` level. The coverage filter is `coverage.covered_state` plus
-  `fips.Problem.restrict`; `post.estimate.combine_first(problem.prior)` replaces
-  `reconstruct_posterior`
-- The prior error is kept as its two Kronecker factors and the model-data mismatch is
-  a sum of fips covariance models, built on the obs that have a background. The bias
-  fields left the cache keys of the prior, the prior error and the Jacobian, which hold
-  the flux block only. A cache written with fips 0.1 is not read (its folder is named
-  after the fips version)
-- `desroziers_diagnostic`'s `specified` is the obs error the solve used, the
-  model-data mismatch divided by `gamma` (fips's Desroziers); it is the same for
-  `gamma=None`
-- The `inversion` extra needs `fips[viz]` (fips's `flux` extra is gone), for now from
-  a fips commit, and SciPy below 1.18 (fips's operators do not survive a pickle on 1.18,
-  jmineau/fips#113)
 - The environment with `xesmf` is built by [pixi](https://pixi.sh) from `pyproject.toml`
   and `pixi.lock` (`pixi install`). `ci/environment.yml` is gone, so slv's dependencies
   are listed in one place
