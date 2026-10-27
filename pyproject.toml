@@ -26,18 +26,18 @@ classifiers = [
 dependencies = [
     "cartopy",
     "geopandas",
-    "lair[science,geo] @ git+https://github.com/jmineau/lair@v2026.12.9",  # geo: lair.geo (rasterio/rioxarray/shapely)
+    "lair[science,geo] @ git+https://github.com/jmineau/lair@v2026.12.10",  # geo: lair.geo (rasterio/rioxarray/shapely)
     "matplotlib",
     "pandas",
     "siphon>=0.10.0",
-    "uataq @ git+https://github.com/jmineau/uataq@v2026.10.0",
+    "uataq @ git+https://github.com/jmineau/uataq@v2026.10.1",
     "xarray",
 ]
 
 [project.optional-dependencies]
 inversion = [
     "fips[viz]>=0.2.0b1",
-    "pystilt>=0.1.0a24",  # Project.jacobian, one footprint per thread; the shared output layout
+    "pystilt>=0.1.0a26",  # Project.jacobian, one footprint per thread; the shared output layout
     "joblib>=1.5.3",
     "seaborn",
     # "xesmf",
@@ -119,9 +119,6 @@ filterwarnings = [
     # numpy ignores this one itself (compiled packages such as netCDF4 raise it on
     # import); pytest's "error" filter would bring it back.
     "ignore:numpy.ndarray size changed:RuntimeWarning",
-    # uataq's merge_gps calls dropna(inplace=True), which pandas 3.1 deprecates
-    # (uataq#115); drop this once slv pins a uataq release without it.
-    "ignore:The inplace keyword:pandas.errors.Pandas4Warning:uataq",
 ]
 markers = [
     "network: needs live network access; excluded from default runs",
