@@ -1,6 +1,0 @@
-slv.inversion.bias.BiasMixin.get\_site\_group
-=============================================
-
-.. currentmodule:: slv.inversion.bias
-
-.. automethod:: BiasMixin.get_site_group

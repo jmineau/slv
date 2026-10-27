@@ -39,7 +39,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
 
-    <script src="../../../_static/documentation_options.js?v=ecd055a9"></script>
+    <script src="../../../_static/documentation_options.js?v=d65a49b7"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -57,7 +57,7 @@
     <link rel="search" title="Search" href="../../../search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.10.3.dev2+gb9b6e6e05" />
+  <meta name="docsearch:version" content="2026.10.3.dev9+gb4469ce05" />
   
     
     <script src="../../../_static/searchtools.js"></script>
@@ -430,13 +430,14 @@
                   
   <h1>Source code for slv.inversion.viz</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Plots for :class:`~slv.inversion.pipelines.SLVMethaneInversion`: the domain,</span>
-<span class="sd">inputs, fluxes, domain totals and error diagnostics.</span>
+<span class="sd">Plots of an SLV inversion: the domain, inputs, fluxes, domain totals and error</span>
+<span class="sd">diagnostics. The plots of a solved inversion take its :class:`~fips.Posterior`.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fips</span><span class="w"> </span><span class="kn">import</span> <span class="n">Posterior</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">lair.geo</span><span class="w"> </span><span class="kn">import</span> <span class="n">PC</span><span class="p">,</span> <span class="n">add_latlon_ticks</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.markers</span><span class="w"> </span><span class="kn">import</span> <span class="n">MarkerStyle</span>
 
@@ -825,10 +826,142 @@
 
 
 
+<div class="viewcode-block" id="plot_flux_maps">
+<a class="viewcode-back" href="../../../_autosummary/slv.inversion.viz.plot_flux_maps.html#slv.inversion.viz.plot_flux_maps">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_flux_maps</span><span class="p">(</span><span class="n">post</span><span class="p">:</span> <span class="n">Posterior</span><span class="p">,</span> <span class="n">tiler</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">tiler_zoom</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="s2">&quot;mean&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Map the prior and posterior fluxes and their difference, one panel each.</span>
+
+<span class="sd">    The fluxes are reduced over time by ``time``: ``&quot;mean&quot;`` or ``&quot;std&quot;`` over the flux</span>
+<span class="sd">    times (no difference panel for ``&quot;std&quot;``), the position of one time (an int), or a</span>
+<span class="sd">    time&#39;s label. The prior and posterior share one color scale.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    post : Posterior</span>
+<span class="sd">        The solved inversion (its state&#39;s ``flux`` block, by ``time``, ``lat``, ``lon``).</span>
+<span class="sd">    tiler : cartopy tile source, optional</span>
+<span class="sd">        Background tiles for every panel.</span>
+<span class="sd">    tiler_zoom : int, default 10</span>
+<span class="sd">        The tiles&#39; zoom level.</span>
+<span class="sd">    time : {&quot;mean&quot;, &quot;std&quot;}, int or label, default &quot;mean&quot;</span>
+<span class="sd">        How the flux times are reduced or which one is shown.</span>
+<span class="sd">    **kwargs</span>
+<span class="sd">        Passed to xarray&#39;s plotting (``cmap``, ``alpha``, ...).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    fig : matplotlib.figure.Figure</span>
+<span class="sd">        The figure.</span>
+<span class="sd">    axes : numpy.ndarray</span>
+<span class="sd">        Its panels: prior, posterior (and their difference).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">at_time</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">time</span> <span class="o">==</span> <span class="s2">&quot;mean&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">data</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">time</span> <span class="o">==</span> <span class="s2">&quot;std&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">data</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">time</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">data</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="n">time</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">data</span><span class="o">.</span><span class="n">sel</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="n">time</span><span class="p">)</span>
+
+    <span class="n">prior</span> <span class="o">=</span> <span class="n">at_time</span><span class="p">(</span><span class="n">post</span><span class="o">.</span><span class="n">problem</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">to_series</span><span class="p">(</span><span class="s2">&quot;flux&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">to_xarray</span><span class="p">())</span>
+    <span class="n">posterior</span> <span class="o">=</span> <span class="n">at_time</span><span class="p">(</span><span class="n">post</span><span class="o">.</span><span class="n">estimate</span><span class="o">.</span><span class="n">to_series</span><span class="p">(</span><span class="s2">&quot;flux&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">to_xarray</span><span class="p">())</span>
+
+    <span class="n">subplot_kw</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">if</span> <span class="n">tiler</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">subplot_kw</span><span class="p">[</span><span class="s2">&quot;projection&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tiler</span><span class="o">.</span><span class="n">crs</span>
+    <span class="n">ncols</span> <span class="o">=</span> <span class="mi">3</span> <span class="k">if</span> <span class="n">time</span> <span class="o">!=</span> <span class="s2">&quot;std&quot;</span> <span class="k">else</span> <span class="mi">2</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">ncols</span><span class="o">=</span><span class="n">ncols</span><span class="p">,</span> <span class="n">sharey</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">subplot_kw</span><span class="o">=</span><span class="n">subplot_kw</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">tiler</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># Expand the extent by half a cell so the edge cells are not clipped</span>
+        <span class="n">xs</span><span class="p">,</span> <span class="n">ys</span> <span class="o">=</span> <span class="n">posterior</span><span class="p">[</span><span class="s2">&quot;lon&quot;</span><span class="p">],</span> <span class="n">posterior</span><span class="p">[</span><span class="s2">&quot;lat&quot;</span><span class="p">]</span>
+        <span class="n">dx</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">xs</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="s2">&quot;lon&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">median</span><span class="p">())</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">xs</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="mi">0</span>
+        <span class="n">dy</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">ys</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="s2">&quot;lat&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">median</span><span class="p">())</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ys</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="mi">0</span>
+        <span class="n">extent</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="nb">float</span><span class="p">(</span><span class="n">xs</span><span class="o">.</span><span class="n">min</span><span class="p">())</span> <span class="o">-</span> <span class="n">dx</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span>
+            <span class="nb">float</span><span class="p">(</span><span class="n">xs</span><span class="o">.</span><span class="n">max</span><span class="p">())</span> <span class="o">+</span> <span class="n">dx</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span>
+            <span class="nb">float</span><span class="p">(</span><span class="n">ys</span><span class="o">.</span><span class="n">min</span><span class="p">())</span> <span class="o">-</span> <span class="n">dy</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span>
+            <span class="nb">float</span><span class="p">(</span><span class="n">ys</span><span class="o">.</span><span class="n">max</span><span class="p">())</span> <span class="o">+</span> <span class="n">dy</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span>
+        <span class="p">]</span>
+        <span class="k">for</span> <span class="n">ax</span> <span class="ow">in</span> <span class="n">axes</span><span class="p">:</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_extent</span><span class="p">(</span><span class="n">extent</span><span class="p">,</span> <span class="n">crs</span><span class="o">=</span><span class="n">PC</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">add_image</span><span class="p">(</span><span class="n">tiler</span><span class="p">,</span> <span class="n">tiler_zoom</span><span class="p">)</span>
+        <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;transform&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">PC</span>
+
+    <span class="n">vmin</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">prior</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">posterior</span><span class="o">.</span><span class="n">min</span><span class="p">())</span>
+    <span class="n">vmax</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">prior</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="n">posterior</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
+    <span class="n">alpha</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;alpha&quot;</span><span class="p">,</span> <span class="mf">0.55</span><span class="p">)</span>
+    <span class="n">cmap</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;cmap&quot;</span><span class="p">,</span> <span class="s2">&quot;RdBu_r&quot;</span> <span class="k">if</span> <span class="n">vmin</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="s2">&quot;Reds&quot;</span><span class="p">)</span>
+    <span class="n">center</span> <span class="o">=</span> <span class="mi">0</span> <span class="k">if</span> <span class="n">vmin</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="kc">None</span>
+    <span class="n">shared</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+        <span class="n">x</span><span class="o">=</span><span class="s2">&quot;lon&quot;</span><span class="p">,</span>
+        <span class="n">y</span><span class="o">=</span><span class="s2">&quot;lat&quot;</span><span class="p">,</span>
+        <span class="n">vmin</span><span class="o">=</span><span class="kc">None</span> <span class="k">if</span> <span class="n">vmin</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">vmin</span><span class="p">,</span>
+        <span class="n">vmax</span><span class="o">=</span><span class="n">vmax</span><span class="p">,</span>
+        <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span>
+        <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span>
+        <span class="n">center</span><span class="o">=</span><span class="n">center</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># The colorbar goes under the panels it covers</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">subplots_adjust</span><span class="p">(</span><span class="n">bottom</span><span class="o">=</span><span class="mf">0.15</span><span class="p">)</span>
+    <span class="n">ax_prior</span><span class="p">,</span> <span class="n">ax_post</span> <span class="o">=</span> <span class="n">axes</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">axes</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">width</span> <span class="o">=</span> <span class="n">ax_post</span><span class="o">.</span><span class="n">get_position</span><span class="p">()</span><span class="o">.</span><span class="n">x1</span> <span class="o">-</span> <span class="n">ax_prior</span><span class="o">.</span><span class="n">get_position</span><span class="p">()</span><span class="o">.</span><span class="n">x0</span>
+    <span class="n">cbar_ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_axes</span><span class="p">(</span>
+        <span class="p">(</span><span class="n">ax_prior</span><span class="o">.</span><span class="n">get_position</span><span class="p">()</span><span class="o">.</span><span class="n">x0</span><span class="p">,</span> <span class="n">ax_prior</span><span class="o">.</span><span class="n">get_position</span><span class="p">()</span><span class="o">.</span><span class="n">y0</span> <span class="o">-</span> <span class="mf">0.1</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">prior</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+        <span class="n">ax</span><span class="o">=</span><span class="n">ax_prior</span><span class="p">,</span>
+        <span class="n">cbar_ax</span><span class="o">=</span><span class="n">cbar_ax</span><span class="p">,</span>
+        <span class="n">cbar_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;orientation&quot;</span><span class="p">:</span> <span class="s2">&quot;horizontal&quot;</span><span class="p">,</span> <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;flux&quot;</span><span class="p">},</span>
+        <span class="o">**</span><span class="n">shared</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">posterior</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax_post</span><span class="p">,</span> <span class="n">add_colorbar</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">shared</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="s2">&quot;flux&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">ax_prior</span><span class="o">.</span><span class="n">get_position</span><span class="p">()</span><span class="o">.</span><span class="n">y1</span> <span class="o">+</span> <span class="mf">0.13</span><span class="p">)</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">text</span><span class="p">(</span>
+        <span class="mf">0.5</span><span class="p">,</span>
+        <span class="n">ax_prior</span><span class="o">.</span><span class="n">get_position</span><span class="p">()</span><span class="o">.</span><span class="n">y1</span> <span class="o">+</span> <span class="mf">0.05</span><span class="p">,</span>
+        <span class="sa">f</span><span class="s2">&quot;time = </span><span class="si">{</span><span class="n">time</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="n">ha</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span>
+        <span class="n">va</span><span class="o">=</span><span class="s2">&quot;bottom&quot;</span><span class="p">,</span>
+        <span class="n">fontsize</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">ax_prior</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;Prior&quot;</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    <span class="n">ax_post</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;Posterior&quot;</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">time</span> <span class="o">!=</span> <span class="s2">&quot;std&quot;</span><span class="p">:</span>
+        <span class="n">ax_res</span> <span class="o">=</span> <span class="n">axes</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">cbar_res</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_axes</span><span class="p">(</span>
+            <span class="p">(</span>
+                <span class="n">ax_res</span><span class="o">.</span><span class="n">get_position</span><span class="p">()</span><span class="o">.</span><span class="n">x0</span><span class="p">,</span>
+                <span class="n">ax_res</span><span class="o">.</span><span class="n">get_position</span><span class="p">()</span><span class="o">.</span><span class="n">y0</span> <span class="o">-</span> <span class="mf">0.1</span><span class="p">,</span>
+                <span class="n">ax_res</span><span class="o">.</span><span class="n">get_position</span><span class="p">()</span><span class="o">.</span><span class="n">width</span><span class="p">,</span>
+                <span class="mf">0.05</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="p">(</span><span class="n">posterior</span> <span class="o">-</span> <span class="n">prior</span><span class="p">)</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+            <span class="n">ax</span><span class="o">=</span><span class="n">ax_res</span><span class="p">,</span>
+            <span class="n">x</span><span class="o">=</span><span class="s2">&quot;lon&quot;</span><span class="p">,</span>
+            <span class="n">y</span><span class="o">=</span><span class="s2">&quot;lat&quot;</span><span class="p">,</span>
+            <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;PiYG&quot;</span><span class="p">,</span>
+            <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span>
+            <span class="n">center</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+            <span class="n">cbar_ax</span><span class="o">=</span><span class="n">cbar_res</span><span class="p">,</span>
+            <span class="n">cbar_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;orientation&quot;</span><span class="p">:</span> <span class="s2">&quot;horizontal&quot;</span><span class="p">,</span> <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;Posterior - Prior&quot;</span><span class="p">},</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">ax_res</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s2">&quot;Residual&quot;</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">axes</span></div>
+
+
+
 <div class="viewcode-block" id="plot_fluxes">
 <a class="viewcode-back" href="../../../_autosummary/slv.inversion.viz.plot_fluxes.html#slv.inversion.viz.plot_fluxes">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">plot_fluxes</span><span class="p">(</span>
-    <span class="n">problem</span><span class="p">,</span>
+    <span class="n">post</span><span class="p">:</span> <span class="n">Posterior</span><span class="p">,</span>
     <span class="n">tiler</span><span class="p">,</span>
     <span class="n">zoom</span><span class="p">,</span>
     <span class="n">add_sites</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
@@ -838,10 +971,10 @@
     <span class="n">add_point_sources</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    The fips prior / posterior flux maps, with sites and point sources (default:</span>
-<span class="sd">    landfills and refineries) added to every panel.</span>
+<span class="sd">    The prior / posterior flux maps (:func:`plot_flux_maps`), with sites and point</span>
+<span class="sd">    sources (default: landfills and refineries) added to every panel.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">problem</span><span class="o">.</span><span class="n">plot</span><span class="o">.</span><span class="n">fluxes</span><span class="p">(</span><span class="n">tiler</span><span class="o">=</span><span class="n">tiler</span><span class="p">,</span> <span class="n">tiler_zoom</span><span class="o">=</span><span class="n">zoom</span><span class="p">)</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plot_flux_maps</span><span class="p">(</span><span class="n">post</span><span class="p">,</span> <span class="n">tiler</span><span class="o">=</span><span class="n">tiler</span><span class="p">,</span> <span class="n">tiler_zoom</span><span class="o">=</span><span class="n">zoom</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">add_point_sources</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">add_point_sources</span> <span class="o">=</span> <span class="p">{</span>
@@ -861,7 +994,7 @@
 <div class="viewcode-block" id="plot_fluxes_by_timestep">
 <a class="viewcode-back" href="../../../_autosummary/slv.inversion.viz.plot_fluxes_by_timestep.html#slv.inversion.viz.plot_fluxes_by_timestep">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">plot_fluxes_by_timestep</span><span class="p">(</span>
-    <span class="n">problem</span><span class="p">,</span>
+    <span class="n">post</span><span class="p">:</span> <span class="n">Posterior</span><span class="p">,</span>
     <span class="n">extent</span><span class="p">,</span>
     <span class="n">tiler</span><span class="p">,</span>
     <span class="n">zoom</span><span class="p">,</span>
@@ -876,7 +1009,8 @@
 <span class="sd">    ``FacetGrid``.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">facet</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">problem</span><span class="o">.</span><span class="n">posterior_fluxes</span><span class="o">.</span><span class="n">to_xarray</span><span class="p">()</span>
+        <span class="n">post</span><span class="o">.</span><span class="n">estimate</span><span class="o">.</span><span class="n">to_series</span><span class="p">(</span><span class="s2">&quot;flux&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">to_xarray</span><span class="p">()</span>
         <span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
         <span class="o">.</span><span class="n">plot</span><span class="p">(</span>
             <span class="n">col</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">,</span>
@@ -930,7 +1064,7 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">plot_total_fluxes_over_time</span><span class="p">(</span><span class="o">*</span><span class="n">total_fluxes</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="n">units</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Domain-total emissions over time; ``units`` labels the y axis (e.g. &quot;Gg per MS</span>
-<span class="sd">    interval&quot;, as from ``SLVMethaneInversion.calculate_total_flux``).</span>
+<span class="sd">    interval&quot;, as from :func:`~slv.inversion.report.calculate_total_flux`).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
 
@@ -1104,7 +1238,7 @@
 <div class="viewcode-block" id="plot_residuals">
 <a class="viewcode-back" href="../../../_autosummary/slv.inversion.viz.plot_residuals.html#slv.inversion.viz.plot_residuals">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">plot_residuals</span><span class="p">(</span>
-    <span class="n">problem</span><span class="p">,</span>
+    <span class="n">post</span><span class="p">:</span> <span class="n">Posterior</span><span class="p">,</span>
     <span class="n">rolling_window</span><span class="o">=</span><span class="s2">&quot;30D&quot;</span><span class="p">,</span>
     <span class="n">gap_threshold</span><span class="o">=</span><span class="s2">&quot;7D&quot;</span><span class="p">,</span>
     <span class="n">show_raw</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
@@ -1115,8 +1249,8 @@
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    problem : FluxProblem</span>
-<span class="sd">        Solved inversion problem.</span>
+<span class="sd">    post : Posterior</span>
+<span class="sd">        The solved inversion.</span>
 <span class="sd">    rolling_window : str or int, default &#39;30D&#39;</span>
 <span class="sd">        Rolling window for smoothed lines.</span>
 <span class="sd">    gap_threshold : str, default &#39;7D&#39;</span>
@@ -1126,8 +1260,8 @@
 <span class="sd">    location_dim : str, default &#39;obs_location&#39;</span>
 <span class="sd">        Name of the location dimension in the data.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">obs</span> <span class="o">=</span> <span class="n">problem</span><span class="o">.</span><span class="n">concentrations</span>
-    <span class="n">posterior</span> <span class="o">=</span> <span class="n">problem</span><span class="o">.</span><span class="n">posterior_concentrations</span>
+    <span class="n">obs</span> <span class="o">=</span> <span class="n">post</span><span class="o">.</span><span class="n">problem</span><span class="o">.</span><span class="n">obs</span><span class="o">.</span><span class="n">to_series</span><span class="p">(</span><span class="s2">&quot;concentration&quot;</span><span class="p">)</span>
+    <span class="n">posterior</span> <span class="o">=</span> <span class="n">post</span><span class="o">.</span><span class="n">modeled_obs</span><span class="o">.</span><span class="n">to_series</span><span class="p">(</span><span class="s2">&quot;concentration&quot;</span><span class="p">)</span>
     <span class="n">residuals</span> <span class="o">=</span> <span class="p">(</span><span class="n">posterior</span> <span class="o">-</span> <span class="n">obs</span><span class="p">)</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>
 
     <span class="n">locations</span> <span class="o">=</span> <span class="n">residuals</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="n">location_dim</span><span class="p">)</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
@@ -1194,14 +1328,15 @@
 
 <div class="viewcode-block" id="plot_background_and_bias">
 <a class="viewcode-back" href="../../../_autosummary/slv.inversion.viz.plot_background_and_bias.html#slv.inversion.viz.plot_background_and_bias">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">plot_background_and_bias</span><span class="p">(</span><span class="n">problem</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_background_and_bias</span><span class="p">(</span><span class="n">post</span><span class="p">:</span> <span class="n">Posterior</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Plot background concentration and bias corrections.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    problem : FluxProblem</span>
-<span class="sd">        Solved inversion problem containing prior, posterior, and constant.</span>
+<span class="sd">    post : Posterior</span>
+<span class="sd">        The solved inversion: its problem&#39;s offset (the background) and, with a bias</span>
+<span class="sd">        block in the state, the prior and posterior bias.</span>
 
 <span class="sd">    Notes</span>
 <span class="sd">    -----</span>
@@ -1213,14 +1348,8 @@
 <span class="sd">    - Bias is shown as prior (initial) and posterior (estimated) values</span>
 <span class="sd">    - For grouped bias (site/site_group), each group gets its own line</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># Check if bias exists</span>
-    <span class="n">has_bias</span> <span class="o">=</span> <span class="kc">False</span>
-    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">problem</span><span class="p">,</span> <span class="s2">&quot;prior&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">problem</span><span class="o">.</span><span class="n">prior</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">):</span>
-        <span class="c1"># Check if prior has a &quot;block&quot; level in its index</span>
-        <span class="n">prior_index</span> <span class="o">=</span> <span class="n">problem</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">index</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">prior_index</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span><span class="p">)</span> <span class="ow">and</span> <span class="s2">&quot;block&quot;</span> <span class="ow">in</span> <span class="n">prior_index</span><span class="o">.</span><span class="n">names</span><span class="p">:</span>
-            <span class="c1"># Check if &quot;bias&quot; is one of the block values</span>
-            <span class="n">has_bias</span> <span class="o">=</span> <span class="s2">&quot;bias&quot;</span> <span class="ow">in</span> <span class="n">prior_index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s2">&quot;block&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+    <span class="n">problem</span> <span class="o">=</span> <span class="n">post</span><span class="o">.</span><span class="n">problem</span>
+    <span class="n">has_bias</span> <span class="o">=</span> <span class="s2">&quot;bias&quot;</span> <span class="ow">in</span> <span class="n">problem</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">space</span>
 
     <span class="c1"># Set up subplots</span>
     <span class="n">n_plots</span> <span class="o">=</span> <span class="mi">2</span> <span class="k">if</span> <span class="n">has_bias</span> <span class="k">else</span> <span class="mi">1</span>
@@ -1229,8 +1358,8 @@
         <span class="n">axes</span> <span class="o">=</span> <span class="p">[</span><span class="n">axes</span><span class="p">]</span>
 
     <span class="c1"># Plot background</span>
-    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">problem</span><span class="p">,</span> <span class="s2">&quot;constant&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">problem</span><span class="o">.</span><span class="n">constant</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">bg_data</span> <span class="o">=</span> <span class="n">problem</span><span class="o">.</span><span class="n">constant</span><span class="p">[</span><span class="s2">&quot;concentration&quot;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">problem</span><span class="o">.</span><span class="n">offset</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">bg_data</span> <span class="o">=</span> <span class="n">problem</span><span class="o">.</span><span class="n">offset</span><span class="o">.</span><span class="n">to_series</span><span class="p">(</span><span class="s2">&quot;concentration&quot;</span><span class="p">)</span>
 
         <span class="c1"># Get unique sites</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">bg_data</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span><span class="p">):</span>
@@ -1285,8 +1414,8 @@
 
     <span class="c1"># Plot bias if it exists</span>
     <span class="k">if</span> <span class="n">has_bias</span><span class="p">:</span>
-        <span class="n">prior_bias</span> <span class="o">=</span> <span class="n">problem</span><span class="o">.</span><span class="n">prior</span><span class="p">[</span><span class="s2">&quot;bias&quot;</span><span class="p">]</span>
-        <span class="n">posterior_bias</span> <span class="o">=</span> <span class="n">problem</span><span class="o">.</span><span class="n">posterior</span><span class="p">[</span><span class="s2">&quot;bias&quot;</span><span class="p">]</span>
+        <span class="n">prior_bias</span> <span class="o">=</span> <span class="n">problem</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">to_series</span><span class="p">(</span><span class="s2">&quot;bias&quot;</span><span class="p">)</span>
+        <span class="n">posterior_bias</span> <span class="o">=</span> <span class="n">post</span><span class="o">.</span><span class="n">estimate</span><span class="o">.</span><span class="n">to_series</span><span class="p">(</span><span class="s2">&quot;bias&quot;</span><span class="p">)</span>
 
         <span class="c1"># Check if bias has grouping (MultiIndex)</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">prior_bias</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span><span class="p">):</span>

@@ -157,7 +157,7 @@ metadata). The subpackages are the API surface:
 
 The base install is enough for ``domain``, ``basemap``, ``measurements`` and
 ``emissions``; the ``inversion`` extra unlocks ``slv.inversion`` (it depends on
-``fips[flux]``, which in turn depends on ``pystilt``).
+``fips[viz]`` and ``pystilt``).
 
 The inversion package
 ---------------------
@@ -168,31 +168,34 @@ and pipeline internals, in one place.
 ::
 
     src/slv/inversion/
-      __init__.py      re-exports InversionConfig, SLVMethaneInversion, Sweep,
+      __init__.py      re-exports InversionConfig, build_problem, run, Sweep,
                        run_sweep_job, SweepResults
       config.py        InversionConfig — pydantic-ish config for an inversion;
                        DEFAULT_STILT_PROJECT + stilt_project_dir() ($SLV_STILT_DIR);
                        state_grid (stilt Grid, domain snapped outward to whole cells) is
                        the one definition of the flux cells, `grid` takes its axes
-      pipelines.py     SLVMethaneInversion — the pipeline proper: get_obs / get_prior /
-                       get_forward_operator (+ cached _get_flux_jacobian) / get_prior_error /
-                       get_constant, state filtering, obs aggregation, run, obs_sites.
-                       Composed from the mixins below (MRO: Reporting, CoverageFilter, Bias,
-                       ModelDataMismatch, fips FluxInversionPipeline); every method keeps its
-                       name, so subclasses override as before. Re-exports the cache helpers.
-      cache.py         component cache: COMPONENT_DEPS sets, _component_hash, _pkg_rev /
-                       _version_tag, fips_cache
-      mdm.py           ModelDataMismatchMixin: get_modeldata_mismatch, multiplicative scale,
-                       per-obs (subhour) std
-      bias.py          BiasMixin: get_bias, get_bias_jacobian, get_site_group
-      coverage.py      check_state_cells; CoverageFilterMixin (Jacobian coverage filter,
-                       reconstruct_posterior)
-      report.py        ReportingMixin: domain totals, summarize, desroziers, plot_*
+      pipelines.py     the pipeline proper, as functions of the config: get_obs / get_prior /
+                       get_constant (pandas Series) / get_flux_jacobian (a fips Operator,
+                       receptor rows) / get_prior_error (cached components),
+                       filter_state_space, get_bias (fips.offset_block), obs_sites;
+                       build_problem(config) -> fips.Problem (labels rounded to
+                       LABEL_DECIMALS, the Jacobian placed on the obs, daily means by
+                       fips.aggregate.mean); run(config, problem=None) -> fips.Posterior
+      cache.py         component cache: DEFAULT_COMPONENT_DEPS sets, _component_hash,
+                       _pkg_rev / _version_tag, fips_cache (pickles what the function returns)
+      mdm.py           get_modeldata_mismatch (cached; sum of covariance models on the obs),
+                       multiplicative_scale, per_obs_std (subhour)
+      coverage.py      check_state_cells, covered_state (the Jacobian coverage filter's
+                       cells; the problem of them is problem.restrict(keep))
+      report.py        domain totals (calculate_total_flux, fluxes_as_inventory), summarize
+                       (prints), desroziers_diagnostic, plot_inputs/results/diagnostics
       priors.py        prior flux construction
-      covariances.py   covariance construction (kernels, scaling)
+      covariances.py   covariance models: build_prior_error (Kronecker factors),
+                       build_mdm_error (one MDM component)
       data.py          inversion-time data loading
       background.py    inversion background model
-      viz.py           inversion-specific plotting
+      viz.py           inversion-specific plotting; plot_flux_maps (the
+                       prior/posterior/difference maps)
       sweep.py         Sweep / run_sweep_job / SweepResults — hyperparam sweeps
 
 What ``slv.inversion`` exports:
@@ -200,7 +203,7 @@ What ``slv.inversion`` exports:
 .. code-block:: python
 
    from slv.inversion import (
-       InversionConfig, SLVMethaneInversion,
+       InversionConfig, build_problem, run,
        Sweep, run_sweep_job, SweepResults,
    )
 
@@ -216,8 +219,8 @@ the slv repo, or the pixi env) uses its metadata version instead, written as the
 release's tag (``v0.1.0b9``): ``git describe`` there would answer with slv's rev, and a
 release names the same folder installed or checked out.
 
-``get_inputs`` raises when the prior's cells and the Jacobian's columns differ (stale
-caches after a grid change).
+``build_problem`` raises when the prior's cells and the Jacobian's columns differ (stale
+caches after a grid change; ``coverage.check_state_cells``).
 
 Components other than the Jacobian also hash the *release* of lair and uataq
 (``COMPONENT_PACKAGES``, ``_release``: an editable checkout's static pyproject version
@@ -242,15 +245,15 @@ Notes on the pipeline
 ~~~~~~~~~~~~~~~~~~~~~
 
 - Mobile (TRAX) obs are keyed by PYSTILT location_id, not site. Anything keyed by
-  site must resolve through ``SLVMethaneInversion.obs_sites`` (receptor -> the single
+  site must resolve through ``pipelines.obs_sites`` (receptor -> the single
   mobile site in ``config.sites``); the MDM and the bias Jacobian do. The rolling
   background uses stationary sites only (``split_sites``; override with
   ``background_kwargs={"background_sites": [...]}``) and each obs takes its hour's
   value; ``get_slv_subhour_std`` skips mobile sites.
-- ``get_forward_operator`` is a thin wrapper: ``_get_flux_jacobian`` is the cached
-  (``forward_operator``) flux Jacobian; the bias block is rebuilt every run.
-  ``get_prior`` memoizes ``_build_prior`` per pipeline; ``_multiplicative_scale``
-  reuses both.
+- ``get_flux_jacobian`` is the cached (``forward_operator``) flux Jacobian; the bias
+  block (``get_bias``, one offset per group that has obs) is rebuilt every run and not
+  cached. A receptor with an empty footprint is a row of zeros; the obs of a receptor
+  with no footprint are dropped in ``build_problem``.
 - ``InversionConfig.__post_init__`` validates flux_freq, bias_grouping, background,
   prior, mdm_config and domain; setting any field drops the cached derived values.
 - ``InversionConfig.mdm_config`` keys must be names in ``DEFAULT_MDM_CONFIG`` (part,

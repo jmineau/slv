@@ -1,0 +1,6 @@
+slv.inversion.pipelines.filter\_state\_space
+============================================
+
+.. currentmodule:: slv.inversion.pipelines
+
+.. autofunction:: filter_state_space

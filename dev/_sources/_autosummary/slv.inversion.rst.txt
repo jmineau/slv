@@ -20,7 +20,8 @@ slv.inversion
    :nosignatures:
 
    ~config.InversionConfig
-   ~pipelines.SLVMethaneInversion
+   ~pipelines.build_problem
+   ~pipelines.run
    ~sweep.Sweep
    ~sweep.run_sweep_job
    ~sweep.SweepResults
@@ -34,7 +35,6 @@ slv.inversion
    :recursive:
 
    background
-   bias
    cache
    config
    covariances

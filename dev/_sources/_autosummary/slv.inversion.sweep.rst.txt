@@ -5,6 +5,14 @@ slv.inversion.sweep
    :no-members:
 
 
+.. rubric:: Attributes
+
+.. autosummary::
+   :toctree:
+   :nosignatures:
+
+   Pipeline
+
 
 
 .. rubric:: Functions

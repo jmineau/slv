@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
 
-    <script src="../_static/documentation_options.js?v=ecd055a9"></script>
+    <script src="../_static/documentation_options.js?v=d65a49b7"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -60,7 +60,7 @@
     <link rel="prev" title="slv.inversion.sweep.SweepResults.stability" href="slv.inversion.sweep.SweepResults.stability.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.10.3.dev2+gb9b6e6e05" />
+  <meta name="docsearch:version" content="2026.10.3.dev9+gb4469ce05" />
   
     
     <script src="../_static/searchtools.js"></script>
@@ -434,10 +434,6 @@
 <li class="toctree-l4"><a class="reference internal" href="slv.inversion.background.get_slv_background.html">slv.inversion.background.get_slv_background</a></li>
 </ul>
 </details></li>
-<li class="toctree-l3 has-children"><a class="reference internal" href="slv.inversion.bias.html">slv.inversion.bias</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l4"><a class="reference internal" href="slv.inversion.bias.BiasMixin.html">slv.inversion.bias.BiasMixin</a></li>
-</ul>
-</details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="slv.inversion.cache.html">slv.inversion.cache</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l4"><a class="reference internal" href="slv.inversion.cache.DEFAULT_COMPONENT_DEPS.html">slv.inversion.cache.DEFAULT_COMPONENT_DEPS</a></li>
 <li class="toctree-l4"><a class="reference internal" href="slv.inversion.cache.DEFAULT_COMPONENT_PACKAGES.html">slv.inversion.cache.DEFAULT_COMPONENT_PACKAGES</a></li>
@@ -461,7 +457,7 @@
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="slv.inversion.coverage.html">slv.inversion.coverage</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l4"><a class="reference internal" href="slv.inversion.coverage.check_state_cells.html">slv.inversion.coverage.check_state_cells</a></li>
-<li class="toctree-l4"><a class="reference internal" href="slv.inversion.coverage.CoverageFilterMixin.html">slv.inversion.coverage.CoverageFilterMixin</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.coverage.covered_state.html">slv.inversion.coverage.covered_state</a></li>
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="slv.inversion.data.html">slv.inversion.data</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -472,13 +468,25 @@
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="slv.inversion.mdm.html">slv.inversion.mdm</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l4"><a class="reference internal" href="slv.inversion.mdm.ModelDataMismatchMixin.html">slv.inversion.mdm.ModelDataMismatchMixin</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.mdm.get_modeldata_mismatch.html">slv.inversion.mdm.get_modeldata_mismatch</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.mdm.multiplicative_scale.html">slv.inversion.mdm.multiplicative_scale</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.mdm.per_obs_std.html">slv.inversion.mdm.per_obs_std</a></li>
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="slv.inversion.pipelines.html">slv.inversion.pipelines</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.pipelines.LABEL_DECIMALS.html">slv.inversion.pipelines.LABEL_DECIMALS</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.pipelines.build_problem.html">slv.inversion.pipelines.build_problem</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.pipelines.filter_state_space.html">slv.inversion.pipelines.filter_state_space</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.pipelines.get_bias.html">slv.inversion.pipelines.get_bias</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.pipelines.get_constant.html">slv.inversion.pipelines.get_constant</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.pipelines.get_flux_jacobian.html">slv.inversion.pipelines.get_flux_jacobian</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.pipelines.get_obs.html">slv.inversion.pipelines.get_obs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.pipelines.get_prior.html">slv.inversion.pipelines.get_prior</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.pipelines.get_prior_error.html">slv.inversion.pipelines.get_prior_error</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.pipelines.obs_sites.html">slv.inversion.pipelines.obs_sites</a></li>
 <li class="toctree-l4"><a class="reference internal" href="slv.inversion.pipelines.project_jacobian.html">slv.inversion.pipelines.project_jacobian</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.pipelines.run.html">slv.inversion.pipelines.run</a></li>
 <li class="toctree-l4"><a class="reference internal" href="slv.inversion.pipelines.stack_jacobians.html">slv.inversion.pipelines.stack_jacobians</a></li>
-<li class="toctree-l4"><a class="reference internal" href="slv.inversion.pipelines.SLVMethaneInversion.html">slv.inversion.pipelines.SLVMethaneInversion</a></li>
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="slv.inversion.priors.html">slv.inversion.priors</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -490,10 +498,19 @@
 </ul>
 </details></li>
 <li class="toctree-l3 has-children"><a class="reference internal" href="slv.inversion.report.html">slv.inversion.report</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
-<li class="toctree-l4"><a class="reference internal" href="slv.inversion.report.ReportingMixin.html">slv.inversion.report.ReportingMixin</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.report.calculate_total_flux.html">slv.inversion.report.calculate_total_flux</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.report.desroziers_diagnostic.html">slv.inversion.report.desroziers_diagnostic</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.report.fluxes_as_inventory.html">slv.inversion.report.fluxes_as_inventory</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.report.plot_diagnostics.html">slv.inversion.report.plot_diagnostics</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.report.plot_inputs.html">slv.inversion.report.plot_inputs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.report.plot_obs.html">slv.inversion.report.plot_obs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.report.plot_results.html">slv.inversion.report.plot_results</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.report.summarize.html">slv.inversion.report.summarize</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.report.total_units.html">slv.inversion.report.total_units</a></li>
 </ul>
 </details></li>
 <li class="toctree-l3 current active has-children"><a class="reference internal" href="slv.inversion.sweep.html">slv.inversion.sweep</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.sweep.Pipeline.html">slv.inversion.sweep.Pipeline</a></li>
 <li class="toctree-l4"><a class="reference internal" href="slv.inversion.sweep.collect_metrics.html">slv.inversion.sweep.collect_metrics</a></li>
 <li class="toctree-l4"><a class="reference internal" href="slv.inversion.sweep.config_id.html">slv.inversion.sweep.config_id</a></li>
 <li class="toctree-l4"><a class="reference internal" href="slv.inversion.sweep.run_sweep_job.html">slv.inversion.sweep.run_sweep_job</a></li>
@@ -505,6 +522,7 @@
 <li class="toctree-l4"><a class="reference internal" href="slv.inversion.viz.plot_background_and_bias.html">slv.inversion.viz.plot_background_and_bias</a></li>
 <li class="toctree-l4"><a class="reference internal" href="slv.inversion.viz.plot_concentrations.html">slv.inversion.viz.plot_concentrations</a></li>
 <li class="toctree-l4"><a class="reference internal" href="slv.inversion.viz.plot_desroziers.html">slv.inversion.viz.plot_desroziers</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.viz.plot_flux_maps.html">slv.inversion.viz.plot_flux_maps</a></li>
 <li class="toctree-l4"><a class="reference internal" href="slv.inversion.viz.plot_fluxes.html">slv.inversion.viz.plot_fluxes</a></li>
 <li class="toctree-l4"><a class="reference internal" href="slv.inversion.viz.plot_fluxes_by_timestep.html">slv.inversion.viz.plot_fluxes_by_timestep</a></li>
 <li class="toctree-l4"><a class="reference internal" href="slv.inversion.viz.plot_grid.html">slv.inversion.viz.plot_grid</a></li>
@@ -670,18 +688,21 @@
 <h1>slv.inversion.sweep.SweepResults.to_config<a class="headerlink" href="#slv-inversion-sweep-sweepresults-to-config" title="Link to this heading">#</a></h1>
 <dl class="py method">
 <dt class="sig sig-object py" id="slv.inversion.sweep.SweepResults.to_config">
-<span class="sig-prename descclassname"><span class="pre">SweepResults.</span></span><span class="sig-name descname"><span class="pre">to_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">row</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pipeline_cls</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;class</span> <span class="pre">'slv.inversion.pipelines.SLVMethaneInversion'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/slv/inversion/sweep.html#SweepResults.to_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#slv.inversion.sweep.SweepResults.to_config" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">SweepResults.</span></span><span class="sig-name descname"><span class="pre">to_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">row</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pipeline</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;function</span> <span class="pre">run&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/slv/inversion/sweep.html#SweepResults.to_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#slv.inversion.sweep.SweepResults.to_config" title="Link to this definition">#</a></dt>
 <dd><p>Rehydrate an <code class="xref py py-class docutils literal notranslate"><span class="pre">InversionConfig</span></code> from a results row.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>row</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.Series.html#pandas.Series" title="(in pandas v3.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code></a></span>) – A row from <code class="xref py py-attr docutils literal notranslate"><span class="pre">df</span></code> (e.g. <code class="docutils literal notranslate"><span class="pre">results.best().iloc[0]</span></code>).</p></li>
-<li><p><strong>pipeline_cls</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#type" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">type</span></code></a></span>) – Pipeline class to associate.</p></li>
+<li><p><strong>pipeline</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Callable</span></code></a>[[<a class="reference internal" href="slv.inversion.config.InversionConfig.html#slv.inversion.config.InversionConfig" title="slv.inversion.config.InversionConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">InversionConfig</span></code></a>], <code class="xref py py-class docutils literal notranslate"><span class="pre">Posterior</span></code>]</span>) – The pipeline function to associate.</p></li>
 <li><p><strong>cache</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></a> | <a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></span>) – Override cache path.  If <em>None</em>, keeps the original run’s cache.</p></li>
 </ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><code class="docutils literal notranslate"><span class="pre">(InversionConfig,</span> <span class="pre">pipeline_cls)</span></code> tuple ready to instantiate and run.</p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>``(InversionConfig, pipeline)``</strong></p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">pipeline(config)</span></code> runs it.</p>
 </dd>
 </dl>
 </dd></dl>

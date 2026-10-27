@@ -1,0 +1,6 @@
+slv.inversion.report.fluxes\_as\_inventory
+==========================================
+
+.. currentmodule:: slv.inversion.report
+
+.. autofunction:: fluxes_as_inventory

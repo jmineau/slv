@@ -5,6 +5,14 @@ slv.inversion.pipelines
    :no-members:
 
 
+.. rubric:: Attributes
+
+.. autosummary::
+   :toctree:
+   :nosignatures:
+
+   LABEL_DECIMALS
+
 
 
 .. rubric:: Functions
@@ -13,18 +21,20 @@ slv.inversion.pipelines
    :toctree:
    :nosignatures:
 
+   build_problem
+   filter_state_space
+   get_bias
+   get_constant
+   get_flux_jacobian
+   get_obs
+   get_prior
+   get_prior_error
+   obs_sites
    project_jacobian
+   run
    stack_jacobians
 
 
-
-.. rubric:: Classes
-
-.. autosummary::
-   :toctree:
-   :nosignatures:
-
-   SLVMethaneInversion
 
 
 

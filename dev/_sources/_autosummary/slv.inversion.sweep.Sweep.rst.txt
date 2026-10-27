@@ -16,7 +16,7 @@ slv.inversion.sweep.Sweep
 .. autosummary::
    :toctree:
 
-   ~Sweep.get_problem
+   ~Sweep.get_posterior
    ~Sweep.run
 
 

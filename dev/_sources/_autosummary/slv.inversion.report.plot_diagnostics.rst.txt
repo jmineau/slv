@@ -1,0 +1,6 @@
+slv.inversion.report.plot\_diagnostics
+======================================
+
+.. currentmodule:: slv.inversion.report
+
+.. autofunction:: plot_diagnostics

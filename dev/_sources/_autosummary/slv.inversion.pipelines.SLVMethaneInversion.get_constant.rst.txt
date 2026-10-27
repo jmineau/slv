@@ -1,6 +1,0 @@
-slv.inversion.pipelines.SLVMethaneInversion.get\_constant
-=========================================================
-
-.. currentmodule:: slv.inversion.pipelines
-
-.. automethod:: SLVMethaneInversion.get_constant

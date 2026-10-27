@@ -39,7 +39,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
 
-    <script src="../../../_static/documentation_options.js?v=ecd055a9"></script>
+    <script src="../../../_static/documentation_options.js?v=d65a49b7"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -57,7 +57,7 @@
     <link rel="search" title="Search" href="../../../search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.10.3.dev2+gb9b6e6e05" />
+  <meta name="docsearch:version" content="2026.10.3.dev9+gb4469ce05" />
   
     
     <script src="../../../_static/searchtools.js"></script>
@@ -441,6 +441,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">hashlib</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">importlib</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pickle</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">subprocess</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">tomllib</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">importlib.metadata</span><span class="w"> </span><span class="kn">import</span> <span class="n">PackageNotFoundError</span>
@@ -471,13 +472,13 @@
 <span class="c1">#: forward_operator key avoids a needless (expensive) Jacobian rebuild when toggled.</span>
 <span class="n">_OBS_FILTER_DEPS</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">({</span><span class="s2">&quot;filter_spikes&quot;</span><span class="p">,</span> <span class="s2">&quot;spike_percentile&quot;</span><span class="p">})</span>
 <span class="c1">#: State-filter deps: filter_state_space drops obs in flux intervals (months) with too</span>
-<span class="c1">#: few obs (min_obs_per_interval). fips reads min_sims_per_interval but does not apply</span>
-<span class="c1">#: it -- counting simulations needs the Jacobian, built after this filter -- so it only</span>
-<span class="c1">#: sits in the key. The obs-indexed MDM and constant are built AFTER that filter, so</span>
-<span class="c1">#: they must re-key on it -- otherwise a run at a lower threshold reuses the</span>
-<span class="c1">#: higher-threshold MDM and back-fills the recovered months</span>
-<span class="c1">#: with ZERO variance, giving a singular S_z. Not on forward_operator (receptor-based,</span>
-<span class="c1">#: reindexed) or obs (get_obs returns the full record; the filter is applied downstream).</span>
+<span class="c1">#: few obs (min_obs_per_interval). min_sims_per_interval is not applied -- counting</span>
+<span class="c1">#: simulations needs the Jacobian, built after this filter -- so it only sits in the</span>
+<span class="c1">#: key. The obs-indexed MDM and constant are built AFTER that filter, so they must</span>
+<span class="c1">#: re-key on it -- otherwise a run at a lower threshold would reuse the</span>
+<span class="c1">#: higher-threshold MDM, whose labels then miss the recovered months (the problem</span>
+<span class="c1">#: refuses it). Not on forward_operator (receptor-based, placed on the obs) or obs</span>
+<span class="c1">#: (get_obs returns the full record; the filter is applied downstream).</span>
 <span class="n">_STATE_FILTER_DEPS</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span>
     <span class="p">{</span><span class="s2">&quot;min_obs_per_interval&quot;</span><span class="p">,</span> <span class="s2">&quot;min_sims_per_interval&quot;</span><span class="p">}</span>
 <span class="p">)</span>
@@ -728,35 +729,35 @@
 
 <div class="viewcode-block" id="fips_cache">
 <a class="viewcode-back" href="../../../_autosummary/slv.inversion.cache.fips_cache.html#slv.inversion.cache.fips_cache">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">fips_cache</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">fips_cache</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Content-addressed cache decorator for pipeline methods.</span>
+<span class="sd">    Content-addressed cache decorator for the pipeline&#39;s component functions.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    cls :</span>
-<span class="sd">        The fips class to use for ``cls.from_file`` / ``result.to_file``.</span>
 <span class="sd">    filename :</span>
 <span class="sd">        Stage name / cache stem (e.g. ``&quot;obs&quot;``, ``&quot;prior_error&quot;``).</span>
 <span class="sd">    key :</span>
-<span class="sd">        Optional ``key(self, *args, **kwargs)``, called with the method&#39;s arguments</span>
+<span class="sd">        Optional ``key(config, *args, **kwargs)``, called with the function&#39;s arguments</span>
 <span class="sd">        before the cache is looked up: what the component depends on beyond the config</span>
 <span class="sd">        (JSON-able), hashed into its key. The forward operator and the MDM use it for</span>
-<span class="sd">        the footprints they are built from (``SLVMethaneInversion._footprint_key``).</span>
+<span class="sd">        the footprints they are built from (``_footprint_key`` in :mod:`slv.inversion.pipelines`).</span>
 
 <span class="sd">    Notes</span>
 <span class="sd">    -----</span>
-<span class="sd">    Files are stored under</span>
+<span class="sd">    The decorated function takes the :class:`~slv.inversion.config.InversionConfig`</span>
+<span class="sd">    as its first argument; its result is pickled. Files are stored under</span>
 <span class="sd">    ``{cache_dir}/.fips/{version_tag}/{component}/{hash}.pkl`` where</span>
 <span class="sd">    ``version_tag`` pins the running fips/pystilt source revision (``git describe``</span>
 <span class="sd">    of the editable checkout, else installed metadata; see ``_version_tag``) and</span>
 <span class="sd">    ``hash`` is derived only from the config fields that actually affect that</span>
-<span class="sd">    component (see ``COMPONENT_DEPS``), plus the release versions of the packages it</span>
-<span class="sd">    is built with (lair / uataq, see ``COMPONENT_PACKAGES``; a new lair release rebuilds</span>
-<span class="sd">    the obs and prior, not the Jacobian) and the component&#39;s revision (see</span>
-<span class="sd">    ``COMPONENT_REVISIONS``; bumped when slv changes what the component holds).  Committing/bumping a package therefore</span>
-<span class="sd">    lands in a fresh tree rather than silently reusing a stale component.  This</span>
-<span class="sd">    means:</span>
+<span class="sd">    component (see :data:`DEFAULT_COMPONENT_DEPS`), plus the release versions of the</span>
+<span class="sd">    packages it is built with (lair / uataq, see :data:`DEFAULT_COMPONENT_PACKAGES`; a</span>
+<span class="sd">    new lair release rebuilds the obs and prior, not the Jacobian) and the component&#39;s</span>
+<span class="sd">    revision (see :data:`DEFAULT_COMPONENT_REVISIONS`; bumped when slv changes what the</span>
+<span class="sd">    component holds).  Committing/bumping</span>
+<span class="sd">    a package therefore lands in a fresh tree rather than silently reusing a stale</span>
+<span class="sd">    component (a pickle written by another fips does not load).  This means:</span>
 
 <span class="sd">    * Changing ``prior_base_std`` reuses ``obs.pkl`` and ``forward_operator.pkl``</span>
 <span class="sd">      untouched, and only regenerates ``prior_error.pkl``.</span>
@@ -777,14 +778,14 @@
 <span class="sd">      are deleted and the component is recomputed fresh)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">decorator</span><span class="p">(</span><span class="n">method</span><span class="p">):</span>
-        <span class="nd">@functools</span><span class="o">.</span><span class="n">wraps</span><span class="p">(</span><span class="n">method</span><span class="p">)</span>
-        <span class="k">def</span><span class="w"> </span><span class="nf">wrapper</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-            <span class="n">cache</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;cache&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">decorator</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+        <span class="nd">@functools</span><span class="o">.</span><span class="n">wraps</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">wrapper</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="n">cache</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;cache&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">cache</span><span class="p">:</span>
-                <span class="k">return</span> <span class="n">method</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+                <span class="k">return</span> <span class="n">func</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
-            <span class="n">overwrite</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;cache_overwrite&quot;</span><span class="p">,</span> <span class="p">[])</span>
+            <span class="n">overwrite</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;cache_overwrite&quot;</span><span class="p">,</span> <span class="p">[])</span>
             <span class="k">if</span> <span class="n">overwrite</span> <span class="o">==</span> <span class="s2">&quot;all&quot;</span><span class="p">:</span>
                 <span class="n">should_overwrite</span> <span class="o">=</span> <span class="kc">True</span>
             <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">overwrite</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
@@ -799,33 +800,27 @@
             <span class="n">fips_dir</span> <span class="o">=</span> <span class="n">cache_dir</span> <span class="o">/</span> <span class="s2">&quot;.fips&quot;</span> <span class="o">/</span> <span class="n">_version_tag</span><span class="p">()</span>
 
             <span class="c1"># --- Content-addressed path ---</span>
-            <span class="n">component_deps</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;COMPONENT_DEPS&quot;</span><span class="p">,</span> <span class="n">DEFAULT_COMPONENT_DEPS</span><span class="p">)</span>
-            <span class="n">component_packages</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span>
-                <span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;COMPONENT_PACKAGES&quot;</span><span class="p">,</span> <span class="n">DEFAULT_COMPONENT_PACKAGES</span>
-            <span class="p">)</span>
-            <span class="n">component_revisions</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span>
-                <span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;COMPONENT_REVISIONS&quot;</span><span class="p">,</span> <span class="n">DEFAULT_COMPONENT_REVISIONS</span>
-            <span class="p">)</span>
-            <span class="n">fields</span> <span class="o">=</span> <span class="n">component_deps</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+            <span class="n">fields</span> <span class="o">=</span> <span class="n">DEFAULT_COMPONENT_DEPS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">fields</span><span class="p">:</span>
                 <span class="n">h</span> <span class="o">=</span> <span class="n">_component_hash</span><span class="p">(</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span>
+                    <span class="n">config</span><span class="p">,</span>
                     <span class="n">fields</span><span class="p">,</span>
-                    <span class="n">component_packages</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="p">()),</span>
-                    <span class="n">component_revisions</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">filename</span><span class="p">),</span>
-                    <span class="kc">None</span> <span class="k">if</span> <span class="n">key</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">key</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">),</span>
+                    <span class="n">DEFAULT_COMPONENT_PACKAGES</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="p">()),</span>
+                    <span class="n">DEFAULT_COMPONENT_REVISIONS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">filename</span><span class="p">),</span>
+                    <span class="kc">None</span> <span class="k">if</span> <span class="n">key</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">key</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">),</span>
                 <span class="p">)</span>
                 <span class="n">component_dir</span> <span class="o">=</span> <span class="n">fips_dir</span> <span class="o">/</span> <span class="n">filename</span>
                 <span class="n">path</span> <span class="o">=</span> <span class="n">component_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">h</span><span class="si">}</span><span class="s2">.pkl&quot;</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="c1"># Fallback: flat file for components not listed in COMPONENT_DEPS</span>
+                <span class="c1"># Fallback: flat file for components not listed in DEFAULT_COMPONENT_DEPS</span>
                 <span class="n">h</span> <span class="o">=</span> <span class="s2">&quot;flat&quot;</span>
                 <span class="n">component_dir</span> <span class="o">=</span> <span class="n">fips_dir</span>
                 <span class="n">path</span> <span class="o">=</span> <span class="n">fips_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">.pkl&quot;</span>
 
             <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">should_overwrite</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Loading cached </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2"> [</span><span class="si">{</span><span class="n">h</span><span class="si">}</span><span class="s2">] from </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-                <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="n">should_overwrite</span> <span class="ow">and</span> <span class="n">fields</span> <span class="ow">and</span> <span class="n">component_dir</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
                 <span class="c1"># Remove all stale hashes for this component before recomputing</span>
@@ -837,11 +832,12 @@
                         <span class="sa">f</span><span class="s2">&quot;Cleared </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">stale</span><span class="p">)</span><span class="si">}</span><span class="s2"> stale cache file(s) for component &#39;</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
                     <span class="p">)</span>
 
-            <span class="n">result</span> <span class="o">=</span> <span class="n">method</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
             <span class="n">component_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Saving </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2"> [</span><span class="si">{</span><span class="n">h</span><span class="si">}</span><span class="s2">] to </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="n">result</span><span class="o">.</span><span class="n">to_file</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">protocol</span><span class="o">=</span><span class="n">pickle</span><span class="o">.</span><span class="n">HIGHEST_PROTOCOL</span><span class="p">)</span>
 
             <span class="k">return</span> <span class="n">result</span>
 

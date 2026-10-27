@@ -1,6 +1,0 @@
-slv.inversion.report.ReportingMixin.summarize
-=============================================
-
-.. currentmodule:: slv.inversion.report
-
-.. automethod:: ReportingMixin.summarize

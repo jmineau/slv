@@ -1,0 +1,6 @@
+slv.inversion.sweep.Sweep.get\_posterior
+========================================
+
+.. currentmodule:: slv.inversion.sweep
+
+.. automethod:: Sweep.get_posterior

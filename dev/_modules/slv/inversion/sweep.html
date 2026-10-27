@@ -39,7 +39,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
 
-    <script src="../../../_static/documentation_options.js?v=ecd055a9"></script>
+    <script src="../../../_static/documentation_options.js?v=d65a49b7"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -57,7 +57,7 @@
     <link rel="search" title="Search" href="../../../search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.10.3.dev2+gb9b6e6e05" />
+  <meta name="docsearch:version" content="2026.10.3.dev9+gb4469ce05" />
   
     
     <script src="../../../_static/searchtools.js"></script>
@@ -432,7 +432,7 @@
 <span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Parameter sweep harness for SLV methane inversions.</span>
 
-<span class="sd">Run many :class:`~slv.inversion.pipelines.SLVMethaneInversion` configurations</span>
+<span class="sd">Run many inversion configurations (:func:`~slv.inversion.pipelines.run`)</span>
 <span class="sd">in one pass, collect goodness-of-fit metrics (targeting reduced chi² ≈ 1), and</span>
 <span class="sd">analyse which parameter combinations produce stable, well-fitting inversions.</span>
 
@@ -441,12 +441,10 @@
 <span class="sd">.. code-block:: python</span>
 
 <span class="sd">    from slv.inversion.sweep import Sweep, SweepResults</span>
-<span class="sd">    from slv.inversion.pipelines import SLVMethaneInversion</span>
 
 <span class="sd">    # Create and run a parameter sweep</span>
 <span class="sd">    sweep = Sweep(</span>
 <span class="sd">        cache=&quot;/scratch/my_sweep/cache&quot;,</span>
-<span class="sd">        pipeline_cls=SLVMethaneInversion,</span>
 <span class="sd">        prior_base_std=[0.01, 0.019, 0.03],</span>
 <span class="sd">        prior_std_frac=[0.3, 0.5, 0.7],</span>
 <span class="sd">        prior_time_scale=[&quot;16d&quot;, &quot;32d&quot;, &quot;64d&quot;],</span>
@@ -461,7 +459,7 @@
 
 <span class="sd">    best = results.best(tol=0.1)  # chi² ∈ [0.9, 1.1]</span>
 <span class="sd">    results.plot_chi2(&quot;cfg_prior_base_std&quot;)</span>
-<span class="sd">    cfg, cls = results.to_config(best.iloc[0])</span>
+<span class="sd">    cfg, pipeline = results.to_config(best.iloc[0])</span>
 
 <span class="sd">SLURM job-array usage</span>
 <span class="sd">----------------------</span>
@@ -497,16 +495,20 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">traceback</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fips</span><span class="w"> </span><span class="kn">import</span> <span class="n">Posterior</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">joblib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Parallel</span><span class="p">,</span> <span class="n">delayed</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">slv.inversion</span><span class="w"> </span><span class="kn">import</span> <span class="n">pipelines</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">slv.inversion.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">InversionConfig</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">slv.inversion.pipelines</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">SLVMethaneInversion</span><span class="p">,</span>
-<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">slv.inversion.report</span><span class="w"> </span><span class="kn">import</span> <span class="n">calculate_total_flux</span>
+
+<span class="c1">#: A pipeline: the function that solves one config, as :func:`~slv.inversion.pipelines.run`.</span>
+<span class="n">Pipeline</span> <span class="o">=</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">InversionConfig</span><span class="p">],</span> <span class="n">Posterior</span><span class="p">]</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
@@ -621,6 +623,12 @@
         <span class="p">)</span>
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">_import_pipeline</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Pipeline</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The pipeline function a grid names by its dotted path (``module.function``).&quot;&quot;&quot;</span>
+    <span class="n">module_path</span><span class="p">,</span> <span class="n">func_name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="n">module_path</span><span class="p">),</span> <span class="n">func_name</span><span class="p">)</span>
+
+
 <span class="c1"># ---------------------------------------------------------------------------</span>
 <span class="c1"># Config identification</span>
 <span class="c1"># ---------------------------------------------------------------------------</span>
@@ -664,13 +672,12 @@
 
 <span class="sd">        sweep = Sweep(</span>
 <span class="sd">            cache=&quot;./cache&quot;,</span>
-<span class="sd">            pipeline_cls=SLVMethaneInversion,</span>
 <span class="sd">            base_config=base,</span>
 <span class="sd">            prior_base_std=[0.01, 0.02],</span>
 <span class="sd">            gamma=[1.0, 3.0],</span>
 <span class="sd">        )</span>
 <span class="sd">        results = sweep.run(results_dir=&quot;./my_sweep&quot;, n_jobs=40)</span>
-<span class="sd">        problem = sweep.get_problem(results.best().iloc[0][&quot;config_id&quot;])</span>
+<span class="sd">        post = sweep.get_posterior(results.best().iloc[0][&quot;config_id&quot;])</span>
 
 <span class="sd">    **Resume/merge with existing grid:**</span>
 
@@ -698,7 +705,7 @@
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">cache</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span>
-        <span class="n">pipeline_cls</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">SLVMethaneInversion</span><span class="p">]</span> <span class="o">=</span> <span class="n">SLVMethaneInversion</span><span class="p">,</span>
+        <span class="n">pipeline</span><span class="p">:</span> <span class="n">Pipeline</span> <span class="o">=</span> <span class="n">pipelines</span><span class="o">.</span><span class="n">run</span><span class="p">,</span>
         <span class="n">base_config</span><span class="p">:</span> <span class="n">InversionConfig</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">grid_path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">**</span><span class="n">sweep_kwargs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Any</span><span class="p">],</span>
@@ -710,8 +717,10 @@
 <span class="sd">        ----------</span>
 <span class="sd">        cache :</span>
 <span class="sd">            Cache directory for inversion components.</span>
-<span class="sd">        pipeline_cls :</span>
-<span class="sd">            Pipeline class to use for inversions.</span>
+<span class="sd">        pipeline :</span>
+<span class="sd">            The function that solves one config (``InversionConfig -&gt; Posterior``);</span>
+<span class="sd">            :func:`slv.inversion.pipelines.run` by default. It must be importable by</span>
+<span class="sd">            name (a module-level function), so the grid can name it.</span>
 <span class="sd">        base_config :</span>
 <span class="sd">            Base configuration for all configs.</span>
 <span class="sd">        grid_path :</span>
@@ -721,12 +730,12 @@
 <span class="sd">            Parameter sweep ranges (e.g., ``prior_base_std=[0.01, 0.02]``).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cache</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">cache</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">pipeline_cls</span> <span class="o">=</span> <span class="n">pipeline_cls</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pipeline</span> <span class="o">=</span> <span class="n">pipeline</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">base_config</span> <span class="o">=</span> <span class="n">base_config</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sweep_kwargs</span> <span class="o">=</span> <span class="n">sweep_kwargs</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">configs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">InversionConfig</span><span class="p">,</span> <span class="nb">type</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_config_map</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">InversionConfig</span><span class="p">,</span> <span class="nb">type</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">configs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="n">InversionConfig</span><span class="p">,</span> <span class="n">Pipeline</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_config_map</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">InversionConfig</span><span class="p">,</span> <span class="n">Pipeline</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_build_configs</span><span class="p">(</span><span class="n">grid_path</span><span class="p">)</span>
 
@@ -752,12 +761,11 @@
                         <span class="o">**</span><span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">fields</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">valid</span><span class="p">}</span>
                     <span class="p">)</span>
 
-                    <span class="n">module_path</span><span class="p">,</span> <span class="n">cls_name</span> <span class="o">=</span> <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;pipeline_cls&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-                    <span class="bp">cls</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="n">module_path</span><span class="p">),</span> <span class="n">cls_name</span><span class="p">)</span>
+                    <span class="n">pipeline</span> <span class="o">=</span> <span class="n">_import_pipeline</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="s2">&quot;pipeline&quot;</span><span class="p">])</span>
 
                     <span class="n">cid</span> <span class="o">=</span> <span class="n">config_id</span><span class="p">(</span><span class="n">cfg</span><span class="p">)</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">configs</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">cfg</span><span class="p">,</span> <span class="bp">cls</span><span class="p">))</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_config_map</span><span class="p">[</span><span class="n">cid</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">cfg</span><span class="p">,</span> <span class="bp">cls</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">configs</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">cfg</span><span class="p">,</span> <span class="n">pipeline</span><span class="p">))</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_config_map</span><span class="p">[</span><span class="n">cid</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">cfg</span><span class="p">,</span> <span class="n">pipeline</span><span class="p">)</span>
                     <span class="n">existing_ids</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">cid</span><span class="p">)</span>
 
                 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Loaded </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">grid</span><span class="p">)</span><span class="si">}</span><span class="s2"> configs from </span><span class="si">{</span><span class="n">grid_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -795,8 +803,8 @@
 
                 <span class="n">cid</span> <span class="o">=</span> <span class="n">config_id</span><span class="p">(</span><span class="n">cfg</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">cid</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">existing_ids</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">configs</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">cfg</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipeline_cls</span><span class="p">))</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_config_map</span><span class="p">[</span><span class="n">cid</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">cfg</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipeline_cls</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">configs</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">cfg</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipeline</span><span class="p">))</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_config_map</span><span class="p">[</span><span class="n">cid</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">cfg</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipeline</span><span class="p">)</span>
                     <span class="n">existing_ids</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">cid</span><span class="p">)</span>
                     <span class="n">added</span> <span class="o">+=</span> <span class="mi">1</span>
 
@@ -914,14 +922,14 @@
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_run_single</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">args</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">InversionConfig</span><span class="p">,</span> <span class="nb">type</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">bool</span><span class="p">],</span>
+        <span class="n">args</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">InversionConfig</span><span class="p">,</span> <span class="n">Pipeline</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">bool</span><span class="p">],</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Run one inversion and return a metrics dict.</span>
 
 <span class="sd">        Catches all exceptions so a single failed run does not abort the whole sweep.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">config</span><span class="p">,</span> <span class="n">pipeline_cls</span><span class="p">,</span> <span class="n">results_dir</span><span class="p">,</span> <span class="n">swept_params</span><span class="p">,</span> <span class="n">suppress_output</span> <span class="o">=</span> <span class="n">args</span>
+        <span class="n">config</span><span class="p">,</span> <span class="n">pipeline</span><span class="p">,</span> <span class="n">results_dir</span><span class="p">,</span> <span class="n">swept_params</span><span class="p">,</span> <span class="n">suppress_output</span> <span class="o">=</span> <span class="n">args</span>
         <span class="n">cid</span> <span class="o">=</span> <span class="n">config_id</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
 
         <span class="c1"># Suppress plots in sweep runs</span>
@@ -934,12 +942,10 @@
             <span class="c1"># Suppress stdout/stderr when running in parallel</span>
             <span class="k">if</span> <span class="n">suppress_output</span><span class="p">:</span>
                 <span class="k">with</span> <span class="n">_suppress_output</span><span class="p">():</span>
-                    <span class="n">pipeline</span> <span class="o">=</span> <span class="n">pipeline_cls</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
-                    <span class="n">problem</span> <span class="o">=</span> <span class="n">pipeline</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+                    <span class="n">post</span> <span class="o">=</span> <span class="n">pipeline</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">pipeline</span> <span class="o">=</span> <span class="n">pipeline_cls</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
-                <span class="n">problem</span> <span class="o">=</span> <span class="n">pipeline</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
-            <span class="n">row</span> <span class="o">=</span> <span class="n">collect_metrics</span><span class="p">(</span><span class="n">problem</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">pipeline</span><span class="p">,</span> <span class="n">swept_params</span><span class="o">=</span><span class="n">swept_params</span><span class="p">)</span>
+                <span class="n">post</span> <span class="o">=</span> <span class="n">pipeline</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+            <span class="n">row</span> <span class="o">=</span> <span class="n">collect_metrics</span><span class="p">(</span><span class="n">post</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">swept_params</span><span class="o">=</span><span class="n">swept_params</span><span class="p">)</span>
             <span class="n">row</span><span class="p">[</span><span class="s2">&quot;runtime_seconds&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">row</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
@@ -962,11 +968,11 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">_write_grid</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Write configs to grid JSON for SLURM job arrays.&quot;&quot;&quot;</span>
         <span class="n">grid</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">cfg</span><span class="p">,</span> <span class="bp">cls</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">configs</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">cfg</span><span class="p">,</span> <span class="n">pipeline</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">configs</span><span class="p">):</span>
             <span class="n">entry</span> <span class="o">=</span> <span class="p">{</span>
                 <span class="s2">&quot;index&quot;</span><span class="p">:</span> <span class="n">i</span><span class="p">,</span>
                 <span class="s2">&quot;config_id&quot;</span><span class="p">:</span> <span class="n">config_id</span><span class="p">(</span><span class="n">cfg</span><span class="p">),</span>
-                <span class="s2">&quot;pipeline_cls&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">cls</span><span class="o">.</span><span class="vm">__module__</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="bp">cls</span><span class="o">.</span><span class="vm">__qualname__</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;pipeline&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">pipeline</span><span class="o">.</span><span class="vm">__module__</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">pipeline</span><span class="o">.</span><span class="vm">__qualname__</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="n">_to_json</span><span class="p">(</span>
                     <span class="p">{</span>
                         <span class="n">f</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">cfg</span><span class="p">,</span> <span class="n">f</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
@@ -980,9 +986,9 @@
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 
-<div class="viewcode-block" id="Sweep.get_problem">
-<a class="viewcode-back" href="../../../_autosummary/slv.inversion.sweep.Sweep.get_problem.html#slv.inversion.sweep.Sweep.get_problem">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_problem</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<div class="viewcode-block" id="Sweep.get_posterior">
+<a class="viewcode-back" href="../../../_autosummary/slv.inversion.sweep.Sweep.get_posterior.html#slv.inversion.sweep.Sweep.get_posterior">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_posterior</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Posterior</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Reconstruct and run a single config by ID.</span>
 
@@ -993,7 +999,7 @@
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        FluxProblem instance from running the pipeline.</span>
+<span class="sd">        The posterior the pipeline returns for that config.</span>
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
@@ -1006,9 +1012,8 @@
                 <span class="sa">f</span><span class="s2">&quot;Available IDs: </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_config_map</span><span class="o">.</span><span class="n">keys</span><span class="p">())[:</span><span class="mi">10</span><span class="p">]</span><span class="si">}</span><span class="s2">...&quot;</span>
             <span class="p">)</span>
 
-        <span class="n">cfg</span><span class="p">,</span> <span class="bp">cls</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config_map</span><span class="p">[</span><span class="n">config_id</span><span class="p">]</span>
-        <span class="n">pipeline</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="n">cfg</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">pipeline</span><span class="o">.</span><span class="n">run</span><span class="p">()</span></div>
+        <span class="n">cfg</span><span class="p">,</span> <span class="n">pipeline</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_config_map</span><span class="p">[</span><span class="n">config_id</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">pipeline</span><span class="p">(</span><span class="n">cfg</span><span class="p">)</span></div>
 
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
@@ -1016,7 +1021,7 @@
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">configs</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Sweep(</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="si">}</span><span class="s2"> configs, pipeline=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">pipeline_cls</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">)&quot;</span></div>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Sweep(</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="si">}</span><span class="s2"> configs, pipeline=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">pipeline</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">)&quot;</span></div>
 
 
 
@@ -1028,13 +1033,12 @@
 <div class="viewcode-block" id="collect_metrics">
 <a class="viewcode-back" href="../../../_autosummary/slv.inversion.sweep.collect_metrics.html#slv.inversion.sweep.collect_metrics">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">collect_metrics</span><span class="p">(</span>
-    <span class="n">problem</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="n">post</span><span class="p">:</span> <span class="n">Posterior</span><span class="p">,</span>
     <span class="n">config</span><span class="p">:</span> <span class="n">InversionConfig</span><span class="p">,</span>
-    <span class="n">pipeline</span><span class="p">:</span> <span class="n">SLVMethaneInversion</span><span class="p">,</span>
     <span class="n">swept_params</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Extract goodness-of-fit and flux metrics from a solved ``FluxProblem``.</span>
+<span class="sd">    Extract goodness-of-fit and flux metrics from a solved inversion.</span>
 
 <span class="sd">    The primary target metric is ``reduced_chi2`` — ideally close to 1.0,</span>
 <span class="sd">    which indicates the error covariances are well-specified.</span>
@@ -1043,16 +1047,15 @@
 <span class="sd">    ``observed concentration - modeled concentration`` (the model is</span>
 <span class="sd">    ``H x + background``) with its root mean square (``*_rmse``) and mean</span>
 <span class="sd">    (``*_bias``, positive when the model is below the observations), in the</span>
-<span class="sd">    units of the observations.</span>
+<span class="sd">    units of the observations. ``R2`` is fips&#39;s ``Posterior.r2``, the R² of the</span>
+<span class="sd">    enhancement: ``corr(obs - background, H x_hat)²``.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    problem :</span>
-<span class="sd">        Solved ``FluxProblem`` returned by ``pipeline.run()``.</span>
+<span class="sd">    post :</span>
+<span class="sd">        The posterior the pipeline returned (:func:`~slv.inversion.pipelines.run`).</span>
 <span class="sd">    config :</span>
 <span class="sd">        :class:`InversionConfig` used for this run.</span>
-<span class="sd">    pipeline :</span>
-<span class="sd">        The pipeline instance (used for ``calculate_total_flux``).</span>
 <span class="sd">    swept_params :</span>
 <span class="sd">        Config field names to capture as ``cfg_*`` columns in the output row.</span>
 <span class="sd">        If *None*, all non-scientific fields are excluded and the rest included.</span>
@@ -1061,28 +1064,31 @@
 <span class="sd">    -------</span>
 <span class="sd">    Flat :class:`dict` ready to append as a row to the results CSV.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">est</span> <span class="o">=</span> <span class="n">problem</span><span class="o">.</span><span class="n">estimator</span>
+    <span class="n">problem</span> <span class="o">=</span> <span class="n">post</span><span class="o">.</span><span class="n">problem</span>
 
     <span class="n">metrics</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="n">_RESULT_COLUMNS</span><span class="p">)</span>
     <span class="n">metrics</span> <span class="o">|=</span> <span class="p">{</span>
         <span class="s2">&quot;config_id&quot;</span><span class="p">:</span> <span class="n">config_id</span><span class="p">(</span><span class="n">config</span><span class="p">),</span>
         <span class="c1"># Primary chi² metric — target ≈ 1.0</span>
-        <span class="s2">&quot;reduced_chi2&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">est</span><span class="o">.</span><span class="n">reduced_chi2</span><span class="p">),</span>
-        <span class="s2">&quot;chi2_distance&quot;</span><span class="p">:</span> <span class="nb">abs</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">est</span><span class="o">.</span><span class="n">reduced_chi2</span><span class="p">)</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">),</span>
+        <span class="s2">&quot;reduced_chi2&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">post</span><span class="o">.</span><span class="n">reduced_chi2</span><span class="p">),</span>
+        <span class="s2">&quot;chi2_distance&quot;</span><span class="p">:</span> <span class="nb">abs</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">post</span><span class="o">.</span><span class="n">reduced_chi2</span><span class="p">)</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">),</span>
         <span class="c1"># Supplementary fit metrics</span>
-        <span class="s2">&quot;R2&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">est</span><span class="o">.</span><span class="n">R2</span><span class="p">),</span>
-        <span class="s2">&quot;RMSE&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">est</span><span class="o">.</span><span class="n">RMSE</span><span class="p">),</span>
-        <span class="s2">&quot;DOFS&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">est</span><span class="o">.</span><span class="n">DOFS</span><span class="p">),</span>
-        <span class="s2">&quot;uncertainty_reduction&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">est</span><span class="o">.</span><span class="n">uncertainty_reduction</span><span class="p">),</span>
+        <span class="s2">&quot;R2&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">post</span><span class="o">.</span><span class="n">r2</span><span class="p">),</span>
+        <span class="s2">&quot;RMSE&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">post</span><span class="o">.</span><span class="n">rmse</span><span class="p">),</span>
+        <span class="s2">&quot;DOFS&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">post</span><span class="o">.</span><span class="n">dofs</span><span class="p">),</span>
+        <span class="s2">&quot;uncertainty_reduction&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">post</span><span class="o">.</span><span class="n">uncertainty_reduction</span><span class="p">),</span>
     <span class="p">}</span>
+    <span class="n">prior_fluxes</span> <span class="o">=</span> <span class="n">problem</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">to_series</span><span class="p">(</span><span class="s2">&quot;flux&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="s2">&quot;prior&quot;</span><span class="p">)</span>
 
     <span class="c1"># Domain-integrated flux totals</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="n">total_prior</span> <span class="o">=</span> <span class="n">pipeline</span><span class="o">.</span><span class="n">calculate_total_flux</span><span class="p">(</span>
-            <span class="n">problem</span><span class="o">.</span><span class="n">prior_fluxes</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">output_units</span>
+        <span class="n">total_prior</span> <span class="o">=</span> <span class="n">calculate_total_flux</span><span class="p">(</span>
+            <span class="n">config</span><span class="p">,</span> <span class="n">prior_fluxes</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">output_units</span>
         <span class="p">)</span>
-        <span class="n">total_posterior</span> <span class="o">=</span> <span class="n">pipeline</span><span class="o">.</span><span class="n">calculate_total_flux</span><span class="p">(</span>
-            <span class="n">problem</span><span class="o">.</span><span class="n">posterior_fluxes</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">output_units</span>
+        <span class="n">total_posterior</span> <span class="o">=</span> <span class="n">calculate_total_flux</span><span class="p">(</span>
+            <span class="n">config</span><span class="p">,</span>
+            <span class="n">post</span><span class="o">.</span><span class="n">estimate</span><span class="o">.</span><span class="n">to_series</span><span class="p">(</span><span class="s2">&quot;flux&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="s2">&quot;posterior&quot;</span><span class="p">),</span>
+            <span class="n">units</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">output_units</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;prior_flux_mean&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">total_prior</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span>
         <span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;posterior_flux_mean&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">total_posterior</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span>
@@ -1103,15 +1109,15 @@
     <span class="c1"># concentrations are H x + background, so they are compared with the observed</span>
     <span class="c1"># concentration, not the enhancement (obs - background).</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="n">obs_c</span> <span class="o">=</span> <span class="n">problem</span><span class="o">.</span><span class="n">concentrations</span>
-        <span class="n">rp</span> <span class="o">=</span> <span class="n">obs_c</span> <span class="o">-</span> <span class="n">problem</span><span class="o">.</span><span class="n">prior_concentrations</span>
-        <span class="n">rq</span> <span class="o">=</span> <span class="n">obs_c</span> <span class="o">-</span> <span class="n">problem</span><span class="o">.</span><span class="n">posterior_concentrations</span>
+        <span class="n">obs_c</span> <span class="o">=</span> <span class="n">problem</span><span class="o">.</span><span class="n">obs</span><span class="o">.</span><span class="n">to_series</span><span class="p">(</span><span class="s2">&quot;concentration&quot;</span><span class="p">)</span>
+        <span class="n">rp</span> <span class="o">=</span> <span class="n">obs_c</span> <span class="o">-</span> <span class="n">problem</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">problem</span><span class="o">.</span><span class="n">prior</span><span class="p">)</span><span class="o">.</span><span class="n">to_series</span><span class="p">(</span><span class="s2">&quot;concentration&quot;</span><span class="p">)</span>
+        <span class="n">rq</span> <span class="o">=</span> <span class="n">obs_c</span> <span class="o">-</span> <span class="n">post</span><span class="o">.</span><span class="n">modeled_obs</span><span class="o">.</span><span class="n">to_series</span><span class="p">(</span><span class="s2">&quot;concentration&quot;</span><span class="p">)</span>
         <span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;prior_conc_rmse&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">((</span><span class="n">rp</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">**</span> <span class="mf">0.5</span><span class="p">)</span>
         <span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;posterior_conc_rmse&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">((</span><span class="n">rq</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">**</span> <span class="mf">0.5</span><span class="p">)</span>
         <span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;prior_conc_bias&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">rp</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span>
         <span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;posterior_conc_bias&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">rq</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span>
         <span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;n_obs&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">obs_c</span><span class="p">))</span>
-        <span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;n_state&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">problem</span><span class="o">.</span><span class="n">prior_fluxes</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;n_state&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">prior_fluxes</span><span class="p">))</span>
     <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;collect_metrics: concentration residuals failed&quot;</span><span class="p">,</span> <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
@@ -1201,9 +1207,7 @@
     <span class="n">valid</span> <span class="o">=</span> <span class="p">{</span><span class="n">f</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">dataclasses</span><span class="o">.</span><span class="n">fields</span><span class="p">(</span><span class="n">InversionConfig</span><span class="p">)</span> <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="s2">&quot;tiler&quot;</span><span class="p">}</span>
     <span class="n">cfg</span> <span class="o">=</span> <span class="n">InversionConfig</span><span class="p">(</span><span class="o">**</span><span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">fields</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">valid</span><span class="p">})</span>
 
-    <span class="c1"># Rehydrate pipeline class</span>
-    <span class="n">module_path</span><span class="p">,</span> <span class="n">cls_name</span> <span class="o">=</span> <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;pipeline_cls&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-    <span class="n">pipeline_cls</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="n">module_path</span><span class="p">),</span> <span class="n">cls_name</span><span class="p">)</span>
+    <span class="n">pipeline</span> <span class="o">=</span> <span class="n">_import_pipeline</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="s2">&quot;pipeline&quot;</span><span class="p">])</span>
 
     <span class="n">cid</span> <span class="o">=</span> <span class="n">config_id</span><span class="p">(</span><span class="n">cfg</span><span class="p">)</span>
     <span class="n">csv_path</span> <span class="o">=</span> <span class="n">results_dir</span> <span class="o">/</span> <span class="s2">&quot;sweep_results.csv&quot;</span>
@@ -1222,9 +1226,7 @@
 
     <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="n">pipeline</span> <span class="o">=</span> <span class="n">pipeline_cls</span><span class="p">(</span><span class="n">cfg</span><span class="p">)</span>
-        <span class="n">problem</span> <span class="o">=</span> <span class="n">pipeline</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
-        <span class="n">row</span> <span class="o">=</span> <span class="n">collect_metrics</span><span class="p">(</span><span class="n">problem</span><span class="p">,</span> <span class="n">cfg</span><span class="p">,</span> <span class="n">pipeline</span><span class="p">,</span> <span class="n">swept_params</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        <span class="n">row</span> <span class="o">=</span> <span class="n">collect_metrics</span><span class="p">(</span><span class="n">pipeline</span><span class="p">(</span><span class="n">cfg</span><span class="p">),</span> <span class="n">cfg</span><span class="p">,</span> <span class="n">swept_params</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
         <span class="kn">import</span><span class="w"> </span><span class="nn">traceback</span>
 
@@ -1557,9 +1559,9 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">to_config</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">row</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span>
-        <span class="n">pipeline_cls</span><span class="p">:</span> <span class="nb">type</span> <span class="o">=</span> <span class="n">SLVMethaneInversion</span><span class="p">,</span>
+        <span class="n">pipeline</span><span class="p">:</span> <span class="n">Pipeline</span> <span class="o">=</span> <span class="n">pipelines</span><span class="o">.</span><span class="n">run</span><span class="p">,</span>
         <span class="n">cache</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">InversionConfig</span><span class="p">,</span> <span class="nb">type</span><span class="p">]:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">InversionConfig</span><span class="p">,</span> <span class="n">Pipeline</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Rehydrate an :class:`InversionConfig` from a results row.</span>
 
@@ -1567,14 +1569,14 @@
 <span class="sd">        ----------</span>
 <span class="sd">        row :</span>
 <span class="sd">            A row from :attr:`df` (e.g. ``results.best().iloc[0]``).</span>
-<span class="sd">        pipeline_cls :</span>
-<span class="sd">            Pipeline class to associate.</span>
+<span class="sd">        pipeline :</span>
+<span class="sd">            The pipeline function to associate.</span>
 <span class="sd">        cache :</span>
 <span class="sd">            Override cache path.  If *None*, keeps the original run&#39;s cache.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        ``(InversionConfig, pipeline_cls)`` tuple ready to instantiate and run.</span>
+<span class="sd">        ``(InversionConfig, pipeline)``: ``pipeline(config)`` runs it.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">valid</span> <span class="o">=</span> <span class="p">{</span><span class="n">f</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">dataclasses</span><span class="o">.</span><span class="n">fields</span><span class="p">(</span><span class="n">InversionConfig</span><span class="p">)}</span>
         <span class="n">raw</span> <span class="o">=</span> <span class="p">{</span>
@@ -1593,7 +1595,7 @@
         <span class="k">if</span> <span class="n">cache</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">parsed</span><span class="p">[</span><span class="s2">&quot;cache&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">cache</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">InversionConfig</span><span class="p">(</span><span class="o">**</span><span class="n">parsed</span><span class="p">),</span> <span class="n">pipeline_cls</span></div>
+        <span class="k">return</span> <span class="n">InversionConfig</span><span class="p">(</span><span class="o">**</span><span class="n">parsed</span><span class="p">),</span> <span class="n">pipeline</span></div>
 </div>
 
 </pre></div>

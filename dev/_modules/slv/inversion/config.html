@@ -39,7 +39,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
 
-    <script src="../../../_static/documentation_options.js?v=ecd055a9"></script>
+    <script src="../../../_static/documentation_options.js?v=d65a49b7"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -57,7 +57,7 @@
     <link rel="search" title="Search" href="../../../search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.10.3.dev2+gb9b6e6e05" />
+  <meta name="docsearch:version" content="2026.10.3.dev9+gb4469ce05" />
   
     
     <script src="../../../_static/searchtools.js"></script>
@@ -655,7 +655,7 @@
 <span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">InversionConfig</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Settings for one :class:`~slv.inversion.pipelines.SLVMethaneInversion` run.</span>
+<span class="sd">    Settings for one inversion (:func:`~slv.inversion.pipelines.run`).</span>
 
 <span class="sd">    Invalid choices (``flux_freq``, ``background``, ``prior``, ``bias_grouping``, MDM</span>
 <span class="sd">    component names, an empty domain, ``tstart`` or ``tend`` off the ``flux_freq``</span>
@@ -738,7 +738,7 @@
 <span class="sd">    min_obs_per_interval : int</span>
 <span class="sd">        Drop flux intervals with fewer obs.</span>
 <span class="sd">    min_sims_per_interval : int</span>
-<span class="sd">        Read by fips but not applied.</span>
+<span class="sd">        Not applied (in the cache key only).</span>
 <span class="sd">    gamma : float, optional</span>
 <span class="sd">        Divides the obs error (``&gt; 1`` fits the data more closely).</span>
 <span class="sd">    cache : bool, str or Path</span>
@@ -748,7 +748,7 @@
 <span class="sd">    num_processes : int</span>
 <span class="sd">        Workers for obs loading and the Jacobian build.</span>
 <span class="sd">    plot_inputs, plot_results, plot_diagnostics : bool</span>
-<span class="sd">        Which plots :meth:`~slv.inversion.pipelines.SLVMethaneInversion.run` draws.</span>
+<span class="sd">        Which plots :func:`~slv.inversion.pipelines.run` draws.</span>
 <span class="sd">    output_units : str</span>
 <span class="sd">        Flux units for domain totals (e.g. ``&quot;Gg/m2/s&quot;`` gives Gg per interval).</span>
 <span class="sd">    tiler, tiler_zoom</span>
@@ -897,8 +897,8 @@
 
     <span class="c1"># --- Inversion Solver Settings ---</span>
     <span class="n">min_obs_per_interval</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">60</span>
-    <span class="c1"># Read by fips&#39; filter_state_space but not applied: it filters on the obs count only</span>
-    <span class="c1"># (counting simulations needs the Jacobian, built after that filter).</span>
+    <span class="c1"># Not applied: filter_state_space filters on the obs count only (counting</span>
+    <span class="c1"># simulations needs the Jacobian, built after that filter).</span>
     <span class="n">min_sims_per_interval</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">70</span>
 
     <span class="c1"># Regularization parameter: scales observation error by 1/gamma.</span>

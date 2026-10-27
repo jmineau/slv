@@ -1,6 +1,0 @@
-slv.inversion.pipelines.SLVMethaneInversion.run
-===============================================
-
-.. currentmodule:: slv.inversion.pipelines
-
-.. automethod:: SLVMethaneInversion.run

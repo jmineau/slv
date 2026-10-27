@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
 
-    <script src="_static/documentation_options.js?v=ecd055a9"></script>
+    <script src="_static/documentation_options.js?v=d65a49b7"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -60,7 +60,7 @@
     <link rel="prev" title="Installation" href="installation.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.10.3.dev2+gb9b6e6e05" />
+  <meta name="docsearch:version" content="2026.10.3.dev9+gb4469ce05" />
   
     
     <script src="_static/searchtools.js"></script>
@@ -481,9 +481,10 @@ cartopy axes, and your own data to any <code class="docutils literal notranslate
 </section>
 <section id="a-methane-inversion">
 <h2>A methane inversion<a class="headerlink" href="#a-methane-inversion" title="Link to this heading">#</a></h2>
-<p>An <a class="reference internal" href="_autosummary/slv.inversion.config.InversionConfig.html#slv.inversion.config.InversionConfig" title="slv.inversion.config.InversionConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">InversionConfig</span></code></a> describes the run and
-<a class="reference internal" href="_autosummary/slv.inversion.pipelines.SLVMethaneInversion.html#slv.inversion.pipelines.SLVMethaneInversion" title="slv.inversion.pipelines.SLVMethaneInversion"><code class="xref py py-class docutils literal notranslate"><span class="pre">SLVMethaneInversion</span></code></a> builds the inputs (obs,
-background, prior, Jacobian from the PYSTILT footprints, covariances) and solves.
+<p>An <a class="reference internal" href="_autosummary/slv.inversion.config.InversionConfig.html#slv.inversion.config.InversionConfig" title="slv.inversion.config.InversionConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">InversionConfig</span></code></a> describes the run;
+<a class="reference internal" href="_autosummary/slv.inversion.pipelines.build_problem.html#slv.inversion.pipelines.build_problem" title="slv.inversion.pipelines.build_problem"><code class="xref py py-func docutils literal notranslate"><span class="pre">build_problem()</span></code></a> builds the fips problem from it (obs,
+background, prior, Jacobian from the PYSTILT footprints, covariances), and
+<a class="reference internal" href="_autosummary/slv.inversion.pipelines.run.html#slv.inversion.pipelines.run" title="slv.inversion.pipelines.run"><code class="xref py py-func docutils literal notranslate"><span class="pre">run()</span></code></a> builds it, solves it and prints a summary.
 Components are cached under <code class="docutils literal notranslate"><span class="pre">cache</span></code> keyed on the settings they depend on, so a
 second run that changes only, say, <code class="docutils literal notranslate"><span class="pre">prior_base_std</span></code> reuses the obs and the Jacobian.
 The keys also see the input files: the CT-STILT CSV (<code class="docutils literal notranslate"><span class="pre">background_kwargs</span></code>) and
@@ -495,7 +496,7 @@ An obs the model cannot simulate is dropped before the solve, and the run prints
 many: one with no background, and one whose receptor has no footprint (its STILT
 simulation was not run, or failed). A receptor whose footprint is empty, because its
 particles left the domain, keeps its obs: it saw no emissions.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">slv.inversion</span><span class="w"> </span><span class="kn">import</span> <span class="n">InversionConfig</span><span class="p">,</span> <span class="n">SLVMethaneInversion</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">slv.inversion</span><span class="w"> </span><span class="kn">import</span> <span class="n">InversionConfig</span><span class="p">,</span> <span class="n">run</span>
 
 <span class="n">config</span> <span class="o">=</span> <span class="n">InversionConfig</span><span class="p">(</span>
     <span class="n">tstart</span><span class="o">=</span><span class="s2">&quot;2016-01-01&quot;</span><span class="p">,</span>
@@ -509,9 +510,11 @@ particles left the domain, keeps its obs: it saw no emissions.</p>
     <span class="n">cache</span><span class="o">=</span><span class="s2">&quot;./cache&quot;</span><span class="p">,</span>
     <span class="n">num_processes</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="n">problem</span> <span class="o">=</span> <span class="n">SLVMethaneInversion</span><span class="p">(</span><span class="n">config</span><span class="p">)</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+<span class="n">post</span> <span class="o">=</span> <span class="n">run</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>  <span class="c1"># a fips Posterior</span>
 
-<span class="n">problem</span><span class="o">.</span><span class="n">posterior_fluxes</span>  <span class="c1"># pd.Series of flux by time and cell</span>
+<span class="n">post</span><span class="o">.</span><span class="n">estimate</span><span class="p">[</span><span class="s2">&quot;flux&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_series</span><span class="p">()</span>  <span class="c1"># the posterior flux by time and cell</span>
+<span class="n">post</span><span class="o">.</span><span class="n">problem</span><span class="o">.</span><span class="n">prior</span><span class="p">[</span><span class="s2">&quot;flux&quot;</span><span class="p">]</span>  <span class="c1"># the prior, a fips Vector</span>
+<span class="n">post</span><span class="o">.</span><span class="n">cov</span><span class="p">(</span><span class="n">W</span><span class="p">)</span>  <span class="c1"># the posterior covariance of aggregates W (an Operator), such as totals</span>
 </pre></div>
 </div>
 <p>The flux intervals are whole <code class="docutils literal notranslate"><span class="pre">flux_freq</span></code> periods from <code class="docutils literal notranslate"><span class="pre">tstart</span></code> to <code class="docutils literal notranslate"><span class="pre">tend</span></code>, so both
