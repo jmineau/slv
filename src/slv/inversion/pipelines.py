@@ -429,8 +429,7 @@ def filter_state_space(
     Objects loaded from a wide-range cache are sliced to the run's time window before
     anything is built from them. With ``config.min_obs_per_interval`` above 1, the obs
     of a flux interval with fewer obs than that are dropped (the interval's fluxes stay
-    in the state, constrained by the prior alone). ``min_sims_per_interval`` is not
-    applied: counting simulations needs the Jacobian, built after this filter.
+    in the state, constrained by the prior alone).
     """
     tstart, tend = config.time_range
     obs_times = obs.index.get_level_values("obs_time")

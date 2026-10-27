@@ -295,8 +295,6 @@ class InversionConfig:
         sensitivity) at the prior. ``None`` keeps every cell.
     min_obs_per_interval : int
         Drop flux intervals with fewer obs.
-    min_sims_per_interval : int
-        Not applied (in the cache key only).
     gamma : float, optional
         Divides the obs error (``> 1`` fits the data more closely).
     cache : bool, str or Path
@@ -452,9 +450,6 @@ class InversionConfig:
 
     # --- Inversion Solver Settings ---
     min_obs_per_interval: int = 60
-    # Not applied: filter_state_space filters on the obs count only (counting
-    # simulations needs the Jacobian, built after that filter).
-    min_sims_per_interval: int = 70
 
     # Regularization parameter: scales observation error by 1/gamma.
     # gamma > 1: reduces obs error weight, forces solution toward data

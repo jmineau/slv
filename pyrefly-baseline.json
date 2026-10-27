@@ -529,13 +529,6 @@
       "column": 21,
       "path": "src/slv/inversion/sweep.py",
       "name": "bad-argument-type",
-      "concise_description": "Unpacked keyword argument `str | Any` is not assignable to parameter `min_sims_per_interval` with type `int` in function `slv.inversion.config.InversionConfig.__init__`",
-      "severity": "error"
-    },
-    {
-      "column": 21,
-      "path": "src/slv/inversion/sweep.py",
-      "name": "bad-argument-type",
       "concise_description": "Unpacked keyword argument `str | Any` is not assignable to parameter `gamma` with type `float | None` in function `slv.inversion.config.InversionConfig.__init__`",
       "severity": "error"
     },

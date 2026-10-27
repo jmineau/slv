@@ -327,6 +327,12 @@ def test_invalid_settings_fail_at_construction(bad):
         InversionConfig(**bad)
 
 
+def test_min_sims_per_interval_is_gone():
+    # it was read and never applied (#45); a config that sets it now fails loudly
+    with pytest.raises(TypeError, match="min_sims_per_interval"):
+        InversionConfig(min_sims_per_interval=70)
+
+
 @pytest.mark.parametrize(
     ("kwargs", "covered"),
     [

@@ -41,16 +41,12 @@ _OBS_DEPS: frozenset[str] = frozenset(
 #: forward_operator key avoids a needless (expensive) Jacobian rebuild when toggled.
 _OBS_FILTER_DEPS: frozenset[str] = frozenset({"filter_spikes", "spike_percentile"})
 #: State-filter deps: filter_state_space drops obs in flux intervals (months) with too
-#: few obs (min_obs_per_interval). min_sims_per_interval is not applied -- counting
-#: simulations needs the Jacobian, built after this filter -- so it only sits in the
-#: key. The obs-indexed MDM and constant are built AFTER that filter, so they must
-#: re-key on it -- otherwise a run at a lower threshold would reuse the
-#: higher-threshold MDM, whose labels then miss the recovered months (the problem
+#: few obs (min_obs_per_interval). The obs-indexed MDM and constant are built AFTER that
+#: filter, so they must re-key on it -- otherwise a run at a lower threshold would reuse
+#: the higher-threshold MDM, whose labels then miss the recovered months (the problem
 #: refuses it). Not on forward_operator (receptor-based, placed on the obs) or obs
 #: (get_obs returns the full record; the filter is applied downstream).
-_STATE_FILTER_DEPS: frozenset[str] = frozenset(
-    {"min_obs_per_interval", "min_sims_per_interval"}
-)
+_STATE_FILTER_DEPS: frozenset[str] = frozenset({"min_obs_per_interval"})
 _PRIOR_DEPS: frozenset[str] = frozenset(
     {
         "prior",
