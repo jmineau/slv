@@ -39,7 +39,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
 
-    <script src="../../../../_static/documentation_options.js?v=d65a49b7"></script>
+    <script src="../../../../_static/documentation_options.js?v=bb1b06e8"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -57,7 +57,7 @@
     <link rel="search" title="Search" href="../../../../search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.10.3.dev9+gb4469ce05" />
+  <meta name="docsearch:version" content="2026.10.3.dev11+g2cd4c4e3c" />
   
     
     <script src="../../../../_static/searchtools.js"></script>
@@ -461,8 +461,7 @@
     <span class="n">aeris</span> <span class="o">=</span> <span class="n">aeris</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Time_UTC&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&quot;Time_UTC&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span>
     <span class="n">aeris</span> <span class="o">=</span> <span class="n">aeris</span><span class="p">[[</span><span class="s2">&quot;CH4 (ppm)&quot;</span><span class="p">,</span> <span class="s2">&quot;C2H6 (ppb)&quot;</span><span class="p">,</span> <span class="s2">&quot;R&quot;</span><span class="p">,</span> <span class="s2">&quot;C2/C1&quot;</span><span class="p">]]</span>
     <span class="n">aeris</span><span class="p">[</span><span class="s2">&quot;CH4 (ppm)&quot;</span><span class="p">]</span> <span class="o">*=</span> <span class="mi">1000</span>
-    <span class="n">aeris</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;CH4 (ppm)&quot;</span><span class="p">:</span> <span class="s2">&quot;CH4 (ppb)&quot;</span><span class="p">},</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">aeris</span></div>
+    <span class="k">return</span> <span class="n">aeris</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;CH4 (ppm)&quot;</span><span class="p">:</span> <span class="s2">&quot;CH4 (ppb)&quot;</span><span class="p">})</span></div>
 
 
 
@@ -643,7 +642,8 @@
 <span class="sd">    their ratio ``C2/C1`` (after :func:`calculate_enhancements`); the analyzer&#39;s own</span>
 <span class="sd">    columns are kept as ``R_aeris`` and ``C2C1_aeris``. Modifies ``data`` in place.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">data</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;R&quot;</span><span class="p">:</span> <span class="s2">&quot;R_aeris&quot;</span><span class="p">,</span> <span class="s2">&quot;C2/C1&quot;</span><span class="p">:</span> <span class="s2">&quot;C2C1_aeris&quot;</span><span class="p">},</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">names</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;R&quot;</span><span class="p">:</span> <span class="s2">&quot;R_aeris&quot;</span><span class="p">,</span> <span class="s2">&quot;C2/C1&quot;</span><span class="p">:</span> <span class="s2">&quot;C2C1_aeris&quot;</span><span class="p">}</span>
+    <span class="n">data</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="n">names</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">columns</span><span class="p">]</span>
 
     <span class="n">data</span><span class="p">[</span><span class="s2">&quot;R&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">CH4_ex</span><span class="o">.</span><span class="n">rolling</span><span class="p">(</span><span class="n">window</span><span class="p">)</span><span class="o">.</span><span class="n">corr</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">C2H6_ex</span><span class="p">)</span>
     <span class="n">data</span><span class="p">[</span><span class="s2">&quot;C2/C1&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;C2H6_ex&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;CH4_ex&quot;</span><span class="p">]</span>

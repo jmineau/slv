@@ -39,7 +39,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
 
-    <script src="../../../_static/documentation_options.js?v=d65a49b7"></script>
+    <script src="../../../_static/documentation_options.js?v=bb1b06e8"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -57,7 +57,7 @@
     <link rel="search" title="Search" href="../../../search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.10.3.dev9+gb4469ce05" />
+  <meta name="docsearch:version" content="2026.10.3.dev11+g2cd4c4e3c" />
   
     
     <script src="../../../_static/searchtools.js"></script>
@@ -431,9 +431,12 @@
   <h1>Source code for slv.inversion.priors</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;Prior flux fields for the SLV inversion (EPA, EDGAR or constant) on the state grid.&quot;&quot;&quot;</span>
 
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">lair</span><span class="w"> </span><span class="kn">import</span> <span class="n">inventories</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pandas.tseries.offsets</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseOffset</span>
 
 
 <div class="viewcode-block" id="get_slv_prior">
@@ -503,6 +506,22 @@
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported prior: </span><span class="si">{</span><span class="n">prior</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
 
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_infer_freq</span><span class="p">(</span><span class="n">times</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BaseOffset</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    The step of regular ``times`` as an offset (``pd.infer_freq``), or None if irregular.</span>
+
+<span class="sd">    pandas 3.1 warns that ``infer_freq`` will return an offset rather than a string, and</span>
+<span class="sd">    the option that asks for the offset is not in pandas 3.0; so the warning is silenced</span>
+<span class="sd">    here and the result made an offset, which both versions agree on.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="n">warnings</span><span class="o">.</span><span class="n">catch_warnings</span><span class="p">():</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span>
+            <span class="s2">&quot;ignore&quot;</span><span class="p">,</span> <span class="s2">&quot;A future version of pandas will return a BaseOffset&quot;</span>
+        <span class="p">)</span>
+        <span class="n">freq</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">infer_freq</span><span class="p">(</span><span class="n">times</span><span class="p">)</span>
+    <span class="k">return</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">freq</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">pd</span><span class="o">.</span><span class="n">tseries</span><span class="o">.</span><span class="n">frequencies</span><span class="o">.</span><span class="n">to_offset</span><span class="p">(</span><span class="n">freq</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="align_to_flux_times">
@@ -628,11 +647,11 @@
 
     <span class="c1"># Resample inventory to target flux frequency if needed</span>
     <span class="k">if</span> <span class="n">flux_freq</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">inv_freq</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">infer_freq</span><span class="p">(</span><span class="n">inventory</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+        <span class="n">inv_freq</span> <span class="o">=</span> <span class="n">_infer_freq</span><span class="p">(</span><span class="n">inventory</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">inv_freq</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">ref</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="s2">&quot;2020-01-01&quot;</span><span class="p">)</span>
             <span class="n">target_step</span> <span class="o">=</span> <span class="n">ref</span> <span class="o">+</span> <span class="n">pd</span><span class="o">.</span><span class="n">tseries</span><span class="o">.</span><span class="n">frequencies</span><span class="o">.</span><span class="n">to_offset</span><span class="p">(</span><span class="n">flux_freq</span><span class="p">)</span>
-            <span class="n">inv_step</span> <span class="o">=</span> <span class="n">ref</span> <span class="o">+</span> <span class="n">pd</span><span class="o">.</span><span class="n">tseries</span><span class="o">.</span><span class="n">frequencies</span><span class="o">.</span><span class="n">to_offset</span><span class="p">(</span><span class="n">inv_freq</span><span class="p">)</span>
+            <span class="n">inv_step</span> <span class="o">=</span> <span class="n">ref</span> <span class="o">+</span> <span class="n">inv_freq</span>
             <span class="k">if</span> <span class="n">target_step</span> <span class="o">&gt;</span> <span class="n">inv_step</span><span class="p">:</span>
                 <span class="n">inventory</span> <span class="o">=</span> <span class="n">inventory</span><span class="o">.</span><span class="n">resample</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="n">flux_freq</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
 
@@ -682,11 +701,11 @@
     <span class="n">inventory</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">total</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">]</span>
 
     <span class="k">if</span> <span class="n">flux_freq</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">inv_freq</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">infer_freq</span><span class="p">(</span><span class="n">inventory</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+        <span class="n">inv_freq</span> <span class="o">=</span> <span class="n">_infer_freq</span><span class="p">(</span><span class="n">inventory</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">inv_freq</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">ref</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="s2">&quot;2020-01-01&quot;</span><span class="p">)</span>
             <span class="n">target_step</span> <span class="o">=</span> <span class="n">ref</span> <span class="o">+</span> <span class="n">pd</span><span class="o">.</span><span class="n">tseries</span><span class="o">.</span><span class="n">frequencies</span><span class="o">.</span><span class="n">to_offset</span><span class="p">(</span><span class="n">flux_freq</span><span class="p">)</span>
-            <span class="n">inv_step</span> <span class="o">=</span> <span class="n">ref</span> <span class="o">+</span> <span class="n">pd</span><span class="o">.</span><span class="n">tseries</span><span class="o">.</span><span class="n">frequencies</span><span class="o">.</span><span class="n">to_offset</span><span class="p">(</span><span class="n">inv_freq</span><span class="p">)</span>
+            <span class="n">inv_step</span> <span class="o">=</span> <span class="n">ref</span> <span class="o">+</span> <span class="n">inv_freq</span>
             <span class="k">if</span> <span class="n">target_step</span> <span class="o">&gt;</span> <span class="n">inv_step</span><span class="p">:</span>
                 <span class="n">inventory</span> <span class="o">=</span> <span class="n">inventory</span><span class="o">.</span><span class="n">resample</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="n">flux_freq</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
 
