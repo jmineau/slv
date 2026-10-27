@@ -6,6 +6,8 @@ versions are calendar-based (YYYY.M.PATCH).
 
 ## [Unreleased]
 
+## [2026.10.3] - 2026-10-27
+
 ### Changed
 
 - **The inversion runs on fips 0.2's API** (labeled vectors and operators,
@@ -41,6 +43,12 @@ versions are calendar-based (YYYY.M.PATCH).
   `num_processes` (default 1) and pass it to `uataq.read_data`; `label_trax_location`
   passes its own on. Reading the 2024 GPS (15.9 M fixes) takes 68 s on 8 processes, from
   120 s, and `label_trax_location` on that year 126 s, from 191 s. The frames are the same
+- lair 2026.12.10, uataq 2026.10.1 and pystilt 0.1.0a26 (the `inversion` extra needs
+  `pystilt>=0.1.0a26`). lair's `soundings.get_soundings` no longer downloads soundings
+  by itself, so `slv.meteorology.pcaps.get_soundings` raises `ValueError` for a station
+  folder without soundings in the period unless you pass `download=True` (it goes on to
+  lair); a folder that holds the soundings is read as before. uataq reads no longer
+  pass `inplace=True` to pandas (uataq#116), so slv's test filter for that warning is gone
 
 ### Removed
 
