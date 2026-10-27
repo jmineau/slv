@@ -120,8 +120,7 @@ filterwarnings = [
     # import); pytest's "error" filter would bring it back.
     "ignore:numpy.ndarray size changed:RuntimeWarning",
     # uataq's merge_gps calls dropna(inplace=True), which pandas 3.1 deprecates
-    # (uataq#115); drop
-    # this once slv pins a uataq release without it.
+    # (uataq#115); drop this once slv pins a uataq release without it.
     "ignore:The inplace keyword:pandas.errors.Pandas4Warning:uataq",
 ]
 markers = [
