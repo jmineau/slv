@@ -1,0 +1,6 @@
+slv.basemap.SaltLake.add\_population
+====================================
+
+.. currentmodule:: slv.basemap
+
+.. automethod:: SaltLake.add_population

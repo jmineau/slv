@@ -1,0 +1,6 @@
+slv.measurements.mobile.obs.label\_trax\_location
+=================================================
+
+.. currentmodule:: slv.measurements.mobile.obs
+
+.. autofunction:: label_trax_location

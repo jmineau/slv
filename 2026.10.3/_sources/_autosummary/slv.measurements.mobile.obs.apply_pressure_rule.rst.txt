@@ -1,0 +1,6 @@
+slv.measurements.mobile.obs.apply\_pressure\_rule
+=================================================
+
+.. currentmodule:: slv.measurements.mobile.obs
+
+.. autofunction:: apply_pressure_rule

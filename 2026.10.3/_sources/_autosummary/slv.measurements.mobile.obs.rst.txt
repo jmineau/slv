@@ -1,0 +1,47 @@
+slv.measurements.mobile.obs
+===========================
+
+.. automodule:: slv.measurements.mobile.obs
+   :no-members:
+
+
+.. rubric:: Attributes
+
+.. autosummary::
+   :toctree:
+   :nosignatures:
+
+   LOCATION_SETS
+   LOW_PRESSURE_BAND
+   PRESSURE_BAND
+   DROPOUT_CH4_PPM
+   DROPOUT_WINDOW_MIN
+   SLOPE_TOL
+
+
+
+.. rubric:: Functions
+
+.. autosummary::
+   :toctree:
+   :nosignatures:
+
+   apply_dropout_rule
+   apply_low_pressure_rule
+   apply_pressure_rule
+   apply_slope_guard
+   build_trax_obs
+   dropout_times
+   filter_location
+   label_trax_location
+   load_trax_obs
+   recover_hot_rows
+
+
+
+
+
+
+
+
+

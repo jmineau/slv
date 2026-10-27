@@ -1,0 +1,6 @@
+slv.basemap.SaltLake.add\_legend
+================================
+
+.. currentmodule:: slv.basemap
+
+.. automethod:: SaltLake.add_legend

@@ -1,0 +1,6 @@
+slv.measurements.mobile.receptors.build\_trax\_receptors
+========================================================
+
+.. currentmodule:: slv.measurements.mobile.receptors
+
+.. autofunction:: build_trax_receptors

@@ -7,15 +7,23 @@ slv.inversion.report
 
 
 
-
-
-.. rubric:: Classes
+.. rubric:: Functions
 
 .. autosummary::
    :toctree:
    :nosignatures:
 
-   ReportingMixin
+   calculate_total_flux
+   desroziers_diagnostic
+   fluxes_as_inventory
+   plot_diagnostics
+   plot_inputs
+   plot_obs
+   plot_results
+   summarize
+   total_units
+
+
 
 
 

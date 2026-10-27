@@ -1,0 +1,6 @@
+slv.inversion.config.build\_location\_site\_map
+===============================================
+
+.. currentmodule:: slv.inversion.config
+
+.. autofunction:: build_location_site_map

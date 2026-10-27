@@ -1,0 +1,6 @@
+slv.measurements.mobile.obs.DROPOUT\_WINDOW\_MIN
+================================================
+
+.. currentmodule:: slv.measurements.mobile.obs
+
+.. autodata:: DROPOUT_WINDOW_MIN

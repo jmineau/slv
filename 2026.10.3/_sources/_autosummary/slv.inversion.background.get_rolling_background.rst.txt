@@ -1,0 +1,6 @@
+slv.inversion.background.get\_rolling\_background
+=================================================
+
+.. currentmodule:: slv.inversion.background
+
+.. autofunction:: get_rolling_background

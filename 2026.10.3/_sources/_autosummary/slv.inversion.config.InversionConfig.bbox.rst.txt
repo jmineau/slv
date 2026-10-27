@@ -1,0 +1,6 @@
+slv.inversion.config.InversionConfig.bbox
+=========================================
+
+.. currentmodule:: slv.inversion.config
+
+.. autoproperty:: InversionConfig.bbox

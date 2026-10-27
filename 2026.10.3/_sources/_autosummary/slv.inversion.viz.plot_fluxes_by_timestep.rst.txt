@@ -1,0 +1,6 @@
+slv.inversion.viz.plot\_fluxes\_by\_timestep
+============================================
+
+.. currentmodule:: slv.inversion.viz
+
+.. autofunction:: plot_fluxes_by_timestep

@@ -1,0 +1,25 @@
+slv.measurements.aggregate
+==========================
+
+.. automodule:: slv.measurements.aggregate
+   :no-members:
+
+
+
+
+.. rubric:: Functions
+
+.. autosummary::
+   :toctree:
+   :nosignatures:
+
+   aggregate_obs
+
+
+
+
+
+
+
+
+

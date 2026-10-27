@@ -6,7 +6,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>slv.inversion.coverage &#8212; slv 2026.10.2</title>
+    <title>slv.inversion.coverage &#8212; slv 2026.10.3</title>
   
   
   
@@ -39,7 +39,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
 
-    <script src="../../../_static/documentation_options.js?v=52372788"></script>
+    <script src="../../../_static/documentation_options.js?v=f64fa391"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -48,7 +48,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.22.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://jmineau.github.io/slv/switcher.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '2026.10.2';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '2026.10.3';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             true;
         </script>
@@ -57,7 +57,7 @@
     <link rel="search" title="Search" href="../../../search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.10.2" />
+  <meta name="docsearch:version" content="2026.10.3" />
   
     
     <script src="../../../_static/searchtools.js"></script>
@@ -125,7 +125,7 @@
   
   
   
-    <p class="title logo__title">slv 2026.10.2</p>
+    <p class="title logo__title">slv 2026.10.3</p>
   
 </a></div>
     
@@ -430,24 +430,19 @@
                   
   <h1>Source code for slv.inversion.coverage</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">State cells: the prior/Jacobian agreement check and the Jacobian coverage filter</span>
-<span class="sd">for :class:`~slv.inversion.pipelines.SLVMethaneInversion`.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">State cells: the prior/Jacobian agreement check and the Jacobian coverage filter.</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+<span class="sd">The filter only chooses the cells to keep; :meth:`fips.Problem.restrict` holds the others</span>
+<span class="sd">at their prior.</span>
+<span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">fips</span><span class="w"> </span><span class="kn">import</span> <span class="n">Block</span><span class="p">,</span> <span class="n">CovarianceMatrix</span><span class="p">,</span> <span class="n">ForwardOperator</span><span class="p">,</span> <span class="n">MatrixBlock</span><span class="p">,</span> <span class="n">Vector</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">fips.covariance</span><span class="w"> </span><span class="kn">import</span> <span class="n">DiagonalError</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">fips.problems.flux.problem</span><span class="w"> </span><span class="kn">import</span> <span class="n">FluxProblem</span>
-
-<span class="kn">from</span><span class="w"> </span><span class="nn">slv.inversion.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">InversionConfig</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">slv.inversion.covariances</span><span class="w"> </span><span class="kn">import</span> <span class="n">build_prior_error</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fips</span><span class="w"> </span><span class="kn">import</span> <span class="n">Problem</span><span class="p">,</span> <span class="n">Space</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_flux_cells</span><span class="p">(</span><span class="n">index</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Index</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">set</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;The (lon, lat) cells of the flux entries of a fips state index.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The (lon, lat) cells of the flux entries of a state index.&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="s2">&quot;block&quot;</span> <span class="ow">in</span> <span class="n">index</span><span class="o">.</span><span class="n">names</span><span class="p">:</span>
         <span class="n">index</span> <span class="o">=</span> <span class="n">index</span><span class="p">[</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s2">&quot;block&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;flux&quot;</span><span class="p">]</span>
     <span class="n">lon</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s2">&quot;lon&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span> <span class="mi">6</span><span class="p">)</span>
@@ -457,17 +452,23 @@
 
 <div class="viewcode-block" id="check_state_cells">
 <a class="viewcode-back" href="../../../_autosummary/slv.inversion.coverage.check_state_cells.html#slv.inversion.coverage.check_state_cells">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">check_state_cells</span><span class="p">(</span><span class="n">prior</span><span class="p">:</span> <span class="n">Vector</span><span class="p">,</span> <span class="n">forward_operator</span><span class="p">:</span> <span class="n">ForwardOperator</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">check_state_cells</span><span class="p">(</span><span class="n">prior</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Index</span><span class="p">,</span> <span class="n">jacobian</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Index</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Raise when the prior&#39;s flux cells and the Jacobian&#39;s flux columns differ.</span>
 
-<span class="sd">    fips reindexes the Jacobian onto the prior&#39;s index with zero fill, so a cell only</span>
-<span class="sd">    in the prior would silently get zero sensitivity, and a cell only in the Jacobian</span>
-<span class="sd">    would silently lose its contribution. The usual cause is a cached prior or</span>
+<span class="sd">    The Jacobian is placed on the prior&#39;s labels, a cell it lacks getting a column of</span>
+<span class="sd">    zeros, so a cell only in the prior would silently get zero sensitivity (a cell only</span>
+<span class="sd">    in the Jacobian makes the placing raise). The usual cause is a cached prior or</span>
 <span class="sd">    Jacobian built for a different state grid.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    prior, jacobian : pd.Index</span>
+<span class="sd">        The prior&#39;s labels and the Jacobian&#39;s columns, with ``lat`` and ``lon`` levels.</span>
+<span class="sd">        With a ``block`` level, only the ``flux`` labels are compared.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">prior_cells</span> <span class="o">=</span> <span class="n">_flux_cells</span><span class="p">(</span><span class="n">prior</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
-    <span class="n">jac_cells</span> <span class="o">=</span> <span class="n">_flux_cells</span><span class="p">(</span><span class="n">forward_operator</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+    <span class="n">prior_cells</span> <span class="o">=</span> <span class="n">_flux_cells</span><span class="p">(</span><span class="n">prior</span><span class="p">)</span>
+    <span class="n">jac_cells</span> <span class="o">=</span> <span class="n">_flux_cells</span><span class="p">(</span><span class="n">jacobian</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">prior_cells</span> <span class="ow">and</span> <span class="n">prior_cells</span> <span class="o">!=</span> <span class="n">jac_cells</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;State cells disagree: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">prior_cells</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">jac_cells</span><span class="p">)</span><span class="si">}</span><span class="s2"> prior cells have no &quot;</span>
@@ -480,223 +481,57 @@
 
 
 
-<div class="viewcode-block" id="CoverageFilterMixin">
-<a class="viewcode-back" href="../../../_autosummary/slv.inversion.coverage.CoverageFilterMixin.html#slv.inversion.coverage.CoverageFilterMixin">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">CoverageFilterMixin</span><span class="p">:</span>
+<div class="viewcode-block" id="covered_state">
+<a class="viewcode-back" href="../../../_autosummary/slv.inversion.coverage.covered_state.html#slv.inversion.coverage.covered_state">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">covered_state</span><span class="p">(</span><span class="n">problem</span><span class="p">:</span> <span class="n">Problem</span><span class="p">,</span> <span class="n">percentile</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Space</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Drops poorly-constrained cells from the state (``jacobian_coverage_percentile``),</span>
-<span class="sd">    holding them at the prior, and reinstates them in the reported posterior.</span>
+<span class="sd">    The state without its poorly covered cells: those below ``percentile`` of coverage.</span>
+
+<span class="sd">    A cell&#39;s coverage is its absolute sensitivity, summed over every obs and time, per</span>
+<span class="sd">    obs location (divided by their number). Cells below the ``percentile``-th</span>
+<span class="sd">    percentile of all cells&#39; are left out at every time, which keeps the prior error&#39;s</span>
+<span class="sd">    Kronecker structure; every other block of the state is kept whole. The problem of</span>
+<span class="sd">    the kept state is ``problem.restrict(keep)``, which holds the left-out cells at</span>
+<span class="sd">    their prior (their modeled enhancement moves into the offset);</span>
+<span class="sd">    ``post.estimate.combine_first(problem.prior)`` puts the estimate back on every cell.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    problem : Problem</span>
+<span class="sd">        The problem, with a ``flux`` block in its state and ``concentration`` in its obs.</span>
+<span class="sd">    percentile : float</span>
+<span class="sd">        The coverage percentile below which a cell is left out (10 drops the</span>
+<span class="sd">        least-sensitive 10%).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Space</span>
+<span class="sd">        The state to keep.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">flux</span> <span class="o">=</span> <span class="n">problem</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">space</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s2">&quot;flux&quot;</span><span class="p">)</span>
+    <span class="n">H</span> <span class="o">=</span> <span class="n">problem</span><span class="o">.</span><span class="n">forward</span><span class="p">[</span><span class="s2">&quot;concentration&quot;</span><span class="p">,</span> <span class="s2">&quot;flux&quot;</span><span class="p">]</span>
+    <span class="n">column_sums</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">H</span><span class="o">.</span><span class="n">sparse</span><span class="p">())</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+    <span class="n">cells</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span><span class="o">.</span><span class="n">from_arrays</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">flux</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s2">&quot;lat&quot;</span><span class="p">),</span> <span class="n">flux</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s2">&quot;lon&quot;</span><span class="p">)]</span>
+    <span class="p">)</span>
+    <span class="n">obs</span> <span class="o">=</span> <span class="n">problem</span><span class="o">.</span><span class="n">obs</span><span class="o">.</span><span class="n">space</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s2">&quot;concentration&quot;</span><span class="p">)</span>
+    <span class="n">n_obs_locations</span> <span class="o">=</span> <span class="n">obs</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s2">&quot;obs_location&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">nunique</span><span class="p">()</span>
+    <span class="n">coverage</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">column_sums</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">cells</span><span class="p">)</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+    <span class="n">coverage</span> <span class="o">=</span> <span class="n">coverage</span> <span class="o">/</span> <span class="n">n_obs_locations</span>
 
-    <span class="n">config</span><span class="p">:</span> <span class="n">InversionConfig</span>
-    <span class="n">problem</span><span class="p">:</span> <span class="n">FluxProblem</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_all_cells</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">set</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the set of all (lat, lon) cells, or None if no filter applied.&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_full_prior&quot;</span><span class="p">):</span>
-            <span class="k">return</span> <span class="kc">None</span>
-        <span class="n">full_flux</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_full_prior</span><span class="p">[</span><span class="s2">&quot;flux&quot;</span><span class="p">]</span>
-        <span class="n">lats</span> <span class="o">=</span> <span class="n">full_flux</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s2">&quot;lat&quot;</span><span class="p">)</span>
-        <span class="n">lons</span> <span class="o">=</span> <span class="n">full_flux</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s2">&quot;lon&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="nb">set</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">lats</span><span class="p">,</span> <span class="n">lons</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">_retained_cells</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">set</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the set of retained (lat, lon) cells, or None if no filter applied.&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_all_cells</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">return</span> <span class="kc">None</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_all_cells</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_removed_cells</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">_apply_jacobian_coverage_filter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inputs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Remove cells with insufficient Jacobian coverage from the state vector.</span>
-
-<span class="sd">        Cells are removed across ALL time steps to preserve the Kronecker</span>
-<span class="sd">        structure of the prior error covariance.  Removed cells are stored</span>
-<span class="sd">        so they can be reinstated at the prior value via ``reconstruct_posterior``.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">percentile</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">jacobian_coverage_percentile</span>
-        <span class="n">prior</span> <span class="o">=</span> <span class="n">inputs</span><span class="p">[</span><span class="s2">&quot;prior&quot;</span><span class="p">]</span>
-        <span class="n">forward_operator</span> <span class="o">=</span> <span class="n">inputs</span><span class="p">[</span><span class="s2">&quot;forward_operator&quot;</span><span class="p">]</span>
-        <span class="n">has_bias</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">bias_std</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-
-        <span class="c1"># --- Compute mean per-observation-location sensitivity per cell ---</span>
-        <span class="n">flux_blk</span> <span class="o">=</span> <span class="n">forward_operator</span><span class="o">.</span><span class="n">blocks</span><span class="p">[</span><span class="s2">&quot;concentration&quot;</span><span class="p">,</span> <span class="s2">&quot;flux&quot;</span><span class="p">]</span>
-        <span class="n">flux_jac</span> <span class="o">=</span> <span class="n">flux_blk</span><span class="o">.</span><span class="n">data</span>  <span class="c1"># (obs_time, obs_location) × (lat, lon, time)</span>
-
-        <span class="n">n_obs_locations</span> <span class="o">=</span> <span class="n">flux_jac</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s2">&quot;obs_location&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">nunique</span><span class="p">()</span>
-
-        <span class="n">col_abs_sums</span> <span class="o">=</span> <span class="n">flux_jac</span><span class="o">.</span><span class="n">abs</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-        <span class="n">lat_vals</span> <span class="o">=</span> <span class="n">col_abs_sums</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s2">&quot;lat&quot;</span><span class="p">)</span>
-        <span class="n">lon_vals</span> <span class="o">=</span> <span class="n">col_abs_sums</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s2">&quot;lon&quot;</span><span class="p">)</span>
-        <span class="n">cell_total</span> <span class="o">=</span> <span class="n">col_abs_sums</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="n">lat_vals</span><span class="p">,</span> <span class="n">lon_vals</span><span class="p">])</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
-        <span class="n">cell_coverage</span> <span class="o">=</span> <span class="n">cell_total</span> <span class="o">/</span> <span class="n">n_obs_locations</span>
-
-        <span class="n">threshold</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">cell_coverage</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">percentile</span><span class="p">)</span>
-        <span class="n">retained_cells</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">cell_coverage</span><span class="p">[</span><span class="n">cell_coverage</span> <span class="o">&gt;=</span> <span class="n">threshold</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
-        <span class="n">removed_cells</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">cell_coverage</span><span class="p">[</span><span class="n">cell_coverage</span> <span class="o">&lt;</span> <span class="n">threshold</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
-
-        <span class="n">n_total</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">cell_coverage</span><span class="p">)</span>
-        <span class="n">n_removed</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">removed_cells</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;  Keeping </span><span class="si">{</span><span class="n">n_total</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">n_removed</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">n_total</span><span class="si">}</span><span class="s2"> cells &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;(removed </span><span class="si">{</span><span class="n">n_removed</span><span class="si">}</span><span class="s2"> below </span><span class="si">{</span><span class="n">percentile</span><span class="si">}</span><span class="s2">th percentile, &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;threshold=</span><span class="si">{</span><span class="n">threshold</span><span class="si">:</span><span class="s2">.2e</span><span class="si">}</span><span class="s2">)&quot;</span>
-        <span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">n_removed</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">inputs</span>
-
-        <span class="c1"># Store for posterior reconstruction</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_full_prior</span> <span class="o">=</span> <span class="n">prior</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_removed_cells</span> <span class="o">=</span> <span class="n">removed_cells</span>
-
-        <span class="c1"># --- Helper: boolean mask for a MultiIndex with lat/lon levels ---</span>
-        <span class="k">def</span><span class="w"> </span><span class="nf">_cell_mask</span><span class="p">(</span><span class="n">index</span><span class="p">):</span>
-            <span class="n">lats</span> <span class="o">=</span> <span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s2">&quot;lat&quot;</span><span class="p">)</span>
-            <span class="n">lons</span> <span class="o">=</span> <span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s2">&quot;lon&quot;</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
-                <span class="p">[</span>
-                    <span class="p">(</span><span class="n">lat</span><span class="p">,</span> <span class="n">lon</span><span class="p">)</span> <span class="ow">in</span> <span class="n">retained_cells</span>
-                    <span class="k">for</span> <span class="n">lat</span><span class="p">,</span> <span class="n">lon</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">lats</span><span class="p">,</span> <span class="n">lons</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-                <span class="p">],</span>
-                <span class="n">dtype</span><span class="o">=</span><span class="nb">bool</span><span class="p">,</span>
-            <span class="p">)</span>
-
-        <span class="c1"># --- Filter prior ---</span>
-        <span class="n">flux_series</span> <span class="o">=</span> <span class="n">prior</span><span class="p">[</span><span class="s2">&quot;flux&quot;</span><span class="p">]</span>
-        <span class="n">filtered_flux</span> <span class="o">=</span> <span class="n">flux_series</span><span class="p">[</span><span class="n">_cell_mask</span><span class="p">(</span><span class="n">flux_series</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>
-
-        <span class="k">if</span> <span class="n">has_bias</span><span class="p">:</span>
-            <span class="n">filtered_prior</span> <span class="o">=</span> <span class="n">Vector</span><span class="p">(</span>
-                <span class="n">name</span><span class="o">=</span><span class="n">prior</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
-                <span class="n">data</span><span class="o">=</span><span class="p">[</span><span class="n">Block</span><span class="p">(</span><span class="n">filtered_flux</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;flux&quot;</span><span class="p">),</span> <span class="n">prior</span><span class="o">.</span><span class="n">blocks</span><span class="p">[</span><span class="s2">&quot;bias&quot;</span><span class="p">]],</span>
-            <span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">filtered_prior</span> <span class="o">=</span> <span class="n">Vector</span><span class="p">(</span>
-                <span class="n">name</span><span class="o">=</span><span class="n">prior</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">Block</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;flux&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">filtered_flux</span><span class="p">)</span>
-            <span class="p">)</span>
-
-        <span class="c1"># --- Filter forward operator ---</span>
-        <span class="n">jac_mask</span> <span class="o">=</span> <span class="n">_cell_mask</span><span class="p">(</span><span class="n">flux_jac</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
-        <span class="n">removed_jac_mask</span> <span class="o">=</span> <span class="o">~</span><span class="n">jac_mask</span>
-        <span class="n">filtered_flux_jac</span> <span class="o">=</span> <span class="n">flux_jac</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">jac_mask</span><span class="p">]</span>
-        <span class="n">filtered_flux_blk</span> <span class="o">=</span> <span class="n">MatrixBlock</span><span class="p">(</span>
-            <span class="n">filtered_flux_jac</span><span class="p">,</span>
-            <span class="n">row_block</span><span class="o">=</span><span class="s2">&quot;concentration&quot;</span><span class="p">,</span>
-            <span class="n">col_block</span><span class="o">=</span><span class="s2">&quot;flux&quot;</span><span class="p">,</span>
-            <span class="n">sparse</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">sparse_jacobian</span><span class="p">,</span>
-        <span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">has_bias</span><span class="p">:</span>
-            <span class="n">bias_blk</span> <span class="o">=</span> <span class="n">forward_operator</span><span class="o">.</span><span class="n">blocks</span><span class="p">[</span><span class="s2">&quot;concentration&quot;</span><span class="p">,</span> <span class="s2">&quot;bias&quot;</span><span class="p">]</span>
-            <span class="n">filtered_fo</span> <span class="o">=</span> <span class="n">ForwardOperator</span><span class="p">([</span><span class="n">filtered_flux_blk</span><span class="p">,</span> <span class="n">bias_blk</span><span class="p">])</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">filtered_fo</span> <span class="o">=</span> <span class="n">ForwardOperator</span><span class="p">(</span><span class="n">filtered_flux_blk</span><span class="p">)</span>
-
-        <span class="c1"># --- Add removed cells&#39; contribution to the constant ---</span>
-        <span class="n">removed_flux</span> <span class="o">=</span> <span class="n">flux_series</span><span class="p">[</span><span class="o">~</span><span class="n">_cell_mask</span><span class="p">(</span><span class="n">flux_series</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>
-        <span class="n">removed_flux_jac</span> <span class="o">=</span> <span class="n">flux_jac</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">removed_jac_mask</span><span class="p">]</span>
-        <span class="n">removed_fo</span> <span class="o">=</span> <span class="n">ForwardOperator</span><span class="p">(</span>
-            <span class="n">MatrixBlock</span><span class="p">(</span>
-                <span class="n">removed_flux_jac</span><span class="p">,</span>
-                <span class="n">row_block</span><span class="o">=</span><span class="s2">&quot;concentration&quot;</span><span class="p">,</span>
-                <span class="n">col_block</span><span class="o">=</span><span class="s2">&quot;flux&quot;</span><span class="p">,</span>
-                <span class="n">sparse</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">sparse_jacobian</span><span class="p">,</span>
-            <span class="p">)</span>
-        <span class="p">)</span>
-        <span class="n">removed_prior</span> <span class="o">=</span> <span class="n">Vector</span><span class="p">(</span>
-            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;removed_prior&quot;</span><span class="p">,</span>
-            <span class="n">data</span><span class="o">=</span><span class="n">Block</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;flux&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">removed_flux</span><span class="p">),</span>
-        <span class="p">)</span>
-        <span class="n">removed_contribution</span> <span class="o">=</span> <span class="n">removed_fo</span><span class="o">.</span><span class="n">convolve</span><span class="p">(</span><span class="n">removed_prior</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_removed_contribution</span> <span class="o">=</span> <span class="n">removed_contribution</span>
-
-        <span class="n">constant</span> <span class="o">=</span> <span class="n">inputs</span><span class="p">[</span><span class="s2">&quot;constant&quot;</span><span class="p">]</span>
-        <span class="n">constant_data</span> <span class="o">=</span> <span class="n">constant</span><span class="p">[</span><span class="s2">&quot;concentration&quot;</span><span class="p">]</span>
-        <span class="c1"># Jacobian rows are simulations, constant rows are obs: match them by label (they</span>
-        <span class="c1"># only line up by position once aggregate_obs_space has aggregated both).</span>
-        <span class="n">removed</span> <span class="o">=</span> <span class="n">removed_contribution</span>
-        <span class="k">if</span> <span class="s2">&quot;block&quot;</span> <span class="ow">in</span> <span class="n">removed</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">names</span><span class="p">:</span>
-            <span class="n">removed</span> <span class="o">=</span> <span class="n">removed</span><span class="o">.</span><span class="n">droplevel</span><span class="p">(</span><span class="s2">&quot;block&quot;</span><span class="p">)</span>
-        <span class="n">removed</span> <span class="o">=</span> <span class="n">removed</span><span class="o">.</span><span class="n">reindex</span><span class="p">(</span><span class="n">constant_data</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
-        <span class="n">updated_constant_data</span> <span class="o">=</span> <span class="n">constant_data</span> <span class="o">+</span> <span class="n">removed</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
-        <span class="n">updated_constant</span> <span class="o">=</span> <span class="n">Vector</span><span class="p">(</span>
-            <span class="n">name</span><span class="o">=</span><span class="n">constant</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
-            <span class="n">data</span><span class="o">=</span><span class="n">Block</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;concentration&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">updated_constant_data</span><span class="p">),</span>
-        <span class="p">)</span>
-
-        <span class="c1"># --- Rebuild prior error for the smaller grid ---</span>
-        <span class="n">flux_prior_vec</span> <span class="o">=</span> <span class="n">Vector</span><span class="p">(</span><span class="n">filtered_prior</span><span class="o">.</span><span class="n">blocks</span><span class="p">[</span><span class="s2">&quot;flux&quot;</span><span class="p">])</span>
-        <span class="n">S_0</span> <span class="o">=</span> <span class="n">build_prior_error</span><span class="p">(</span>
-            <span class="n">flux_prior_vec</span><span class="p">,</span>
-            <span class="n">base_std</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">prior_base_std</span><span class="p">,</span>
-            <span class="n">std_frac</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">prior_std_frac</span><span class="p">,</span>
-            <span class="n">time_scale</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">prior_time_scale</span><span class="p">,</span>
-            <span class="n">spatial_scale</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">prior_spatial_scale</span><span class="p">,</span>
-        <span class="p">)</span>
-
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">has_bias</span><span class="p">:</span>
-            <span class="n">prior_error</span> <span class="o">=</span> <span class="n">CovarianceMatrix</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;prior_error&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">S_0</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">flux_err_blk</span> <span class="o">=</span> <span class="n">CovarianceMatrix</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;prior_error&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">S_0</span><span class="p">)</span><span class="o">.</span><span class="n">blocks</span><span class="p">[</span>
-                <span class="s2">&quot;flux&quot;</span><span class="p">,</span> <span class="s2">&quot;flux&quot;</span>
-            <span class="p">]</span>
-            <span class="n">bias_index</span> <span class="o">=</span> <span class="n">filtered_prior</span><span class="p">[</span><span class="s2">&quot;bias&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">index</span>
-            <span class="n">bias_err</span> <span class="o">=</span> <span class="n">DiagonalError</span><span class="p">(</span>
-                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;bias_error&quot;</span><span class="p">,</span>
-                <span class="n">variances</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">bias_std</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span>
-            <span class="p">)</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">bias_index</span><span class="p">)</span>
-            <span class="n">bias_err_blk</span> <span class="o">=</span> <span class="n">MatrixBlock</span><span class="p">(</span><span class="n">bias_err</span><span class="p">,</span> <span class="s2">&quot;bias&quot;</span><span class="p">,</span> <span class="s2">&quot;bias&quot;</span><span class="p">)</span>
-            <span class="n">prior_error</span> <span class="o">=</span> <span class="n">CovarianceMatrix</span><span class="p">(</span>
-                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;prior_error&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="p">[</span><span class="n">flux_err_blk</span><span class="p">,</span> <span class="n">bias_err_blk</span><span class="p">]</span>
-            <span class="p">)</span>
-
-        <span class="k">return</span> <span class="p">{</span>
-            <span class="o">**</span><span class="n">inputs</span><span class="p">,</span>
-            <span class="s2">&quot;prior&quot;</span><span class="p">:</span> <span class="n">filtered_prior</span><span class="p">,</span>
-            <span class="s2">&quot;forward_operator&quot;</span><span class="p">:</span> <span class="n">filtered_fo</span><span class="p">,</span>
-            <span class="s2">&quot;prior_error&quot;</span><span class="p">:</span> <span class="n">prior_error</span><span class="p">,</span>
-            <span class="s2">&quot;constant&quot;</span><span class="p">:</span> <span class="n">updated_constant</span><span class="p">,</span>
-        <span class="p">}</span>
-
-<div class="viewcode-block" id="CoverageFilterMixin.reconstruct_posterior">
-<a class="viewcode-back" href="../../../_autosummary/slv.inversion.coverage.CoverageFilterMixin.reconstruct_posterior.html#slv.inversion.coverage.CoverageFilterMixin.reconstruct_posterior">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">reconstruct_posterior</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">posterior_fluxes</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Reconstruct the full posterior by inserting prior for unconstrained cells.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        posterior_fluxes : pd.Series, optional</span>
-<span class="sd">            Posterior flux series from the inversion.  If None, uses</span>
-<span class="sd">            ``self.problem.posterior_fluxes``.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        pd.Series</span>
-<span class="sd">            Full posterior with constrained cells from the inversion and</span>
-<span class="sd">            unconstrained cells filled with prior values.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">posterior_fluxes</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">posterior_fluxes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">problem</span><span class="o">.</span><span class="n">posterior_fluxes</span>
-
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_full_prior&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_removed_cells&quot;</span><span class="p">):</span>
-            <span class="k">return</span> <span class="n">posterior_fluxes</span>
-
-        <span class="c1"># Get the full prior flux series</span>
-        <span class="n">full_flux</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_full_prior</span><span class="p">[</span><span class="s2">&quot;flux&quot;</span><span class="p">]</span>
-
-        <span class="c1"># Start with prior, then overwrite constrained cells</span>
-        <span class="n">full_posterior</span> <span class="o">=</span> <span class="n">full_flux</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-        <span class="n">full_posterior</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">posterior_fluxes</span><span class="o">.</span><span class="n">name</span>
-        <span class="n">full_posterior</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">posterior_fluxes</span><span class="o">.</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">posterior_fluxes</span><span class="o">.</span><span class="n">values</span>
-
-        <span class="k">return</span> <span class="n">full_posterior</span></div>
-</div>
+    <span class="n">threshold</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">coverage</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(),</span> <span class="n">percentile</span><span class="p">)</span>
+    <span class="n">retained</span> <span class="o">=</span> <span class="n">coverage</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="n">coverage</span> <span class="o">&gt;=</span> <span class="n">threshold</span><span class="p">]</span>
+    <span class="n">n_total</span><span class="p">,</span> <span class="n">n_removed</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">coverage</span><span class="p">),</span> <span class="nb">int</span><span class="p">((</span><span class="n">coverage</span> <span class="o">&lt;</span> <span class="n">threshold</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+    <span class="nb">print</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;  Keeping </span><span class="si">{</span><span class="n">n_total</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">n_removed</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">n_total</span><span class="si">}</span><span class="s2"> cells &quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;(removed </span><span class="si">{</span><span class="n">n_removed</span><span class="si">}</span><span class="s2"> below </span><span class="si">{</span><span class="n">percentile</span><span class="si">}</span><span class="s2">th percentile, &quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;threshold=</span><span class="si">{</span><span class="n">threshold</span><span class="si">:</span><span class="s2">.2e</span><span class="si">}</span><span class="s2">)&quot;</span>
+    <span class="p">)</span>
+    <span class="n">blocks</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">name</span><span class="p">:</span> <span class="n">problem</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">space</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">problem</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">space</span><span class="o">.</span><span class="n">names</span>
+    <span class="p">}</span>
+    <span class="n">blocks</span><span class="p">[</span><span class="s2">&quot;flux&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">flux</span><span class="p">[</span><span class="n">cells</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">retained</span><span class="p">)]</span>
+    <span class="k">return</span> <span class="n">Space</span><span class="p">(</span><span class="n">blocks</span><span class="p">)</span></div>
 
 </pre></div>
 

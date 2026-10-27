@@ -1,6 +1,0 @@
-slv.inversion.report.ReportingMixin.plot\_inputs
-================================================
-
-.. currentmodule:: slv.inversion.report
-
-.. automethod:: ReportingMixin.plot_inputs

@@ -14,16 +14,9 @@ slv.inversion.coverage
    :nosignatures:
 
    check_state_cells
+   covered_state
 
 
-
-.. rubric:: Classes
-
-.. autosummary::
-   :toctree:
-   :nosignatures:
-
-   CoverageFilterMixin
 
 
 

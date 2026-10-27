@@ -1,0 +1,6 @@
+slv.inversion.pipelines.get\_constant
+=====================================
+
+.. currentmodule:: slv.inversion.pipelines
+
+.. autofunction:: get_constant

@@ -1,0 +1,6 @@
+slv.inversion.cache.DEFAULT\_COMPONENT\_PACKAGES
+================================================
+
+.. currentmodule:: slv.inversion.cache
+
+.. autodata:: DEFAULT_COMPONENT_PACKAGES

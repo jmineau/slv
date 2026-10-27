@@ -1,0 +1,6 @@
+slv.measurements.sites.load\_site\_config
+=========================================
+
+.. currentmodule:: slv.measurements.sites
+
+.. autofunction:: load_site_config

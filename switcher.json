@@ -5,10 +5,15 @@
     "url": "https://jmineau.github.io/slv/dev/"
   },
   {
-    "name": "2026.10.2 (stable)",
-    "version": "2026.10.2",
+    "name": "2026.10.3 (stable)",
+    "version": "2026.10.3",
     "url": "https://jmineau.github.io/slv/stable/",
     "preferred": true
+  },
+  {
+    "name": "2026.10.2",
+    "version": "2026.10.2",
+    "url": "https://jmineau.github.io/slv/2026.10.2/"
   },
   {
     "name": "2026.10.1",

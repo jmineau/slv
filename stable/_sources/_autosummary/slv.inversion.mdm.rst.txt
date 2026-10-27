@@ -7,15 +7,17 @@ slv.inversion.mdm
 
 
 
-
-
-.. rubric:: Classes
+.. rubric:: Functions
 
 .. autosummary::
    :toctree:
    :nosignatures:
 
-   ModelDataMismatchMixin
+   get_modeldata_mismatch
+   multiplicative_scale
+   per_obs_std
+
+
 
 
 

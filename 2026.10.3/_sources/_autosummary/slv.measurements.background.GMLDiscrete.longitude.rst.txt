@@ -1,0 +1,6 @@
+slv.measurements.background.GMLDiscrete.longitude
+=================================================
+
+.. currentmodule:: slv.measurements.background
+
+.. autoproperty:: GMLDiscrete.longitude

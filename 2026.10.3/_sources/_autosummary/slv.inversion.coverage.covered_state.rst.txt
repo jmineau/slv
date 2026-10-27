@@ -1,0 +1,6 @@
+slv.inversion.coverage.covered\_state
+=====================================
+
+.. currentmodule:: slv.inversion.coverage
+
+.. autofunction:: covered_state

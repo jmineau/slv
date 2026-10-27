@@ -1,0 +1,6 @@
+slv.measurements.mobile.location.MOVING\_SPEED\_EST
+===================================================
+
+.. currentmodule:: slv.measurements.mobile.location
+
+.. autodata:: MOVING_SPEED_EST

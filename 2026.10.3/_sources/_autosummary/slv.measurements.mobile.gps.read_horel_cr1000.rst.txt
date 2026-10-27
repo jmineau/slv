@@ -1,0 +1,6 @@
+slv.measurements.mobile.gps.read\_horel\_cr1000
+===============================================
+
+.. currentmodule:: slv.measurements.mobile.gps
+
+.. autofunction:: read_horel_cr1000

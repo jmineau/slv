@@ -1,0 +1,6 @@
+slv.inversion.mdm.per\_obs\_std
+===============================
+
+.. currentmodule:: slv.inversion.mdm
+
+.. autofunction:: per_obs_std

@@ -7,7 +7,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Contributing &#8212; slv 2026.10.2</title>
+    <title>Contributing &#8212; slv 2026.10.3</title>
   
   
   
@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
 
-    <script src="_static/documentation_options.js?v=52372788"></script>
+    <script src="_static/documentation_options.js?v=f64fa391"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -49,7 +49,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.22.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://jmineau.github.io/slv/switcher.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '2026.10.2';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '2026.10.3';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             true;
         </script>
@@ -59,7 +59,7 @@
     <link rel="prev" title="slv.meteorology.vhd.load_vhd" href="_autosummary/slv.meteorology.vhd.load_vhd.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.10.2" />
+  <meta name="docsearch:version" content="2026.10.3" />
   
     
     <script src="_static/searchtools.js"></script>
@@ -127,7 +127,7 @@
   
   
   
-    <p class="title logo__title">slv 2026.10.2</p>
+    <p class="title logo__title">slv 2026.10.3</p>
   
 </a></div>
     
@@ -496,7 +496,10 @@ orientation file it should read.</p>
                      outages from the lin GPS), merge_with_gps (horel_fallback:
                      rows the lin GPS never covered are georeferenced from the horel
                      logger where the Pi clock checks out -- lin_clock_offset_by_day /
-                     clock_checked_days / fill_gps_gaps_with_horel; gps_source tags each row)
+                     clock_checked_days / fill_gps_gaps_with_horel; gps_source tags each row);
+                     read_lin_gps, read_horel_cr1000 and read_trax_gps take num_processes
+                     (the files are read on that many processes; build_trax_obs passes its
+                     own to the location step&#39;s GPS read)
       location.py    per-minute indoor/outdoor classifier: depot (degraded GPS:
                      scatter &gt; 1 m or &lt;= 6 sats, 15-min vote) / yard / line
                      (pass-by within 300 m of a yard) / route / stopped / unknown
@@ -592,44 +595,47 @@ metadata). The subpackages are the API surface:</p>
 </div>
 <p>The base install is enough for <code class="docutils literal notranslate"><span class="pre">domain</span></code>, <code class="docutils literal notranslate"><span class="pre">basemap</span></code>, <code class="docutils literal notranslate"><span class="pre">measurements</span></code> and
 <code class="docutils literal notranslate"><span class="pre">emissions</span></code>; the <code class="docutils literal notranslate"><span class="pre">inversion</span></code> extra unlocks <code class="docutils literal notranslate"><span class="pre">slv.inversion</span></code> (it depends on
-<code class="docutils literal notranslate"><span class="pre">fips[flux]</span></code>, which in turn depends on <code class="docutils literal notranslate"><span class="pre">pystilt</span></code>).</p>
+<code class="docutils literal notranslate"><span class="pre">fips[viz]</span></code> and <code class="docutils literal notranslate"><span class="pre">pystilt</span></code>).</p>
 </section>
 <section id="the-inversion-package">
 <h2>The inversion package<a class="headerlink" href="#the-inversion-package" title="Link to this heading">#</a></h2>
 <p>This section holds everything about the inversion package’s layout, exports, cache
 and pipeline internals, in one place.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>src/slv/inversion/
-  __init__.py      re-exports InversionConfig, SLVMethaneInversion, Sweep,
+  __init__.py      re-exports InversionConfig, build_problem, run, Sweep,
                    run_sweep_job, SweepResults
   config.py        InversionConfig — pydantic-ish config for an inversion;
                    DEFAULT_STILT_PROJECT + stilt_project_dir() ($SLV_STILT_DIR);
                    state_grid (stilt Grid, domain snapped outward to whole cells) is
                    the one definition of the flux cells, `grid` takes its axes
-  pipelines.py     SLVMethaneInversion — the pipeline proper: get_obs / get_prior /
-                   get_forward_operator (+ cached _get_flux_jacobian) / get_prior_error /
-                   get_constant, state filtering, obs aggregation, run, obs_sites.
-                   Composed from the mixins below (MRO: Reporting, CoverageFilter, Bias,
-                   ModelDataMismatch, fips FluxInversionPipeline); every method keeps its
-                   name, so subclasses override as before. Re-exports the cache helpers.
-  cache.py         component cache: COMPONENT_DEPS sets, _component_hash, _pkg_rev /
-                   _version_tag, fips_cache
-  mdm.py           ModelDataMismatchMixin: get_modeldata_mismatch, multiplicative scale,
-                   per-obs (subhour) std
-  bias.py          BiasMixin: get_bias, get_bias_jacobian, get_site_group
-  coverage.py      check_state_cells; CoverageFilterMixin (Jacobian coverage filter,
-                   reconstruct_posterior)
-  report.py        ReportingMixin: domain totals, summarize, desroziers, plot_*
+  pipelines.py     the pipeline proper, as functions of the config: get_obs / get_prior /
+                   get_constant (pandas Series) / get_flux_jacobian (a fips Operator,
+                   receptor rows) / get_prior_error (cached components),
+                   filter_state_space, get_bias (fips.offset_block), obs_sites;
+                   build_problem(config) -&gt; fips.Problem (labels rounded to
+                   LABEL_DECIMALS, the Jacobian placed on the obs, daily means by
+                   fips.aggregate.mean); run(config, problem=None) -&gt; fips.Posterior
+  cache.py         component cache: DEFAULT_COMPONENT_DEPS sets, _component_hash,
+                   _pkg_rev / _version_tag, fips_cache (pickles what the function returns)
+  mdm.py           get_modeldata_mismatch (cached; sum of covariance models on the obs),
+                   multiplicative_scale, per_obs_std (subhour)
+  coverage.py      check_state_cells, covered_state (the Jacobian coverage filter&#39;s
+                   cells; the problem of them is problem.restrict(keep))
+  report.py        domain totals (calculate_total_flux, fluxes_as_inventory), summarize
+                   (prints), desroziers_diagnostic, plot_inputs/results/diagnostics
   priors.py        prior flux construction
-  covariances.py   covariance construction (kernels, scaling)
+  covariances.py   covariance models: build_prior_error (Kronecker factors),
+                   build_mdm_error (one MDM component)
   data.py          inversion-time data loading
   background.py    inversion background model
-  viz.py           inversion-specific plotting
+  viz.py           inversion-specific plotting; plot_flux_maps (the
+                   prior/posterior/difference maps)
   sweep.py         Sweep / run_sweep_job / SweepResults — hyperparam sweeps
 </pre></div>
 </div>
 <p>What <code class="docutils literal notranslate"><span class="pre">slv.inversion</span></code> exports:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">slv.inversion</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">InversionConfig</span><span class="p">,</span> <span class="n">SLVMethaneInversion</span><span class="p">,</span>
+    <span class="n">InversionConfig</span><span class="p">,</span> <span class="n">build_problem</span><span class="p">,</span> <span class="n">run</span><span class="p">,</span>
     <span class="n">Sweep</span><span class="p">,</span> <span class="n">run_sweep_job</span><span class="p">,</span> <span class="n">SweepResults</span><span class="p">,</span>
 <span class="p">)</span>
 </pre></div>
@@ -644,8 +650,8 @@ with no reinstall. A copy under <code class="docutils literal notranslate"><span
 the slv repo, or the pixi env) uses its metadata version instead, written as the
 release’s tag (<code class="docutils literal notranslate"><span class="pre">v0.1.0b9</span></code>): <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">describe</span></code> there would answer with slv’s rev, and a
 release names the same folder installed or checked out.</p>
-<p><code class="docutils literal notranslate"><span class="pre">get_inputs</span></code> raises when the prior’s cells and the Jacobian’s columns differ (stale
-caches after a grid change).</p>
+<p><code class="docutils literal notranslate"><span class="pre">build_problem</span></code> raises when the prior’s cells and the Jacobian’s columns differ (stale
+caches after a grid change; <code class="docutils literal notranslate"><span class="pre">coverage.check_state_cells</span></code>).</p>
 <p>Components other than the Jacobian also hash the <em>release</em> of lair and uataq
 (<code class="docutils literal notranslate"><span class="pre">COMPONENT_PACKAGES</span></code>, <code class="docutils literal notranslate"><span class="pre">_release</span></code>: an editable checkout’s static pyproject version
 or latest git tag, else the installed version). A release, not an edit, rebuilds the
@@ -667,15 +673,15 @@ other version consumers honest.</p>
 <h3>Notes on the pipeline<a class="headerlink" href="#notes-on-the-pipeline" title="Link to this heading">#</a></h3>
 <ul class="simple">
 <li><p>Mobile (TRAX) obs are keyed by PYSTILT location_id, not site. Anything keyed by
-site must resolve through <code class="docutils literal notranslate"><span class="pre">SLVMethaneInversion.obs_sites</span></code> (receptor -&gt; the single
+site must resolve through <code class="docutils literal notranslate"><span class="pre">pipelines.obs_sites</span></code> (receptor -&gt; the single
 mobile site in <code class="docutils literal notranslate"><span class="pre">config.sites</span></code>); the MDM and the bias Jacobian do. The rolling
 background uses stationary sites only (<code class="docutils literal notranslate"><span class="pre">split_sites</span></code>; override with
 <code class="docutils literal notranslate"><span class="pre">background_kwargs={&quot;background_sites&quot;:</span> <span class="pre">[...]}</span></code>) and each obs takes its hour’s
 value; <code class="docutils literal notranslate"><span class="pre">get_slv_subhour_std</span></code> skips mobile sites.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">get_forward_operator</span></code> is a thin wrapper: <code class="docutils literal notranslate"><span class="pre">_get_flux_jacobian</span></code> is the cached
-(<code class="docutils literal notranslate"><span class="pre">forward_operator</span></code>) flux Jacobian; the bias block is rebuilt every run.
-<code class="docutils literal notranslate"><span class="pre">get_prior</span></code> memoizes <code class="docutils literal notranslate"><span class="pre">_build_prior</span></code> per pipeline; <code class="docutils literal notranslate"><span class="pre">_multiplicative_scale</span></code>
-reuses both.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">get_flux_jacobian</span></code> is the cached (<code class="docutils literal notranslate"><span class="pre">forward_operator</span></code>) flux Jacobian; the bias
+block (<code class="docutils literal notranslate"><span class="pre">get_bias</span></code>, one offset per group that has obs) is rebuilt every run and not
+cached. A receptor with an empty footprint is a row of zeros; the obs of a receptor
+with no footprint are dropped in <code class="docutils literal notranslate"><span class="pre">build_problem</span></code>.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">InversionConfig.__post_init__</span></code> validates flux_freq, bias_grouping, background,
 prior, mdm_config and domain; setting any field drops the cached derived values.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">InversionConfig.mdm_config</span></code> keys must be names in <code class="docutils literal notranslate"><span class="pre">DEFAULT_MDM_CONFIG</span></code> (part,

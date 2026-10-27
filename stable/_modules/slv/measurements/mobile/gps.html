@@ -6,7 +6,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>slv.measurements.mobile.gps &#8212; slv 2026.10.2</title>
+    <title>slv.measurements.mobile.gps &#8212; slv 2026.10.3</title>
   
   
   
@@ -39,7 +39,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
 
-    <script src="../../../../_static/documentation_options.js?v=52372788"></script>
+    <script src="../../../../_static/documentation_options.js?v=f64fa391"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -48,7 +48,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.22.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://jmineau.github.io/slv/switcher.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '2026.10.2';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '2026.10.3';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             true;
         </script>
@@ -57,7 +57,7 @@
     <link rel="search" title="Search" href="../../../../search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.10.2" />
+  <meta name="docsearch:version" content="2026.10.3" />
   
     
     <script src="../../../../_static/searchtools.js"></script>
@@ -125,7 +125,7 @@
   
   
   
-    <p class="title logo__title">slv 2026.10.2</p>
+    <p class="title logo__title">slv 2026.10.3</p>
   
 </a></div>
     
@@ -448,6 +448,8 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span>
+
 <span class="kn">import</span><span class="w"> </span><span class="nn">geopandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gpd</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
@@ -508,7 +510,9 @@
 
 <div class="viewcode-block" id="read_horel_cr1000">
 <a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.gps.read_horel_cr1000.html#slv.measurements.mobile.gps.read_horel_cr1000">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">read_horel_cr1000</span><span class="p">(</span><span class="n">time_range</span><span class="p">,</span> <span class="n">site</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;trx01&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">read_horel_cr1000</span><span class="p">(</span>
+    <span class="n">time_range</span><span class="p">,</span> <span class="n">site</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;trx01&quot;</span><span class="p">,</span> <span class="n">num_processes</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;max&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Horel-group CR1000 logger record (5 s): GPS + battery voltage + roof T/RH.</span>
 
@@ -526,7 +530,9 @@
 <span class="sd">    (to :data:`HOREL_POST_PILOT`) are a different setup: one fix per minute (so the</span>
 <span class="sd">    scatter feature is undefined), a receiver that reports 3–8 satellites, and no</span>
 <span class="sd">    speed or RMC status. Do not classify from them — use :func:`read_lin_gps` for the</span>
-<span class="sd">    pilot era. ``time_range`` is any pair pandas can parse.</span>
+<span class="sd">    pilot era. ``time_range`` is any pair pandas can parse. ``num_processes`` is the number of</span>
+<span class="sd">    processes that read the files (passed to ``uataq.read_data``); the frame is the same for</span>
+<span class="sd">    any number.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">d</span> <span class="o">=</span> <span class="n">uataq</span><span class="o">.</span><span class="n">read_data</span><span class="p">(</span>
@@ -535,6 +541,7 @@
             <span class="n">group</span><span class="o">=</span><span class="s2">&quot;horel&quot;</span><span class="p">,</span>
             <span class="n">lvl</span><span class="o">=</span><span class="s2">&quot;raw&quot;</span><span class="p">,</span>
             <span class="n">time_range</span><span class="o">=</span><span class="n">time_range</span><span class="p">,</span>
+            <span class="n">num_processes</span><span class="o">=</span><span class="n">num_processes</span><span class="p">,</span>
         <span class="p">)</span>
     <span class="k">except</span> <span class="n">uataq</span><span class="o">.</span><span class="n">errors</span><span class="o">.</span><span class="n">ReaderError</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
@@ -586,7 +593,12 @@
 
 <div class="viewcode-block" id="read_lin_gps">
 <a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.gps.read_lin_gps.html#slv.measurements.mobile.gps.read_lin_gps">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">read_lin_gps</span><span class="p">(</span><span class="n">time_range</span><span class="p">,</span> <span class="n">site</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;trx01&quot;</span><span class="p">,</span> <span class="n">lvl</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;qaqc&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">read_lin_gps</span><span class="p">(</span>
+    <span class="n">time_range</span><span class="p">,</span>
+    <span class="n">site</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;trx01&quot;</span><span class="p">,</span>
+    <span class="n">lvl</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;qaqc&quot;</span><span class="p">,</span>
+    <span class="n">num_processes</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;max&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Lin-group (air-trend) GPS at 1 s from the pipeline ``qaqc`` level, Dec 2014 on.</span>
 
@@ -594,12 +606,18 @@
 <span class="sd">    :data:`LIN_GPS_DROP_FLAGS` are removed. ``Speed_m_s`` is NA from Dec 2015 to</span>
 <span class="sd">    19 Jan 2018 (GPGGA only), which :func:`~.location.classify_location` handles via</span>
 <span class="sd">    ``speed_est``. Indexed by GPS ``Time_UTC``; ``Pi_Time`` is kept for merging with</span>
-<span class="sd">    the LGR. Only records while the Pi has train power.</span>
+<span class="sd">    the LGR. Only records while the Pi has train power. ``num_processes`` is the number of</span>
+<span class="sd">    processes that read the files (passed to ``uataq.read_data``); the frame is the same for</span>
+<span class="sd">    any number.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="n">df</span> <span class="o">=</span> <span class="n">uataq</span><span class="o">.</span><span class="n">read_data</span><span class="p">(</span><span class="n">site</span><span class="p">,</span> <span class="n">instruments</span><span class="o">=</span><span class="s2">&quot;gps&quot;</span><span class="p">,</span> <span class="n">lvl</span><span class="o">=</span><span class="n">lvl</span><span class="p">,</span> <span class="n">time_range</span><span class="o">=</span><span class="n">time_range</span><span class="p">)[</span>
-            <span class="s2">&quot;gps&quot;</span>
-        <span class="p">]</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">uataq</span><span class="o">.</span><span class="n">read_data</span><span class="p">(</span>
+            <span class="n">site</span><span class="p">,</span>
+            <span class="n">instruments</span><span class="o">=</span><span class="s2">&quot;gps&quot;</span><span class="p">,</span>
+            <span class="n">lvl</span><span class="o">=</span><span class="n">lvl</span><span class="p">,</span>
+            <span class="n">time_range</span><span class="o">=</span><span class="n">time_range</span><span class="p">,</span>
+            <span class="n">num_processes</span><span class="o">=</span><span class="n">num_processes</span><span class="p">,</span>
+        <span class="p">)[</span><span class="s2">&quot;gps&quot;</span><span class="p">]</span>
     <span class="k">except</span> <span class="n">uataq</span><span class="o">.</span><span class="n">errors</span><span class="o">.</span><span class="n">ReaderError</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">_coerce_numeric</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;N_Satellites&quot;</span><span class="p">:</span> <span class="s2">&quot;N_Sat&quot;</span><span class="p">}))</span>
@@ -613,7 +631,10 @@
 <div class="viewcode-block" id="read_trax_gps">
 <a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.gps.read_trax_gps.html#slv.measurements.mobile.gps.read_trax_gps">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">read_trax_gps</span><span class="p">(</span>
-    <span class="n">time_range</span><span class="p">,</span> <span class="n">site</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;trx01&quot;</span><span class="p">,</span> <span class="n">fill_gaps</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">time_range</span><span class="p">,</span>
+    <span class="n">site</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;trx01&quot;</span><span class="p">,</span>
+    <span class="n">fill_gaps</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">num_processes</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;max&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Best GPS source for classifying, by era: lin-group GPS before</span>
@@ -625,17 +646,26 @@
 <span class="sd">    such minute ``unknown`` — ~235 on-track hours of a normally running train, mostly Jul 2024,</span>
 <span class="sd">    Jan 2025, Sep 2025 and Jul 2026. Filled rows carry no ``Battery_Voltage_V``, so the</span>
 <span class="sd">    depot/yard rules fall back to their GPS-only form.</span>
+
+<span class="sd">    ``num_processes`` is the number of processes that read the GPS files</span>
+<span class="sd">    (:func:`read_lin_gps`, :func:`read_horel_cr1000`); the frame is the same for any number.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">start</span><span class="p">,</span> <span class="n">end</span> <span class="o">=</span> <span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">time_range</span><span class="p">)</span>
     <span class="n">parts</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">if</span> <span class="n">start</span> <span class="o">&lt;</span> <span class="n">HOREL_POST_PILOT</span><span class="p">:</span>
-        <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">read_lin_gps</span><span class="p">((</span><span class="n">start</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="n">end</span><span class="p">,</span> <span class="n">HOREL_POST_PILOT</span><span class="p">)),</span> <span class="n">site</span><span class="p">))</span>
+        <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">read_lin_gps</span><span class="p">(</span>
+                <span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="n">end</span><span class="p">,</span> <span class="n">HOREL_POST_PILOT</span><span class="p">)),</span>
+                <span class="n">site</span><span class="p">,</span>
+                <span class="n">num_processes</span><span class="o">=</span><span class="n">num_processes</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
     <span class="k">if</span> <span class="n">end</span> <span class="o">&gt;=</span> <span class="n">HOREL_POST_PILOT</span><span class="p">:</span>
         <span class="n">post</span> <span class="o">=</span> <span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">HOREL_POST_PILOT</span><span class="p">),</span> <span class="n">end</span><span class="p">)</span>
-        <span class="n">horel</span> <span class="o">=</span> <span class="n">read_horel_cr1000</span><span class="p">(</span><span class="n">post</span><span class="p">,</span> <span class="n">site</span><span class="p">)</span>
+        <span class="n">horel</span> <span class="o">=</span> <span class="n">read_horel_cr1000</span><span class="p">(</span><span class="n">post</span><span class="p">,</span> <span class="n">site</span><span class="p">,</span> <span class="n">num_processes</span><span class="o">=</span><span class="n">num_processes</span><span class="p">)</span>
         <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">horel</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">fill_gaps</span><span class="p">:</span>
-            <span class="n">lin</span> <span class="o">=</span> <span class="n">read_lin_gps</span><span class="p">(</span><span class="n">post</span><span class="p">,</span> <span class="n">site</span><span class="p">)</span>
+            <span class="n">lin</span> <span class="o">=</span> <span class="n">read_lin_gps</span><span class="p">(</span><span class="n">post</span><span class="p">,</span> <span class="n">site</span><span class="p">,</span> <span class="n">num_processes</span><span class="o">=</span><span class="n">num_processes</span><span class="p">)</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">lin</span><span class="p">):</span>
                 <span class="n">covered</span> <span class="o">=</span> <span class="p">(</span>
                     <span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">(</span><span class="n">horel</span><span class="o">.</span><span class="n">index</span><span class="p">)</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="s2">&quot;min&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>

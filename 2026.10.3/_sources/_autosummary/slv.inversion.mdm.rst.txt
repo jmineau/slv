@@ -1,0 +1,27 @@
+slv.inversion.mdm
+=================
+
+.. automodule:: slv.inversion.mdm
+   :no-members:
+
+
+
+
+.. rubric:: Functions
+
+.. autosummary::
+   :toctree:
+   :nosignatures:
+
+   get_modeldata_mismatch
+   multiplicative_scale
+   per_obs_std
+
+
+
+
+
+
+
+
+

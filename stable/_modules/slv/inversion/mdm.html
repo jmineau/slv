@@ -6,7 +6,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>slv.inversion.mdm &#8212; slv 2026.10.2</title>
+    <title>slv.inversion.mdm &#8212; slv 2026.10.3</title>
   
   
   
@@ -39,7 +39,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
 
-    <script src="../../../_static/documentation_options.js?v=52372788"></script>
+    <script src="../../../_static/documentation_options.js?v=f64fa391"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -48,7 +48,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.22.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://jmineau.github.io/slv/switcher.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '2026.10.2';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '2026.10.3';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             true;
         </script>
@@ -57,7 +57,7 @@
     <link rel="search" title="Search" href="../../../search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.10.2" />
+  <meta name="docsearch:version" content="2026.10.3" />
   
     
     <script src="../../../_static/searchtools.js"></script>
@@ -125,7 +125,7 @@
   
   
   
-    <p class="title logo__title">slv 2026.10.2</p>
+    <p class="title logo__title">slv 2026.10.3</p>
   
 </a></div>
     
@@ -429,12 +429,11 @@
                 <article class="bd-article">
                   
   <h1>Source code for slv.inversion.mdm</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Model-data mismatch (S_z) for :class:`~slv.inversion.pipelines.SLVMethaneInversion`.&quot;&quot;&quot;</span>
+<span></span><span class="sd">&quot;&quot;&quot;The model-data mismatch (S_z) of the SLV inversion: the sum of ``config.mdm_components``.&quot;&quot;&quot;</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">fips</span><span class="w"> </span><span class="kn">import</span> <span class="n">CovarianceMatrix</span><span class="p">,</span> <span class="n">Vector</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">fips.covariance</span><span class="w"> </span><span class="kn">import</span> <span class="n">CovarianceBuilder</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">fips</span><span class="w"> </span><span class="kn">import</span> <span class="n">Covariance</span><span class="p">,</span> <span class="n">Operator</span><span class="p">,</span> <span class="n">Space</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">slv.inversion</span><span class="w"> </span><span class="kn">import</span> <span class="n">viz</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">slv.inversion.cache</span><span class="w"> </span><span class="kn">import</span> <span class="n">fips_cache</span>
@@ -443,160 +442,175 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">slv.inversion.data</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_slv_subhour_std</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_matrix</span><span class="p">(</span><span class="n">block</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A Jacobian block as a matrix without densifying it: scipy CSR if it is sparse.&quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">block</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">all</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">SparseDtype</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">block</span><span class="o">.</span><span class="n">dtypes</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">block</span><span class="o">.</span><span class="n">sparse</span><span class="o">.</span><span class="n">to_coo</span><span class="p">()</span><span class="o">.</span><span class="n">tocsr</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">block</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
-
-
-<div class="viewcode-block" id="ModelDataMismatchMixin">
-<a class="viewcode-back" href="../../../_autosummary/slv.inversion.mdm.ModelDataMismatchMixin.html#slv.inversion.mdm.ModelDataMismatchMixin">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">ModelDataMismatchMixin</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Builds the model-data mismatch covariance from ``config.mdm_components``.</span>
-
-<span class="sd">    Multiplicative terms scale with the run&#39;s prior and flux Jacobian; per-obs terms</span>
-<span class="sd">    with data-derived stds. Expects the host pipeline&#39;s ``get_prior``,</span>
-<span class="sd">    ``_get_flux_jacobian``, ``_footprint_key``, ``get_constant`` and ``obs_sites``.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="n">config</span><span class="p">:</span> <span class="n">InversionConfig</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">_multiplicative_scale</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obs</span><span class="p">:</span> <span class="n">Vector</span><span class="p">,</span> <span class="n">scale_on</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Per-obs scale [ppm] for a multiplicative MDM term.</span>
-
-<span class="sd">        ``scale_on=&quot;obs&quot;``   -&gt; |obs - background| (observed enhancement; the actual signal,</span>
-<span class="sd">        so extreme shallow-PBL days the prior under-predicts still get a large error).</span>
-<span class="sd">        ``scale_on=&quot;prior&quot;`` -&gt; |H x_prior| (prior-modeled enhancement; under-scales where</span>
-<span class="sd">        the EPA prior is low -- exactly the over-leveraged days). Obs lacking the needed</span>
-<span class="sd">        term get 0 (floor-only error).</span>
-<span class="sd">        ``scale_on=&quot;footprint&quot;`` -&gt; |H| * mean(x_prior): footprint strength in enhancement</span>
-<span class="sd">        units. Down-weights extreme shallow-PBL days by how much air they integrate,</span>
-<span class="sd">        independent of the obs (no circularity) or the EPA pattern -- so it eases both the</span>
-<span class="sd">        low-obs winter dips and the high-obs spikes, which share an extreme |H|.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">scale_on</span> <span class="o">==</span> <span class="s2">&quot;footprint&quot;</span><span class="p">:</span>
-            <span class="n">prior</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_prior</span><span class="p">()</span>
-            <span class="n">flux</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_flux_block</span><span class="p">(</span><span class="n">obs</span><span class="p">)</span>
-            <span class="n">xref</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">prior</span><span class="p">[</span><span class="s2">&quot;flux&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">))</span>
-            <span class="n">row_abs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">_matrix</span><span class="p">(</span><span class="n">flux</span><span class="p">))</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
-            <span class="n">s</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">row_abs</span> <span class="o">*</span> <span class="n">xref</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">flux</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
-            <span class="n">key</span> <span class="o">=</span> <span class="n">obs</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">droplevel</span><span class="p">(</span>
-                <span class="p">[</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">obs</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">names</span> <span class="k">if</span> <span class="n">n</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">flux</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">names</span><span class="p">]</span>
-            <span class="p">)</span>
-            <span class="k">return</span> <span class="n">s</span><span class="o">.</span><span class="n">reindex</span><span class="p">(</span><span class="n">key</span><span class="p">)</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">scale_on</span> <span class="o">==</span> <span class="s2">&quot;obs&quot;</span><span class="p">:</span>
-            <span class="n">bg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_constant</span><span class="p">(</span><span class="n">obs</span><span class="p">)[</span><span class="s2">&quot;concentration&quot;</span><span class="p">]</span>
-            <span class="n">obs_s</span> <span class="o">=</span> <span class="n">obs</span><span class="o">.</span><span class="n">to_series</span><span class="p">()</span>
-            <span class="n">key</span> <span class="o">=</span> <span class="n">obs_s</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">droplevel</span><span class="p">(</span>
-                <span class="p">[</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">obs_s</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">names</span> <span class="k">if</span> <span class="n">n</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">bg</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">names</span><span class="p">]</span>
-            <span class="p">)</span>
-            <span class="n">bg_a</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">bg</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span> <span class="n">index</span><span class="o">=</span><span class="n">bg</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
-                <span class="o">.</span><span class="n">reindex</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
-                <span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
-            <span class="p">)</span>
-            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan_to_num</span><span class="p">(</span><span class="n">obs_s</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span> <span class="o">-</span> <span class="n">bg_a</span><span class="p">,</span> <span class="n">nan</span><span class="o">=</span><span class="mf">0.0</span><span class="p">))</span>
-        <span class="n">prior</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_prior</span><span class="p">()</span>
-        <span class="n">flux</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_flux_block</span><span class="p">(</span><span class="n">obs</span><span class="p">)</span>
-        <span class="c1"># Match the prior to the Jacobian columns by label, not position: their level</span>
-        <span class="c1"># orders differ (the EPA prior is (time, lat, lon), the Jacobian (lon, lat, time)).</span>
-        <span class="n">x</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">prior</span><span class="p">[</span><span class="s2">&quot;flux&quot;</span><span class="p">]</span>
-            <span class="o">.</span><span class="n">reorder_levels</span><span class="p">(</span><span class="n">flux</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">names</span><span class="p">)</span>
-            <span class="o">.</span><span class="n">reindex</span><span class="p">(</span><span class="n">flux</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
-        <span class="p">)</span>
-        <span class="n">e</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">_matrix</span><span class="p">(</span><span class="n">flux</span><span class="p">)</span> <span class="o">@</span> <span class="n">x</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span> <span class="n">index</span><span class="o">=</span><span class="n">flux</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
-        <span class="n">key</span> <span class="o">=</span> <span class="n">obs</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">droplevel</span><span class="p">(</span>
-            <span class="p">[</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">obs</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">names</span> <span class="k">if</span> <span class="n">n</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">flux</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">names</span><span class="p">]</span>
-        <span class="p">)</span>
-        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">reindex</span><span class="p">(</span><span class="n">key</span><span class="p">)</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">())</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">_flux_block</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obs</span><span class="p">:</span> <span class="n">Vector</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The flux Jacobian block (obs x state) this run already built or loaded.&quot;&quot;&quot;</span>
-        <span class="n">flux</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_flux_jacobian&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">flux</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">flux</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_flux_jacobian</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_flux_jacobian</span><span class="p">(</span><span class="n">obs</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">flux</span><span class="p">[</span><span class="s2">&quot;concentration&quot;</span><span class="p">,</span> <span class="s2">&quot;flux&quot;</span><span class="p">]</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">_per_obs_std</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obs</span><span class="p">:</span> <span class="n">Vector</span><span class="p">,</span> <span class="n">src</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Per-obs std [ppm] for a data-derived MDM term.</span>
-
-<span class="sd">        ``src=&quot;subhour&quot;`` -&gt; each obs&#39;s within-hour CH4 std (temporal representativeness error:</span>
-<span class="sd">        the sub-hour variability an hour-mean footprint cannot represent). Obs with no</span>
-<span class="sd">        multi-point hour (std undefined) get 0 -- no representativeness penalty.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">src</span> <span class="o">!=</span> <span class="s2">&quot;subhour&quot;</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;unknown per_obs MDM source </span><span class="si">{</span><span class="n">src</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="n">s</span> <span class="o">=</span> <span class="n">get_slv_subhour_std</span><span class="p">(</span>
-            <span class="n">sites</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">sites</span><span class="p">,</span>
-            <span class="n">site_config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">site_config</span><span class="p">,</span>
-            <span class="n">time_range</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">time_range</span><span class="p">,</span>
-            <span class="n">subset_hours</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">subset_hours</span><span class="p">,</span>
-            <span class="n">filter_pcaps</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">filter_pcaps</span><span class="p">,</span>
-            <span class="n">num_processes</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">num_processes</span><span class="p">,</span>
-            <span class="n">utc_offset</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">utc_offset</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="n">key</span> <span class="o">=</span> <span class="n">obs</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">droplevel</span><span class="p">(</span>
-            <span class="p">[</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">obs</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">names</span> <span class="k">if</span> <span class="n">n</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">s</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">names</span><span class="p">]</span>
-        <span class="p">)</span>
-        <span class="k">return</span> <span class="n">s</span><span class="o">.</span><span class="n">reindex</span><span class="p">(</span><span class="n">key</span><span class="p">)</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
-
-    <span class="c1"># keyed on the footprints too: a multiplicative term scales with the Jacobian&#39;s rows</span>
-<div class="viewcode-block" id="ModelDataMismatchMixin.get_modeldata_mismatch">
-<a class="viewcode-back" href="../../../_autosummary/slv.inversion.mdm.ModelDataMismatchMixin.get_modeldata_mismatch.html#slv.inversion.mdm.ModelDataMismatchMixin.get_modeldata_mismatch">[docs]</a>
-    <span class="nd">@fips_cache</span><span class="p">(</span>
-        <span class="n">CovarianceMatrix</span><span class="p">,</span>
-        <span class="s2">&quot;modeldata_mismatch&quot;</span><span class="p">,</span>
-        <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="bp">self</span><span class="p">,</span> <span class="n">obs</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_footprint_key</span><span class="p">(</span><span class="n">obs</span><span class="p">),</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_on_obs</span><span class="p">(</span><span class="n">values</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="n">obs</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;``values`` (keyed by some of the obs&#39; levels) for each obs, 0 where it has none.&quot;&quot;&quot;</span>
+    <span class="n">key</span> <span class="o">=</span> <span class="n">obs</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">droplevel</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">obs</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">names</span> <span class="k">if</span> <span class="n">n</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">values</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">names</span><span class="p">]</span>
     <span class="p">)</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_modeldata_mismatch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obs</span><span class="p">:</span> <span class="n">Vector</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CovarianceMatrix</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Model-data mismatch covariance: the sum of ``config.mdm_components``.</span>
+    <span class="k">return</span> <span class="n">values</span><span class="o">.</span><span class="n">reindex</span><span class="p">(</span><span class="n">key</span><span class="p">)</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
 
-<span class="sd">        Each component is built by :func:`~slv.inversion.covariances.build_mdm_error`</span>
-<span class="sd">        over the obs index, with site-keyed terms resolved through :meth:`obs_sites`</span>
-<span class="sd">        (TRAX receptors belong to their mobile site). A ``multiplicative`` component&#39;s</span>
-<span class="sd">        std is ``fraction`` times the per-obs enhancement scale (``scale_on``); a</span>
-<span class="sd">        ``per_obs`` component&#39;s is ``fraction`` times a per-obs std (e.g. the within-hour</span>
-<span class="sd">        std for ``subhour``).</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">obs_sites</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">obs_sites</span><span class="p">(</span><span class="n">obs</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
-        <span class="n">components</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">comp</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">mdm_components</span><span class="p">:</span>
-            <span class="n">c</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">comp</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;multiplicative&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
-                <span class="n">scale</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_multiplicative_scale</span><span class="p">(</span><span class="n">obs</span><span class="p">,</span> <span class="n">c</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;scale_on&quot;</span><span class="p">,</span> <span class="s2">&quot;footprint&quot;</span><span class="p">))</span>
-                <span class="n">c</span><span class="p">[</span><span class="s2">&quot;std&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;fraction&quot;</span><span class="p">)</span> <span class="o">*</span> <span class="n">scale</span>  <span class="c1"># sigma = fraction * enhancement</span>
-            <span class="k">elif</span> <span class="p">(</span><span class="n">src</span> <span class="o">:=</span> <span class="n">c</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;per_obs&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="c1"># sigma = fraction * per-obs data-derived std (e.g. subhour within-hour std)</span>
-                <span class="n">c</span><span class="p">[</span><span class="s2">&quot;std&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;fraction&quot;</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">_per_obs_std</span><span class="p">(</span><span class="n">obs</span><span class="p">,</span> <span class="n">src</span><span class="p">)</span>
-            <span class="n">components</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="n">build_mdm_error</span><span class="p">(</span>
-                    <span class="n">obs_index</span><span class="o">=</span><span class="n">obs</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
-                    <span class="n">site_config</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">site_config</span><span class="p">,</span>
-                    <span class="n">obs_sites</span><span class="o">=</span><span class="n">obs_sites</span><span class="p">,</span>
-                    <span class="o">**</span><span class="n">c</span><span class="p">,</span>
-                <span class="p">)</span>
+
+<div class="viewcode-block" id="multiplicative_scale">
+<a class="viewcode-back" href="../../../_autosummary/slv.inversion.mdm.multiplicative_scale.html#slv.inversion.mdm.multiplicative_scale">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">multiplicative_scale</span><span class="p">(</span>
+    <span class="n">obs</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span>
+    <span class="n">scale_on</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">prior</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span>
+    <span class="n">jacobian</span><span class="p">:</span> <span class="n">Operator</span><span class="p">,</span>
+    <span class="n">constant</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Per-obs scale [ppm] for a multiplicative MDM term.</span>
+
+<span class="sd">    ``scale_on=&quot;obs&quot;`` gives ``|obs - background|``, the observed enhancement: the actual</span>
+<span class="sd">    signal, so extreme shallow-PBL days the prior under-predicts still get a large error.</span>
+<span class="sd">    ``scale_on=&quot;prior&quot;`` gives ``|H x_prior|``, the prior-modeled enhancement; it</span>
+<span class="sd">    under-scales where the EPA prior is low, exactly the over-leveraged days. Obs</span>
+<span class="sd">    lacking the needed term get 0 (floor-only error). ``scale_on=&quot;footprint&quot;`` gives</span>
+<span class="sd">    ``|H| * mean(x_prior)``, the footprint strength in enhancement units. It</span>
+<span class="sd">    down-weights extreme shallow-PBL days by how much air they integrate, independent of</span>
+<span class="sd">    the obs (no circularity) or the EPA pattern, so it eases both the low-obs winter</span>
+<span class="sd">    dips and the high-obs spikes, which share an extreme ``|H|``.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    obs : pd.Series</span>
+<span class="sd">        The obs, indexed by ``(obs_location, obs_time)``.</span>
+<span class="sd">    scale_on : {&quot;footprint&quot;, &quot;obs&quot;, &quot;prior&quot;}</span>
+<span class="sd">        The scale.</span>
+<span class="sd">    prior : pd.Series</span>
+<span class="sd">        The flux prior, as :func:`~slv.inversion.pipelines.get_prior` gives it.</span>
+<span class="sd">    jacobian : Operator</span>
+<span class="sd">        The flux Jacobian, as :func:`~slv.inversion.pipelines.get_flux_jacobian` gives</span>
+<span class="sd">        it (rows: receptors; columns: cells and times).</span>
+<span class="sd">    constant : pd.Series</span>
+<span class="sd">        The background of each obs, as :func:`~slv.inversion.pipelines.get_constant`</span>
+<span class="sd">        gives it.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">receptors</span> <span class="o">=</span> <span class="n">jacobian</span><span class="o">.</span><span class="n">rows</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s2">&quot;concentration&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">scale_on</span> <span class="o">==</span> <span class="s2">&quot;footprint&quot;</span><span class="p">:</span>
+        <span class="n">xref</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">prior</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()))</span>
+        <span class="n">row_abs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">jacobian</span><span class="o">.</span><span class="n">sparse</span><span class="p">())</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">_on_obs</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">row_abs</span> <span class="o">*</span> <span class="n">xref</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">receptors</span><span class="p">),</span> <span class="n">obs</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">scale_on</span> <span class="o">==</span> <span class="s2">&quot;obs&quot;</span><span class="p">:</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="n">obs</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">droplevel</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">obs</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">names</span> <span class="k">if</span> <span class="n">n</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">constant</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">names</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">bg</span> <span class="o">=</span> <span class="n">constant</span><span class="o">.</span><span class="n">reindex</span><span class="p">(</span><span class="n">key</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan_to_num</span><span class="p">(</span><span class="n">obs</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span> <span class="o">-</span> <span class="n">bg</span><span class="p">,</span> <span class="n">nan</span><span class="o">=</span><span class="mf">0.0</span><span class="p">))</span>
+    <span class="c1"># Match the prior to the Jacobian columns by label, not position: their level</span>
+    <span class="c1"># orders differ (the EPA prior is (time, lat, lon), the Jacobian (lon, lat, time)).</span>
+    <span class="n">cells</span> <span class="o">=</span> <span class="n">jacobian</span><span class="o">.</span><span class="n">cols</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s2">&quot;flux&quot;</span><span class="p">)</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="n">prior</span><span class="o">.</span><span class="n">reorder_levels</span><span class="p">(</span><span class="n">cells</span><span class="o">.</span><span class="n">names</span><span class="p">)</span><span class="o">.</span><span class="n">reindex</span><span class="p">(</span><span class="n">cells</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
+    <span class="n">e</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">jacobian</span><span class="o">.</span><span class="n">sparse</span><span class="p">()</span> <span class="o">@</span> <span class="n">x</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span> <span class="n">index</span><span class="o">=</span><span class="n">receptors</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">_on_obs</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">obs</span><span class="p">))</span></div>
+
+
+
+<div class="viewcode-block" id="per_obs_std">
+<a class="viewcode-back" href="../../../_autosummary/slv.inversion.mdm.per_obs_std.html#slv.inversion.mdm.per_obs_std">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">per_obs_std</span><span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="n">InversionConfig</span><span class="p">,</span> <span class="n">obs</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="n">src</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Per-obs std [ppm] for a data-derived MDM term.</span>
+
+<span class="sd">    ``src=&quot;subhour&quot;`` -&gt; each obs&#39;s within-hour CH4 std (temporal representativeness error:</span>
+<span class="sd">    the sub-hour variability an hour-mean footprint cannot represent). Obs with no</span>
+<span class="sd">    multi-point hour (std undefined) get 0 -- no representativeness penalty.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">src</span> <span class="o">!=</span> <span class="s2">&quot;subhour&quot;</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;unknown per_obs MDM source </span><span class="si">{</span><span class="n">src</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">get_slv_subhour_std</span><span class="p">(</span>
+        <span class="n">sites</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">sites</span><span class="p">,</span>
+        <span class="n">site_config</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">site_config</span><span class="p">,</span>
+        <span class="n">time_range</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">time_range</span><span class="p">,</span>
+        <span class="n">subset_hours</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">subset_hours</span><span class="p">,</span>
+        <span class="n">filter_pcaps</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">filter_pcaps</span><span class="p">,</span>
+        <span class="n">num_processes</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">num_processes</span><span class="p">,</span>
+        <span class="n">utc_offset</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">utc_offset</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">_on_obs</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">obs</span><span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_footprint_key</span><span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="n">InversionConfig</span><span class="p">,</span> <span class="n">obs</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="o">**</span><span class="n">_</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The footprints the MDM is built from, for its cache key (a multiplicative term scales with the Jacobian&#39;s rows).&quot;&quot;&quot;</span>
+    <span class="c1"># imported here: pipelines imports this module</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">slv.inversion.pipelines</span><span class="w"> </span><span class="kn">import</span> <span class="n">_footprint_key</span> <span class="k">as</span> <span class="n">footprints</span>
+
+    <span class="k">return</span> <span class="n">footprints</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">obs</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="get_modeldata_mismatch">
+<a class="viewcode-back" href="../../../_autosummary/slv.inversion.mdm.get_modeldata_mismatch.html#slv.inversion.mdm.get_modeldata_mismatch">[docs]</a>
+<span class="nd">@fips_cache</span><span class="p">(</span><span class="s2">&quot;modeldata_mismatch&quot;</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">_footprint_key</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_modeldata_mismatch</span><span class="p">(</span>
+    <span class="n">config</span><span class="p">:</span> <span class="n">InversionConfig</span><span class="p">,</span>
+    <span class="n">obs</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">prior</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span>
+    <span class="n">jacobian</span><span class="p">:</span> <span class="n">Operator</span><span class="p">,</span>
+    <span class="n">constant</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span>
+    <span class="n">obs_sites</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Index</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Covariance</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Model-data mismatch covariance: the sum of ``config.mdm_components``, on the obs.</span>
+
+<span class="sd">    Each component is built by :func:`~slv.inversion.covariances.build_mdm_error`</span>
+<span class="sd">    over the obs index, with site-keyed terms resolved through ``obs_sites`` (TRAX</span>
+<span class="sd">    receptors belong to their mobile site). A ``multiplicative`` component&#39;s std is</span>
+<span class="sd">    ``fraction`` times the per-obs enhancement scale (:func:`multiplicative_scale`,</span>
+<span class="sd">    ``scale_on``); a ``per_obs`` component&#39;s is ``fraction`` times a per-obs std (e.g.</span>
+<span class="sd">    the within-hour std for ``subhour``, :func:`per_obs_std`).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    config : InversionConfig</span>
+<span class="sd">        The inversion.</span>
+<span class="sd">    obs : pd.Series</span>
+<span class="sd">        The obs the problem has, indexed by ``(obs_location, obs_time)``.</span>
+<span class="sd">    prior, jacobian, constant :</span>
+<span class="sd">        The run&#39;s prior, flux Jacobian and background, for the multiplicative terms.</span>
+<span class="sd">    obs_sites : pd.Index</span>
+<span class="sd">        The site of each obs (:func:`~slv.inversion.pipelines.obs_sites`).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Covariance</span>
+<span class="sd">        S_z on the obs&#39; labels, as the one block ``concentration``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">space</span> <span class="o">=</span> <span class="n">Space</span><span class="p">({</span><span class="s2">&quot;concentration&quot;</span><span class="p">:</span> <span class="n">obs</span><span class="o">.</span><span class="n">index</span><span class="p">})</span>
+    <span class="n">components</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">comp</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">mdm_components</span><span class="p">:</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">comp</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;multiplicative&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
+            <span class="n">scale</span> <span class="o">=</span> <span class="n">multiplicative_scale</span><span class="p">(</span>
+                <span class="n">obs</span><span class="p">,</span>
+                <span class="n">c</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;scale_on&quot;</span><span class="p">,</span> <span class="s2">&quot;footprint&quot;</span><span class="p">),</span>
+                <span class="n">prior</span><span class="o">=</span><span class="n">prior</span><span class="p">,</span>
+                <span class="n">jacobian</span><span class="o">=</span><span class="n">jacobian</span><span class="p">,</span>
+                <span class="n">constant</span><span class="o">=</span><span class="n">constant</span><span class="p">,</span>
             <span class="p">)</span>
+            <span class="n">c</span><span class="p">[</span><span class="s2">&quot;std&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;fraction&quot;</span><span class="p">)</span> <span class="o">*</span> <span class="n">scale</span>  <span class="c1"># sigma = fraction * enhancement</span>
+        <span class="k">elif</span> <span class="p">(</span><span class="n">src</span> <span class="o">:=</span> <span class="n">c</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;per_obs&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># sigma = fraction * per-obs data-derived std (e.g. subhour within-hour std)</span>
+            <span class="n">c</span><span class="p">[</span><span class="s2">&quot;std&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;fraction&quot;</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">*</span> <span class="n">per_obs_std</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">obs</span><span class="p">,</span> <span class="n">src</span><span class="p">)</span>
+        <span class="n">components</span><span class="p">[</span><span class="n">c</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">build_mdm_error</span><span class="p">(</span>
+            <span class="n">obs_index</span><span class="o">=</span><span class="n">obs</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
+            <span class="n">site_config</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">site_config</span><span class="p">,</span>
+            <span class="n">obs_sites</span><span class="o">=</span><span class="n">obs_sites</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">c</span><span class="p">,</span>
+        <span class="p">)</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">plot_diagnostics</span><span class="p">:</span>
-            <span class="n">built_comps</span> <span class="o">=</span> <span class="p">{</span><span class="n">comp</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">comp</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">obs</span><span class="o">.</span><span class="n">index</span><span class="p">)</span> <span class="k">for</span> <span class="n">comp</span> <span class="ow">in</span> <span class="n">components</span><span class="p">}</span>
-            <span class="n">viz</span><span class="o">.</span><span class="n">plot_mdm_components</span><span class="p">(</span><span class="n">built_comps</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">CovarianceMatrix</span><span class="p">(</span>
-                <span class="n">name</span><span class="o">=</span><span class="s2">&quot;modeldata_mismatch&quot;</span><span class="p">,</span>
-                <span class="n">data</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">add</span><span class="o">.</span><span class="n">reduce</span><span class="p">([</span><span class="n">comp</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span> <span class="k">for</span> <span class="n">comp</span> <span class="ow">in</span> <span class="n">built_comps</span><span class="o">.</span><span class="n">values</span><span class="p">()]),</span>
-                <span class="n">index</span><span class="o">=</span><span class="n">obs</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
-            <span class="p">)</span>
+    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">plot_diagnostics</span><span class="p">:</span>
+        <span class="n">built</span> <span class="o">=</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">m</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">space</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">components</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+        <span class="n">viz</span><span class="o">.</span><span class="n">plot_mdm_components</span><span class="p">({</span><span class="n">name</span><span class="p">:</span> <span class="n">S</span><span class="o">.</span><span class="n">to_frame</span><span class="p">()</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">S</span> <span class="ow">in</span> <span class="n">built</span><span class="o">.</span><span class="n">items</span><span class="p">()})</span>
 
-        <span class="k">return</span> <span class="n">CovarianceMatrix</span><span class="p">(</span>
-            <span class="n">name</span><span class="o">=</span><span class="s2">&quot;modeldata_mismatch&quot;</span><span class="p">,</span>
-            <span class="n">data</span><span class="o">=</span><span class="n">CovarianceBuilder</span><span class="p">(</span><span class="n">components</span><span class="p">)</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">obs</span><span class="o">.</span><span class="n">index</span><span class="p">),</span>
-        <span class="p">)</span></div>
-</div>
+    <span class="n">models</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">components</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+    <span class="n">total</span> <span class="o">=</span> <span class="n">models</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="n">models</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+        <span class="n">total</span> <span class="o">=</span> <span class="n">total</span> <span class="o">+</span> <span class="n">model</span>
+    <span class="k">return</span> <span class="n">total</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">space</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;modeldata_mismatch&quot;</span><span class="p">)</span></div>
 
 </pre></div>
 

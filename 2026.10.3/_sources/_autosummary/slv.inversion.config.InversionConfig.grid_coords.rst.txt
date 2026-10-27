@@ -1,0 +1,6 @@
+slv.inversion.config.InversionConfig.grid\_coords
+=================================================
+
+.. currentmodule:: slv.inversion.config
+
+.. autoproperty:: InversionConfig.grid_coords
