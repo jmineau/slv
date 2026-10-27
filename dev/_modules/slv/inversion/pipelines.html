@@ -39,7 +39,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
 
-    <script src="../../../_static/documentation_options.js?v=c5cabdef"></script>
+    <script src="../../../_static/documentation_options.js?v=d6f7c774"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -57,7 +57,7 @@
     <link rel="search" title="Search" href="../../../search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.10.3.dev12+gae42060d8" />
+  <meta name="docsearch:version" content="2026.10.3.dev13+g6fd3d367a" />
   
     
     <script src="../../../_static/searchtools.js"></script>
@@ -886,8 +886,7 @@
 <span class="sd">    Objects loaded from a wide-range cache are sliced to the run&#39;s time window before</span>
 <span class="sd">    anything is built from them. With ``config.min_obs_per_interval`` above 1, the obs</span>
 <span class="sd">    of a flux interval with fewer obs than that are dropped (the interval&#39;s fluxes stay</span>
-<span class="sd">    in the state, constrained by the prior alone). ``min_sims_per_interval`` is not</span>
-<span class="sd">    applied: counting simulations needs the Jacobian, built after this filter.</span>
+<span class="sd">    in the state, constrained by the prior alone).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">tstart</span><span class="p">,</span> <span class="n">tend</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">time_range</span>
     <span class="n">obs_times</span> <span class="o">=</span> <span class="n">obs</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s2">&quot;obs_time&quot;</span><span class="p">)</span>

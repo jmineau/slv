@@ -39,7 +39,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
 
-    <script src="../../../_static/documentation_options.js?v=c5cabdef"></script>
+    <script src="../../../_static/documentation_options.js?v=d6f7c774"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -57,7 +57,7 @@
     <link rel="search" title="Search" href="../../../search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.10.3.dev12+gae42060d8" />
+  <meta name="docsearch:version" content="2026.10.3.dev13+g6fd3d367a" />
   
     
     <script src="../../../_static/searchtools.js"></script>
@@ -472,16 +472,12 @@
 <span class="c1">#: forward_operator key avoids a needless (expensive) Jacobian rebuild when toggled.</span>
 <span class="n">_OBS_FILTER_DEPS</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">({</span><span class="s2">&quot;filter_spikes&quot;</span><span class="p">,</span> <span class="s2">&quot;spike_percentile&quot;</span><span class="p">})</span>
 <span class="c1">#: State-filter deps: filter_state_space drops obs in flux intervals (months) with too</span>
-<span class="c1">#: few obs (min_obs_per_interval). min_sims_per_interval is not applied -- counting</span>
-<span class="c1">#: simulations needs the Jacobian, built after this filter -- so it only sits in the</span>
-<span class="c1">#: key. The obs-indexed MDM and constant are built AFTER that filter, so they must</span>
-<span class="c1">#: re-key on it -- otherwise a run at a lower threshold would reuse the</span>
-<span class="c1">#: higher-threshold MDM, whose labels then miss the recovered months (the problem</span>
+<span class="c1">#: few obs (min_obs_per_interval). The obs-indexed MDM and constant are built AFTER that</span>
+<span class="c1">#: filter, so they must re-key on it -- otherwise a run at a lower threshold would reuse</span>
+<span class="c1">#: the higher-threshold MDM, whose labels then miss the recovered months (the problem</span>
 <span class="c1">#: refuses it). Not on forward_operator (receptor-based, placed on the obs) or obs</span>
 <span class="c1">#: (get_obs returns the full record; the filter is applied downstream).</span>
-<span class="n">_STATE_FILTER_DEPS</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span>
-    <span class="p">{</span><span class="s2">&quot;min_obs_per_interval&quot;</span><span class="p">,</span> <span class="s2">&quot;min_sims_per_interval&quot;</span><span class="p">}</span>
-<span class="p">)</span>
+<span class="n">_STATE_FILTER_DEPS</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">({</span><span class="s2">&quot;min_obs_per_interval&quot;</span><span class="p">})</span>
 <span class="n">_PRIOR_DEPS</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span>
     <span class="p">{</span>
         <span class="s2">&quot;prior&quot;</span><span class="p">,</span>

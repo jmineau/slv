@@ -39,7 +39,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
 
-    <script src="../../../_static/documentation_options.js?v=c5cabdef"></script>
+    <script src="../../../_static/documentation_options.js?v=d6f7c774"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -57,7 +57,7 @@
     <link rel="search" title="Search" href="../../../search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.10.3.dev12+gae42060d8" />
+  <meta name="docsearch:version" content="2026.10.3.dev13+g6fd3d367a" />
   
     
     <script src="../../../_static/searchtools.js"></script>
@@ -737,8 +737,6 @@
 <span class="sd">        sensitivity) at the prior. ``None`` keeps every cell.</span>
 <span class="sd">    min_obs_per_interval : int</span>
 <span class="sd">        Drop flux intervals with fewer obs.</span>
-<span class="sd">    min_sims_per_interval : int</span>
-<span class="sd">        Not applied (in the cache key only).</span>
 <span class="sd">    gamma : float, optional</span>
 <span class="sd">        Divides the obs error (``&gt; 1`` fits the data more closely).</span>
 <span class="sd">    cache : bool, str or Path</span>
@@ -897,9 +895,6 @@
 
     <span class="c1"># --- Inversion Solver Settings ---</span>
     <span class="n">min_obs_per_interval</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">60</span>
-    <span class="c1"># Not applied: filter_state_space filters on the obs count only (counting</span>
-    <span class="c1"># simulations needs the Jacobian, built after that filter).</span>
-    <span class="n">min_sims_per_interval</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">70</span>
 
     <span class="c1"># Regularization parameter: scales observation error by 1/gamma.</span>
     <span class="c1"># gamma &gt; 1: reduces obs error weight, forces solution toward data</span>
