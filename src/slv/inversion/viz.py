@@ -6,33 +6,11 @@ diagnostics. The plots of a solved inversion take its :class:`~fips.Posterior`.
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from fips import Posterior, Vector
+from fips import Posterior
 from lair.geo import PC, add_latlon_ticks
 from matplotlib.markers import MarkerStyle
 
 from slv.emissions.point_sources import plot_point_sources
-
-
-def block_series(vector: Vector, block: str, name: str | None = None) -> pd.Series:
-    """
-    One block of a fips vector as a Series on the block's own labels.
-
-    Parameters
-    ----------
-    vector : Vector
-        The vector (``problem.prior``, ``post.estimate``, ...).
-    block : str
-        The block (``"flux"``, ``"concentration"``, ``"bias"``).
-    name : str, optional
-        The Series' name; the vector's by default.
-
-    Returns
-    -------
-    pd.Series
-        The block's values, indexed by its labels without the ``block`` level.
-    """
-    series = vector[block].to_series().droplevel("block")
-    return series if name is None else series.rename(name)
 
 
 def plot_sites(ax, sites, site_config, color="black"):
@@ -434,8 +412,8 @@ def plot_flux_maps(post: Posterior, tiler=None, tiler_zoom=10, time="mean", **kw
             return data.isel(time=time)
         return data.sel(time=time)
 
-    prior = at_time(block_series(post.problem.prior, "flux").to_xarray())
-    posterior = at_time(block_series(post.estimate, "flux").to_xarray())
+    prior = at_time(post.problem.prior.to_series("flux").to_xarray())
+    posterior = at_time(post.estimate.to_series("flux").to_xarray())
 
     subplot_kw = {}
     if tiler is not None:
@@ -571,7 +549,7 @@ def plot_fluxes_by_timestep(
     ``FacetGrid``.
     """
     facet = (
-        block_series(post.estimate, "flux")
+        post.estimate.to_series("flux")
         .to_xarray()
         .astype(float)
         .plot(
@@ -807,8 +785,8 @@ def plot_residuals(
     location_dim : str, default 'obs_location'
         Name of the location dimension in the data.
     """
-    obs = block_series(post.problem.obs, "concentration")
-    posterior = block_series(post.modeled_obs, "concentration")
+    obs = post.problem.obs.to_series("concentration")
+    posterior = post.modeled_obs.to_series("concentration")
     residuals = (posterior - obs).dropna()
 
     locations = residuals.index.get_level_values(location_dim).unique()
@@ -903,7 +881,7 @@ def plot_background_and_bias(post: Posterior):
 
     # Plot background
     if problem.offset is not None:
-        bg_data = block_series(problem.offset, "concentration")
+        bg_data = problem.offset.to_series("concentration")
 
         # Get unique sites
         if isinstance(bg_data.index, pd.MultiIndex):
@@ -958,8 +936,8 @@ def plot_background_and_bias(post: Posterior):
 
     # Plot bias if it exists
     if has_bias:
-        prior_bias = block_series(problem.prior, "bias")
-        posterior_bias = block_series(post.estimate, "bias")
+        prior_bias = problem.prior.to_series("bias")
+        posterior_bias = post.estimate.to_series("bias")
 
         # Check if bias has grouping (MultiIndex)
         if isinstance(prior_bias.index, pd.MultiIndex):

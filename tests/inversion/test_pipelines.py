@@ -8,13 +8,12 @@ from types import SimpleNamespace
 import numpy as np
 import pandas as pd
 import pytest
-import scipy.sparse as sp
 from fips import Operator, Problem, Space
 
 from slv.inversion import mdm, pipelines
 from slv.inversion.cache import _pkg_rev, _version_tag, fips_cache
 from slv.inversion.config import InversionConfig
-from slv.inversion.coverage import check_state_cells, matrix
+from slv.inversion.coverage import check_state_cells
 from slv.inversion.pipelines import build_problem, get_bias, obs_sites
 
 from .conftest import (
@@ -287,20 +286,13 @@ class TestCheckStateCells:
         flux = J.cols.select("flux")
         keep = flux.get_level_values("lat") == LATS[0]
         part = Operator(
-            sp.csr_array(matrix(J)[:, np.flatnonzero(keep)]),
+            J.sparse()[:, np.flatnonzero(keep)],
             J.rows,
             Space({"flux": flux[keep]}),
         )
         monkeypatch.setattr(pipelines, "_project_jacobian", lambda c, p, locs: part)
         with pytest.raises(ValueError, match="State cells disagree"):
             build_problem(synthetic())
-
-
-def test_matrix_keeps_a_sparse_operator_sparse():
-    J = jacobian()
-    dense = Operator(J.dense(), J.rows, J.cols)
-    assert sp.issparse(matrix(J)) and not sp.issparse(matrix(dense))
-    np.testing.assert_array_equal(matrix(J).toarray(), matrix(dense))
 
 
 # ---------------------------------------------------------------------------
@@ -314,11 +306,14 @@ def test_build_problem_puts_every_input_on_the_obs_and_the_state(synthetic, caps
     assert problem.prior.space.names == ("flux",)
     assert problem.obs.space.names == ("concentration",)
     assert len(problem.prior) == len(TIMES) * len(LATS) * len(LONS)
-    # the obs without a background is dropped, the one without a footprint is kept
+    # the obs without a background and the one whose receptor has no footprint are
+    # dropped: a row of zeros would say it saw no emissions
     obs = problem.obs.space.select("concentration")
-    assert NO_BACKGROUND not in obs and NO_FOOTPRINT in obs
-    assert len(obs) == len(OBS_INDEX) - 1
-    assert "Dropping 1/6 obs with missing background" in capsys.readouterr().out
+    assert NO_BACKGROUND not in obs and NO_FOOTPRINT not in obs
+    assert len(obs) == len(OBS_INDEX) - 2
+    out = capsys.readouterr().out
+    assert "Dropping 1/6 obs with missing background" in out
+    assert "Dropping 1/5 obs whose receptor has no footprint" in out
     # the background is the offset
     np.testing.assert_allclose(problem.offset.values, 1.95)
 
@@ -339,12 +334,23 @@ def test_the_prior_and_jacobian_cells_meet_after_rounding(synthetic):
     np.testing.assert_allclose(H.loc[receptor, expected.index], expected.to_numpy())
 
 
-def test_an_obs_without_a_footprint_is_a_row_of_zeros(synthetic):
+def test_an_obs_with_an_empty_footprint_keeps_a_row_of_zeros(synthetic, monkeypatch):
+    # an empty footprint (its particles left the domain) is a real zero: the obs stays
+    J = jacobian()
+    empty = OBS_INDEX[0]
+    rows = J.rows.select("concentration")
+    data = J.dense()
+    data[rows.get_loc(empty)] = 0.0
+    zeroed = Operator(data, J.rows, J.cols, name=J.name)
+    monkeypatch.setattr(
+        pipelines, "_project_jacobian", lambda config, project, locs: zeroed
+    )
     problem = build_problem(synthetic())
     H = problem.forward.to_frame()
     H.index = H.index.droplevel("block")
-    assert (H.loc[NO_FOOTPRINT] == 0).all()
-    assert (H.drop(NO_FOOTPRINT).sum(axis=1) > 0).all()
+    assert empty in H.index
+    assert (H.loc[empty] == 0).all()
+    assert (H.drop(empty).sum(axis=1) > 0).all()
 
 
 def test_the_prior_error_is_kept_as_kronecker_factors(synthetic):
@@ -611,7 +617,8 @@ class TestMobileObsInPipeline:
 def test_total_units_are_mass_per_interval():
     from slv.inversion.report import total_units
 
-    assert total_units(InversionConfig(flux_freq="QS")) == "Gg per QS interval"
+    config = InversionConfig(tstart="2016-01-01", tend="2024-01-01", flux_freq="QS")
+    assert total_units(config) == "Gg per QS interval"
 
 
 # ---------------------------------------------------------------------------

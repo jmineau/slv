@@ -176,6 +176,20 @@ def test_no_project_matching_the_obs_raises(monkeypatch):
 # --------------------------------------------------------------------------- per project
 
 
+def test_forward_operator_cache_key_has_a_revision():
+    # a Jacobian cached before empty footprints got zero rows must not be read as one
+    from slv.inversion.cache import (
+        DEFAULT_COMPONENT_DEPS,
+        DEFAULT_COMPONENT_REVISIONS,
+        _component_hash,
+    )
+
+    cfg = InversionConfig(stilt_project="/prod")
+    deps = DEFAULT_COMPONENT_DEPS["forward_operator"]
+    assert DEFAULT_COMPONENT_REVISIONS["forward_operator"] == 2
+    assert _component_hash(cfg, deps, (), 2) != _component_hash(cfg, deps)
+
+
 class _FakeProject:
     """A ``stilt.Project`` that records what the per-project build asked for."""
 
@@ -195,6 +209,20 @@ class _FakeProject:
             n: SimpleNamespace(footprint=object() if has else None)
             for n, has in variants.items()
         }
+
+    #: receptors with a footprint (None: all), and the folder they are read from
+    footprints: set | None = None
+    folder = "settings=hrrr-93278c"
+
+    def status(self, sel):
+        have = (
+            True if self.footprints is None else sel["receptor"].isin(self.footprints)
+        )
+        return sel.assign(footprint=have)
+
+    @property
+    def output(self):
+        return SimpleNamespace(folder=lambda kind, variant: Path(self.folder))
 
     def jacobian(self, sel, target, time_bins, workers=None):
         from scipy import sparse
@@ -225,6 +253,7 @@ def _fake_stilt(monkeypatch, projects):
         return _FakeProject(path, locations, variants, when)
 
     monkeypatch.setattr(stilt, "Project", project)
+    monkeypatch.setattr(_FakeProject, "footprints", None)
     _FakeProject.calls = []
 
 
@@ -314,18 +343,106 @@ def test_project_jacobian_drops_sims_outside_the_window_or_hours(monkeypatch):
 # --------------------------------------------------------------------------- project_jacobian
 
 
-def _stilt_jacobian(data, receptors):
+def _key_config(cache=False):
+    return InversionConfig(
+        cache=cache,
+        stilt_project="/prod",
+        variant="hrrr",
+        location_site_map={"loc_a": "wbb", "loc_b": "wbb", "loc_c": "ldf"},
+    )
+
+
+def test_footprint_key_counts_the_selected_receptors_with_a_footprint(monkeypatch):
+    _fake_stilt(
+        monkeypatch, {Path("/prod"): (["loc_a", "loc_b", "loc_c"], {"hrrr": True})}
+    )
+    monkeypatch.setattr(_FakeProject, "footprints", {"r0", "r2"})
+    obs = _obs(["wbb"], TIMES[:1])
+    # r0 and r1 are wbb's receptors (r2 is ldf's, not selected); only r0 has a footprint
+    assert pl._footprint_key(_key_config(), obs) == [("settings=hrrr-93278c", 1)]
+
+
+def test_footprint_key_leaves_out_a_project_with_no_matching_sims(monkeypatch):
+    _fake_stilt(monkeypatch, {Path("/prod"): (["multi_cccccccccc"], {"hrrr": True})})
+    assert pl._footprint_key(_key_config(), _obs(["wbb"], TIMES[:1])) == []
+
+
+def test_jacobian_cache_key_follows_the_footprints(tmp_path, monkeypatch):
+    # issue #30: simulations run after a Jacobian was cached must rebuild it
+    _fake_stilt(monkeypatch, {Path("/prod"): (["loc_a"], {"hrrr": True})})
+    monkeypatch.setattr(_FakeProject, "footprints", set())
+    obs = _obs(["wbb"], TIMES[:1])
+
+    def files():
+        return sorted(tmp_path.glob(".fips/*/forward_operator/*.pkl"))
+
+    def build():
+        return pl.get_flux_jacobian(_key_config(cache=str(tmp_path)), obs)
+
+    build()
+    build()  # an unchanged project: the same key, read from the cache
+    assert len(files()) == 1
+    assert len(_FakeProject.calls) == 1
+
+    monkeypatch.setattr(_FakeProject, "footprints", {"r0"})  # its footprint is run
+    build()
+    assert len(files()) == 2
+    assert len(_FakeProject.calls) == 2
+
+    # rerun with other settings (a new met crop): the same count, another folder
+    monkeypatch.setattr(_FakeProject, "folder", "settings=hrrr-0c1d2e")
+    build()
+    assert len(files()) == 3
+
+
+def test_mdm_cache_key_follows_the_footprints(tmp_path, monkeypatch):
+    # a multiplicative MDM term scales with the Jacobian's rows, so it keys on them too
+    import slv.inversion.mdm as mdm
+
+    _fake_stilt(monkeypatch, {Path("/prod"): (["loc_a", "loc_b"], {"hrrr": True})})
+    monkeypatch.setattr(_FakeProject, "footprints", {"r0"})
+    monkeypatch.setattr(
+        mdm, "multiplicative_scale", lambda obs, *a, **k: np.ones(len(obs))
+    )
+    monkeypatch.setattr(mdm, "per_obs_std", lambda config, obs, src: np.ones(len(obs)))
+    obs = _obs(["wbb", "wbb"], TIMES)
+
+    def build():
+        return mdm.get_modeldata_mismatch(
+            _key_config(cache=str(tmp_path)),
+            obs,
+            prior=None,
+            jacobian=None,
+            constant=None,
+            obs_sites=pd.Index(["wbb", "wbb"]),
+        )
+
+    def files():
+        return sorted(tmp_path.glob(".fips/*/modeldata_mismatch/*.pkl"))
+
+    build()
+    build()
+    assert len(files()) == 1
+    monkeypatch.setattr(_FakeProject, "footprints", {"r0", "r1"})
+    build()
+    assert len(files()) == 2
+
+
+# --------------------------------------------------------------------------- project_jacobian
+
+
+def _stilt_jacobian(data, receptors, empty=(), missing=()):
     from scipy import sparse
 
     columns = pd.MultiIndex.from_product(
         [TIMES, [-111.95, -111.85], [40.65]], names=["time", "lon", "lat"]
     )
     return Jacobian(
-        sparse.csr_matrix(np.asarray(data, dtype=float)),
+        sparse.csr_matrix(np.asarray(data, dtype=float).reshape(-1, len(columns))),
         pd.Index(receptors, name="receptor"),
         columns,
-        [],
-        [],
+        list(empty),
+        list(missing),
     )
 
 
@@ -345,14 +462,43 @@ def test_project_jacobian_labels_rows_by_location_and_time():
     H = pl.project_jacobian(
         project, sel, None, None, location_mapper={"loc_a": "wbb"}, sparse=False
     )
-    # r1 is below the threshold everywhere, so it has no row
     df = frame(H)
-    assert list(df.index) == [("wbb", TIMES[0]), ("wbb", TIMES[1])]
+    assert list(df.index) == [
+        ("wbb", TIMES[0]),
+        ("multi_aaaaaaaaaa", TIMES[0]),
+        ("wbb", TIMES[1]),
+    ]
     assert df.index.names == ["obs_location", "obs_time"]
     assert df.columns.names == ["lon", "lat", "time"]
     assert df.loc[("wbb", TIMES[0]), (-111.95, 40.65, TIMES[0])] == 1
     assert df.loc[("wbb", TIMES[0]), (-111.85, 40.65, TIMES[1])] == 2
     assert df.loc[("wbb", TIMES[1]), (-111.85, 40.65, TIMES[0])] == 3
+    # r1 is below the threshold everywhere: a footprint that saw nothing, a row of zeros
+    assert (df.loc[("multi_aaaaaaaaaa", TIMES[0])] == 0).all()
+
+
+def test_project_jacobian_gives_an_empty_footprint_a_zero_row(capsys):
+    # r1's footprint is empty (its particles left the domain): a real zero, so a row of
+    # zeros. r2 was never run: no row, and build_problem drops its obs.
+    sel = pd.DataFrame(
+        {
+            "receptor": ["r0", "r1", "r2"],
+            "variant": "hrrr",
+            "time": pd.date_range(TIMES[0], periods=3, freq="h"),
+            "location": "loc_a",
+        }
+    )
+    J = _stilt_jacobian([[1, 0, 0, 2]], ["r0"], empty=["r1"], missing=["r2"])
+    project = SimpleNamespace(jacobian=lambda *a, **k: J)
+    H = pl.project_jacobian(
+        project, sel, None, None, location_mapper={"loc_a": "wbb"}, sparse=False
+    )
+    out = capsys.readouterr().out
+    assert "1 receptors have no footprint yet" in out
+    assert "1 receptors have an empty footprint" in out
+    df = frame(H)
+    assert list(df.index.get_level_values("obs_time")) == list(sel["time"][:2])
+    np.testing.assert_array_equal(df.to_numpy(), [[1, 0, 0, 2], [0, 0, 0, 0]])
 
 
 def test_project_jacobian_stays_sparse():
@@ -367,10 +513,10 @@ def test_project_jacobian_stays_sparse():
     assert H.dense().sum() == 1
 
 
-def test_project_jacobian_with_no_rows_is_none():
+def test_project_jacobian_with_no_footprint_is_none():
     sel = pd.DataFrame(
         {"receptor": ["r0"], "variant": "hrrr", "time": TIMES[:1], "location": ["a"]}
     )
-    J = _stilt_jacobian([[0, 0, 0, 0]], ["r0"])
+    J = _stilt_jacobian([], [], missing=["r0"])
     project = SimpleNamespace(jacobian=lambda *a, **k: J)
     assert pl.project_jacobian(project, sel, None, None) is None

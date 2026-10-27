@@ -52,7 +52,8 @@ def build_prior_error(
     # The variances are computed in the prior's own dtype (float32 for the EPA prior)
     # and square-rooted, as slv and fips 0.1 did, so paper 1's S_0 is unchanged.
     variances = (base_std + std_frac * prior) ** 2
-    std = np.sqrt(variances.to_numpy())
+    # a Series on the prior's labels, which with_std lines up with the space
+    std = pd.Series(np.sqrt(variances.to_numpy()), index=variances.index)
     model = Kronecker(
         Exponential("time", normalize_duration(time_scale)),
         Exponential(["lat", "lon"], spatial_scale, metric="haversine"),
@@ -151,7 +152,7 @@ def build_mdm_error(
                         f"No std value found for organization='{org}' (site='{loc}') in component '{name}'"
                     ) from None
 
-        std = np.asarray(std_values, dtype=float)
+        std = pd.Series(std_values, index=obs_index, dtype=float)
     elif isinstance(std, (np.ndarray, pd.Series, list, tuple)):
         # Per-observation std array, aligned to obs_index (e.g. a multiplicative
         # transport term f * |H x_prior| that scales with the modeled enhancement).
@@ -160,6 +161,8 @@ def build_mdm_error(
             raise ValueError(
                 f"Component '{name}' has {len(std)} stds for {len(obs_index)} obs."
             )
+        # fips's with_std lines a Series up with the obs by label (a plain array raises)
+        std = pd.Series(std, index=obs_index)
 
     # Uncorrelated errors (diagonal)
     if not correlated:

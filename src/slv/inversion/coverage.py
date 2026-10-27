@@ -7,20 +7,7 @@ at their prior.
 
 import numpy as np
 import pandas as pd
-import scipy.sparse as sp
-from fips import Operator, Problem, Space
-from fips.linalg import SparseOperator
-
-
-def matrix(op: Operator) -> "np.ndarray | sp.csr_array":
-    """
-    An operator's matrix by position: a SciPy CSR array if it is stored sparse, else dense.
-
-    Rows and columns are in the order of ``op.rows`` and ``op.cols``.
-    """
-    if isinstance(op.data, SparseOperator):
-        return sp.csr_array(op.data.matrix)
-    return op.dense()
+from fips import Problem, Space
 
 
 def _flux_cells(index: pd.Index) -> set[tuple[float, float]]:
@@ -87,7 +74,7 @@ def covered_state(problem: Problem, percentile: float) -> Space:
     """
     flux = problem.prior.space.select("flux")
     H = problem.forward["concentration", "flux"]
-    column_sums = np.asarray(abs(matrix(H)).sum(axis=0)).ravel()
+    column_sums = np.asarray(abs(H.sparse()).sum(axis=0)).ravel()
     cells = pd.MultiIndex.from_arrays(
         [flux.get_level_values("lat"), flux.get_level_values("lon")]
     )
