@@ -924,13 +924,17 @@ wheels = [
 
 [[package]]
 name = "fips"
-version = "0.1.0b10.dev130+g8f510df2c"
-source = { git = "https://github.com/jmineau/fips?rev=8f510df2c5af68d6793f3f48e304e32c103de312#8f510df2c5af68d6793f3f48e304e32c103de312" }
+version = "0.2.0b1"
+source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "numpy" },
     { name = "pandas" },
     { name = "scipy" },
     { name = "xarray" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/25/15/1627ddb2713fe065849a8f1dad4283fb5b9845dff436d40b49110d1176a2/fips-0.2.0b1.tar.gz", hash = "sha256:93572c579abb97c3f27e21c13338201b09f5a070468cd87e48f632e195c4d8fb", size = 1072418, upload-time = "2026-10-27T18:22:39.605Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/95/2c/7f9ff63f45bff875699aaafeb062af7890c5ab1b8335718d5ec649735d43/fips-0.2.0b1-py3-none-any.whl", hash = "sha256:6e3d21b5fa1fce6b0d9d033a754c7f58aa2a18c90b42e7b094c6d3f6d51142bb", size = 100692, upload-time = "2026-10-27T18:22:37.539Z" },
 ]
 
 [package.optional-dependencies]
@@ -3419,7 +3423,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "cartopy" },
-    { name = "fips", extras = ["viz"], marker = "extra == 'inversion'", git = "https://github.com/jmineau/fips?rev=8f510df2c5af68d6793f3f48e304e32c103de312" },
+    { name = "fips", extras = ["viz"], marker = "extra == 'inversion'", specifier = ">=0.2.0b1" },
     { name = "geopandas" },
     { name = "joblib", marker = "extra == 'inversion'", specifier = ">=1.5.3" },
     { name = "lair", extras = ["geo", "science"], git = "https://github.com/jmineau/lair?rev=v2026.12.9" },
