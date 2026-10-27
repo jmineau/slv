@@ -42,6 +42,17 @@ versions are calendar-based (YYYY.M.PATCH).
   passes its own on. Reading the 2024 GPS (15.9 M fixes) takes 68 s on 8 processes, from
   120 s, and `label_trax_location` on that year 126 s, from 191 s. The frames are the same
 
+### Removed
+
+- `InversionConfig.min_sims_per_interval`, which was read and never applied: counting
+  simulations per flux interval needs the Jacobian, which is built after the interval
+  filter runs, so only `min_obs_per_interval` ever filtered. `InversionConfig(...)` with
+  it now raises `TypeError`; `Sweep` still loads a saved grid or results file that has it
+  and ignores the field, and raises `ValueError` if asked to sweep it. The cache keys of
+  the model-data mismatch and the constant change (the field was in them), so those two
+  rebuild once; the other components are untouched. The sweep's `config_id` changes for
+  every config, so a sweep run before this does not resume
+
 ### Fixed
 
 - slv runs on pandas 3.1 without its new deprecation warnings (`DataFrame.join`'s
