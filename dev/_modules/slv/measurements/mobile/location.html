@@ -25,28 +25,29 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../../../_static/styles/theme.css?digest=64cc4de3f052d77215f0" rel="stylesheet" />
-<link href="../../../../_static/styles/pydata-sphinx-theme.css?digest=64cc4de3f052d77215f0" rel="stylesheet" />
+  <link href="../../../../_static/styles/theme.css?digest=18bd87630a240e9c25be" rel="stylesheet" />
+<link href="../../../../_static/styles/pydata-sphinx-theme.css?digest=18bd87630a240e9c25be" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sphinx_autodoc_typehints.css?v=057ac668" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css?v=ba117b66" />
   
   <!-- So that users can add custom icons -->
-  <script defer src="../../../../_static/scripts/fontawesome.js?digest=64cc4de3f052d77215f0"></script>
+  <script defer src="../../../../_static/scripts/fontawesome.js?digest=18bd87630a240e9c25be"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
-<link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
+  <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
+<link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../../_static/documentation_options.js?v=855ee6a5"></script>
+    <script src="../../../../_static/documentation_options.js?v=1ef9135c"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../../../../_static/copybutton.js?v=f281be69"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_modules/slv/measurements/mobile/location';</script>
     <script>
-        DOCUMENTATION_OPTIONS.theme_version = '0.22.0';
+        DOCUMENTATION_OPTIONS.theme_version = '0.23.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://jmineau.github.io/slv/switcher.json';
         DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
@@ -56,8 +57,9 @@
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.10.4.dev5+g1346b5991" />
+  <meta name="docsearch:version" content="2026.10.4.dev6+gdb1f4b5c8" />
   
     
     <script src="../../../../_static/searchtools.js"></script>
@@ -429,23 +431,23 @@
                 <article class="bd-article">
                   
   <h1>Source code for slv.measurements.mobile.location</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""</span>
 <span class="sd">Where is the TRAX train, minute by minute: indoor (shed), yard, pass-by, route, stopped?</span>
 
 <span class="sd">The TRAX trains sleep at a rail service center: trx01/trx02 at the Jordan River RSC</span>
-<span class="sd">(JRRSC, where the green line runs right past the yard&#39;s north edge), trx03 at the</span>
+<span class="sd">(JRRSC, where the green line runs right past the yard's north edge), trx03 at the</span>
 <span class="sd">Midvale RSC (MRSC, the old-train yard beside the red/blue line). Sometimes a train is</span>
 <span class="sd">parked outside on the yard tracks, sometimes inside the maintenance shed. The</span>
-<span class="sd">pipeline&#39;s storage flag (GPS ``QAQC_Flag == 20``) and the slv loader&#39;s storage polygon</span>
+<span class="sd">pipeline's storage flag (GPS ``QAQC_Flag == 20``) and the slv loader's storage polygon</span>
 <span class="sd">lump everything at a yard together. This module separates them from the GPS</span>
 <span class="sd">behaviour, at one-minute resolution, so that **outdoor** minutes can be kept even when</span>
 <span class="sd">the train is not on the line and **indoor** minutes dropped:</span>
 
 <span class="sd">* **depot** (indoor) — stationary at a yard and the GPS fix is degraded: the</span>
-<span class="sd">  per-minute position scatter is metres (multipath under the roof, the &quot;crazy&quot; GPS)</span>
+<span class="sd">  per-minute position scatter is metres (multipath under the roof, the "crazy" GPS)</span>
 <span class="sd">  and the satellite count is low. JRRSC site visits (which happen inside the shed)</span>
 <span class="sd">  show 2.5–7 m scatter and 6–7 satellites; parked outside the scatter is &lt; 0.3 m with</span>
-<span class="sd">  8–12 satellites. The scattered fixes&#39; medians cluster inside the shed footprints</span>
+<span class="sd">  8–12 satellites. The scattered fixes' medians cluster inside the shed footprints</span>
 <span class="sd">  (:func:`load_depot_footprint`, derived from 2025 data).</span>
 <span class="sd">* **yard** (outdoor) — stationary (or creeping) with a clean fix inside a storage</span>
 <span class="sd">  polygon (+ :data:`YARD_BUFFER`). Includes yard tracks within 50 m of the main line.</span>
@@ -479,11 +481,11 @@
 <span class="sd">``Speed_m_s`` and ``N_Sat`` are optional. Speed is missing wherever only GPGGA was</span>
 <span class="sd">logged (lin-group GPS Dec 2015 – 19 Jan 2018; horel pilot logger Nov 2014 – Nov 2018):</span>
 <span class="sd">there ``moving`` comes from the position-derived ``speed_est`` instead. Either the lin-group GPS (``uataq.read_data</span>
-<span class="sd">(&#39;trx01&#39;, &#39;gps&#39;, lvl=&#39;qaqc&#39;)``) or the horel-group logger GPS (:func:`read_horel_cr1000`)</span>
+<span class="sd">('trx01', 'gps', lvl='qaqc')``) or the horel-group logger GPS (:func:`read_horel_cr1000`)</span>
 <span class="sd">works; :func:`read_trax_gps` picks by era (lin GPS for the pilot years, horel logger</span>
 <span class="sd">from 19 Nov 2018, which runs on its own battery and keeps recording when train power</span>
 <span class="sd">is off). trx03 has no lin-group GPS; its horel record starts Nov 2019.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
@@ -510,7 +512,7 @@
 <span class="c1">#: recorded (GPGGA-only eras): displacement between the minute medians one minute</span>
 <span class="c1">#: before and after, over 120 s. Reproduces the speed rule on 98.9 % of 2025 minutes.</span>
 <span class="n">MOVING_SPEED_EST</span> <span class="o">=</span> <span class="mf">1.5</span>
-<span class="c1">#: Distance (m) from a TRAX track within which a moving train is &quot;on the line&quot;.</span>
+<span class="c1">#: Distance (m) from a TRAX track within which a moving train is "on the line".</span>
 <span class="n">LINE_DISTANCE</span> <span class="o">=</span> <span class="mf">50.0</span>
 <span class="c1">#: Per-minute position std (m, max of x/y) above which the fix is degraded.</span>
 <span class="n">SCATTER_M</span> <span class="o">=</span> <span class="mf">1.0</span>
@@ -529,31 +531,31 @@
 <span class="c1">#: Centred window (minutes) for the majority vote that removes single-minute flips.</span>
 <span class="n">SMOOTH_MIN</span> <span class="o">=</span> <span class="mi">15</span>
 
-<span class="n">STATES</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;depot&quot;</span><span class="p">,</span> <span class="s2">&quot;yard&quot;</span><span class="p">,</span> <span class="s2">&quot;line&quot;</span><span class="p">,</span> <span class="s2">&quot;route&quot;</span><span class="p">,</span> <span class="s2">&quot;stopped&quot;</span><span class="p">,</span> <span class="s2">&quot;unknown&quot;</span><span class="p">)</span>
+<span class="n">STATES</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"depot"</span><span class="p">,</span> <span class="s2">"yard"</span><span class="p">,</span> <span class="s2">"line"</span><span class="p">,</span> <span class="s2">"route"</span><span class="p">,</span> <span class="s2">"stopped"</span><span class="p">,</span> <span class="s2">"unknown"</span><span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_prep_gps</span><span class="p">(</span><span class="n">gps</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
-    <span class="n">g</span> <span class="o">=</span> <span class="n">gps</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Latitude_deg&quot;</span><span class="p">,</span> <span class="s2">&quot;Longitude_deg&quot;</span><span class="p">])</span>
+    <span class="n">g</span> <span class="o">=</span> <span class="n">gps</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">"Latitude_deg"</span><span class="p">,</span> <span class="s2">"Longitude_deg"</span><span class="p">])</span>
     <span class="n">g</span> <span class="o">=</span> <span class="n">g</span><span class="p">[</span><span class="n">g</span><span class="o">.</span><span class="n">Latitude_deg</span><span class="o">.</span><span class="n">between</span><span class="p">(</span><span class="mf">40.3</span><span class="p">,</span> <span class="mf">41.2</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">g</span><span class="o">.</span><span class="n">Longitude_deg</span><span class="o">.</span><span class="n">between</span><span class="p">(</span><span class="o">-</span><span class="mf">112.3</span><span class="p">,</span> <span class="o">-</span><span class="mf">111.5</span><span class="p">)]</span>
     <span class="n">pts</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoSeries</span><span class="p">(</span>
-        <span class="n">gpd</span><span class="o">.</span><span class="n">points_from_xy</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">Longitude_deg</span><span class="p">,</span> <span class="n">g</span><span class="o">.</span><span class="n">Latitude_deg</span><span class="p">),</span> <span class="n">crs</span><span class="o">=</span><span class="s2">&quot;EPSG:4326&quot;</span>
+        <span class="n">gpd</span><span class="o">.</span><span class="n">points_from_xy</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">Longitude_deg</span><span class="p">,</span> <span class="n">g</span><span class="o">.</span><span class="n">Latitude_deg</span><span class="p">),</span> <span class="n">crs</span><span class="o">=</span><span class="s2">"EPSG:4326"</span>
     <span class="p">)</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="n">UTM12</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">geometry</span><span class="o">=</span><span class="n">pts</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">crs</span><span class="o">=</span><span class="n">UTM12</span><span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_distance</span><span class="p">(</span>
-    <span class="n">points</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoSeries</span><span class="p">,</span> <span class="n">geom</span><span class="p">,</span> <span class="n">num_processes</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;max&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">points</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoSeries</span><span class="p">,</span> <span class="n">geom</span><span class="p">,</span> <span class="n">num_processes</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"max"</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Distance (m) from each point to ``geom``, split over ``num_processes`` threads.</span>
 
 <span class="sd">    The same numbers as ``points.distance(geom)``. shapely releases the GIL, so the</span>
 <span class="sd">    threads share ``geom`` without copying it (a year of GPS fixes is 16 M points, and</span>
 <span class="sd">    on one core the distances to the track took 148 s of a 510 s build).</span>
-<span class="sd">    ``&quot;max&quot;`` is every CPU the job was given.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">workers</span> <span class="o">=</span> <span class="n">cpu_count</span><span class="p">()</span> <span class="k">if</span> <span class="n">num_processes</span> <span class="o">==</span> <span class="s2">&quot;max&quot;</span> <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="n">num_processes</span><span class="p">)</span>
-    <span class="c1"># compute and cache the envelopes of geom&#39;s parts here, before threads share them</span>
+<span class="sd">    ``"max"`` is every CPU the job was given.</span>
+<span class="sd">    """</span>
+    <span class="n">workers</span> <span class="o">=</span> <span class="n">cpu_count</span><span class="p">()</span> <span class="k">if</span> <span class="n">num_processes</span> <span class="o">==</span> <span class="s2">"max"</span> <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="n">num_processes</span><span class="p">)</span>
+    <span class="c1"># compute and cache the envelopes of geom's parts here, before threads share them</span>
     <span class="n">shapely</span><span class="o">.</span><span class="n">bounds</span><span class="p">(</span><span class="n">geom</span><span class="p">)</span>
     <span class="n">chunks</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array_split</span><span class="p">(</span><span class="n">points</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(),</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">workers</span><span class="p">)</span>
     <span class="k">with</span> <span class="n">ThreadPoolExecutor</span><span class="p">(</span><span class="n">workers</span><span class="p">)</span> <span class="k">as</span> <span class="n">pool</span><span class="p">:</span>
@@ -567,30 +569,30 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">location_features</span><span class="p">(</span>
     <span class="n">gps</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
     <span class="n">cr1000</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">freq</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;1min&quot;</span><span class="p">,</span>
+    <span class="n">freq</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"1min"</span><span class="p">,</span>
     <span class="n">storage_polygons</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">num_processes</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;max&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="n">num_processes</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"max"</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Per-``freq`` GPS features that the classifier needs (plus power, if available).</span>
 
 <span class="sd">    Columns: ``n_gps``, ``x``/``y`` (UTM median), ``scatter`` (max of x/y std, m),</span>
 <span class="sd">    ``speed`` (median m/s), ``speed_max``, ``speed_est`` (position-derived, see</span>
 <span class="sd">    :data:`MOVING_SPEED_EST`), ``d_track`` (median distance to any TRAX track, m),</span>
 <span class="sd">    ``d_yard`` (median distance to the nearest storage polygon, 0 inside),</span>
-<span class="sd">    ``yard_name`` (that polygon&#39;s name where ``d_yard`` ≤ :data:`NEAR_YARD`),</span>
+<span class="sd">    ``yard_name`` (that polygon's name where ``d_yard`` ≤ :data:`NEAR_YARD`),</span>
 <span class="sd">    ``in_yard`` (fraction of fixes inside a polygon), ``in_depot`` (median position</span>
 <span class="sd">    inside a :func:`load_depot_footprint` shed), ``nsat`` (median, if present), and</span>
 <span class="sd">    from ``cr1000``: ``volt`` (median), ``volt_min``, ``amb_T``, ``amb_RH``.</span>
 <span class="sd">    ``storage_polygons`` defaults to :func:`load_storage_polygons` (all yards); pass a</span>
 <span class="sd">    frame with a ``name`` column to restrict or replace them. ``num_processes`` threads</span>
 <span class="sd">    measure the distance of every fix to the track and to the yards (the slow part of</span>
-<span class="sd">    a year of fixes; the result is the same for any number; ``&quot;max&quot;`` is every CPU the</span>
+<span class="sd">    a year of fixes; the result is the same for any number; ``"max"`` is every CPU the</span>
 <span class="sd">    job was given).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">g</span> <span class="o">=</span> <span class="n">_prep_gps</span><span class="p">(</span><span class="n">gps</span><span class="p">)</span>
-    <span class="k">if</span> <span class="s2">&quot;Speed_m_s&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">g</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
-        <span class="n">g</span><span class="p">[</span><span class="s2">&quot;Speed_m_s&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+    <span class="k">if</span> <span class="s2">"Speed_m_s"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">g</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">g</span><span class="p">[</span><span class="s2">"Speed_m_s"</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
     <span class="n">yards</span> <span class="o">=</span> <span class="p">(</span>
         <span class="n">load_storage_polygons</span><span class="p">(</span><span class="n">meters</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">storage_polygons</span> <span class="ow">is</span> <span class="kc">None</span>
@@ -599,60 +601,60 @@
     <span class="n">yard_geom</span> <span class="o">=</span> <span class="n">yards</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">union_all</span><span class="p">()</span>
     <span class="n">track_geom</span> <span class="o">=</span> <span class="n">load_trax_lines</span><span class="p">(</span><span class="n">meters</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">union_all</span><span class="p">()</span>
 
-    <span class="n">g</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">x</span>
-    <span class="n">g</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">y</span>
-    <span class="n">g</span><span class="p">[</span><span class="s2">&quot;d_track&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_distance</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">geometry</span><span class="p">,</span> <span class="n">track_geom</span><span class="p">,</span> <span class="n">num_processes</span><span class="p">)</span>
-    <span class="n">g</span><span class="p">[</span><span class="s2">&quot;d_yard&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_distance</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">geometry</span><span class="p">,</span> <span class="n">yard_geom</span><span class="p">,</span> <span class="n">num_processes</span><span class="p">)</span>
-    <span class="n">g</span><span class="p">[</span><span class="s2">&quot;in_yard&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">within</span><span class="p">(</span><span class="n">yard_geom</span><span class="p">)</span>
+    <span class="n">g</span><span class="p">[</span><span class="s2">"x"</span><span class="p">]</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">x</span>
+    <span class="n">g</span><span class="p">[</span><span class="s2">"y"</span><span class="p">]</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">y</span>
+    <span class="n">g</span><span class="p">[</span><span class="s2">"d_track"</span><span class="p">]</span> <span class="o">=</span> <span class="n">_distance</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">geometry</span><span class="p">,</span> <span class="n">track_geom</span><span class="p">,</span> <span class="n">num_processes</span><span class="p">)</span>
+    <span class="n">g</span><span class="p">[</span><span class="s2">"d_yard"</span><span class="p">]</span> <span class="o">=</span> <span class="n">_distance</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">geometry</span><span class="p">,</span> <span class="n">yard_geom</span><span class="p">,</span> <span class="n">num_processes</span><span class="p">)</span>
+    <span class="n">g</span><span class="p">[</span><span class="s2">"in_yard"</span><span class="p">]</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">within</span><span class="p">(</span><span class="n">yard_geom</span><span class="p">)</span>
 
-    <span class="n">r</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="s2">&quot;geometry&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">resample</span><span class="p">(</span><span class="n">freq</span><span class="p">)</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="s2">"geometry"</span><span class="p">)</span><span class="o">.</span><span class="n">resample</span><span class="p">(</span><span class="n">freq</span><span class="p">)</span>
     <span class="n">f</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
         <span class="p">{</span>
-            <span class="s2">&quot;n_gps&quot;</span><span class="p">:</span> <span class="n">r</span><span class="o">.</span><span class="n">size</span><span class="p">(),</span>
-            <span class="s2">&quot;x&quot;</span><span class="p">:</span> <span class="n">r</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">median</span><span class="p">(),</span>
-            <span class="s2">&quot;y&quot;</span><span class="p">:</span> <span class="n">r</span><span class="o">.</span><span class="n">y</span><span class="o">.</span><span class="n">median</span><span class="p">(),</span>
-            <span class="s2">&quot;scatter&quot;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">r</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">std</span><span class="p">(),</span> <span class="n">r</span><span class="o">.</span><span class="n">y</span><span class="o">.</span><span class="n">std</span><span class="p">()],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
-            <span class="s2">&quot;speed&quot;</span><span class="p">:</span> <span class="n">r</span><span class="o">.</span><span class="n">Speed_m_s</span><span class="o">.</span><span class="n">median</span><span class="p">(),</span>
-            <span class="s2">&quot;speed_max&quot;</span><span class="p">:</span> <span class="n">r</span><span class="o">.</span><span class="n">Speed_m_s</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span>
-            <span class="s2">&quot;d_track&quot;</span><span class="p">:</span> <span class="n">r</span><span class="o">.</span><span class="n">d_track</span><span class="o">.</span><span class="n">median</span><span class="p">(),</span>
-            <span class="s2">&quot;d_yard&quot;</span><span class="p">:</span> <span class="n">r</span><span class="o">.</span><span class="n">d_yard</span><span class="o">.</span><span class="n">median</span><span class="p">(),</span>
-            <span class="s2">&quot;in_yard&quot;</span><span class="p">:</span> <span class="n">r</span><span class="o">.</span><span class="n">in_yard</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span>
+            <span class="s2">"n_gps"</span><span class="p">:</span> <span class="n">r</span><span class="o">.</span><span class="n">size</span><span class="p">(),</span>
+            <span class="s2">"x"</span><span class="p">:</span> <span class="n">r</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">median</span><span class="p">(),</span>
+            <span class="s2">"y"</span><span class="p">:</span> <span class="n">r</span><span class="o">.</span><span class="n">y</span><span class="o">.</span><span class="n">median</span><span class="p">(),</span>
+            <span class="s2">"scatter"</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">r</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">std</span><span class="p">(),</span> <span class="n">r</span><span class="o">.</span><span class="n">y</span><span class="o">.</span><span class="n">std</span><span class="p">()],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+            <span class="s2">"speed"</span><span class="p">:</span> <span class="n">r</span><span class="o">.</span><span class="n">Speed_m_s</span><span class="o">.</span><span class="n">median</span><span class="p">(),</span>
+            <span class="s2">"speed_max"</span><span class="p">:</span> <span class="n">r</span><span class="o">.</span><span class="n">Speed_m_s</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span>
+            <span class="s2">"d_track"</span><span class="p">:</span> <span class="n">r</span><span class="o">.</span><span class="n">d_track</span><span class="o">.</span><span class="n">median</span><span class="p">(),</span>
+            <span class="s2">"d_yard"</span><span class="p">:</span> <span class="n">r</span><span class="o">.</span><span class="n">d_yard</span><span class="o">.</span><span class="n">median</span><span class="p">(),</span>
+            <span class="s2">"in_yard"</span><span class="p">:</span> <span class="n">r</span><span class="o">.</span><span class="n">in_yard</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span>
         <span class="p">}</span>
     <span class="p">)</span>
     <span class="c1"># position-derived speed for minutes/eras without a recorded speed:</span>
     <span class="c1"># displacement between the minute medians one minute before and after, over 120 s</span>
-    <span class="n">f</span><span class="p">[</span><span class="s2">&quot;speed_est&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">f</span><span class="p">[</span><span class="s2">"speed_est"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
         <span class="n">np</span><span class="o">.</span><span class="n">hypot</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">shift</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="n">f</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">shift</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">f</span><span class="o">.</span><span class="n">y</span><span class="o">.</span><span class="n">shift</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="n">f</span><span class="o">.</span><span class="n">y</span><span class="o">.</span><span class="n">shift</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span> <span class="o">/</span> <span class="mi">120</span>
     <span class="p">)</span>
-    <span class="k">if</span> <span class="s2">&quot;N_Sat&quot;</span> <span class="ow">in</span> <span class="n">g</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
-        <span class="n">f</span><span class="p">[</span><span class="s2">&quot;nsat&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">N_Sat</span><span class="o">.</span><span class="n">median</span><span class="p">()</span>
+    <span class="k">if</span> <span class="s2">"N_Sat"</span> <span class="ow">in</span> <span class="n">g</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">f</span><span class="p">[</span><span class="s2">"nsat"</span><span class="p">]</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">N_Sat</span><span class="o">.</span><span class="n">median</span><span class="p">()</span>
 
     <span class="n">med</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoSeries</span><span class="p">(</span><span class="n">gpd</span><span class="o">.</span><span class="n">points_from_xy</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">f</span><span class="o">.</span><span class="n">y</span><span class="p">),</span> <span class="n">crs</span><span class="o">=</span><span class="n">UTM12</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">f</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
     <span class="n">depot</span> <span class="o">=</span> <span class="n">load_depot_footprint</span><span class="p">(</span><span class="n">meters</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">union_all</span><span class="p">()</span>
-    <span class="n">f</span><span class="p">[</span><span class="s2">&quot;in_depot&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">med</span><span class="o">.</span><span class="n">within</span><span class="p">(</span><span class="n">depot</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">f</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">notna</span><span class="p">()</span>
+    <span class="n">f</span><span class="p">[</span><span class="s2">"in_depot"</span><span class="p">]</span> <span class="o">=</span> <span class="n">med</span><span class="o">.</span><span class="n">within</span><span class="p">(</span><span class="n">depot</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">f</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">notna</span><span class="p">()</span>
     <span class="c1"># which yard: nearest polygon, only within NEAR_YARD</span>
     <span class="n">dists</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
         <span class="p">{</span>
             <span class="n">name</span><span class="p">:</span> <span class="n">med</span><span class="o">.</span><span class="n">distance</span><span class="p">(</span><span class="n">geom</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
-            <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">geom</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">yards</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">],</span> <span class="n">yards</span><span class="o">.</span><span class="n">geometry</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">geom</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">yards</span><span class="p">[</span><span class="s2">"name"</span><span class="p">],</span> <span class="n">yards</span><span class="o">.</span><span class="n">geometry</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="p">},</span>
         <span class="n">index</span><span class="o">=</span><span class="n">f</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">nearest</span> <span class="o">=</span> <span class="n">dists</span><span class="o">.</span><span class="n">idxmin</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-    <span class="n">f</span><span class="p">[</span><span class="s2">&quot;yard_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">nearest</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">dists</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">NEAR_YARD</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">f</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">notna</span><span class="p">())</span>
+    <span class="n">f</span><span class="p">[</span><span class="s2">"yard_name"</span><span class="p">]</span> <span class="o">=</span> <span class="n">nearest</span><span class="o">.</span><span class="n">where</span><span class="p">((</span><span class="n">dists</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">NEAR_YARD</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">f</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">notna</span><span class="p">())</span>
 
-    <span class="k">if</span> <span class="n">cr1000</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">cr1000</span><span class="p">)</span> <span class="ow">and</span> <span class="s2">&quot;Battery_Voltage_V&quot;</span> <span class="ow">in</span> <span class="n">cr1000</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">cr1000</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">cr1000</span><span class="p">)</span> <span class="ow">and</span> <span class="s2">"Battery_Voltage_V"</span> <span class="ow">in</span> <span class="n">cr1000</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
         <span class="n">c</span> <span class="o">=</span> <span class="n">cr1000</span><span class="o">.</span><span class="n">resample</span><span class="p">(</span><span class="n">freq</span><span class="p">)</span>
-        <span class="n">f</span><span class="p">[</span><span class="s2">&quot;volt&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">Battery_Voltage_V</span><span class="o">.</span><span class="n">median</span><span class="p">()</span>
-        <span class="n">f</span><span class="p">[</span><span class="s2">&quot;volt_min&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">Battery_Voltage_V</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
-        <span class="n">f</span><span class="p">[</span><span class="s2">&quot;amb_T&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">Ambient_T_C</span><span class="o">.</span><span class="n">median</span><span class="p">()</span>
-        <span class="n">f</span><span class="p">[</span><span class="s2">&quot;amb_RH&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">Ambient_RH_pct</span><span class="o">.</span><span class="n">median</span><span class="p">()</span>
+        <span class="n">f</span><span class="p">[</span><span class="s2">"volt"</span><span class="p">]</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">Battery_Voltage_V</span><span class="o">.</span><span class="n">median</span><span class="p">()</span>
+        <span class="n">f</span><span class="p">[</span><span class="s2">"volt_min"</span><span class="p">]</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">Battery_Voltage_V</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+        <span class="n">f</span><span class="p">[</span><span class="s2">"amb_T"</span><span class="p">]</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">Ambient_T_C</span><span class="o">.</span><span class="n">median</span><span class="p">()</span>
+        <span class="n">f</span><span class="p">[</span><span class="s2">"amb_RH"</span><span class="p">]</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">Ambient_RH_pct</span><span class="o">.</span><span class="n">median</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">f</span></div>
 
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_smooth_bool</span><span class="p">(</span><span class="n">s</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="n">window</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Centred majority vote over ``window`` samples (NaN counts as 0).&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Centred majority vote over ``window`` samples (NaN counts as 0)."""</span>
     <span class="k">return</span> <span class="n">s</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span><span class="o">.</span><span class="n">rolling</span><span class="p">(</span><span class="n">window</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">min_periods</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mf">0.5</span>
 
 
@@ -671,7 +673,7 @@
     <span class="n">smooth_min</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">SMOOTH_MIN</span><span class="p">,</span>
     <span class="n">use_footprint</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Classify each row of :func:`location_features` into one of :data:`STATES`.</span>
 
 <span class="sd">    Rules, per minute:</span>
@@ -697,11 +699,11 @@
 <span class="sd">    (copied from ``feat`` if present), ``degraded`` (raw per-minute flag),</span>
 <span class="sd">    ``degraded_smooth`` and, when battery voltage is present, ``powered``</span>
 <span class="sd">    (``volt_min &gt;= POWER_OFF_V``).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">out</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="n">feat</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
     <span class="n">has_fix</span> <span class="o">=</span> <span class="n">feat</span><span class="o">.</span><span class="n">n_gps</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
     <span class="n">moving</span> <span class="o">=</span> <span class="n">feat</span><span class="o">.</span><span class="n">speed_max</span> <span class="o">&gt;=</span> <span class="n">moving_speed</span>
-    <span class="k">if</span> <span class="s2">&quot;speed_est&quot;</span> <span class="ow">in</span> <span class="n">feat</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>  <span class="c1"># GPGGA-only eras: no recorded speed</span>
+    <span class="k">if</span> <span class="s2">"speed_est"</span> <span class="ow">in</span> <span class="n">feat</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>  <span class="c1"># GPGGA-only eras: no recorded speed</span>
         <span class="n">no_speed</span> <span class="o">=</span> <span class="n">feat</span><span class="o">.</span><span class="n">speed_max</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span>
         <span class="n">moving</span> <span class="o">=</span> <span class="n">moving</span> <span class="o">|</span> <span class="p">(</span><span class="n">no_speed</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">feat</span><span class="o">.</span><span class="n">speed_est</span> <span class="o">&gt;=</span> <span class="n">moving_speed_est</span><span class="p">))</span>
     <span class="n">near_yard</span> <span class="o">=</span> <span class="n">feat</span><span class="o">.</span><span class="n">d_yard</span> <span class="o">&lt;=</span> <span class="n">yard_buffer</span>
@@ -709,43 +711,43 @@
     <span class="n">by_yard</span> <span class="o">=</span> <span class="n">feat</span><span class="o">.</span><span class="n">d_yard</span> <span class="o">&lt;=</span> <span class="n">near_yard_m</span>
 
     <span class="n">degraded</span> <span class="o">=</span> <span class="n">feat</span><span class="o">.</span><span class="n">scatter</span> <span class="o">&gt;</span> <span class="n">scatter_m</span>
-    <span class="k">if</span> <span class="s2">&quot;nsat&quot;</span> <span class="ow">in</span> <span class="n">feat</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+    <span class="k">if</span> <span class="s2">"nsat"</span> <span class="ow">in</span> <span class="n">feat</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
         <span class="n">degraded</span> <span class="o">|=</span> <span class="n">feat</span><span class="o">.</span><span class="n">nsat</span> <span class="o">&lt;=</span> <span class="n">low_nsat</span>
     <span class="n">degraded</span> <span class="o">&amp;=</span> <span class="n">has_fix</span> <span class="o">&amp;</span> <span class="o">~</span><span class="n">moving</span>
-    <span class="n">out</span><span class="p">[</span><span class="s2">&quot;degraded&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">degraded</span>
-    <span class="c1"># vote only among stationary near-yard minutes so passes/gaps don&#39;t dilute it</span>
+    <span class="n">out</span><span class="p">[</span><span class="s2">"degraded"</span><span class="p">]</span> <span class="o">=</span> <span class="n">degraded</span>
+    <span class="c1"># vote only among stationary near-yard minutes so passes/gaps don't dilute it</span>
     <span class="n">stat_yard</span> <span class="o">=</span> <span class="n">has_fix</span> <span class="o">&amp;</span> <span class="o">~</span><span class="n">moving</span> <span class="o">&amp;</span> <span class="n">near_yard</span>
     <span class="n">vote</span> <span class="o">=</span> <span class="n">degraded</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">stat_yard</span><span class="p">)</span>
-    <span class="n">out</span><span class="p">[</span><span class="s2">&quot;degraded_smooth&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">out</span><span class="p">[</span><span class="s2">"degraded_smooth"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
         <span class="n">_smooth_bool</span><span class="p">(</span><span class="n">vote</span><span class="o">.</span><span class="n">ffill</span><span class="p">(</span><span class="n">limit</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="kc">False</span><span class="p">),</span> <span class="n">smooth_min</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">stat_yard</span>
     <span class="p">)</span>
 
     <span class="n">depot</span> <span class="o">=</span> <span class="n">out</span><span class="o">.</span><span class="n">degraded_smooth</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-    <span class="k">if</span> <span class="n">use_footprint</span> <span class="ow">and</span> <span class="s2">&quot;in_depot&quot;</span> <span class="ow">in</span> <span class="n">feat</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">use_footprint</span> <span class="ow">and</span> <span class="s2">"in_depot"</span> <span class="ow">in</span> <span class="n">feat</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
         <span class="n">depot</span> <span class="o">|=</span> <span class="n">stat_yard</span> <span class="o">&amp;</span> <span class="n">feat</span><span class="o">.</span><span class="n">in_depot</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
 
-    <span class="n">state</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="s2">&quot;unknown&quot;</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">feat</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">object</span><span class="p">)</span>
-    <span class="n">state</span><span class="p">[</span><span class="n">has_fix</span> <span class="o">&amp;</span> <span class="n">moving</span> <span class="o">&amp;</span> <span class="n">on_track</span> <span class="o">&amp;</span> <span class="n">by_yard</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;line&quot;</span>
-    <span class="n">state</span><span class="p">[</span><span class="n">has_fix</span> <span class="o">&amp;</span> <span class="n">moving</span> <span class="o">&amp;</span> <span class="n">on_track</span> <span class="o">&amp;</span> <span class="o">~</span><span class="n">by_yard</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;route&quot;</span>
-    <span class="n">state</span><span class="p">[</span><span class="n">has_fix</span> <span class="o">&amp;</span> <span class="n">moving</span> <span class="o">&amp;</span> <span class="o">~</span><span class="n">on_track</span> <span class="o">&amp;</span> <span class="n">near_yard</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;yard&quot;</span>
-    <span class="n">state</span><span class="p">[</span><span class="n">stat_yard</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;yard&quot;</span>
-    <span class="n">state</span><span class="p">[</span><span class="n">depot</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;depot&quot;</span>
-    <span class="n">state</span><span class="p">[</span><span class="n">has_fix</span> <span class="o">&amp;</span> <span class="o">~</span><span class="n">moving</span> <span class="o">&amp;</span> <span class="o">~</span><span class="n">near_yard</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;stopped&quot;</span>
+    <span class="n">state</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="s2">"unknown"</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">feat</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">object</span><span class="p">)</span>
+    <span class="n">state</span><span class="p">[</span><span class="n">has_fix</span> <span class="o">&amp;</span> <span class="n">moving</span> <span class="o">&amp;</span> <span class="n">on_track</span> <span class="o">&amp;</span> <span class="n">by_yard</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"line"</span>
+    <span class="n">state</span><span class="p">[</span><span class="n">has_fix</span> <span class="o">&amp;</span> <span class="n">moving</span> <span class="o">&amp;</span> <span class="n">on_track</span> <span class="o">&amp;</span> <span class="o">~</span><span class="n">by_yard</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"route"</span>
+    <span class="n">state</span><span class="p">[</span><span class="n">has_fix</span> <span class="o">&amp;</span> <span class="n">moving</span> <span class="o">&amp;</span> <span class="o">~</span><span class="n">on_track</span> <span class="o">&amp;</span> <span class="n">near_yard</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"yard"</span>
+    <span class="n">state</span><span class="p">[</span><span class="n">stat_yard</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"yard"</span>
+    <span class="n">state</span><span class="p">[</span><span class="n">depot</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"depot"</span>
+    <span class="n">state</span><span class="p">[</span><span class="n">has_fix</span> <span class="o">&amp;</span> <span class="o">~</span><span class="n">moving</span> <span class="o">&amp;</span> <span class="o">~</span><span class="n">near_yard</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"stopped"</span>
     <span class="c1"># positions that cannot be trusted: shed multipath ejecta around a yard, or off-track</span>
     <span class="n">untrusted</span> <span class="o">=</span> <span class="p">(</span>
         <span class="n">has_fix</span> <span class="o">&amp;</span> <span class="o">~</span><span class="n">near_yard</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">by_yard</span> <span class="o">&amp;</span> <span class="o">~</span><span class="n">on_track</span> <span class="o">|</span> <span class="p">(</span><span class="n">feat</span><span class="o">.</span><span class="n">d_track</span> <span class="o">&gt;</span> <span class="n">off_track_m</span><span class="p">))</span>
     <span class="p">)</span>
-    <span class="n">state</span><span class="p">[</span><span class="n">untrusted</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;unknown&quot;</span>
-    <span class="n">out</span><span class="p">[</span><span class="s2">&quot;state&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Categorical</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">categories</span><span class="o">=</span><span class="n">STATES</span><span class="p">)</span>
-    <span class="n">indoor</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">NA</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">feat</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;boolean&quot;</span><span class="p">)</span>
-    <span class="n">indoor</span><span class="p">[</span><span class="n">out</span><span class="o">.</span><span class="n">state</span> <span class="o">==</span> <span class="s2">&quot;depot&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
-    <span class="n">indoor</span><span class="p">[</span><span class="n">out</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="s2">&quot;yard&quot;</span><span class="p">,</span> <span class="s2">&quot;line&quot;</span><span class="p">,</span> <span class="s2">&quot;route&quot;</span><span class="p">,</span> <span class="s2">&quot;stopped&quot;</span><span class="p">])]</span> <span class="o">=</span> <span class="kc">False</span>
-    <span class="n">out</span><span class="p">[</span><span class="s2">&quot;indoor&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">indoor</span>
-    <span class="k">if</span> <span class="s2">&quot;yard_name&quot;</span> <span class="ow">in</span> <span class="n">feat</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
-        <span class="n">out</span><span class="p">[</span><span class="s2">&quot;yard_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">feat</span><span class="o">.</span><span class="n">yard_name</span>
+    <span class="n">state</span><span class="p">[</span><span class="n">untrusted</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"unknown"</span>
+    <span class="n">out</span><span class="p">[</span><span class="s2">"state"</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Categorical</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">categories</span><span class="o">=</span><span class="n">STATES</span><span class="p">)</span>
+    <span class="n">indoor</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">NA</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">feat</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">"boolean"</span><span class="p">)</span>
+    <span class="n">indoor</span><span class="p">[</span><span class="n">out</span><span class="o">.</span><span class="n">state</span> <span class="o">==</span> <span class="s2">"depot"</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">indoor</span><span class="p">[</span><span class="n">out</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="s2">"yard"</span><span class="p">,</span> <span class="s2">"line"</span><span class="p">,</span> <span class="s2">"route"</span><span class="p">,</span> <span class="s2">"stopped"</span><span class="p">])]</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">out</span><span class="p">[</span><span class="s2">"indoor"</span><span class="p">]</span> <span class="o">=</span> <span class="n">indoor</span>
+    <span class="k">if</span> <span class="s2">"yard_name"</span> <span class="ow">in</span> <span class="n">feat</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">out</span><span class="p">[</span><span class="s2">"yard_name"</span><span class="p">]</span> <span class="o">=</span> <span class="n">feat</span><span class="o">.</span><span class="n">yard_name</span>
 
-    <span class="k">if</span> <span class="s2">&quot;volt_min&quot;</span> <span class="ow">in</span> <span class="n">feat</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
-        <span class="n">out</span><span class="p">[</span><span class="s2">&quot;powered&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">feat</span><span class="o">.</span><span class="n">volt_min</span> <span class="o">&gt;=</span> <span class="n">POWER_OFF_V</span>
+    <span class="k">if</span> <span class="s2">"volt_min"</span> <span class="ow">in</span> <span class="n">feat</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">out</span><span class="p">[</span><span class="s2">"powered"</span><span class="p">]</span> <span class="o">=</span> <span class="n">feat</span><span class="o">.</span><span class="n">volt_min</span> <span class="o">&gt;=</span> <span class="n">POWER_OFF_V</span>
     <span class="k">return</span> <span class="n">out</span></div>
 
 
@@ -755,22 +757,22 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">state_intervals</span><span class="p">(</span>
     <span class="n">states</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">min_minutes</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Run-length table of a per-minute state series: ``start``, ``end``, ``state``, ``minutes``.</span>
 
 <span class="sd">    ``end`` is the last minute of the run (inclusive). Runs shorter than</span>
 <span class="sd">    ``min_minutes`` are dropped (not merged) — useful to list depot stays only.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">s</span> <span class="o">=</span> <span class="n">states</span><span class="p">[</span><span class="s2">&quot;state&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">states</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="k">else</span> <span class="n">states</span>
+<span class="sd">    """</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">states</span><span class="p">[</span><span class="s2">"state"</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">states</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="k">else</span> <span class="n">states</span>
     <span class="n">s</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">object</span><span class="p">)</span>
     <span class="n">run</span> <span class="o">=</span> <span class="p">(</span><span class="n">s</span> <span class="o">!=</span> <span class="n">s</span><span class="o">.</span><span class="n">shift</span><span class="p">())</span><span class="o">.</span><span class="n">cumsum</span><span class="p">()</span>
     <span class="n">grp</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">run</span><span class="p">)</span>
     <span class="n">iv</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
         <span class="p">{</span>
-            <span class="s2">&quot;start&quot;</span><span class="p">:</span> <span class="n">grp</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
-            <span class="s2">&quot;end&quot;</span><span class="p">:</span> <span class="n">grp</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]),</span>
-            <span class="s2">&quot;state&quot;</span><span class="p">:</span> <span class="n">grp</span><span class="o">.</span><span class="n">first</span><span class="p">(),</span>
-            <span class="s2">&quot;minutes&quot;</span><span class="p">:</span> <span class="n">grp</span><span class="o">.</span><span class="n">size</span><span class="p">(),</span>
+            <span class="s2">"start"</span><span class="p">:</span> <span class="n">grp</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+            <span class="s2">"end"</span><span class="p">:</span> <span class="n">grp</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]),</span>
+            <span class="s2">"state"</span><span class="p">:</span> <span class="n">grp</span><span class="o">.</span><span class="n">first</span><span class="p">(),</span>
+            <span class="s2">"minutes"</span><span class="p">:</span> <span class="n">grp</span><span class="o">.</span><span class="n">size</span><span class="p">(),</span>
         <span class="p">}</span>
     <span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">iv</span><span class="p">[</span><span class="n">iv</span><span class="o">.</span><span class="n">minutes</span> <span class="o">&gt;=</span> <span class="n">min_minutes</span><span class="p">]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
@@ -780,21 +782,21 @@
 <div class="viewcode-block" id="label_observations">
 <a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.location.label_observations.html#slv.measurements.mobile.location.label_observations">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">label_observations</span><span class="p">(</span>
-    <span class="n">obs</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">states</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">time_col</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Time_UTC&quot;</span>
+    <span class="n">obs</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">states</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">time_col</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"Time_UTC"</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Per-observation ``state`` from the per-minute table (time floored to the minute).</span>
 
 <span class="sd">    Times outside the classified range come back as NaN.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">t</span> <span class="o">=</span> <span class="p">(</span>
         <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">obs</span><span class="p">[</span><span class="n">time_col</span><span class="p">])</span>
         <span class="k">if</span> <span class="n">time_col</span> <span class="ow">in</span> <span class="n">obs</span><span class="o">.</span><span class="n">columns</span>
         <span class="k">else</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">obs</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
     <span class="p">)</span>
-    <span class="n">minute</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">(</span><span class="n">t</span><span class="p">)</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="s2">&quot;min&quot;</span><span class="p">)</span>
+    <span class="n">minute</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">(</span><span class="n">t</span><span class="p">)</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="s2">"min"</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span>
-        <span class="n">states</span><span class="p">[</span><span class="s2">&quot;state&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">reindex</span><span class="p">(</span><span class="n">minute</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">obs</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;state&quot;</span>
+        <span class="n">states</span><span class="p">[</span><span class="s2">"state"</span><span class="p">]</span><span class="o">.</span><span class="n">reindex</span><span class="p">(</span><span class="n">minute</span><span class="p">)</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">obs</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"state"</span>
     <span class="p">)</span></div>
 
 </pre></div>
@@ -826,8 +828,8 @@
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../../../../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0"></script>
-<script defer src="../../../../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0"></script>
+  <script defer src="../../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be"></script>
+<script defer src="../../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -847,7 +849,7 @@
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.2.0.
   </p>
 </div>
       
@@ -860,7 +862,7 @@
         <div class="footer-item">
 <p class="theme-version">
   <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.22.0.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.23.0.
 </p></div>
       
     </div>

@@ -25,28 +25,29 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../../_static/styles/theme.css?digest=64cc4de3f052d77215f0" rel="stylesheet" />
-<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=64cc4de3f052d77215f0" rel="stylesheet" />
+  <link href="../../../_static/styles/theme.css?digest=18bd87630a240e9c25be" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=18bd87630a240e9c25be" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx_autodoc_typehints.css?v=057ac668" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=ba117b66" />
   
   <!-- So that users can add custom icons -->
-  <script defer src="../../../_static/scripts/fontawesome.js?digest=64cc4de3f052d77215f0"></script>
+  <script defer src="../../../_static/scripts/fontawesome.js?digest=18bd87630a240e9c25be"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
-<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../_static/documentation_options.js?v=855ee6a5"></script>
+    <script src="../../../_static/documentation_options.js?v=1ef9135c"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../../../_static/copybutton.js?v=f281be69"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_modules/slv/inversion/config';</script>
     <script>
-        DOCUMENTATION_OPTIONS.theme_version = '0.22.0';
+        DOCUMENTATION_OPTIONS.theme_version = '0.23.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://jmineau.github.io/slv/switcher.json';
         DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
@@ -56,8 +57,9 @@
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.10.4.dev5+g1346b5991" />
+  <meta name="docsearch:version" content="2026.10.4.dev6+gdb1f4b5c8" />
   
     
     <script src="../../../_static/searchtools.js"></script>
@@ -429,7 +431,7 @@
                 <article class="bd-article">
                   
   <h1>Source code for slv.inversion.config</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Configuration for an SLV methane inversion (:class:`InversionConfig`).&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Configuration for an SLV methane inversion (:class:`InversionConfig`)."""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
@@ -449,60 +451,60 @@
 <span class="c1"># CHPC location of the paper-1 PYSTILT project (fallback when SLV_STILT_DIR is unset). Its</span>
 <span class="c1"># results are in the shared output directory ($STILT_OUTPUT_DIR) that its config.yaml names.</span>
 <span class="n">DEFAULT_STILT_PROJECT</span> <span class="o">=</span> <span class="p">(</span>
-    <span class="s2">&quot;/uufs/chpc.utah.edu/common/home/lin-group27/jkm/stilt/projects/paper1&quot;</span>
+    <span class="s2">"/uufs/chpc.utah.edu/common/home/lin-group27/jkm/stilt/projects/paper1"</span>
 <span class="p">)</span>
 
 
 <span class="c1">#: Supported ``flux_freq`` values and the lair inventory time step each maps to (the</span>
 <span class="c1">#: domain totals in ``summarize`` need one).</span>
 <span class="n">FLUX_FREQ_TIME_STEPS</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;YS&quot;</span><span class="p">:</span> <span class="s2">&quot;annual&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;QS&quot;</span><span class="p">:</span> <span class="s2">&quot;quarterly&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;MS&quot;</span><span class="p">:</span> <span class="s2">&quot;monthly&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;2W&quot;</span><span class="p">:</span> <span class="s2">&quot;biweekly&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;D&quot;</span><span class="p">:</span> <span class="s2">&quot;daily&quot;</span><span class="p">,</span>
+    <span class="s2">"YS"</span><span class="p">:</span> <span class="s2">"annual"</span><span class="p">,</span>
+    <span class="s2">"QS"</span><span class="p">:</span> <span class="s2">"quarterly"</span><span class="p">,</span>
+    <span class="s2">"MS"</span><span class="p">:</span> <span class="s2">"monthly"</span><span class="p">,</span>
+    <span class="s2">"2W"</span><span class="p">:</span> <span class="s2">"biweekly"</span><span class="p">,</span>
+    <span class="s2">"D"</span><span class="p">:</span> <span class="s2">"daily"</span><span class="p">,</span>
 <span class="p">}</span>
-<span class="n">BIAS_GROUPINGS</span> <span class="o">=</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="s2">&quot;site&quot;</span><span class="p">,</span> <span class="s2">&quot;site_group&quot;</span><span class="p">)</span>
-<span class="n">BACKGROUNDS</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;rolling&quot;</span><span class="p">,</span> <span class="s2">&quot;gml&quot;</span><span class="p">,</span> <span class="s2">&quot;ct_stilt&quot;</span><span class="p">)</span>
-<span class="n">PRIORS</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;epa&quot;</span><span class="p">,</span> <span class="s2">&quot;edgar&quot;</span><span class="p">,</span> <span class="s2">&quot;constant&quot;</span><span class="p">)</span>
+<span class="n">BIAS_GROUPINGS</span> <span class="o">=</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s2">"time"</span><span class="p">,</span> <span class="s2">"site"</span><span class="p">,</span> <span class="s2">"site_group"</span><span class="p">)</span>
+<span class="n">BACKGROUNDS</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"rolling"</span><span class="p">,</span> <span class="s2">"gml"</span><span class="p">,</span> <span class="s2">"ct_stilt"</span><span class="p">)</span>
+<span class="n">PRIORS</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"epa"</span><span class="p">,</span> <span class="s2">"edgar"</span><span class="p">,</span> <span class="s2">"constant"</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="stilt_project_dir">
 <a class="viewcode-back" href="../../../_autosummary/slv.inversion.config.stilt_project_dir.html#slv.inversion.config.stilt_project_dir">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">stilt_project_dir</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    The paper-1 PYSTILT project: ``$SLV_STILT_DIR`` if set, else</span>
 <span class="sd">    :data:`DEFAULT_STILT_PROJECT`. Use this in scripts instead of spelling the path out;</span>
 <span class="sd">    ``stilt.Project(stilt_project_dir())`` opens it.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;SLV_STILT_DIR&quot;</span><span class="p">,</span> <span class="n">DEFAULT_STILT_PROJECT</span><span class="p">))</span></div>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"SLV_STILT_DIR"</span><span class="p">,</span> <span class="n">DEFAULT_STILT_PROJECT</span><span class="p">))</span></div>
 
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_file_key</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Cache fingerprint of a file: its resolved path, size and mtime.</span>
 
 <span class="sd">    Hashing the path alone would miss a file rebuilt in place and silently reuse the</span>
 <span class="sd">    components built from the old one; the size and mtime change whenever it is</span>
-<span class="sd">    rewritten. A file that does not exist gives ``&quot;&lt;path&gt;|missing&quot;``.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    rewritten. A file that does not exist gives ``"&lt;path&gt;|missing"``.</span>
+<span class="sd">    """</span>
     <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">|missing&quot;</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">|missing"</span>
     <span class="n">st</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">stat</span><span class="p">()</span>
-    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">path</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="si">}</span><span class="s2">|</span><span class="si">{</span><span class="n">st</span><span class="o">.</span><span class="n">st_size</span><span class="si">}</span><span class="s2">|</span><span class="si">{</span><span class="n">st</span><span class="o">.</span><span class="n">st_mtime_ns</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">path</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="si">}</span><span class="s2">|</span><span class="si">{</span><span class="n">st</span><span class="o">.</span><span class="n">st_size</span><span class="si">}</span><span class="s2">|</span><span class="si">{</span><span class="n">st</span><span class="o">.</span><span class="n">st_mtime_ns</span><span class="si">}</span><span class="s2">"</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_default_tiler</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">GoogleTiles</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Satellite tiles cached on disk: the default ``InversionConfig.tiler``.</span>
 
 <span class="sd">    Built by :func:`slv.basemap.cached_tiler`, so that parallel tests, or sweep jobs</span>
-<span class="sd">    on one node that each build a config, do not fail in a race for cartopy&#39;s cache</span>
+<span class="sd">    on one node that each build a config, do not fail in a race for cartopy's cache</span>
 <span class="sd">    folder.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">cached_tiler</span><span class="p">(</span><span class="n">GoogleTiles</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;satellite&quot;</span><span class="p">)</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="n">cached_tiler</span><span class="p">(</span><span class="n">GoogleTiles</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">"satellite"</span><span class="p">)</span>
 
 
 <span class="c1"># Default MDM component parameters</span>
@@ -514,34 +516,34 @@
 <span class="c1">#   placeholder to the measured TRAX per-pass spatial std (mean, Mallia 2020).</span>
 <span class="c1">#   `instr`/`bg`/`transport_pbl` unchanged (no footprints).</span>
 <span class="n">DEFAULT_MDM_CONFIG</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;part&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;std&quot;</span><span class="p">:</span> <span class="mf">0.000765</span><span class="p">,</span>
-        <span class="s2">&quot;correlated&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="s2">"part"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"std"</span><span class="p">:</span> <span class="mf">0.000765</span><span class="p">,</span>
+        <span class="s2">"correlated"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">},</span>  <span class="c1"># finite-particle SEM, full footprints</span>
-    <span class="s2">&quot;instr&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;std&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;UATAQ&quot;</span><span class="p">:</span> <span class="mf">0.0033</span><span class="p">,</span> <span class="s2">&quot;DAQ&quot;</span><span class="p">:</span> <span class="mf">0.0033</span> <span class="o">*</span> <span class="mi">3</span><span class="p">},</span>
-        <span class="s2">&quot;correlated&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="s2">"instr"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"std"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"UATAQ"</span><span class="p">:</span> <span class="mf">0.0033</span><span class="p">,</span> <span class="s2">"DAQ"</span><span class="p">:</span> <span class="mf">0.0033</span> <span class="o">*</span> <span class="mi">3</span><span class="p">},</span>
+        <span class="s2">"correlated"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">},</span>  <span class="c1"># per org error</span>
-    <span class="s2">&quot;aggr&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;std&quot;</span><span class="p">:</span> <span class="mf">0.0257</span><span class="p">,</span>
-        <span class="s2">&quot;scale&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="s2">&quot;interday&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="s2">"aggr"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"std"</span><span class="p">:</span> <span class="mf">0.0257</span><span class="p">,</span>
+        <span class="s2">"scale"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">"interday"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">},</span>  <span class="c1"># spatial representativeness: TRAX per-pass spatial std (mean)</span>
     <span class="c1"># Temporal representativeness: sigma = fraction * (per-obs within-hour CH4 std). The hour-mean</span>
     <span class="c1"># footprint cannot represent sub-hour structure, so each obs is down-weighted by how unsteady</span>
     <span class="c1"># it actually was -- a passing-plume day gets a large error instead of being dropped. Replaces</span>
-    <span class="c1"># the binary spike filter (top-10% within-hour-variance drop), which removed those days&#39; real</span>
+    <span class="c1"># the binary spike filter (top-10% within-hour-variance drop), which removed those days' real</span>
     <span class="c1"># emission signal and biased the total low (see diagnostics/obs_qc/spike_filter_cost.py); this</span>
     <span class="c1"># keeps them, weighted. The temporal counterpart to aggr (spatial). fraction=2.0 calibrated</span>
     <span class="c1"># to reduced chi^2 ~ 1 with filter_spikes=False (headline 36 dropping them -&gt; 37.6 keeping</span>
     <span class="c1"># them weighted; see diagnostics/obs_qc/subhour_calibration.py). The ~2x factor absorbs the</span>
     <span class="c1"># daily aggregation: the term is built per-hour then averaged to daily, which shrinks it.</span>
-    <span class="s2">&quot;subhour&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;per_obs&quot;</span><span class="p">:</span> <span class="s2">&quot;subhour&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;fraction&quot;</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">,</span>
-        <span class="s2">&quot;correlated&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="s2">"subhour"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"per_obs"</span><span class="p">:</span> <span class="s2">"subhour"</span><span class="p">,</span>
+        <span class="s2">"fraction"</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">,</span>
+        <span class="s2">"correlated"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;bg&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;std&quot;</span><span class="p">:</span> <span class="mf">0.011</span><span class="p">,</span> <span class="s2">&quot;scale&quot;</span><span class="p">:</span> <span class="s2">&quot;7d&quot;</span><span class="p">,</span> <span class="s2">&quot;interday&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
+    <span class="s2">"bg"</span><span class="p">:</span> <span class="p">{</span><span class="s2">"std"</span><span class="p">:</span> <span class="mf">0.011</span><span class="p">,</span> <span class="s2">"scale"</span><span class="p">:</span> <span class="s2">"7d"</span><span class="p">,</span> <span class="s2">"interday"</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
     <span class="c1"># Multiplicative transport + representation error: sigma = fraction * |H| * mean(x_prior)</span>
     <span class="c1"># (footprint strength in enhancement units). Extreme shallow-PBL footprint days -- which</span>
     <span class="c1"># STILT models least reliably and which over-leverage the winter months under a flat error</span>
@@ -552,12 +554,12 @@
     <span class="c1"># the additive transport_wind + transport_pbl terms (recoverable from git history).</span>
     <span class="c1"># fraction calibrated to reduced chi^2 ~ 1 on the WBB inversion (f=0.80; see</span>
     <span class="c1"># diagnostics/transport_error/footprint_scale_sweep.py).</span>
-    <span class="s2">&quot;transport&quot;</span><span class="p">:</span> <span class="p">{</span>
-        <span class="s2">&quot;fraction&quot;</span><span class="p">:</span> <span class="mf">0.8</span><span class="p">,</span>
-        <span class="s2">&quot;multiplicative&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="s2">&quot;scale_on&quot;</span><span class="p">:</span> <span class="s2">&quot;footprint&quot;</span><span class="p">,</span>  <span class="c1"># |H|*mean(x_prior); also &quot;obs&quot; (|obs-bg|) or &quot;prior&quot; (|H x_prior|)</span>
-        <span class="s2">&quot;scale&quot;</span><span class="p">:</span> <span class="s2">&quot;2.8h&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;interday&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="s2">"transport"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"fraction"</span><span class="p">:</span> <span class="mf">0.8</span><span class="p">,</span>
+        <span class="s2">"multiplicative"</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="s2">"scale_on"</span><span class="p">:</span> <span class="s2">"footprint"</span><span class="p">,</span>  <span class="c1"># |H|*mean(x_prior); also "obs" (|obs-bg|) or "prior" (|H x_prior|)</span>
+        <span class="s2">"scale"</span><span class="p">:</span> <span class="s2">"2.8h"</span><span class="p">,</span>
+        <span class="s2">"interday"</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
     <span class="p">},</span>
 <span class="p">}</span>
 
@@ -565,24 +567,24 @@
 <div class="viewcode-block" id="get_mdm_comp_configs">
 <a class="viewcode-back" href="../../../_autosummary/slv.inversion.config.get_mdm_comp_configs.html#slv.inversion.config.get_mdm_comp_configs">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_mdm_comp_configs</span><span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Build MDM components list from config dict, merging with defaults.</span>
 
 <span class="sd">    Raises ``ValueError`` for a component name that is not in</span>
 <span class="sd">    :data:`DEFAULT_MDM_CONFIG`: a misspelled or retired key (e.g. the old</span>
 <span class="sd">    ``transport_pbl`` / ``transport_wind``) would otherwise be ignored silently, and</span>
 <span class="sd">    the MDM cache key would not change either.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">unknown</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">config</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">DEFAULT_MDM_CONFIG</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">unknown</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Unknown MDM component(s) </span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="n">unknown</span><span class="p">)</span><span class="si">}</span><span class="s2">; &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;valid names: </span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="n">DEFAULT_MDM_CONFIG</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">"Unknown MDM component(s) </span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="n">unknown</span><span class="p">)</span><span class="si">}</span><span class="s2">; "</span>
+            <span class="sa">f</span><span class="s2">"valid names: </span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="n">DEFAULT_MDM_CONFIG</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
         <span class="p">)</span>
     <span class="n">merged_components</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">default_params</span> <span class="ow">in</span> <span class="n">DEFAULT_MDM_CONFIG</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">default_params</span><span class="p">,</span> <span class="o">**</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="p">{}))}</span>
-        <span class="n">merged_components</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">})</span>
+        <span class="n">merged_components</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">"name"</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">})</span>
     <span class="k">return</span> <span class="n">merged_components</span></div>
 
 
@@ -593,18 +595,18 @@
     <span class="n">location_ids</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
     <span class="n">site_config</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Build location mapper from STILT location IDs to site names.</span>
 
-<span class="sd">    Parses location IDs (format: &quot;lon_lat_height&quot;) and matches them to sites</span>
+<span class="sd">    Parses location IDs (format: "lon_lat_height") and matches them to sites</span>
 <span class="sd">    in the site_config: within 1e-5 deg (~1 m) in lat/lon and 0.5 m in height.</span>
-<span class="sd">    (``np.isclose``&#39;s default relative tolerance allowed ~0.0011 deg of longitude,</span>
+<span class="sd">    (``np.isclose``'s default relative tolerance allowed ~0.0011 deg of longitude,</span>
 <span class="sd">    ~95 m.)</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    location_ids : list[str]</span>
-<span class="sd">        List of STILT location IDs (e.g., &quot;-111.847672_40.766189_35&quot;).</span>
+<span class="sd">        List of STILT location IDs (e.g., "-111.847672_40.766189_35").</span>
 <span class="sd">    site_config : pd.DataFrame</span>
 <span class="sd">        Site configuration with latitude/longitude columns indexed by site name.</span>
 
@@ -616,19 +618,19 @@
 
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
-<span class="sd">    &gt;&gt;&gt; loc_ids = [&quot;-111.847672_40.766189_35&quot;, &quot;-111.884505_40.902945_4&quot;]</span>
+<span class="sd">    &gt;&gt;&gt; loc_ids = ["-111.847672_40.766189_35", "-111.884505_40.902945_4"]</span>
 <span class="sd">    &gt;&gt;&gt; site_config = load_site_config()</span>
 <span class="sd">    &gt;&gt;&gt; mapper = build_location_site_map(loc_ids, site_config)</span>
-<span class="sd">    &gt;&gt;&gt; mapper[&quot;-111.847672_40.766189_35&quot;]</span>
-<span class="sd">    &#39;wbb&#39;</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    &gt;&gt;&gt; mapper["-111.847672_40.766189_35"]</span>
+<span class="sd">    'wbb'</span>
+<span class="sd">    """</span>
     <span class="n">mapper</span> <span class="o">=</span> <span class="p">{}</span>
 
     <span class="k">for</span> <span class="n">location_id</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="n">location_ids</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">location_id</span> <span class="ow">in</span> <span class="n">mapper</span><span class="p">:</span>
             <span class="k">continue</span>
 
-        <span class="n">parts</span> <span class="o">=</span> <span class="n">location_id</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)</span>
+        <span class="n">parts</span> <span class="o">=</span> <span class="n">location_id</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"_"</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span>
             <span class="k">continue</span>
 
@@ -638,9 +640,9 @@
             <span class="k">continue</span>
 
         <span class="n">matches</span> <span class="o">=</span> <span class="n">site_config</span><span class="p">[</span>
-            <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">site_config</span><span class="p">[</span><span class="s2">&quot;latitude&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">),</span> <span class="n">lat</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">)</span>
-            <span class="o">&amp;</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">site_config</span><span class="p">[</span><span class="s2">&quot;longitude&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">),</span> <span class="n">lon</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">)</span>
-            <span class="o">&amp;</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">site_config</span><span class="p">[</span><span class="s2">&quot;height_agl&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">),</span> <span class="n">z</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">site_config</span><span class="p">[</span><span class="s2">"latitude"</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">),</span> <span class="n">lat</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">)</span>
+            <span class="o">&amp;</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">site_config</span><span class="p">[</span><span class="s2">"longitude"</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">),</span> <span class="n">lon</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">1e-5</span><span class="p">)</span>
+            <span class="o">&amp;</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">site_config</span><span class="p">[</span><span class="s2">"height_agl"</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">),</span> <span class="n">z</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
         <span class="p">]</span>
 
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">matches</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
@@ -654,14 +656,14 @@
 <a class="viewcode-back" href="../../../_autosummary/slv.inversion.config.InversionConfig.html#slv.inversion.config.InversionConfig">[docs]</a>
 <span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">InversionConfig</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Settings for one inversion (:func:`~slv.inversion.pipelines.run`).</span>
 
 <span class="sd">    Invalid choices (``flux_freq``, ``background``, ``prior``, ``bias_grouping``, MDM</span>
 <span class="sd">    component names, an empty domain, ``tstart`` or ``tend`` off the ``flux_freq``</span>
 <span class="sd">    boundaries) raise ``ValueError`` at construction. Cached</span>
 <span class="sd">    components are keyed on the fields each one depends on (see</span>
-<span class="sd">    :mod:`slv.inversion.cache`), so changing a field&#39;s default spelling forces a rebuild.</span>
+<span class="sd">    :mod:`slv.inversion.cache`), so changing a field's default spelling forces a rebuild.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -670,7 +672,7 @@
 <span class="sd">        ``tend``, so both must be on ``flux_freq`` boundaries (see</span>
 <span class="sd">        :attr:`flux_time_bins`).</span>
 <span class="sd">    flux_freq : str</span>
-<span class="sd">        Flux interval: ``&quot;YS&quot;``, ``&quot;QS&quot;``, ``&quot;MS&quot;``, ``&quot;2W&quot;`` or ``&quot;D&quot;``.</span>
+<span class="sd">        Flux interval: ``"YS"``, ``"QS"``, ``"MS"``, ``"2W"`` or ``"D"``.</span>
 <span class="sd">    utc_offset : int</span>
 <span class="sd">        Hours from UTC to local standard time, for ``subset_hours``.</span>
 <span class="sd">    subset_hours : list of int</span>
@@ -681,7 +683,7 @@
 <span class="sd">    dx, dy : float</span>
 <span class="sd">        Cell size in degrees.</span>
 <span class="sd">    sites : list of str</span>
-<span class="sd">        Sites from the site config. A mobile site (e.g. ``&quot;trx01&quot;``) takes its obs per</span>
+<span class="sd">        Sites from the site config. A mobile site (e.g. ``"trx01"``) takes its obs per</span>
 <span class="sd">        TRAX receptor.</span>
 <span class="sd">    mobile_obs : str or Path, optional</span>
 <span class="sd">        Receptor-paired obs for the mobile sites (parquet indexed</span>
@@ -695,26 +697,26 @@
 <span class="sd">    spike_percentile : float</span>
 <span class="sd">        Percentile threshold for ``filter_spikes``.</span>
 <span class="sd">    background : str</span>
-<span class="sd">        ``&quot;rolling&quot;`` (baseline from the stationary sites), ``&quot;gml&quot;`` or ``&quot;ct_stilt&quot;``.</span>
+<span class="sd">        ``"rolling"`` (baseline from the stationary sites), ``"gml"`` or ``"ct_stilt"``.</span>
 <span class="sd">    background_kwargs : dict</span>
 <span class="sd">        Passed to the background loader (e.g. ``csv_path`` for ``ct_stilt``).</span>
 <span class="sd">    aggregate_obs : bool or str</span>
-<span class="sd">        ``False``, or a frequency (e.g. ``&quot;1D&quot;``) to average obs and Jacobian rows to.</span>
+<span class="sd">        ``False``, or a frequency (e.g. ``"1D"``) to average obs and Jacobian rows to.</span>
 <span class="sd">    location_site_map : dict</span>
 <span class="sd">        STILT location id -&gt; site. Empty: matched from the site config coordinates.</span>
 <span class="sd">    prior : str</span>
-<span class="sd">        ``&quot;epa&quot;``, ``&quot;edgar&quot;`` or ``&quot;constant&quot;``, see</span>
+<span class="sd">        ``"epa"``, ``"edgar"`` or ``"constant"``, see</span>
 <span class="sd">        :func:`~slv.inversion.priors.get_slv_prior`.</span>
 <span class="sd">    prior_kwargs : dict</span>
-<span class="sd">        Passed to the prior loader (e.g. ``{&quot;express&quot;: True}``).</span>
+<span class="sd">        Passed to the prior loader (e.g. ``{"express": True}``).</span>
 <span class="sd">    stilt_project : str, Path, or list of str or Path</span>
 <span class="sd">        PYSTILT project(s) holding the footprints (``$SLV_STILT_DIR``, else</span>
 <span class="sd">        :data:`DEFAULT_STILT_PROJECT`). A list builds one Jacobian from several projects,</span>
 <span class="sd">        e.g. the paper-1 project (UOU, DAQ) and the TRAX project: each contributes the</span>
 <span class="sd">        rows for the obs it has footprints for (:attr:`stilt_projects`).</span>
 <span class="sd">    variant : str, optional</span>
-<span class="sd">        PYSTILT variant whose footprints make the Jacobian (``&quot;hrrr&quot;``); every project in</span>
-<span class="sd">        ``stilt_project`` must define it. ``None`` takes each project&#39;s one variant with a</span>
+<span class="sd">        PYSTILT variant whose footprints make the Jacobian (``"hrrr"``); every project in</span>
+<span class="sd">        ``stilt_project`` must define it. ``None`` takes each project's one variant with a</span>
 <span class="sd">        footprint. The cache key sees this value, not what ``None`` resolved to, so set it</span>
 <span class="sd">        explicitly.</span>
 <span class="sd">    sparse_jacobian : bool</span>
@@ -722,7 +724,7 @@
 <span class="sd">    prior_base_std, prior_std_frac : float</span>
 <span class="sd">        Prior error std per cell, ``prior_base_std + prior_std_frac * prior`` (umol/m2/s).</span>
 <span class="sd">    prior_time_scale : str</span>
-<span class="sd">        e-folding time of the prior error correlation (e.g. ``&quot;32d&quot;``).</span>
+<span class="sd">        e-folding time of the prior error correlation (e.g. ``"32d"``).</span>
 <span class="sd">    prior_spatial_scale : float</span>
 <span class="sd">        e-folding distance of the prior error correlation, km.</span>
 <span class="sd">    mdm_config : dict</span>
@@ -730,7 +732,7 @@
 <span class="sd">    bias_std : float, optional</span>
 <span class="sd">        Prior std of the bias states (ppm); ``None`` leaves the bias block out.</span>
 <span class="sd">    bias_grouping : str, optional</span>
-<span class="sd">        ``None`` / ``&quot;time&quot;`` (one bias per interval), ``&quot;site&quot;`` or ``&quot;site_group&quot;``</span>
+<span class="sd">        ``None`` / ``"time"`` (one bias per interval), ``"site"`` or ``"site_group"``</span>
 <span class="sd">        (per interval and site or organization).</span>
 <span class="sd">    jacobian_coverage_percentile : float, optional</span>
 <span class="sd">        Hold the least-constrained cells (below this percentile of mean Jacobian</span>
@@ -742,21 +744,21 @@
 <span class="sd">    cache : bool, str or Path</span>
 <span class="sd">        ``False``: no cache; ``True``: the working directory; else that directory.</span>
 <span class="sd">    cache_overwrite : str or list of str</span>
-<span class="sd">        Components to rebuild (e.g. ``[&quot;obs&quot;]``), or ``&quot;all&quot;``.</span>
+<span class="sd">        Components to rebuild (e.g. ``["obs"]``), or ``"all"``.</span>
 <span class="sd">    num_processes : int</span>
 <span class="sd">        Workers for obs loading and the Jacobian build.</span>
 <span class="sd">    plot_inputs, plot_results, plot_diagnostics : bool</span>
 <span class="sd">        Which plots :func:`~slv.inversion.pipelines.run` draws.</span>
 <span class="sd">    output_units : str</span>
-<span class="sd">        Flux units for domain totals (e.g. ``&quot;Gg/m2/s&quot;`` gives Gg per interval).</span>
+<span class="sd">        Flux units for domain totals (e.g. ``"Gg/m2/s"`` gives Gg per interval).</span>
 <span class="sd">    tiler, tiler_zoom</span>
 <span class="sd">        Map tiles for the plots.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="c1"># --- Space &amp; Time ---</span>
-    <span class="n">tstart</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;2015-06-01&quot;</span>
-    <span class="n">tend</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;2025-02-01&quot;</span>
-    <span class="n">flux_freq</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;MS&quot;</span>
+    <span class="n">tstart</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"2015-06-01"</span>
+    <span class="n">tend</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"2025-02-01"</span>
+    <span class="n">flux_freq</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"MS"</span>
     <span class="n">utc_offset</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">UTC_OFFSET</span>
 
     <span class="c1"># Hours of day (local time) to subset obs for inversion (e.g., afternoon hours when boundary layer is typically more developed).</span>
@@ -779,7 +781,7 @@
     <span class="n">dy</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.05</span>
 
     <span class="c1"># --- Obs &amp; Background ---</span>
-    <span class="n">sites</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;wbb&quot;</span><span class="p">])</span>
+    <span class="n">sites</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="p">[</span><span class="s2">"wbb"</span><span class="p">])</span>
     <span class="c1"># Prebuilt receptor-paired observations for the mobile sites (a parquet indexed</span>
     <span class="c1"># (obs_location, obs_time) with a CH4 column, from</span>
     <span class="c1"># slv.measurements.mobile.trax_receptor_observations). When set, mobile sites take</span>
@@ -795,19 +797,19 @@
     <span class="n">filter_spikes</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
     <span class="n">spike_percentile</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.90</span>  <span class="c1"># within-hour-std percentile flagged as spiky</span>
 
-    <span class="n">background</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;rolling&quot;</span>  <span class="c1"># &quot;rolling&quot;, &quot;gml&quot;</span>
+    <span class="n">background</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"rolling"</span>  <span class="c1"># "rolling", "gml"</span>
     <span class="n">background_kwargs</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
 
     <span class="n">aggregate_obs</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="kc">False</span>  <span class="c1"># Whether to aggregate obs space (&#39;1d&#39; for daily, &#39;12h&#39; for 12-hourly, etc.)</span>
+        <span class="kc">False</span>  <span class="c1"># Whether to aggregate obs space ('1d' for daily, '12h' for 12-hourly, etc.)</span>
     <span class="p">)</span>
 
-    <span class="c1"># Maps STILT simulation IDs (format: &quot;lon_lat_height&quot;) to site names.</span>
+    <span class="c1"># Maps STILT simulation IDs (format: "lon_lat_height") to site names.</span>
     <span class="c1"># If empty (default), auto-generated from site_config and simulation paths.</span>
     <span class="n">location_site_map</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
 
     <span class="c1"># --- Prior ---</span>
-    <span class="n">prior</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;epa&quot;</span>
+    <span class="n">prior</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"epa"</span>
     <span class="n">prior_kwargs</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
 
     <span class="c1"># --- Jacobian ---</span>
@@ -817,9 +819,9 @@
     <span class="c1"># paper-1 project (UOU, DAQ) and the TRAX project -- into one Jacobian: each project</span>
     <span class="c1"># contributes the rows for the obs it has footprints for (see ``stilt_projects``).</span>
     <span class="n">stilt_project</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
-        <span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;SLV_STILT_DIR&quot;</span><span class="p">,</span> <span class="n">DEFAULT_STILT_PROJECT</span><span class="p">)</span>
+        <span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"SLV_STILT_DIR"</span><span class="p">,</span> <span class="n">DEFAULT_STILT_PROJECT</span><span class="p">)</span>
     <span class="p">)</span>
-    <span class="c1"># PYSTILT variant whose footprints make the Jacobian; None = the project&#39;s one variant</span>
+    <span class="c1"># PYSTILT variant whose footprints make the Jacobian; None = the project's one variant</span>
     <span class="c1"># with a footprint. The cache key sees only this value, not what None resolved to: set</span>
     <span class="c1"># it explicitly if a project may gain a second variant with a footprint.</span>
     <span class="n">variant</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
@@ -828,38 +830,38 @@
     <span class="c1"># --- Prior Error Covariance (S_0) ---</span>
     <span class="n">prior_base_std</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.019</span>
     <span class="n">prior_std_frac</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.5</span>
-    <span class="n">prior_time_scale</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;32d&quot;</span>
+    <span class="n">prior_time_scale</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"32d"</span>
     <span class="n">prior_spatial_scale</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">5.0</span>
 
     <span class="c1"># --- Model-Data Mismatch (S_z) ---</span>
     <span class="n">mdm_config</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Reject settings that would otherwise only fail after the Jacobian is built.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Reject settings that would otherwise only fail after the Jacobian is built."""</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">flux_freq</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">FLUX_FREQ_TIME_STEPS</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;flux_freq=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">flux_freq</span><span class="si">!r}</span><span class="s2">; supported: </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">FLUX_FREQ_TIME_STEPS</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">"flux_freq=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">flux_freq</span><span class="si">!r}</span><span class="s2">; supported: </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">FLUX_FREQ_TIME_STEPS</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
             <span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">bias_grouping</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">BIAS_GROUPINGS</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;bias_grouping=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">bias_grouping</span><span class="si">!r}</span><span class="s2">; expected one of </span><span class="si">{</span><span class="n">BIAS_GROUPINGS</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">"bias_grouping=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">bias_grouping</span><span class="si">!r}</span><span class="s2">; expected one of </span><span class="si">{</span><span class="n">BIAS_GROUPINGS</span><span class="si">}</span><span class="s2">"</span>
             <span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">background</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">BACKGROUNDS</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;background=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">background</span><span class="si">!r}</span><span class="s2">; expected one of </span><span class="si">{</span><span class="n">BACKGROUNDS</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">"background=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">background</span><span class="si">!r}</span><span class="s2">; expected one of </span><span class="si">{</span><span class="n">BACKGROUNDS</span><span class="si">}</span><span class="s2">"</span>
             <span class="p">)</span>
         <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">prior</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">PRIORS</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;prior=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">prior</span><span class="si">!r}</span><span class="s2">; expected one of </span><span class="si">{</span><span class="n">PRIORS</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"prior=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">prior</span><span class="si">!r}</span><span class="s2">; expected one of </span><span class="si">{</span><span class="n">PRIORS</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="n">get_mdm_comp_configs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mdm_config</span><span class="p">)</span>  <span class="c1"># raises on unknown component names</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dx</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">dy</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;dx and dy must be positive, got </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dx</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dy</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"dx and dy must be positive, got </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dx</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dy</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xmin</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">xmax</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">ymin</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">ymax</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;empty domain: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">bbox</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"empty domain: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">bbox</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">flux_time_bins</span>  <span class="c1"># raises when they would not cover tstart..tend</span>
 
     <span class="c1">#: Derived values cached on first access; setting any field drops them, so a config</span>
     <span class="c1">#: changed after use (a sweep, a notebook) never serves a stale grid or MDM list.</span>
-    <span class="n">_DERIVED</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;grid&quot;</span><span class="p">,</span> <span class="s2">&quot;state_grid&quot;</span><span class="p">,</span> <span class="s2">&quot;grid_coords&quot;</span><span class="p">,</span> <span class="s2">&quot;mdm_components&quot;</span><span class="p">,</span> <span class="s2">&quot;site_config&quot;</span><span class="p">)</span>
+    <span class="n">_DERIVED</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"grid"</span><span class="p">,</span> <span class="s2">"state_grid"</span><span class="p">,</span> <span class="s2">"grid_coords"</span><span class="p">,</span> <span class="s2">"mdm_components"</span><span class="p">,</span> <span class="s2">"site_config"</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
@@ -871,7 +873,7 @@
 <a class="viewcode-back" href="../../../_autosummary/slv.inversion.config.InversionConfig.mdm_components.html#slv.inversion.config.InversionConfig.mdm_components">[docs]</a>
     <span class="nd">@cached_property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">mdm_components</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Build MDM components from config (merges with defaults).&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Build MDM components from config (merges with defaults)."""</span>
         <span class="k">return</span> <span class="n">get_mdm_comp_configs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mdm_config</span><span class="p">)</span></div>
 
 
@@ -879,9 +881,9 @@
     <span class="c1"># Set bias_std to enable the bias block.</span>
     <span class="n">bias_std</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Prior std-dev for each bias state (None = disabled)</span>
     <span class="c1"># Bias grouping strategy:</span>
-    <span class="c1">#   None or &quot;time&quot;: one bias per time interval</span>
-    <span class="c1">#   &quot;site&quot;: one bias per (time, obs_location)</span>
-    <span class="c1">#   &quot;site_group&quot;: one bias per (time, organization)</span>
+    <span class="c1">#   None or "time": one bias per time interval</span>
+    <span class="c1">#   "site": one bias per (time, obs_location)</span>
+    <span class="c1">#   "site_group": one bias per (time, organization)</span>
     <span class="n">bias_grouping</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="c1"># --- Jacobian Coverage Filter ---</span>
@@ -905,8 +907,8 @@
     <span class="c1"># --- Cache ---</span>
     <span class="c1"># False/None = no caching, True = cache in cwd, str/Path = cache in that directory</span>
     <span class="n">cache</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">=</span> <span class="kc">False</span>
-    <span class="c1"># Recompute cached outputs by stem (e.g. [&quot;obs&quot;, &quot;prior_error&quot;]).</span>
-    <span class="c1"># Set to &quot;all&quot; to recompute every cached output.</span>
+    <span class="c1"># Recompute cached outputs by stem (e.g. ["obs", "prior_error"]).</span>
+    <span class="c1"># Set to "all" to recompute every cached output.</span>
     <span class="n">cache_overwrite</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
 
     <span class="c1"># --- Compute ---</span>
@@ -917,24 +919,24 @@
     <span class="n">plot_results</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
     <span class="n">plot_diagnostics</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
 
-    <span class="n">output_units</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Gg/m2/s&quot;</span>
+    <span class="n">output_units</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"Gg/m2/s"</span>
 
     <span class="n">tiler</span><span class="p">:</span> <span class="n">GoogleTiles</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">_default_tiler</span><span class="p">)</span>
     <span class="n">tiler_zoom</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">bbox</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;``(xmin, ymin, xmax, ymax)``.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""``(xmin, ymin, xmax, ymax)``."""</span>
         <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xmin</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ymin</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">xmax</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ymax</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">extent</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;``(xmin, xmax, ymin, ymax)``, cartopy&#39;s order.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""``(xmin, xmax, ymin, ymax)``, cartopy's order."""</span>
         <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xmin</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">xmax</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ymin</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">ymax</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">map_extent</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;:attr:`extent` padded by 0.05 degrees, for maps.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">""":attr:`extent` padded by 0.05 degrees, for maps."""</span>
         <span class="n">buffer</span> <span class="o">=</span> <span class="mf">0.05</span>
         <span class="k">return</span> <span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">xmin</span> <span class="o">-</span> <span class="n">buffer</span><span class="p">,</span>
@@ -945,25 +947,25 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">resolution</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Cell size as ``&quot;{dx}x{dy}&quot;``.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dx</span><span class="si">}</span><span class="s2">x</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dy</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="w">        </span><span class="sd">"""Cell size as ``"{dx}x{dy}"``."""</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dx</span><span class="si">}</span><span class="s2">x</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dy</span><span class="si">}</span><span class="s2">"</span>
 
 <div class="viewcode-block" id="InversionConfig.grid">
 <a class="viewcode-back" href="../../../_autosummary/slv.inversion.config.InversionConfig.grid.html#slv.inversion.config.InversionConfig.grid">[docs]</a>
     <span class="nd">@cached_property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">grid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        The flux cells as a lon/lat ``DataArray`` of zeros: the prior&#39;s regrid target.</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        The flux cells as a lon/lat ``DataArray`` of zeros: the prior's regrid target.</span>
 
-<span class="sd">        Built from :attr:`state_grid`&#39;s axes, so the prior and the Jacobian columns</span>
+<span class="sd">        Built from :attr:`state_grid`'s axes, so the prior and the Jacobian columns</span>
 <span class="sd">        enumerate the same cell centres by construction.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">state_grid</span><span class="o">.</span><span class="n">axes</span>
         <span class="n">grid</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
-            <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">))),</span> <span class="n">coords</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;lat&quot;</span><span class="p">:</span> <span class="n">y</span><span class="p">,</span> <span class="s2">&quot;lon&quot;</span><span class="p">:</span> <span class="n">x</span><span class="p">},</span> <span class="n">dims</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;lat&quot;</span><span class="p">,</span> <span class="s2">&quot;lon&quot;</span><span class="p">)</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">))),</span> <span class="n">coords</span><span class="o">=</span><span class="p">{</span><span class="s2">"lat"</span><span class="p">:</span> <span class="n">y</span><span class="p">,</span> <span class="s2">"lon"</span><span class="p">:</span> <span class="n">x</span><span class="p">},</span> <span class="n">dims</span><span class="o">=</span><span class="p">(</span><span class="s2">"lat"</span><span class="p">,</span> <span class="s2">"lon"</span><span class="p">)</span>
         <span class="p">)</span>
-        <span class="n">grid</span> <span class="o">=</span> <span class="n">grid</span><span class="o">.</span><span class="n">rio</span><span class="o">.</span><span class="n">set_spatial_dims</span><span class="p">(</span><span class="n">x_dim</span><span class="o">=</span><span class="s2">&quot;lon&quot;</span><span class="p">,</span> <span class="n">y_dim</span><span class="o">=</span><span class="s2">&quot;lat&quot;</span><span class="p">)</span>
-        <span class="n">grid</span> <span class="o">=</span> <span class="n">write_rio_crs</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="n">crs</span><span class="o">=</span><span class="s2">&quot;EPSG:4326&quot;</span><span class="p">)</span>
+        <span class="n">grid</span> <span class="o">=</span> <span class="n">grid</span><span class="o">.</span><span class="n">rio</span><span class="o">.</span><span class="n">set_spatial_dims</span><span class="p">(</span><span class="n">x_dim</span><span class="o">=</span><span class="s2">"lon"</span><span class="p">,</span> <span class="n">y_dim</span><span class="o">=</span><span class="s2">"lat"</span><span class="p">)</span>
+        <span class="n">grid</span> <span class="o">=</span> <span class="n">write_rio_crs</span><span class="p">(</span><span class="n">grid</span><span class="p">,</span> <span class="n">crs</span><span class="o">=</span><span class="s2">"EPSG:4326"</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">grid</span></div>
 
 
@@ -971,7 +973,7 @@
 <a class="viewcode-back" href="../../../_autosummary/slv.inversion.config.InversionConfig.state_grid.html#slv.inversion.config.InversionConfig.state_grid">[docs]</a>
     <span class="nd">@cached_property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">state_grid</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        The flux cells as a PYSTILT ``Grid``: the domain snapped outward to whole cells.</span>
 
 <span class="sd">        This is the one definition of the flux cells -- the Jacobian is built on it and</span>
@@ -979,7 +981,7 @@
 <span class="sd">        cells the last row/column is still a whole cell, reaching past ``xmax``/``ymax``</span>
 <span class="sd">        (``ymax=40.93`` with ``dy=0.05`` gives a top row centred at 40.925, covering</span>
 <span class="sd">        40.90-40.95).</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">stilt</span><span class="w"> </span><span class="kn">import</span> <span class="n">Grid</span>
 
         <span class="n">eps</span> <span class="o">=</span> <span class="mf">1e-9</span>
@@ -999,8 +1001,8 @@
         <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">grid</span><span class="o">.</span><span class="n">axes</span>
         <span class="k">if</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">))</span> <span class="o">!=</span> <span class="p">(</span><span class="n">nx</span><span class="p">,</span> <span class="n">ny</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;state grid has </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="si">}</span><span class="s2">x</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">)</span><span class="si">}</span><span class="s2"> cells, expected </span><span class="si">{</span><span class="n">nx</span><span class="si">}</span><span class="s2">x</span><span class="si">{</span><span class="n">ny</span><span class="si">}</span><span class="s2"> &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;(dx=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dx</span><span class="si">}</span><span class="s2">, dy=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dy</span><span class="si">}</span><span class="s2">)&quot;</span>
+                <span class="sa">f</span><span class="s2">"state grid has </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="si">}</span><span class="s2">x</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">y</span><span class="p">)</span><span class="si">}</span><span class="s2"> cells, expected </span><span class="si">{</span><span class="n">nx</span><span class="si">}</span><span class="s2">x</span><span class="si">{</span><span class="n">ny</span><span class="si">}</span><span class="s2"> "</span>
+                <span class="sa">f</span><span class="s2">"(dx=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dx</span><span class="si">}</span><span class="s2">, dy=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dy</span><span class="si">}</span><span class="s2">)"</span>
             <span class="p">)</span>
         <span class="k">return</span> <span class="n">grid</span></div>
 
@@ -1009,49 +1011,49 @@
 <a class="viewcode-back" href="../../../_autosummary/slv.inversion.config.InversionConfig.grid_coords.html#slv.inversion.config.InversionConfig.grid_coords">[docs]</a>
     <span class="nd">@cached_property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">grid_coords</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Every cell centre as a ``(lon, lat)`` tuple.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Every cell centre as a ``(lon, lat)`` tuple."""</span>
         <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span><span class="o">.</span><span class="n">from_product</span><span class="p">(</span>
-            <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="s2">&quot;lon&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="s2">&quot;lat&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">]</span>
+            <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="s2">"lon"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">grid</span><span class="p">[</span><span class="s2">"lat"</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">]</span>
         <span class="p">)</span><span class="o">.</span><span class="n">to_list</span><span class="p">()</span></div>
 
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">time_range</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;``(tstart, tend)`` as timestamps.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""``(tstart, tend)`` as timestamps."""</span>
         <span class="k">return</span> <span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tstart</span><span class="p">),</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tend</span><span class="p">))</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">stilt_projects</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Path</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        ``stilt_project`` as a list of paths, whether one project or several was given.</span>
 
 <span class="sd">        ``stilt_project`` itself is left as given, so a single-project config keeps the same</span>
 <span class="sd">        cache key it always had; only code that opens the projects normalises it.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">stilt_project</span>
         <span class="n">items</span> <span class="o">=</span> <span class="n">p</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">))</span> <span class="k">else</span> <span class="p">[</span><span class="n">p</span><span class="p">]</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">items</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s2">&quot;stilt_project is an empty list; give at least one project.&quot;</span>
+                <span class="s2">"stilt_project is an empty list; give at least one project."</span>
             <span class="p">)</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">Path</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">items</span><span class="p">]</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">mobile_obs_key</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Cache fingerprint of ``mobile_obs``: its path plus size and mtime.</span>
 
 <span class="sd">        Hashing the path alone would miss a file rebuilt in place -- e.g. regenerated with a</span>
 <span class="sd">        revised inlet lag -- and silently reuse obs, Jacobian and MDM built from the old</span>
 <span class="sd">        one. Size+mtime change whenever the file is rewritten.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mobile_obs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span>
         <span class="k">return</span> <span class="n">_file_key</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mobile_obs</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">background_kwargs_key</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        ``background_kwargs`` as the cache keys see it: a ``csv_path`` (the ``ct_stilt``</span>
 <span class="sd">        product) is replaced by its path plus size and mtime.</span>
 
@@ -1068,73 +1070,73 @@
 <span class="sd">        --------</span>
 <span class="sd">        &gt;&gt;&gt; import tempfile</span>
 <span class="sd">        &gt;&gt;&gt; from pathlib import Path</span>
-<span class="sd">        &gt;&gt;&gt; csv = Path(tempfile.mkdtemp()) / &quot;ct.csv&quot;</span>
-<span class="sd">        &gt;&gt;&gt; _ = csv.write_text(&quot;obs_time,ct_ch4_ppm&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; csv = Path(tempfile.mkdtemp()) / "ct.csv"</span>
+<span class="sd">        &gt;&gt;&gt; _ = csv.write_text("obs_time,ct_ch4_ppm")</span>
 <span class="sd">        &gt;&gt;&gt; cfg = InversionConfig(</span>
-<span class="sd">        ...     background=&quot;ct_stilt&quot;, background_kwargs={&quot;csv_path&quot;: csv}</span>
+<span class="sd">        ...     background="ct_stilt", background_kwargs={"csv_path": csv}</span>
 <span class="sd">        ... )</span>
-<span class="sd">        &gt;&gt;&gt; key = cfg.background_kwargs_key[&quot;csv_path&quot;]</span>
-<span class="sd">        &gt;&gt;&gt; _ = csv.write_text(&quot;obs_time,ct_ch4_ppm,uncertainty&quot;)  # rewritten in place</span>
-<span class="sd">        &gt;&gt;&gt; cfg.background_kwargs_key[&quot;csv_path&quot;] != key</span>
+<span class="sd">        &gt;&gt;&gt; key = cfg.background_kwargs_key["csv_path"]</span>
+<span class="sd">        &gt;&gt;&gt; _ = csv.write_text("obs_time,ct_ch4_ppm,uncertainty")  # rewritten in place</span>
+<span class="sd">        &gt;&gt;&gt; cfg.background_kwargs_key["csv_path"] != key</span>
 <span class="sd">        True</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">kwargs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">background_kwargs</span><span class="p">)</span>
-        <span class="k">if</span> <span class="s2">&quot;csv_path&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
-            <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;csv_path&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_file_key</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;csv_path&quot;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="s2">"csv_path"</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s2">"csv_path"</span><span class="p">]</span> <span class="o">=</span> <span class="n">_file_key</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">"csv_path"</span><span class="p">])</span>
         <span class="k">return</span> <span class="n">kwargs</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">flux_time_bins</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">IntervalIndex</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        The flux intervals: whole ``flux_freq`` periods from ``tstart`` to ``tend``.</span>
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
 <span class="sd">        ValueError</span>
 <span class="sd">            If ``tstart`` or ``tend`` is not on a ``flux_freq`` boundary, so whole periods</span>
-<span class="sd">            would cover less than ``tstart..tend``: ``&quot;YS&quot;`` needs January 1, ``&quot;QS&quot;`` the</span>
-<span class="sd">            first of a quarter, ``&quot;MS&quot;`` the first of a month, ``&quot;2W&quot;`` Sundays two weeks</span>
+<span class="sd">            would cover less than ``tstart..tend``: ``"YS"`` needs January 1, ``"QS"`` the</span>
+<span class="sd">            first of a quarter, ``"MS"`` the first of a month, ``"2W"`` Sundays two weeks</span>
 <span class="sd">            apart. The obs of the days left out would have no flux to fit.</span>
 
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
 <span class="sd">        &gt;&gt;&gt; from slv.inversion import InversionConfig</span>
 <span class="sd">        &gt;&gt;&gt; config = InversionConfig(</span>
-<span class="sd">        ...     tstart=&quot;2016-01-01&quot;, tend=&quot;2018-01-01&quot;, flux_freq=&quot;YS&quot;</span>
+<span class="sd">        ...     tstart="2016-01-01", tend="2018-01-01", flux_freq="YS"</span>
 <span class="sd">        ... )</span>
 <span class="sd">        &gt;&gt;&gt; [str(b.left.date()) for b in config.flux_time_bins]</span>
-<span class="sd">        [&#39;2016-01-01&#39;, &#39;2017-01-01&#39;]</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        ['2016-01-01', '2017-01-01']</span>
+<span class="sd">        """</span>
         <span class="n">t0</span><span class="p">,</span> <span class="n">t1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_range</span>
-        <span class="n">bins</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">interval_range</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="n">t0</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="n">t1</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">flux_freq</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">)</span>
+        <span class="n">bins</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">interval_range</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="n">t0</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="n">t1</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">flux_freq</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="s2">"left"</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">bins</span><span class="p">)</span> <span class="ow">and</span> <span class="n">bins</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">left</span> <span class="o">==</span> <span class="n">t0</span> <span class="ow">and</span> <span class="n">bins</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">right</span> <span class="o">==</span> <span class="n">t1</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">bins</span>
         <span class="n">covered</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;would cover </span><span class="si">{</span><span class="n">bins</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">left</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">bins</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">right</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">"would cover </span><span class="si">{</span><span class="n">bins</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">left</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">bins</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">right</span><span class="si">}</span><span class="s2">"</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">bins</span><span class="p">)</span>
-            <span class="k">else</span> <span class="s2">&quot;would be empty&quot;</span>
+            <span class="k">else</span> <span class="s2">"would be empty"</span>
         <span class="p">)</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;tstart=</span><span class="si">{</span><span class="n">t0</span><span class="si">}</span><span class="s2"> and tend=</span><span class="si">{</span><span class="n">t1</span><span class="si">}</span><span class="s2"> must be on flux_freq=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">flux_freq</span><span class="si">!r}</span><span class="s2"> &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;boundaries: its whole periods </span><span class="si">{</span><span class="n">covered</span><span class="si">}</span><span class="s2">, and the obs outside them would &quot;</span>
-            <span class="s2">&quot;have no flux to fit.&quot;</span>
+            <span class="sa">f</span><span class="s2">"tstart=</span><span class="si">{</span><span class="n">t0</span><span class="si">}</span><span class="s2"> and tend=</span><span class="si">{</span><span class="n">t1</span><span class="si">}</span><span class="s2"> must be on flux_freq=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">flux_freq</span><span class="si">!r}</span><span class="s2"> "</span>
+            <span class="sa">f</span><span class="s2">"boundaries: its whole periods </span><span class="si">{</span><span class="n">covered</span><span class="si">}</span><span class="s2">, and the obs outside them would "</span>
+            <span class="s2">"have no flux to fit."</span>
         <span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">flux_times</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the left edges of the flux time bins, which represent the time points for flux estimation.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Returns the left edges of the flux time bins, which represent the time points for flux estimation."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">flux_time_bins</span><span class="o">.</span><span class="n">left</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">subset_hours_utc</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Dynamically converts local afternoon hours to UTC for data subsetting.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Dynamically converts local afternoon hours to UTC for data subsetting."""</span>
         <span class="k">return</span> <span class="p">[(</span><span class="n">hour</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">utc_offset</span><span class="p">)</span> <span class="o">%</span> <span class="mi">24</span> <span class="k">for</span> <span class="n">hour</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">subset_hours</span><span class="p">]</span>
 
 <div class="viewcode-block" id="InversionConfig.site_config">
 <a class="viewcode-back" href="../../../_autosummary/slv.inversion.config.InversionConfig.site_config.html#slv.inversion.config.InversionConfig.site_config">[docs]</a>
     <span class="nd">@cached_property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">site_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The packaged site config (:func:`~slv.measurements.sites.load_site_config`).&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""The packaged site config (:func:`~slv.measurements.sites.load_site_config`)."""</span>
         <span class="k">return</span> <span class="n">load_site_config</span><span class="p">()</span></div>
 </div>
 
@@ -1167,8 +1169,8 @@
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../../../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0"></script>
-<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0"></script>
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -1188,7 +1190,7 @@
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.2.0.
   </p>
 </div>
       
@@ -1201,7 +1203,7 @@
         <div class="footer-item">
 <p class="theme-version">
   <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.22.0.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.23.0.
 </p></div>
       
     </div>

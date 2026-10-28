@@ -26,28 +26,29 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="_static/styles/theme.css?digest=64cc4de3f052d77215f0" rel="stylesheet" />
-<link href="_static/styles/pydata-sphinx-theme.css?digest=64cc4de3f052d77215f0" rel="stylesheet" />
+  <link href="_static/styles/theme.css?digest=18bd87630a240e9c25be" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=18bd87630a240e9c25be" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx_autodoc_typehints.css?v=057ac668" />
     <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="_static/custom.css?v=ba117b66" />
   
   <!-- So that users can add custom icons -->
-  <script defer src="_static/scripts/fontawesome.js?digest=64cc4de3f052d77215f0"></script>
+  <script defer src="_static/scripts/fontawesome.js?digest=18bd87630a240e9c25be"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
-<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="_static/documentation_options.js?v=855ee6a5"></script>
+    <script src="_static/documentation_options.js?v=1ef9135c"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="_static/copybutton.js?v=f281be69"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = 'contributing';</script>
     <script>
-        DOCUMENTATION_OPTIONS.theme_version = '0.22.0';
+        DOCUMENTATION_OPTIONS.theme_version = '0.23.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://jmineau.github.io/slv/switcher.json';
         DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
@@ -58,8 +59,9 @@
     <link rel="search" title="Search" href="search.html" />
     <link rel="prev" title="slv.meteorology.vhd.load_vhd" href="_autosummary/slv.meteorology.vhd.load_vhd.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.10.4.dev5+g1346b5991" />
+  <meta name="docsearch:version" content="2026.10.4.dev6+gdb1f4b5c8" />
   
     
     <script src="_static/searchtools.js"></script>
@@ -466,7 +468,7 @@ orientation file it should read.</p>
                      (population, trax, sites, mesowest, points, interstates, borders,
                      inventory, legend, inset, north_arrow). Data via load_* functions
                      ($SLV_SPATIAL_DIR group data; $SLV_USER_DATA_DIR census ACS 2022 +
-                     mesowest/); tiles=&quot;terrain&quot; = Stadia stamen_terrain ($STADIA_API_KEY,
+                     mesowest/); tiles="terrain" = Stadia stamen_terrain ($STADIA_API_KEY,
                      network when drawn; attribution added). cached_tiler builds any
                      cartopy tiler with a disk cache (see its docstring). Tests:
                      tests/test_basemap.py, synthetic data, no network.
@@ -490,7 +492,7 @@ orientation file it should read.</p>
                      the CHPC env vars, CI relies on it
       gps.py         thin uataq wrappers: read_lin_gps (lin gps qaqc; uataq names
                      the sat count N_Satellites -&gt; renamed N_Sat), read_horel_cr1000
-                     (horel gps+cr1000 at lvl=&quot;raw&quot; = the h5 files; the horel
+                     (horel gps+cr1000 at lvl="raw" = the h5 files; the horel
                      qaqc/final CSVs lack NSAT/RSTS), read_trax_gps (by era: lin
                      before 2018-11-19, horel after, fill_gaps=True fills horel
                      outages from the lin GPS), merge_with_gps (horel_fallback:
@@ -499,13 +501,13 @@ orientation file it should read.</p>
                      clock_checked_days / fill_gps_gaps_with_horel; gps_source tags each row);
                      read_lin_gps, read_horel_cr1000 and read_trax_gps take num_processes
                      (the files are read on that many processes; build_trax_obs passes its
-                     own to the location step&#39;s GPS read)
+                     own to the location step's GPS read)
       location.py    per-minute indoor/outdoor classifier: depot (degraded GPS:
                      scatter &gt; 1 m or &lt;= 6 sats, 15-min vote) / yard / line
                      (pass-by within 300 m of a yard) / route / stopped / unknown
                      (no fix, &gt; 100 m off track, shed ejecta); speed_est fallback
                      for GPGGA-only eras; state_intervals, label_observations;
-                     location_features(num_processes=) measures every fix&#39;s distance to the
+                     location_features(num_processes=) measures every fix's distance to the
                      track and the yards on that many threads (shapely releases the GIL;
                      build_trax_obs passes its own num_processes)
       calibration.py cal_source tags + trax_uncalibrated_windows.csv handling;
@@ -514,7 +516,7 @@ orientation file it should read.</p>
                      apply_epoch_offset subtracts them (load_trax_obs(epoch_offset=False)
                      to test without, no rebuild needed)
       obs.py         build_trax_obs (per-year chunks; slope guard on calibrated rows; every GPS fix + cal_source + low_pressure + state/indoor/
-                     yard_name) / load_trax_obs(location=&quot;on_track&quot;|&quot;outdoor&quot;|&quot;all&quot;)
+                     yard_name) / load_trax_obs(location="on_track"|"outdoor"|"all")
                      cached at $SLV_USER_DATA_DIR/trax/obs.parquet; LOCATION_SETS.
                      load_trax_obs filters on the rows first (cal_source, low_pressure,
                      location), then applies the epoch offset and builds the points for the
@@ -530,7 +532,7 @@ orientation file it should read.</p>
                      have a fitted CH4d_m but a blanked CH4d_ppm_cal: qaqc value / slope)
       transects.py   transect matrices obs[transect, point]: build_network_transects
                      (one matrix over the 50-m network points for all lines: per-epoch
-                     inlet lag -&gt; snap 60 m -&gt; line by windowed vote among the point&#39;s
+                     inlet lag -&gt; snap 60 m -&gt; line by windowed vote among the point's
                      own letters (assign_lines) -&gt; transits per line via
                      lair.transects.split_transits -&gt; cell means with terminus dwells
                      trimmed), build_trax_transects (one NetCDF per year under
@@ -545,8 +547,8 @@ orientation file it should read.</p>
                      tagged with its nearest 2-km segment; cached points_50m_network.geojson),
                      load_trax_fixes (GPS columns of obs.parquet only), find_segment_crossings
                      (runs of fixes on one segment, gap &lt;= 10 min; `lines` = letters common
-                     to the points hit), release_points (segment points on the crossing&#39;s
-                     line — a junction segment holds several lines&#39; arms), build_trax_receptors
+                     to the points hit), release_points (segment points on the crossing's
+                     line — a junction segment holds several lines' arms), build_trax_receptors
                      (one PYSTILT MultiPointReceptor per crossing at the median time;
                      coverage measured along the route via s_&lt;line&gt;, duration filter),
                      find_dwells / build_dwell_receptors (parked-train point receptors,
@@ -554,7 +556,7 @@ orientation file it should read.</p>
                      filter_receptor_hours (fixed UTC_OFFSET, standard-time hours).
                      Driver: SLV/stilt/ops/build_trax_receptors.py
       receptor_obs.py the CH4 observation for each TRAX receptor: trax_receptor_observations
-                     (mean CH4 over a crossing&#39;s pass / a dwell&#39;s hour, window shifted by the
+                     (mean CH4 over a crossing's pass / a dwell's hour, window shifted by the
                      per-epoch inlet lag, keyed (obs_location, obs_time) via
                      stilt.read_receptors so it matches the footprints exactly),
                      inlet_lag_seconds. Driver: SLV/stilt/ops/build_trax_receptor_obs.py.
@@ -619,7 +621,7 @@ and pipeline internals, in one place.</p>
                    _pkg_rev / _version_tag, fips_cache (pickles what the function returns)
   mdm.py           get_modeldata_mismatch (cached; sum of covariance models on the obs),
                    multiplicative_scale, per_obs_std (subhour)
-  coverage.py      check_state_cells, covered_state (the Jacobian coverage filter&#39;s
+  coverage.py      check_state_cells, covered_state (the Jacobian coverage filter's
                    cells; the problem of them is problem.restrict(keep))
   report.py        domain totals (calculate_total_flux, fluxes_as_inventory), summarize
                    (prints), desroziers_diagnostic, plot_inputs/results/diagnostics
@@ -828,8 +830,8 @@ the MPI start-up on <code class="docutils literal notranslate"><span class="pre"
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0"></script>
-<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0"></script>
+  <script defer src="_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -849,7 +851,7 @@ the MPI start-up on <code class="docutils literal notranslate"><span class="pre"
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.2.0.
   </p>
 </div>
       
@@ -862,7 +864,7 @@ the MPI start-up on <code class="docutils literal notranslate"><span class="pre"
         <div class="footer-item">
 <p class="theme-version">
   <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.22.0.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.23.0.
 </p></div>
       
     </div>

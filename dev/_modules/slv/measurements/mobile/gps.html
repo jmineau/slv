@@ -25,28 +25,29 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../../../_static/styles/theme.css?digest=64cc4de3f052d77215f0" rel="stylesheet" />
-<link href="../../../../_static/styles/pydata-sphinx-theme.css?digest=64cc4de3f052d77215f0" rel="stylesheet" />
+  <link href="../../../../_static/styles/theme.css?digest=18bd87630a240e9c25be" rel="stylesheet" />
+<link href="../../../../_static/styles/pydata-sphinx-theme.css?digest=18bd87630a240e9c25be" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sphinx_autodoc_typehints.css?v=057ac668" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css?v=ba117b66" />
   
   <!-- So that users can add custom icons -->
-  <script defer src="../../../../_static/scripts/fontawesome.js?digest=64cc4de3f052d77215f0"></script>
+  <script defer src="../../../../_static/scripts/fontawesome.js?digest=18bd87630a240e9c25be"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
-<link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
+  <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
+<link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../../_static/documentation_options.js?v=855ee6a5"></script>
+    <script src="../../../../_static/documentation_options.js?v=1ef9135c"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../../../../_static/copybutton.js?v=f281be69"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_modules/slv/measurements/mobile/gps';</script>
     <script>
-        DOCUMENTATION_OPTIONS.theme_version = '0.22.0';
+        DOCUMENTATION_OPTIONS.theme_version = '0.23.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://jmineau.github.io/slv/switcher.json';
         DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
@@ -56,8 +57,9 @@
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.10.4.dev5+g1346b5991" />
+  <meta name="docsearch:version" content="2026.10.4.dev6+gdb1f4b5c8" />
   
     
     <script src="../../../../_static/searchtools.js"></script>
@@ -429,7 +431,7 @@
                 <article class="bd-article">
                   
   <h1>Source code for slv.measurements.mobile.gps</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""</span>
 <span class="sd">GPS records for the mobile platforms and the observation/GPS merge.</span>
 
 <span class="sd">Two GPS sources exist for the TRAX trains:</span>
@@ -443,8 +445,8 @@
 <span class="sd">  on its own battery so it keeps recording when train power is off.</span>
 
 <span class="sd">:func:`read_trax_gps` picks by era; :func:`merge_with_gps` attaches positions to an</span>
-<span class="sd">observation frame (the pipeline&#39;s ``final`` GPS on the Pi clock).</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">observation frame (the pipeline's ``final`` GPS on the Pi clock).</span>
+<span class="sd">"""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
@@ -466,28 +468,28 @@
 <span class="c1">#: column (Speed_m_s / Course_deg in the GPGGA-only years) as Arrow strings, which breaks the</span>
 <span class="c1">#: per-minute medians in :mod:`slv.measurements.mobile.location`.</span>
 <span class="n">GPS_NUMERIC</span> <span class="o">=</span> <span class="p">(</span>
-    <span class="s2">&quot;Latitude_deg&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;Longitude_deg&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;Altitude_msl&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;Speed_m_s&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;Course_deg&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;N_Sat&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;Fix_Quality&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;QAQC_Flag&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;Battery_Voltage_V&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;Logger_T_C&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;Ambient_T_C&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;Ambient_RH_pct&quot;</span><span class="p">,</span>
+    <span class="s2">"Latitude_deg"</span><span class="p">,</span>
+    <span class="s2">"Longitude_deg"</span><span class="p">,</span>
+    <span class="s2">"Altitude_msl"</span><span class="p">,</span>
+    <span class="s2">"Speed_m_s"</span><span class="p">,</span>
+    <span class="s2">"Course_deg"</span><span class="p">,</span>
+    <span class="s2">"N_Sat"</span><span class="p">,</span>
+    <span class="s2">"Fix_Quality"</span><span class="p">,</span>
+    <span class="s2">"QAQC_Flag"</span><span class="p">,</span>
+    <span class="s2">"Battery_Voltage_V"</span><span class="p">,</span>
+    <span class="s2">"Logger_T_C"</span><span class="p">,</span>
+    <span class="s2">"Ambient_T_C"</span><span class="p">,</span>
+    <span class="s2">"Ambient_RH_pct"</span><span class="p">,</span>
 <span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_coerce_numeric</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">cols</span><span class="o">=</span><span class="n">GPS_NUMERIC</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Cast the listed columns (where present) to plain float64, NaN for anything unparsable.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Cast the listed columns (where present) to plain float64, NaN for anything unparsable."""</span>
     <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">cols</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
             <span class="n">s</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">c</span><span class="p">]</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">pd</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">is_numeric_dtype</span><span class="p">(</span><span class="n">s</span><span class="p">):</span>  <span class="c1"># strings and objects: parse</span>
-                <span class="n">s</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">object</span><span class="p">),</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">)</span>
+                <span class="n">s</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">object</span><span class="p">),</span> <span class="n">errors</span><span class="o">=</span><span class="s2">"coerce"</span><span class="p">)</span>
             <span class="c1"># a numeric column converts as it is: through object and back it took a</span>
             <span class="c1"># minute per year of GPS (40 M rows)</span>
             <span class="n">df</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">na_value</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
@@ -501,7 +503,7 @@
 <span class="n">ALTITUDE_RANGE_MSL</span> <span class="o">=</span> <span class="p">(</span><span class="mf">1000.0</span><span class="p">,</span> <span class="mf">3500.0</span><span class="p">)</span>
 
 <span class="c1">#: Post-pilot start of the horel logger (5-s GPS with speed and RMC status).</span>
-<span class="n">HOREL_POST_PILOT</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="s2">&quot;2018-11-19T20:04&quot;</span><span class="p">)</span>
+<span class="n">HOREL_POST_PILOT</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="s2">"2018-11-19T20:04"</span><span class="p">)</span>
 
 <span class="c1">#: Lin-group GPS QAQC flags dropped before classifying: bad fix quality, &lt; 4</span>
 <span class="c1">#: satellites, invalid RMC status, pi-clock overlap. Flag 20 (storage box) and 0 stay.</span>
@@ -511,9 +513,9 @@
 <div class="viewcode-block" id="read_horel_cr1000">
 <a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.gps.read_horel_cr1000.html#slv.measurements.mobile.gps.read_horel_cr1000">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">read_horel_cr1000</span><span class="p">(</span>
-    <span class="n">time_range</span><span class="p">,</span> <span class="n">site</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;trx01&quot;</span><span class="p">,</span> <span class="n">num_processes</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;max&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">time_range</span><span class="p">,</span> <span class="n">site</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"trx01"</span><span class="p">,</span> <span class="n">num_processes</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"max"</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Horel-group CR1000 logger record (5 s): GPS + battery voltage + roof T/RH.</span>
 
 <span class="sd">    ``uataq`` ``raw`` level of the ``gps`` and ``cr1000`` instruments (the monthly</span>
@@ -533,61 +535,61 @@
 <span class="sd">    pilot era. ``time_range`` is any pair pandas can parse. ``num_processes`` is the number of</span>
 <span class="sd">    processes that read the files (passed to ``uataq.read_data``); the frame is the same for</span>
 <span class="sd">    any number.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">d</span> <span class="o">=</span> <span class="n">uataq</span><span class="o">.</span><span class="n">read_data</span><span class="p">(</span>
             <span class="n">site</span><span class="p">,</span>
-            <span class="n">instruments</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;gps&quot;</span><span class="p">,</span> <span class="s2">&quot;cr1000&quot;</span><span class="p">],</span>
-            <span class="n">group</span><span class="o">=</span><span class="s2">&quot;horel&quot;</span><span class="p">,</span>
-            <span class="n">lvl</span><span class="o">=</span><span class="s2">&quot;raw&quot;</span><span class="p">,</span>
+            <span class="n">instruments</span><span class="o">=</span><span class="p">[</span><span class="s2">"gps"</span><span class="p">,</span> <span class="s2">"cr1000"</span><span class="p">],</span>
+            <span class="n">group</span><span class="o">=</span><span class="s2">"horel"</span><span class="p">,</span>
+            <span class="n">lvl</span><span class="o">=</span><span class="s2">"raw"</span><span class="p">,</span>
             <span class="n">time_range</span><span class="o">=</span><span class="n">time_range</span><span class="p">,</span>
             <span class="n">num_processes</span><span class="o">=</span><span class="n">num_processes</span><span class="p">,</span>
         <span class="p">)</span>
     <span class="k">except</span> <span class="n">uataq</span><span class="o">.</span><span class="n">errors</span><span class="o">.</span><span class="n">ReaderError</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
-    <span class="n">gps</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;gps&quot;</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">())</span>
-    <span class="n">cr</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;cr1000&quot;</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">())</span>
+    <span class="n">gps</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"gps"</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">())</span>
+    <span class="n">cr</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"cr1000"</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">())</span>
     <span class="n">df</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">gps</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;outer&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">gps</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">cr</span><span class="p">)</span> <span class="k">else</span> <span class="p">(</span><span class="n">gps</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">gps</span><span class="p">)</span> <span class="k">else</span> <span class="n">cr</span><span class="p">)</span>
+        <span class="n">gps</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cr</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">"outer"</span><span class="p">)</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">gps</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">cr</span><span class="p">)</span> <span class="k">else</span> <span class="p">(</span><span class="n">gps</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">gps</span><span class="p">)</span> <span class="k">else</span> <span class="n">cr</span><span class="p">)</span>
     <span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">_coerce_numeric</span><span class="p">(</span>
-        <span class="n">df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;N_Satellites&quot;</span><span class="p">:</span> <span class="s2">&quot;N_Sat&quot;</span><span class="p">})</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span>
-            <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Instrument_Time&quot;</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">"N_Satellites"</span><span class="p">:</span> <span class="s2">"N_Sat"</span><span class="p">})</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span>
+            <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">"Instrument_Time"</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">"ignore"</span>
         <span class="p">)</span>
     <span class="p">)</span>
-    <span class="k">if</span> <span class="s2">&quot;Speed_m_s&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
-        <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Speed_m_s&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
+    <span class="k">if</span> <span class="s2">"Speed_m_s"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">df</span><span class="p">[</span><span class="s2">"Speed_m_s"</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="o">~</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">duplicated</span><span class="p">()]</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">_to_gps_time</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
-    <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;Time_UTC&quot;</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">"Time_UTC"</span>
     <span class="k">return</span> <span class="n">df</span><span class="p">[</span><span class="o">~</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">duplicated</span><span class="p">()]</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span></div>
 
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_to_gps_time</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Move a horel logger frame from the CR1000 clock onto GPS time.</span>
 
 <span class="sd">    The CR1000 runs 1-20 s ahead of GPS time, drifting between resets. uataq gives each fix</span>
-<span class="sd">    the receiver&#39;s own time as ``GPS_Time_UTC``; the logger offset from those fixes is carried</span>
+<span class="sd">    the receiver's own time as ``GPS_Time_UTC``; the logger offset from those fixes is carried</span>
 <span class="sd">    to rows without one (logger-only rows) from the nearest fix, and every row is shifted by</span>
 <span class="sd">    it. ``Logger_Offset_s`` keeps the offset (logger minus GPS, NaN where none was known). A</span>
 <span class="sd">    frame without GPS time (pilot files, or a uataq without the column) is left on logger time.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="s2">&quot;GPS_Time_UTC&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="s2">"GPS_Time_UTC"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">df</span>
-    <span class="n">gps_time</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;GPS_Time_UTC&quot;</span><span class="p">),</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">)</span>
+    <span class="n">gps_time</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">"GPS_Time_UTC"</span><span class="p">),</span> <span class="n">errors</span><span class="o">=</span><span class="s2">"coerce"</span><span class="p">)</span>
     <span class="n">logger</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
     <span class="n">offset</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span>
         <span class="p">(</span><span class="n">logger</span> <span class="o">-</span> <span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">(</span><span class="n">gps_time</span><span class="p">))</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">(),</span> <span class="n">index</span><span class="o">=</span><span class="n">df</span><span class="o">.</span><span class="n">index</span>
     <span class="p">)</span>
     <span class="k">if</span> <span class="n">offset</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
         <span class="k">return</span> <span class="n">df</span>
-    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;Logger_Offset_s&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">offset</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">"Logger_Offset_s"</span><span class="p">]</span> <span class="o">=</span> <span class="n">offset</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
     <span class="n">shift</span> <span class="o">=</span> <span class="n">offset</span><span class="o">.</span><span class="n">ffill</span><span class="p">()</span><span class="o">.</span><span class="n">bfill</span><span class="p">()</span>
-    <span class="n">df</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">logger</span> <span class="o">-</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_timedelta</span><span class="p">(</span><span class="n">shift</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(),</span> <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;s&quot;</span><span class="p">)</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">logger</span> <span class="o">-</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_timedelta</span><span class="p">(</span><span class="n">shift</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(),</span> <span class="n">unit</span><span class="o">=</span><span class="s2">"s"</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">df</span>
 
 
@@ -595,11 +597,11 @@
 <a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.gps.read_lin_gps.html#slv.measurements.mobile.gps.read_lin_gps">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">read_lin_gps</span><span class="p">(</span>
     <span class="n">time_range</span><span class="p">,</span>
-    <span class="n">site</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;trx01&quot;</span><span class="p">,</span>
-    <span class="n">lvl</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;qaqc&quot;</span><span class="p">,</span>
-    <span class="n">num_processes</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;max&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="n">site</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"trx01"</span><span class="p">,</span>
+    <span class="n">lvl</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"qaqc"</span><span class="p">,</span>
+    <span class="n">num_processes</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"max"</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Lin-group (air-trend) GPS at 1 s from the pipeline ``qaqc`` level, Dec 2014 on.</span>
 
 <span class="sd">    ``uataq`` read with ``N_Satellites`` renamed to ``N_Sat``; rows with</span>
@@ -609,21 +611,21 @@
 <span class="sd">    the LGR. Only records while the Pi has train power. ``num_processes`` is the number of</span>
 <span class="sd">    processes that read the files (passed to ``uataq.read_data``); the frame is the same for</span>
 <span class="sd">    any number.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">df</span> <span class="o">=</span> <span class="n">uataq</span><span class="o">.</span><span class="n">read_data</span><span class="p">(</span>
             <span class="n">site</span><span class="p">,</span>
-            <span class="n">instruments</span><span class="o">=</span><span class="s2">&quot;gps&quot;</span><span class="p">,</span>
+            <span class="n">instruments</span><span class="o">=</span><span class="s2">"gps"</span><span class="p">,</span>
             <span class="n">lvl</span><span class="o">=</span><span class="n">lvl</span><span class="p">,</span>
             <span class="n">time_range</span><span class="o">=</span><span class="n">time_range</span><span class="p">,</span>
             <span class="n">num_processes</span><span class="o">=</span><span class="n">num_processes</span><span class="p">,</span>
-        <span class="p">)[</span><span class="s2">&quot;gps&quot;</span><span class="p">]</span>
+        <span class="p">)[</span><span class="s2">"gps"</span><span class="p">]</span>
     <span class="k">except</span> <span class="n">uataq</span><span class="o">.</span><span class="n">errors</span><span class="o">.</span><span class="n">ReaderError</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
-    <span class="n">df</span> <span class="o">=</span> <span class="n">_coerce_numeric</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;N_Satellites&quot;</span><span class="p">:</span> <span class="s2">&quot;N_Sat&quot;</span><span class="p">}))</span>
-    <span class="k">if</span> <span class="s2">&quot;QAQC_Flag&quot;</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">_coerce_numeric</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">"N_Satellites"</span><span class="p">:</span> <span class="s2">"N_Sat"</span><span class="p">}))</span>
+    <span class="k">if</span> <span class="s2">"QAQC_Flag"</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
         <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="o">~</span><span class="n">df</span><span class="o">.</span><span class="n">QAQC_Flag</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">LIN_GPS_DROP_FLAGS</span><span class="p">)]</span>
-    <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;Time_UTC&quot;</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">"Time_UTC"</span>
     <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span></div>
 
 
@@ -632,11 +634,11 @@
 <a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.gps.read_trax_gps.html#slv.measurements.mobile.gps.read_trax_gps">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">read_trax_gps</span><span class="p">(</span>
     <span class="n">time_range</span><span class="p">,</span>
-    <span class="n">site</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;trx01&quot;</span><span class="p">,</span>
+    <span class="n">site</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"trx01"</span><span class="p">,</span>
     <span class="n">fill_gaps</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-    <span class="n">num_processes</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;max&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+    <span class="n">num_processes</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"max"</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Best GPS source for classifying, by era: lin-group GPS before</span>
 <span class="sd">    :data:`HOREL_POST_PILOT`, horel logger (with battery/T/RH) after.</span>
 
@@ -649,7 +651,7 @@
 
 <span class="sd">    ``num_processes`` is the number of processes that read the GPS files</span>
 <span class="sd">    (:func:`read_lin_gps`, :func:`read_horel_cr1000`); the frame is the same for any number.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">start</span><span class="p">,</span> <span class="n">end</span> <span class="o">=</span> <span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">time_range</span><span class="p">)</span>
     <span class="n">parts</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">if</span> <span class="n">start</span> <span class="o">&lt;</span> <span class="n">HOREL_POST_PILOT</span><span class="p">:</span>
@@ -668,39 +670,39 @@
             <span class="n">lin</span> <span class="o">=</span> <span class="n">read_lin_gps</span><span class="p">(</span><span class="n">post</span><span class="p">,</span> <span class="n">site</span><span class="p">,</span> <span class="n">num_processes</span><span class="o">=</span><span class="n">num_processes</span><span class="p">)</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">lin</span><span class="p">):</span>
                 <span class="n">covered</span> <span class="o">=</span> <span class="p">(</span>
-                    <span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">(</span><span class="n">horel</span><span class="o">.</span><span class="n">index</span><span class="p">)</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="s2">&quot;min&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+                    <span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">(</span><span class="n">horel</span><span class="o">.</span><span class="n">index</span><span class="p">)</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="s2">"min"</span><span class="p">)</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
                     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">horel</span><span class="p">)</span>
                     <span class="k">else</span> <span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">([])</span>
                 <span class="p">)</span>
-                <span class="n">gap</span> <span class="o">=</span> <span class="n">lin</span><span class="p">[</span><span class="o">~</span><span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">(</span><span class="n">lin</span><span class="o">.</span><span class="n">index</span><span class="p">)</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="s2">&quot;min&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">covered</span><span class="p">)]</span>
+                <span class="n">gap</span> <span class="o">=</span> <span class="n">lin</span><span class="p">[</span><span class="o">~</span><span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">(</span><span class="n">lin</span><span class="o">.</span><span class="n">index</span><span class="p">)</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="s2">"min"</span><span class="p">)</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">covered</span><span class="p">)]</span>
                 <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">gap</span><span class="p">):</span>
-                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Filling </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">gap</span><span class="p">)</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> lin-GPS rows into horel gaps&quot;</span><span class="p">)</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Filling </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">gap</span><span class="p">)</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> lin-GPS rows into horel gaps"</span><span class="p">)</span>
                     <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">gap</span><span class="p">)</span>
     <span class="n">parts</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">parts</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">p</span><span class="p">)]</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">parts</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
     <span class="n">out</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">out</span><span class="p">[</span><span class="o">~</span><span class="n">out</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">duplicated</span><span class="p">(</span><span class="n">keep</span><span class="o">=</span><span class="s2">&quot;first&quot;</span><span class="p">)]</span></div>
+    <span class="k">return</span> <span class="n">out</span><span class="p">[</span><span class="o">~</span><span class="n">out</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">duplicated</span><span class="p">(</span><span class="n">keep</span><span class="o">=</span><span class="s2">"first"</span><span class="p">)]</span></div>
 
 
 
 <div class="viewcode-block" id="lin_clock_offset_by_day">
 <a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.gps.lin_clock_offset_by_day.html#slv.measurements.mobile.gps.lin_clock_offset_by_day">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">lin_clock_offset_by_day</span><span class="p">(</span><span class="n">gps</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Median GPS-minus-Pi clock offset (s) per UTC day, from a lin GPS frame.</span>
 
 <span class="sd">    The Pi had no working real-time clock for most of the record, so its time can be hours to</span>
 <span class="sd">    days off. A horel fix can only georeference an LGR row (which carries Pi time) while the two</span>
 <span class="sd">    clocks agree, which this measures: see :func:`fill_gps_gaps_with_horel`.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">gps</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;Pi_Time&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">gps</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">gps</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">"Pi_Time"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">gps</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
     <span class="n">t</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span>
-        <span class="n">gps</span><span class="p">[</span><span class="s2">&quot;Time_UTC&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="s2">&quot;Time_UTC&quot;</span> <span class="ow">in</span> <span class="n">gps</span><span class="o">.</span><span class="n">columns</span> <span class="k">else</span> <span class="n">gps</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span>
+        <span class="n">gps</span><span class="p">[</span><span class="s2">"Time_UTC"</span><span class="p">]</span> <span class="k">if</span> <span class="s2">"Time_UTC"</span> <span class="ow">in</span> <span class="n">gps</span><span class="o">.</span><span class="n">columns</span> <span class="k">else</span> <span class="n">gps</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">"coerce"</span>
     <span class="p">)</span>
-    <span class="n">off</span> <span class="o">=</span> <span class="p">(</span><span class="n">t</span> <span class="o">-</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">gps</span><span class="p">[</span><span class="s2">&quot;Pi_Time&quot;</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">off</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">(</span><span class="n">t</span><span class="p">)</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="s2">&quot;D&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">median</span><span class="p">()</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span></div>
+    <span class="n">off</span> <span class="o">=</span> <span class="p">(</span><span class="n">t</span> <span class="o">-</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">gps</span><span class="p">[</span><span class="s2">"Pi_Time"</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">"coerce"</span><span class="p">))</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">off</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">(</span><span class="n">t</span><span class="p">)</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="s2">"D"</span><span class="p">))</span><span class="o">.</span><span class="n">median</span><span class="p">()</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span></div>
 
 
 
@@ -712,14 +714,14 @@
     <span class="n">max_clock_offset_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">3.0</span><span class="p">,</span>
     <span class="n">neighbour_days</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">set</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Days whose Pi clock can be trusted to ``max_clock_offset_s``.</span>
 
 <span class="sd">    A day with its own lin-GPS offset is judged on that; a day with no lin GPS at all is</span>
 <span class="sd">    judged on the nearest days within ``neighbour_days`` on each side (the Pi clock drifts</span>
 <span class="sd">    over days, not minutes, so a bracketed gap is safe — and Aug-Oct 2018, when the clock was</span>
 <span class="sd">    days off, fails this test).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">ok</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
     <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">(</span><span class="n">days</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">offsets</span><span class="o">.</span><span class="n">index</span><span class="p">:</span>
@@ -743,40 +745,40 @@
     <span class="n">site</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">lin_gps</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
     <span class="n">max_clock_offset_s</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">3.0</span><span class="p">,</span>
-    <span class="n">tolerance</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;15s&quot;</span><span class="p">,</span>
+    <span class="n">tolerance</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"15s"</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Georeference the rows the lin GPS could not, using the horel logger&#39;s 5-s fixes.</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Georeference the rows the lin GPS could not, using the horel logger's 5-s fixes.</span>
 
 <span class="sd">    136 days have LGR data but no lin GPS file at all (it was never archived) and many more have</span>
 <span class="sd">    partial outages — ~754 on-track hours, most of it 2019-2023. The horel CR1000 logger recorded</span>
 <span class="sd">    position throughout. Its own clock runs 1-20 s ahead of GPS time, but</span>
-<span class="sd">    :func:`read_horel_cr1000` puts its fixes on GPS time (from the receiver&#39;s time of day), so</span>
+<span class="sd">    :func:`read_horel_cr1000` puts its fixes on GPS time (from the receiver's time of day), so</span>
 <span class="sd">    both sides are on GPS time and it can stand in wherever the Pi clock is trustworthy</span>
-<span class="sd">    (:func:`clock_checked_days`). Adds ``gps_source`` (``&quot;lin&quot;`` / ``&quot;horel&quot;``) so the filled rows</span>
+<span class="sd">    (:func:`clock_checked_days`). Adds ``gps_source`` (``"lin"`` / ``"horel"``) so the filled rows</span>
 <span class="sd">    can be dropped or compared at load time.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="s2">&quot;gps_source&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="s2">"gps_source"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
         <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-        <span class="n">data</span><span class="p">[</span><span class="s2">&quot;gps_source&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;Latitude_deg&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">notna</span><span class="p">(),</span> <span class="s2">&quot;lin&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-    <span class="n">missing</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;Latitude_deg&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span>
+        <span class="n">data</span><span class="p">[</span><span class="s2">"gps_source"</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">"Latitude_deg"</span><span class="p">]</span><span class="o">.</span><span class="n">notna</span><span class="p">(),</span> <span class="s2">"lin"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">missing</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">"Latitude_deg"</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="nb">bool</span><span class="p">(</span><span class="n">missing</span><span class="o">.</span><span class="n">any</span><span class="p">()):</span>
         <span class="k">return</span> <span class="n">data</span>
-    <span class="n">t</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">missing</span><span class="p">,</span> <span class="s2">&quot;Time_UTC&quot;</span><span class="p">])</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">missing</span><span class="p">,</span> <span class="s2">"Time_UTC"</span><span class="p">])</span>
     <span class="n">horel</span> <span class="o">=</span> <span class="n">read_horel_cr1000</span><span class="p">(</span>
-        <span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">-</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="s2">&quot;1h&quot;</span><span class="p">),</span> <span class="n">t</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="s2">&quot;1h&quot;</span><span class="p">)),</span> <span class="n">site</span>
+        <span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="o">-</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="s2">"1h"</span><span class="p">),</span> <span class="n">t</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="s2">"1h"</span><span class="p">)),</span> <span class="n">site</span>
     <span class="p">)</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">horel</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;Latitude_deg&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">horel</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">horel</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">"Latitude_deg"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">horel</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">data</span>
 
     <span class="n">ok_days</span> <span class="o">=</span> <span class="n">clock_checked_days</span><span class="p">(</span>
         <span class="n">lin_clock_offset_by_day</span><span class="p">(</span><span class="n">lin_gps</span><span class="p">),</span>
-        <span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">(</span><span class="n">t</span><span class="p">)</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="s2">&quot;D&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">unique</span><span class="p">(),</span>
+        <span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">(</span><span class="n">t</span><span class="p">)</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="s2">"D"</span><span class="p">)</span><span class="o">.</span><span class="n">unique</span><span class="p">(),</span>
         <span class="n">max_clock_offset_s</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">ok_days</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">data</span>
-    <span class="n">day</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;Time_UTC&quot;</span><span class="p">]))</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="s2">&quot;D&quot;</span><span class="p">)</span>
+    <span class="n">day</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">"Time_UTC"</span><span class="p">]))</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="s2">"D"</span><span class="p">)</span>
     <span class="n">use</span> <span class="o">=</span> <span class="n">missing</span> <span class="o">&amp;</span> <span class="n">day</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">ok_days</span><span class="p">))</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">use</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
         <span class="k">return</span> <span class="n">data</span>
@@ -784,34 +786,34 @@
     <span class="n">cols</span> <span class="o">=</span> <span class="p">[</span>
         <span class="n">c</span>
         <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="p">(</span>
-            <span class="s2">&quot;Latitude_deg&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;Longitude_deg&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;Altitude_msl&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;Speed_m_s&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;Course_deg&quot;</span><span class="p">,</span>
+            <span class="s2">"Latitude_deg"</span><span class="p">,</span>
+            <span class="s2">"Longitude_deg"</span><span class="p">,</span>
+            <span class="s2">"Altitude_msl"</span><span class="p">,</span>
+            <span class="s2">"Speed_m_s"</span><span class="p">,</span>
+            <span class="s2">"Course_deg"</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">horel</span><span class="o">.</span><span class="n">columns</span>
     <span class="p">]</span>
-    <span class="n">h</span> <span class="o">=</span> <span class="n">horel</span><span class="p">[</span><span class="n">cols</span><span class="p">]</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Latitude_deg&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span>
-    <span class="n">h</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">(</span><span class="n">h</span><span class="o">.</span><span class="n">index</span><span class="p">)</span><span class="o">.</span><span class="n">as_unit</span><span class="p">(</span><span class="s2">&quot;ns&quot;</span><span class="p">)</span>
-    <span class="n">h</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;Time_UTC&quot;</span>
-    <span class="n">left</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">use</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;Time_UTC&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s2">&quot;Time_UTC&quot;</span><span class="p">)</span>
+    <span class="n">h</span> <span class="o">=</span> <span class="n">horel</span><span class="p">[</span><span class="n">cols</span><span class="p">]</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="s2">"Latitude_deg"</span><span class="p">])</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span>
+    <span class="n">h</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">(</span><span class="n">h</span><span class="o">.</span><span class="n">index</span><span class="p">)</span><span class="o">.</span><span class="n">as_unit</span><span class="p">(</span><span class="s2">"ns"</span><span class="p">)</span>
+    <span class="n">h</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">"Time_UTC"</span>
+    <span class="n">left</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">use</span><span class="p">,</span> <span class="p">[</span><span class="s2">"Time_UTC"</span><span class="p">]]</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s2">"Time_UTC"</span><span class="p">)</span>
     <span class="c1"># the two records can carry different datetime resolutions (us from parquet, s from the</span>
     <span class="c1"># logger h5); merge_asof requires them to match exactly</span>
-    <span class="n">left</span><span class="p">[</span><span class="s2">&quot;Time_UTC&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">left</span><span class="p">[</span><span class="s2">&quot;Time_UTC&quot;</span><span class="p">]))</span><span class="o">.</span><span class="n">as_unit</span><span class="p">(</span><span class="s2">&quot;ns&quot;</span><span class="p">)</span>
+    <span class="n">left</span><span class="p">[</span><span class="s2">"Time_UTC"</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">left</span><span class="p">[</span><span class="s2">"Time_UTC"</span><span class="p">]))</span><span class="o">.</span><span class="n">as_unit</span><span class="p">(</span><span class="s2">"ns"</span><span class="p">)</span>
     <span class="n">filled</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">merge_asof</span><span class="p">(</span>
         <span class="n">left</span><span class="p">,</span>
         <span class="n">h</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(),</span>
-        <span class="n">on</span><span class="o">=</span><span class="s2">&quot;Time_UTC&quot;</span><span class="p">,</span>
-        <span class="n">direction</span><span class="o">=</span><span class="s2">&quot;nearest&quot;</span><span class="p">,</span>
+        <span class="n">on</span><span class="o">=</span><span class="s2">"Time_UTC"</span><span class="p">,</span>
+        <span class="n">direction</span><span class="o">=</span><span class="s2">"nearest"</span><span class="p">,</span>
         <span class="n">tolerance</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">tolerance</span><span class="p">),</span>
     <span class="p">)</span>
     <span class="n">filled</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">left</span><span class="o">.</span><span class="n">index</span>
-    <span class="n">got</span> <span class="o">=</span> <span class="n">filled</span><span class="p">[</span><span class="s2">&quot;Latitude_deg&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">notna</span><span class="p">()</span>
+    <span class="n">got</span> <span class="o">=</span> <span class="n">filled</span><span class="p">[</span><span class="s2">"Latitude_deg"</span><span class="p">]</span><span class="o">.</span><span class="n">notna</span><span class="p">()</span>
     <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">cols</span><span class="p">:</span>
         <span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">filled</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="n">got</span><span class="p">],</span> <span class="n">c</span><span class="p">]</span> <span class="o">=</span> <span class="n">filled</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">got</span><span class="p">,</span> <span class="n">c</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
-    <span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">filled</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="n">got</span><span class="p">],</span> <span class="s2">&quot;gps_source&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;horel&quot;</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Georeferenced </span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">got</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> rows from the horel logger&quot;</span><span class="p">)</span>
+    <span class="n">data</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">filled</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="n">got</span><span class="p">],</span> <span class="s2">"gps_source"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"horel"</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Georeferenced </span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">got</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> rows from the horel logger"</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">data</span></div>
 
 
@@ -830,10 +832,10 @@
     <span class="n">altitude_range</span><span class="o">=</span><span class="n">ALTITUDE_RANGE_MSL</span><span class="p">,</span>
     <span class="n">horel_fallback</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Attach GPS positions to a mobile site&#39;s concentration records.</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Attach GPS positions to a mobile site's concentration records.</span>
 
-<span class="sd">    Reads the site&#39;s final-level GPS through uataq (UATAQ sites only), drops the</span>
+<span class="sd">    Reads the site's final-level GPS through uataq (UATAQ sites only), drops the</span>
 <span class="sd">    fixes with an altitude outside ``altitude_range`` (m MSL; fixes without one are kept,</span>
 <span class="sd">    ``None`` keeps all), the fixes farther than</span>
 <span class="sd">    ``route_buffer`` m from ``routes`` and those inside ``storage_polygon``, then joins</span>
@@ -844,7 +846,7 @@
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    site, org : str</span>
-<span class="sd">        Site name and its organization (only ``&quot;UATAQ&quot;`` is supported).</span>
+<span class="sd">        Site name and its organization (only ``"UATAQ"`` is supported).</span>
 <span class="sd">    obs : pd.DataFrame</span>
 <span class="sd">        Records with a ``Time_UTC`` column.</span>
 <span class="sd">    time_range : optional</span>
@@ -854,7 +856,7 @@
 <span class="sd">    routes, storage_polygon : GeoDataFrame, str or False, optional</span>
 <span class="sd">        See :func:`~slv.measurements.mobile.network.get_geodf`.</span>
 <span class="sd">    route_buffer : float, optional</span>
-<span class="sd">        Metres, in the routes&#39; CRS.</span>
+<span class="sd">        Metres, in the routes' CRS.</span>
 <span class="sd">    altitude_range : (float, float), optional</span>
 <span class="sd">        Plausible altitudes, default :data:`ALTITUDE_RANGE_MSL`.</span>
 <span class="sd">    horel_fallback : bool</span>
@@ -867,115 +869,115 @@
 <span class="sd">        ``obs`` with the GPS columns (``Latitude_deg``, ``Longitude_deg``,</span>
 <span class="sd">        ``Altitude_msl``, ...), each observation once: when two fixes fall in one</span>
 <span class="sd">        second of the Pi clock, the observation keeps the first.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># Get routes and storage polygon defaults if not provided</span>
     <span class="c1"># Can be set to False to skip these filters, or provide custom geodataframes/paths</span>
     <span class="k">if</span> <span class="n">routes</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># noqa: SIM102</span>
-        <span class="k">if</span> <span class="n">site</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;trx&quot;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">site</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"trx"</span><span class="p">):</span>
             <span class="n">routes</span> <span class="o">=</span> <span class="n">load_trax_lines</span><span class="p">(</span><span class="n">meters</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">route_buffer</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># noqa: SIM102</span>
-        <span class="k">if</span> <span class="n">site</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;trx&quot;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">site</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"trx"</span><span class="p">):</span>
             <span class="n">route_buffer</span> <span class="o">=</span> <span class="mi">50</span>  <span class="c1"># meters</span>
 
     <span class="k">if</span> <span class="n">storage_polygon</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># noqa: SIM102</span>
-        <span class="k">if</span> <span class="n">site</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;trx&quot;</span><span class="p">):</span>
-            <span class="n">storage_polygon</span> <span class="o">=</span> <span class="n">storage_locations</span><span class="p">[</span><span class="s2">&quot;JRRSC&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">site</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"trx"</span><span class="p">):</span>
+            <span class="n">storage_polygon</span> <span class="o">=</span> <span class="n">storage_locations</span><span class="p">[</span><span class="s2">"JRRSC"</span><span class="p">]</span>
 
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Reading GPS data...&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"Reading GPS data..."</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">org</span> <span class="o">==</span> <span class="s2">&quot;UATAQ&quot;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">org</span> <span class="o">==</span> <span class="s2">"UATAQ"</span><span class="p">:</span>
         <span class="n">gps</span> <span class="o">=</span> <span class="n">uataq</span><span class="o">.</span><span class="n">read_data</span><span class="p">(</span>
             <span class="n">site</span><span class="p">,</span>
-            <span class="n">instruments</span><span class="o">=</span><span class="s2">&quot;gps&quot;</span><span class="p">,</span>
-            <span class="n">lvl</span><span class="o">=</span><span class="s2">&quot;final&quot;</span><span class="p">,</span>
+            <span class="n">instruments</span><span class="o">=</span><span class="s2">"gps"</span><span class="p">,</span>
+            <span class="n">lvl</span><span class="o">=</span><span class="s2">"final"</span><span class="p">,</span>
             <span class="n">time_range</span><span class="o">=</span><span class="n">time_range</span><span class="p">,</span>
             <span class="n">num_processes</span><span class="o">=</span><span class="n">num_processes</span><span class="p">,</span>
-        <span class="p">)[</span><span class="s2">&quot;gps&quot;</span><span class="p">]</span>
+        <span class="p">)[</span><span class="s2">"gps"</span><span class="p">]</span>
         <span class="n">gps</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span>
             <span class="n">gps</span><span class="p">,</span>
             <span class="n">geometry</span><span class="o">=</span><span class="n">gpd</span><span class="o">.</span><span class="n">points_from_xy</span><span class="p">(</span><span class="n">gps</span><span class="o">.</span><span class="n">Longitude_deg</span><span class="p">,</span> <span class="n">gps</span><span class="o">.</span><span class="n">Latitude_deg</span><span class="p">),</span>
-            <span class="n">crs</span><span class="o">=</span><span class="s2">&quot;EPSG:4326&quot;</span><span class="p">,</span>
+            <span class="n">crs</span><span class="o">=</span><span class="s2">"EPSG:4326"</span><span class="p">,</span>
         <span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Organization </span><span class="si">{</span><span class="n">org</span><span class="si">}</span><span class="s2"> not supported for GPS loading.&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Organization </span><span class="si">{</span><span class="n">org</span><span class="si">}</span><span class="s2"> not supported for GPS loading."</span><span class="p">)</span>
 
     <span class="c1"># Drop GPS junk by altitude. A fixed range, not per-chunk quantiles: those dropped 2 %</span>
     <span class="c1"># of every chunk (the high end of a line along with it) and every fix when the altitude</span>
     <span class="c1"># was constant or missing.</span>
     <span class="k">if</span> <span class="n">altitude_range</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">alt</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">gps</span><span class="o">.</span><span class="n">Altitude_msl</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">)</span>
+        <span class="n">alt</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">gps</span><span class="o">.</span><span class="n">Altitude_msl</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s2">"coerce"</span><span class="p">)</span>
         <span class="n">gps</span> <span class="o">=</span> <span class="n">gps</span><span class="p">[</span><span class="n">alt</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span> <span class="o">|</span> <span class="n">alt</span><span class="o">.</span><span class="n">between</span><span class="p">(</span><span class="o">*</span><span class="n">altitude_range</span><span class="p">)]</span>
 
     <span class="c1"># Filter to locations within buffer of routes</span>
     <span class="n">routes</span> <span class="o">=</span> <span class="n">get_geodf</span><span class="p">(</span><span class="n">routes</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">routes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">route_buffer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Filtering GPS points near routes...&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">"Filtering GPS points near routes..."</span><span class="p">)</span>
         <span class="n">gps</span> <span class="o">=</span> <span class="n">filter_near_routes</span><span class="p">(</span><span class="n">gps</span><span class="p">,</span> <span class="n">routes</span><span class="p">,</span> <span class="n">route_buffer</span><span class="p">)</span>
 
     <span class="c1"># Remove gps points within storage polygon</span>
     <span class="n">storage_polygon</span> <span class="o">=</span> <span class="n">get_geodf</span><span class="p">(</span><span class="n">storage_polygon</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">storage_polygon</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Removing GPS points within storage polygon...&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">"Removing GPS points within storage polygon..."</span><span class="p">)</span>
         <span class="n">storage_polygon</span> <span class="o">=</span> <span class="n">storage_polygon</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="n">gps</span><span class="o">.</span><span class="n">crs</span><span class="p">)</span>  <span class="c1"># a UTM yard matched nothing</span>
-        <span class="n">gps</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">sjoin</span><span class="p">(</span><span class="n">gps</span><span class="p">,</span> <span class="n">storage_polygon</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span> <span class="n">predicate</span><span class="o">=</span><span class="s2">&quot;within&quot;</span><span class="p">)</span>
-        <span class="n">gps</span> <span class="o">=</span> <span class="n">gps</span><span class="p">[</span><span class="n">gps</span><span class="o">.</span><span class="n">index_right</span><span class="o">.</span><span class="n">isnull</span><span class="p">()]</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;index_right&quot;</span><span class="p">])</span>
+        <span class="n">gps</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">sjoin</span><span class="p">(</span><span class="n">gps</span><span class="p">,</span> <span class="n">storage_polygon</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">"left"</span><span class="p">,</span> <span class="n">predicate</span><span class="o">=</span><span class="s2">"within"</span><span class="p">)</span>
+        <span class="n">gps</span> <span class="o">=</span> <span class="n">gps</span><span class="p">[</span><span class="n">gps</span><span class="o">.</span><span class="n">index_right</span><span class="o">.</span><span class="n">isnull</span><span class="p">()]</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">"index_right"</span><span class="p">])</span>
 
-    <span class="n">gps</span> <span class="o">=</span> <span class="n">gps</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;geometry&quot;</span><span class="p">])</span>
+    <span class="n">gps</span> <span class="o">=</span> <span class="n">gps</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">"geometry"</span><span class="p">])</span>
 
     <span class="c1"># Merge obs and GPS data</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Merging </span><span class="si">{</span><span class="n">site</span><span class="si">}</span><span class="s2"> obs and GPS data...&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Merging </span><span class="si">{</span><span class="n">site</span><span class="si">}</span><span class="s2"> obs and GPS data..."</span><span class="p">)</span>
     <span class="n">obs</span> <span class="o">=</span> <span class="n">obs</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span>
-        <span class="s2">&quot;Time_UTC&quot;</span>
+        <span class="s2">"Time_UTC"</span>
     <span class="p">)</span>  <span class="c1"># Ensure obs is indexed by time for merging with GPS data</span>
 
-    <span class="k">if</span> <span class="n">org</span> <span class="o">==</span> <span class="s2">&quot;UATAQ&quot;</span><span class="p">:</span>
-        <span class="c1"># For UATAQ (specifically lin group), the pi&#39;s time is not trustworthy,</span>
+    <span class="k">if</span> <span class="n">org</span> <span class="o">==</span> <span class="s2">"UATAQ"</span><span class="p">:</span>
+        <span class="c1"># For UATAQ (specifically lin group), the pi's time is not trustworthy,</span>
         <span class="c1"># so we need to get the UTC time from the GPS data</span>
-        <span class="c1"># TODO if group == &#39;horel&#39;, this will need to be changed</span>
-        <span class="n">on</span> <span class="o">=</span> <span class="s2">&quot;Pi_Time&quot;</span>
+        <span class="c1"># TODO if group == 'horel', this will need to be changed</span>
+        <span class="n">on</span> <span class="o">=</span> <span class="s2">"Pi_Time"</span>
         <span class="n">obs</span> <span class="o">=</span> <span class="n">obs</span><span class="o">.</span><span class="n">rename_axis</span><span class="p">(</span>
-            <span class="s2">&quot;Pi_Time&quot;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span>
+            <span class="s2">"Pi_Time"</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span>
         <span class="p">)</span>  <span class="c1"># Rename Time_UTC to Pi_Time for merging</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">on</span> <span class="o">=</span> <span class="s2">&quot;Time_UTC&quot;</span>
+        <span class="n">on</span> <span class="o">=</span> <span class="s2">"Time_UTC"</span>
 
     <span class="n">data</span> <span class="o">=</span> <span class="n">uataq</span><span class="o">.</span><span class="n">sites</span><span class="o">.</span><span class="n">MobileSite</span><span class="o">.</span><span class="n">merge_gps</span><span class="p">(</span><span class="n">obs</span><span class="p">,</span> <span class="n">gps</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="n">on</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
-    <span class="c1"># uataq&#39;s merge_gps returns an observation once per GPS fix in its second, so when two</span>
+    <span class="c1"># uataq's merge_gps returns an observation once per GPS fix in its second, so when two</span>
     <span class="c1"># fixes share a Pi second the reading comes out twice, a second apart (uataq#93). Keep</span>
     <span class="c1"># the first: a row with the same values as an earlier one in the same second is a copy.</span>
     <span class="c1"># Remove this once slv pins a uataq with the fix (uataq PR #97); it is a no-op there.</span>
     <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="o">~</span><span class="n">data</span><span class="o">.</span><span class="n">duplicated</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="n">on</span><span class="p">,</span> <span class="o">*</span><span class="n">obs</span><span class="o">.</span><span class="n">columns</span><span class="p">])]</span>
-    <span class="n">data</span><span class="p">[</span><span class="s2">&quot;gps_source&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;lin&quot;</span>
+    <span class="n">data</span><span class="p">[</span><span class="s2">"gps_source"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"lin"</span>
 
     <span class="c1"># The merge is an inner join, so rows the lin GPS never covered are gone. Offer them to the</span>
     <span class="c1"># horel logger, which recorded position through those outages (see fill_gps_gaps_with_horel).</span>
-    <span class="k">if</span> <span class="n">horel_fallback</span> <span class="ow">and</span> <span class="n">site</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;trx&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">on</span> <span class="o">==</span> <span class="s2">&quot;Pi_Time&quot;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">horel_fallback</span> <span class="ow">and</span> <span class="n">site</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"trx"</span><span class="p">)</span> <span class="ow">and</span> <span class="n">on</span> <span class="o">==</span> <span class="s2">"Pi_Time"</span><span class="p">:</span>
         <span class="n">matched</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="nb">set</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;Pi_Time&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">())</span>
-            <span class="k">if</span> <span class="s2">&quot;Pi_Time&quot;</span> <span class="ow">in</span> <span class="n">data</span>
+            <span class="nb">set</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">"Pi_Time"</span><span class="p">])</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">())</span>
+            <span class="k">if</span> <span class="s2">"Pi_Time"</span> <span class="ow">in</span> <span class="n">data</span>
             <span class="k">else</span> <span class="nb">set</span><span class="p">()</span>
         <span class="p">)</span>
-        <span class="n">pi</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">(</span><span class="n">obs</span><span class="o">.</span><span class="n">index</span><span class="p">)</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="s2">&quot;s&quot;</span><span class="p">)</span>
+        <span class="n">pi</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">(</span><span class="n">obs</span><span class="o">.</span><span class="n">index</span><span class="p">)</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="s2">"s"</span><span class="p">)</span>
         <span class="n">gap</span> <span class="o">=</span> <span class="n">obs</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="o">~</span><span class="n">pi</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">matched</span><span class="p">)]</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">gap</span><span class="p">):</span>
-            <span class="n">gap</span> <span class="o">=</span> <span class="n">gap</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;Pi_Time&quot;</span><span class="p">:</span> <span class="s2">&quot;Time_UTC&quot;</span><span class="p">})</span>
+            <span class="n">gap</span> <span class="o">=</span> <span class="n">gap</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">"Pi_Time"</span><span class="p">:</span> <span class="s2">"Time_UTC"</span><span class="p">})</span>
             <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="p">(</span>
-                <span class="s2">&quot;Latitude_deg&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;Longitude_deg&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;Altitude_msl&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;Speed_m_s&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;Course_deg&quot;</span><span class="p">,</span>
+                <span class="s2">"Latitude_deg"</span><span class="p">,</span>
+                <span class="s2">"Longitude_deg"</span><span class="p">,</span>
+                <span class="s2">"Altitude_msl"</span><span class="p">,</span>
+                <span class="s2">"Speed_m_s"</span><span class="p">,</span>
+                <span class="s2">"Course_deg"</span><span class="p">,</span>
             <span class="p">):</span>
                 <span class="k">if</span> <span class="n">c</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">gap</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
                     <span class="n">gap</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
             <span class="n">gap</span> <span class="o">=</span> <span class="n">fill_gps_gaps_with_horel</span><span class="p">(</span><span class="n">gap</span><span class="p">,</span> <span class="n">site</span><span class="p">,</span> <span class="n">gps</span><span class="p">)</span>
-            <span class="n">gap</span> <span class="o">=</span> <span class="n">gap</span><span class="p">[</span><span class="n">gap</span><span class="p">[</span><span class="s2">&quot;Latitude_deg&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">notna</span><span class="p">()]</span>
+            <span class="n">gap</span> <span class="o">=</span> <span class="n">gap</span><span class="p">[</span><span class="n">gap</span><span class="p">[</span><span class="s2">"Latitude_deg"</span><span class="p">]</span><span class="o">.</span><span class="n">notna</span><span class="p">()]</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">gap</span><span class="p">):</span>
-                <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">data</span><span class="p">,</span> <span class="n">gap</span><span class="p">],</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s2">&quot;Time_UTC&quot;</span><span class="p">)</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">data</span><span class="p">,</span> <span class="n">gap</span><span class="p">],</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s2">"Time_UTC"</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="s2">&quot;Pi_Time&quot;</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
-        <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Pi_Time&quot;</span><span class="p">])</span>
+    <span class="k">if</span> <span class="s2">"Pi_Time"</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">"Pi_Time"</span><span class="p">])</span>
 
     <span class="k">return</span> <span class="n">data</span></div>
 
@@ -1008,8 +1010,8 @@
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../../../../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0"></script>
-<script defer src="../../../../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0"></script>
+  <script defer src="../../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be"></script>
+<script defer src="../../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -1029,7 +1031,7 @@
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.2.0.
   </p>
 </div>
       
@@ -1042,7 +1044,7 @@
         <div class="footer-item">
 <p class="theme-version">
   <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.22.0.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.23.0.
 </p></div>
       
     </div>

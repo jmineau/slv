@@ -25,28 +25,29 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../../_static/styles/theme.css?digest=64cc4de3f052d77215f0" rel="stylesheet" />
-<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=64cc4de3f052d77215f0" rel="stylesheet" />
+  <link href="../../../_static/styles/theme.css?digest=18bd87630a240e9c25be" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=18bd87630a240e9c25be" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx_autodoc_typehints.css?v=057ac668" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=ba117b66" />
   
   <!-- So that users can add custom icons -->
-  <script defer src="../../../_static/scripts/fontawesome.js?digest=64cc4de3f052d77215f0"></script>
+  <script defer src="../../../_static/scripts/fontawesome.js?digest=18bd87630a240e9c25be"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
-<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../_static/documentation_options.js?v=855ee6a5"></script>
+    <script src="../../../_static/documentation_options.js?v=1ef9135c"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../../../_static/copybutton.js?v=f281be69"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_modules/slv/inversion/report';</script>
     <script>
-        DOCUMENTATION_OPTIONS.theme_version = '0.22.0';
+        DOCUMENTATION_OPTIONS.theme_version = '0.23.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://jmineau.github.io/slv/switcher.json';
         DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
@@ -56,8 +57,9 @@
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.10.4.dev5+g1346b5991" />
+  <meta name="docsearch:version" content="2026.10.4.dev6+gdb1f4b5c8" />
   
     
     <script src="../../../_static/searchtools.js"></script>
@@ -429,14 +431,14 @@
                 <article class="bd-article">
                   
   <h1>Source code for slv.inversion.report</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""</span>
 <span class="sd">Domain totals, the printed summary, Desroziers diagnostics and the plots of an SLV inversion.</span>
 
 <span class="sd">Each function takes the solved :class:`~fips.Posterior` (``post``) and, where the whole</span>
 <span class="sd">state is needed, the :class:`~fips.Problem` :func:`~slv.inversion.pipelines.build_problem`</span>
 <span class="sd">gave (``problem``): with the coverage filter on, ``post.problem`` holds only the kept</span>
 <span class="sd">cells.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Hashable</span>
 
@@ -455,7 +457,7 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">fluxes_as_inventory</span><span class="p">(</span>
     <span class="n">config</span><span class="p">:</span> <span class="n">InversionConfig</span><span class="p">,</span> <span class="n">fluxes</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">inventories</span><span class="o">.</span><span class="n">Inventory</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Converts a flux vector to an inventory format for easier analysis.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Converts a flux vector to an inventory format for easier analysis."""</span>
     <span class="n">ds</span> <span class="o">=</span> <span class="n">fluxes</span><span class="o">.</span><span class="n">to_xarray</span><span class="p">()</span><span class="o">.</span><span class="n">to_dataset</span><span class="p">()</span>
 
     <span class="kn">from</span><span class="w"> </span><span class="nn">slv.inversion.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">FLUX_FREQ_TIME_STEPS</span>
@@ -463,7 +465,7 @@
     <span class="n">time_step</span> <span class="o">=</span> <span class="n">FLUX_FREQ_TIME_STEPS</span><span class="p">[</span><span class="n">config</span><span class="o">.</span><span class="n">flux_freq</span><span class="p">]</span>
 
     <span class="k">return</span> <span class="n">inventories</span><span class="o">.</span><span class="n">Inventory</span><span class="p">(</span>
-        <span class="n">ds</span><span class="p">,</span> <span class="n">pollutant</span><span class="o">=</span><span class="s2">&quot;CH4&quot;</span><span class="p">,</span> <span class="n">src_units</span><span class="o">=</span><span class="s2">&quot;umol/m2/s&quot;</span><span class="p">,</span> <span class="n">time_step</span><span class="o">=</span><span class="n">time_step</span>
+        <span class="n">ds</span><span class="p">,</span> <span class="n">pollutant</span><span class="o">=</span><span class="s2">"CH4"</span><span class="p">,</span> <span class="n">src_units</span><span class="o">=</span><span class="s2">"umol/m2/s"</span><span class="p">,</span> <span class="n">time_step</span><span class="o">=</span><span class="n">time_step</span>
     <span class="p">)</span></div>
 
 
@@ -471,12 +473,12 @@
 <div class="viewcode-block" id="total_units">
 <a class="viewcode-back" href="../../../_autosummary/slv.inversion.report.total_units.html#slv.inversion.report.total_units">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">total_units</span><span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="n">InversionConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Unit of :func:`calculate_total_flux`: it integrates each flux interval over its</span>
 <span class="sd">    cells and its duration, so the mass part of ``output_units`` per interval.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">units</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">output_units</span> <span class="ow">or</span> <span class="s2">&quot;umol/m2/s&quot;</span>
-    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">units</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> per </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">flux_freq</span><span class="si">}</span><span class="s2"> interval&quot;</span></div>
+<span class="sd">    """</span>
+    <span class="n">units</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">output_units</span> <span class="ow">or</span> <span class="s2">"umol/m2/s"</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">units</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">'/'</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> per </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">flux_freq</span><span class="si">}</span><span class="s2"> interval"</span></div>
 
 
 
@@ -485,12 +487,12 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">calculate_total_flux</span><span class="p">(</span>
     <span class="n">config</span><span class="p">:</span> <span class="n">InversionConfig</span><span class="p">,</span> <span class="n">fluxes</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="kc">None</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Domain-total emission per flux interval.</span>
 
-<span class="sd">    The flux field is integrated over its cells&#39; areas and each interval&#39;s duration</span>
+<span class="sd">    The flux field is integrated over its cells' areas and each interval's duration</span>
 <span class="sd">    (lair ``absolute_emissions``), so the result is a mass per interval, e.g. Gg per</span>
-<span class="sd">    ``MS`` interval for ``units=&quot;Gg/m2/s&quot;``.</span>
+<span class="sd">    ``MS`` interval for ``units="Gg/m2/s"``.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -499,17 +501,17 @@
 <span class="sd">    fluxes : pd.Series</span>
 <span class="sd">        Flux in umol/m2/s indexed by (time, lat, lon); its ``name`` must be set.</span>
 <span class="sd">    units : str, optional</span>
-<span class="sd">        Convert to these flux units before integrating (e.g. ``&quot;Gg/m2/s&quot;``).</span>
+<span class="sd">        Convert to these flux units before integrating (e.g. ``"Gg/m2/s"``).</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    pd.Series</span>
 <span class="sd">        Total per flux time.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">inventory</span> <span class="o">=</span> <span class="n">fluxes_as_inventory</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">fluxes</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">units</span><span class="p">:</span>
         <span class="n">inventory</span> <span class="o">=</span> <span class="n">inventory</span><span class="o">.</span><span class="n">convert_units</span><span class="p">(</span><span class="n">units</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">inventory</span><span class="o">.</span><span class="n">absolute_emissions</span><span class="p">[</span><span class="n">fluxes</span><span class="o">.</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;lat&quot;</span><span class="p">,</span> <span class="s2">&quot;lon&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">to_series</span><span class="p">()</span></div>
+    <span class="k">return</span> <span class="n">inventory</span><span class="o">.</span><span class="n">absolute_emissions</span><span class="p">[</span><span class="n">fluxes</span><span class="o">.</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="p">(</span><span class="s2">"lat"</span><span class="p">,</span> <span class="s2">"lon"</span><span class="p">))</span><span class="o">.</span><span class="n">to_series</span><span class="p">()</span></div>
 
 
 
@@ -517,10 +519,10 @@
 <a class="viewcode-back" href="../../../_autosummary/slv.inversion.report.desroziers_diagnostic.html#slv.inversion.report.desroziers_diagnostic">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">desroziers_diagnostic</span><span class="p">(</span>
     <span class="n">post</span><span class="p">:</span> <span class="n">Posterior</span><span class="p">,</span>
-    <span class="n">groupby</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="s2">&quot;obs_location&quot;</span><span class="p">,</span>
+    <span class="n">groupby</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="s2">"obs_location"</span><span class="p">,</span>
     <span class="n">freq</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Compare Desroziers-diagnosed vs specified observation error variances.</span>
 
 <span class="sd">    Parameters</span>
@@ -531,7 +533,7 @@
 <span class="sd">        Index level(s) to aggregate by. Default groups by site.</span>
 <span class="sd">        Use None for per-observation values.</span>
 <span class="sd">    freq : str, optional</span>
-<span class="sd">        Temporal resampling frequency (e.g. &#39;MS&#39;, &#39;QS&#39;, &#39;YS&#39;).</span>
+<span class="sd">        Temporal resampling frequency (e.g. 'MS', 'QS', 'YS').</span>
 <span class="sd">        Groups obs_time into bins at this frequency in addition to</span>
 <span class="sd">        any levels in ``groupby``.</span>
 
@@ -540,12 +542,12 @@
 <span class="sd">    pd.DataFrame</span>
 <span class="sd">        Columns: diagnosed, specified (the obs error variances the solve used, so</span>
 <span class="sd">        divided by ``gamma``), ratio (diagnosed / specified).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">groupers</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">if</span> <span class="n">groupby</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">groupers</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">groupby</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">groupby</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="n">groupby</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">freq</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">groupers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Grouper</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="s2">&quot;obs_time&quot;</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="n">freq</span><span class="p">))</span>
+        <span class="n">groupers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Grouper</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="s2">"obs_time"</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="n">freq</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">post</span><span class="o">.</span><span class="n">desroziers</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="n">groupers</span> <span class="ow">or</span> <span class="kc">None</span><span class="p">)</span></div>
 
 
@@ -553,15 +555,15 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">_totals</span><span class="p">(</span>
     <span class="n">config</span><span class="p">:</span> <span class="n">InversionConfig</span><span class="p">,</span> <span class="n">post</span><span class="p">:</span> <span class="n">Posterior</span><span class="p">,</span> <span class="n">problem</span><span class="p">:</span> <span class="n">Problem</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Prior and posterior domain totals over every cell of ``problem``.</span>
 
 <span class="sd">    With the coverage filter on, the cells left out of ``post.problem`` are at their</span>
 <span class="sd">    prior in the posterior.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">estimate</span> <span class="o">=</span> <span class="n">post</span><span class="o">.</span><span class="n">estimate</span><span class="o">.</span><span class="n">combine_first</span><span class="p">(</span><span class="n">problem</span><span class="o">.</span><span class="n">prior</span><span class="p">)</span>
-    <span class="n">prior</span> <span class="o">=</span> <span class="n">problem</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">to_series</span><span class="p">(</span><span class="s2">&quot;flux&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="s2">&quot;prior&quot;</span><span class="p">)</span>
-    <span class="n">posterior</span> <span class="o">=</span> <span class="n">estimate</span><span class="o">.</span><span class="n">to_series</span><span class="p">(</span><span class="s2">&quot;flux&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="s2">&quot;posterior&quot;</span><span class="p">)</span>
+    <span class="n">prior</span> <span class="o">=</span> <span class="n">problem</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">to_series</span><span class="p">(</span><span class="s2">"flux"</span><span class="p">)</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="s2">"prior"</span><span class="p">)</span>
+    <span class="n">posterior</span> <span class="o">=</span> <span class="n">estimate</span><span class="o">.</span><span class="n">to_series</span><span class="p">(</span><span class="s2">"flux"</span><span class="p">)</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="s2">"posterior"</span><span class="p">)</span>
     <span class="k">return</span> <span class="p">(</span>
         <span class="n">calculate_total_flux</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">prior</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">output_units</span><span class="p">),</span>
         <span class="n">calculate_total_flux</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">posterior</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">output_units</span><span class="p">),</span>
@@ -569,19 +571,19 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_print_fit</span><span class="p">(</span><span class="n">post</span><span class="p">:</span> <span class="n">Posterior</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;The fit of the solve, its fluxes and the modeled concentrations, printed.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""The fit of the solve, its fluxes and the modeled concentrations, printed."""</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">scipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">stats</span>
 
     <span class="n">problem</span> <span class="o">=</span> <span class="n">post</span><span class="o">.</span><span class="n">problem</span>
-    <span class="n">obs</span> <span class="o">=</span> <span class="n">problem</span><span class="o">.</span><span class="n">obs</span><span class="o">.</span><span class="n">to_series</span><span class="p">(</span><span class="s2">&quot;concentration&quot;</span><span class="p">)</span>
+    <span class="n">obs</span> <span class="o">=</span> <span class="n">problem</span><span class="o">.</span><span class="n">obs</span><span class="o">.</span><span class="n">to_series</span><span class="p">(</span><span class="s2">"concentration"</span><span class="p">)</span>
     <span class="n">background</span> <span class="o">=</span> <span class="mf">0.0</span>
     <span class="k">if</span> <span class="n">problem</span><span class="o">.</span><span class="n">offset</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">background</span> <span class="o">=</span> <span class="n">problem</span><span class="o">.</span><span class="n">offset</span><span class="o">.</span><span class="n">to_series</span><span class="p">(</span><span class="s2">&quot;concentration&quot;</span><span class="p">)</span>
+        <span class="n">background</span> <span class="o">=</span> <span class="n">problem</span><span class="o">.</span><span class="n">offset</span><span class="o">.</span><span class="n">to_series</span><span class="p">(</span><span class="s2">"concentration"</span><span class="p">)</span>
     <span class="n">enhancement</span> <span class="o">=</span> <span class="n">obs</span> <span class="o">-</span> <span class="n">background</span>
-    <span class="n">prior_flux</span> <span class="o">=</span> <span class="n">problem</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">to_series</span><span class="p">(</span><span class="s2">&quot;flux&quot;</span><span class="p">)</span>
-    <span class="n">post_flux</span> <span class="o">=</span> <span class="n">post</span><span class="o">.</span><span class="n">estimate</span><span class="o">.</span><span class="n">to_series</span><span class="p">(</span><span class="s2">&quot;flux&quot;</span><span class="p">)</span>
-    <span class="n">prior_obs</span> <span class="o">=</span> <span class="n">problem</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">problem</span><span class="o">.</span><span class="n">prior</span><span class="p">)</span><span class="o">.</span><span class="n">to_series</span><span class="p">(</span><span class="s2">&quot;concentration&quot;</span><span class="p">)</span>
-    <span class="n">post_obs</span> <span class="o">=</span> <span class="n">post</span><span class="o">.</span><span class="n">modeled_obs</span><span class="o">.</span><span class="n">to_series</span><span class="p">(</span><span class="s2">&quot;concentration&quot;</span><span class="p">)</span>
+    <span class="n">prior_flux</span> <span class="o">=</span> <span class="n">problem</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">to_series</span><span class="p">(</span><span class="s2">"flux"</span><span class="p">)</span>
+    <span class="n">post_flux</span> <span class="o">=</span> <span class="n">post</span><span class="o">.</span><span class="n">estimate</span><span class="o">.</span><span class="n">to_series</span><span class="p">(</span><span class="s2">"flux"</span><span class="p">)</span>
+    <span class="n">prior_obs</span> <span class="o">=</span> <span class="n">problem</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">problem</span><span class="o">.</span><span class="n">prior</span><span class="p">)</span><span class="o">.</span><span class="n">to_series</span><span class="p">(</span><span class="s2">"concentration"</span><span class="p">)</span>
+    <span class="n">post_obs</span> <span class="o">=</span> <span class="n">post</span><span class="o">.</span><span class="n">modeled_obs</span><span class="o">.</span><span class="n">to_series</span><span class="p">(</span><span class="s2">"concentration"</span><span class="p">)</span>
 
     <span class="c1"># --- Atmospheric metrics ---</span>
     <span class="n">mean_enhancement</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">enhancement</span><span class="p">)</span>
@@ -598,52 +600,52 @@
     <span class="n">m</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">obs</span><span class="p">)</span>
     <span class="n">dofs</span> <span class="o">=</span> <span class="n">post</span><span class="o">.</span><span class="n">dofs</span>
     <span class="n">n_negative</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">post_flux</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
-    <span class="n">prior_by_time</span> <span class="o">=</span> <span class="n">prior_flux</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
-    <span class="n">post_by_time</span> <span class="o">=</span> <span class="n">post_flux</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+    <span class="n">prior_by_time</span> <span class="o">=</span> <span class="n">prior_flux</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="s2">"time"</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+    <span class="n">post_by_time</span> <span class="o">=</span> <span class="n">post_flux</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="s2">"time"</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
     <span class="n">change_pct</span> <span class="o">=</span> <span class="p">((</span><span class="n">post_by_time</span> <span class="o">/</span> <span class="n">prior_by_time</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span>
 
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;==================================================&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;          FLUX INVERSION SUMMARY REPORT           &quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;==================================================&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;State Vector Size (n):       </span><span class="si">{</span><span class="n">n</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Observation Vector Size (m): </span><span class="si">{</span><span class="n">m</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Degrees of Freedom (DOFS):   </span><span class="si">{</span><span class="n">dofs</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="p">(</span><span class="n">dofs</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">n</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">100</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">% of state)&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Reduced Chi-Square:          </span><span class="si">{</span><span class="n">post</span><span class="o">.</span><span class="n">reduced_chi2</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Bayesian R^2:                </span><span class="si">{</span><span class="n">post</span><span class="o">.</span><span class="n">r2</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Bayesian RMSE:               </span><span class="si">{</span><span class="n">post</span><span class="o">.</span><span class="n">rmse</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Uncertainty Reduction:       </span><span class="si">{</span><span class="n">post</span><span class="o">.</span><span class="n">uncertainty_reduction</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">100</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;--------------------------------------------------&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;FLUX ESTIMATES (per grid cell):&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Mean Prior Flux:     </span><span class="si">{</span><span class="n">prior_flux</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Mean Posterior Flux: </span><span class="si">{</span><span class="n">post_flux</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Negative Cells:     </span><span class="si">{</span><span class="n">n_negative</span><span class="si">}</span><span class="s2"> / </span><span class="si">{</span><span class="n">n</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">n_negative</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">100</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">%)&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;--------------------------------------------------&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ATMOSPHERIC CONCENTRATIONS (Model vs Obs):&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Mean Obs Enhancement: </span><span class="si">{</span><span class="n">mean_enhancement</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  RMSE (Prior):         </span><span class="si">{</span><span class="n">rmse_prior</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  RMSE (Posterior):     </span><span class="si">{</span><span class="n">rmse_post</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Mean Bias (Prior):    </span><span class="si">{</span><span class="n">mb_prior</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Mean Bias (Posterior):</span><span class="si">{</span><span class="n">mb_post</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  R^2 (Prior):          </span><span class="si">{</span><span class="n">r2_prior</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  R^2 (Posterior):      </span><span class="si">{</span><span class="n">r2_post</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;--------------------------------------------------&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;MEAN FLUX BY TIMESTEP:&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"=================================================="</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"          FLUX INVERSION SUMMARY REPORT           "</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"=================================================="</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"State Vector Size (n):       </span><span class="si">{</span><span class="n">n</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Observation Vector Size (m): </span><span class="si">{</span><span class="n">m</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Degrees of Freedom (DOFS):   </span><span class="si">{</span><span class="n">dofs</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="p">(</span><span class="n">dofs</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">n</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">100</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">% of state)"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Reduced Chi-Square:          </span><span class="si">{</span><span class="n">post</span><span class="o">.</span><span class="n">reduced_chi2</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Bayesian R^2:                </span><span class="si">{</span><span class="n">post</span><span class="o">.</span><span class="n">r2</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Bayesian RMSE:               </span><span class="si">{</span><span class="n">post</span><span class="o">.</span><span class="n">rmse</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Uncertainty Reduction:       </span><span class="si">{</span><span class="n">post</span><span class="o">.</span><span class="n">uncertainty_reduction</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">100</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">%"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"--------------------------------------------------"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"FLUX ESTIMATES (per grid cell):"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  Mean Prior Flux:     </span><span class="si">{</span><span class="n">prior_flux</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  Mean Posterior Flux: </span><span class="si">{</span><span class="n">post_flux</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  Negative Cells:     </span><span class="si">{</span><span class="n">n_negative</span><span class="si">}</span><span class="s2"> / </span><span class="si">{</span><span class="n">n</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">n_negative</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">n</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">100</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">%)"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"--------------------------------------------------"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"ATMOSPHERIC CONCENTRATIONS (Model vs Obs):"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  Mean Obs Enhancement: </span><span class="si">{</span><span class="n">mean_enhancement</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  RMSE (Prior):         </span><span class="si">{</span><span class="n">rmse_prior</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  RMSE (Posterior):     </span><span class="si">{</span><span class="n">rmse_post</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  Mean Bias (Prior):    </span><span class="si">{</span><span class="n">mb_prior</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  Mean Bias (Posterior):</span><span class="si">{</span><span class="n">mb_post</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  R^2 (Prior):          </span><span class="si">{</span><span class="n">r2_prior</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  R^2 (Posterior):      </span><span class="si">{</span><span class="n">r2_post</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"--------------------------------------------------"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"MEAN FLUX BY TIMESTEP:"</span><span class="p">)</span>
     <span class="n">timestep_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
-        <span class="p">{</span><span class="s2">&quot;prior&quot;</span><span class="p">:</span> <span class="n">prior_by_time</span><span class="p">,</span> <span class="s2">&quot;posterior&quot;</span><span class="p">:</span> <span class="n">post_by_time</span><span class="p">,</span> <span class="s2">&quot;change_%&quot;</span><span class="p">:</span> <span class="n">change_pct</span><span class="p">}</span>
+        <span class="p">{</span><span class="s2">"prior"</span><span class="p">:</span> <span class="n">prior_by_time</span><span class="p">,</span> <span class="s2">"posterior"</span><span class="p">:</span> <span class="n">post_by_time</span><span class="p">,</span> <span class="s2">"change_%"</span><span class="p">:</span> <span class="n">change_pct</span><span class="p">}</span>
     <span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">timestep_df</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">float_format</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%.4f</span><span class="s2">&quot;</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">timestep_df</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">float_format</span><span class="o">=</span><span class="s2">"</span><span class="si">%.4f</span><span class="s2">"</span><span class="p">))</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">post_by_time</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
         <span class="n">t</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">(</span><span class="n">post_by_time</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
         <span class="n">t_years</span> <span class="o">=</span> <span class="n">t</span><span class="o">.</span><span class="n">year</span> <span class="o">+</span> <span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">day_of_year</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mf">365.25</span>
         <span class="n">slope</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">r_value</span><span class="p">,</span> <span class="n">p_value</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">linregress</span><span class="p">(</span><span class="n">t_years</span><span class="p">,</span> <span class="n">post_by_time</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;--------------------------------------------------&quot;</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;POSTERIOR FLUX TREND:&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">"--------------------------------------------------"</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">"POSTERIOR FLUX TREND:"</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;  Slope:   </span><span class="si">{</span><span class="n">slope</span><span class="si">:</span><span class="s2">+.4f</span><span class="si">}</span><span class="s2"> /yr</span><span class="se">\n</span><span class="s2">&quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;  R^2:     </span><span class="si">{</span><span class="n">r_value</span><span class="o">**</span><span class="mi">2</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;  p-value: </span><span class="si">{</span><span class="n">p_value</span><span class="si">:</span><span class="s2">.3g</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">"  Slope:   </span><span class="si">{</span><span class="n">slope</span><span class="si">:</span><span class="s2">+.4f</span><span class="si">}</span><span class="s2"> /yr</span><span class="se">\n</span><span class="s2">"</span>
+            <span class="sa">f</span><span class="s2">"  R^2:     </span><span class="si">{</span><span class="n">r_value</span><span class="o">**</span><span class="mi">2</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span>
+            <span class="sa">f</span><span class="s2">"  p-value: </span><span class="si">{</span><span class="n">p_value</span><span class="si">:</span><span class="s2">.3g</span><span class="si">}</span><span class="s2">"</span>
         <span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;==================================================&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"=================================================="</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="summarize">
@@ -651,7 +653,7 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">summarize</span><span class="p">(</span>
     <span class="n">config</span><span class="p">:</span> <span class="n">InversionConfig</span><span class="p">,</span> <span class="n">post</span><span class="p">:</span> <span class="n">Posterior</span><span class="p">,</span> <span class="n">problem</span><span class="p">:</span> <span class="n">Problem</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Print the fit of the solve, then prior and posterior domain totals.</span>
 
 <span class="sd">    Totals are per flux interval (:func:`calculate_total_flux`) in</span>
@@ -659,7 +661,7 @@
 <span class="sd">    default): with the coverage filter on, the cells left out of the solve are at their</span>
 <span class="sd">    prior, so both totals cover the full domain. With more than two intervals a linear</span>
 <span class="sd">    trend of the posterior is printed.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">scipy</span><span class="w"> </span><span class="kn">import</span> <span class="n">stats</span>
 
     <span class="n">problem</span> <span class="o">=</span> <span class="n">post</span><span class="o">.</span><span class="n">problem</span> <span class="k">if</span> <span class="n">problem</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">problem</span>
@@ -667,20 +669,20 @@
     <span class="n">total_prior</span><span class="p">,</span> <span class="n">total_post</span> <span class="o">=</span> <span class="n">_totals</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">post</span><span class="p">,</span> <span class="n">problem</span><span class="p">)</span>
     <span class="n">units</span> <span class="o">=</span> <span class="n">total_units</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
 
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;--------------------------------------------------&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;DOMAIN TOTAL EMISSIONS [</span><span class="si">{</span><span class="n">units</span><span class="si">}</span><span class="s2">]:&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"--------------------------------------------------"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"DOMAIN TOTAL EMISSIONS [</span><span class="si">{</span><span class="n">units</span><span class="si">}</span><span class="s2">]:"</span><span class="p">)</span>
     <span class="n">summary</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
         <span class="p">{</span>
-            <span class="s2">&quot;prior&quot;</span><span class="p">:</span> <span class="n">total_prior</span><span class="p">,</span>
-            <span class="s2">&quot;posterior&quot;</span><span class="p">:</span> <span class="n">total_post</span><span class="p">,</span>
-            <span class="s2">&quot;change_%&quot;</span><span class="p">:</span> <span class="p">((</span><span class="n">total_post</span> <span class="o">/</span> <span class="n">total_prior</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span>
+            <span class="s2">"prior"</span><span class="p">:</span> <span class="n">total_prior</span><span class="p">,</span>
+            <span class="s2">"posterior"</span><span class="p">:</span> <span class="n">total_post</span><span class="p">,</span>
+            <span class="s2">"change_%"</span><span class="p">:</span> <span class="p">((</span><span class="n">total_post</span> <span class="o">/</span> <span class="n">total_prior</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span>
         <span class="p">}</span>
     <span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="n">summary</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">float_format</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%.2f</span><span class="s2">&quot;</span><span class="p">))</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Mean Prior:     </span><span class="si">{</span><span class="n">total_prior</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Mean Posterior: </span><span class="si">{</span><span class="n">total_post</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">summary</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">float_format</span><span class="o">=</span><span class="s2">"</span><span class="si">%.2f</span><span class="s2">"</span><span class="p">))</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  Mean Prior:     </span><span class="si">{</span><span class="n">total_prior</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  Mean Posterior: </span><span class="si">{</span><span class="n">total_post</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
     <span class="nb">print</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;  Mean Change:    </span><span class="si">{</span><span class="p">((</span><span class="n">total_post</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">total_prior</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">100</span><span class="si">:</span><span class="s2">+.1f</span><span class="si">}</span><span class="s2">%&quot;</span>
+        <span class="sa">f</span><span class="s2">"  Mean Change:    </span><span class="si">{</span><span class="p">((</span><span class="n">total_post</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">total_prior</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">100</span><span class="si">:</span><span class="s2">+.1f</span><span class="si">}</span><span class="s2">%"</span>
     <span class="p">)</span>
 
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">total_post</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
@@ -690,17 +692,17 @@
             <span class="n">t_years</span><span class="p">,</span> <span class="n">total_post</span><span class="o">.</span><span class="n">values</span>
         <span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;  Trend:          </span><span class="si">{</span><span class="n">slope</span><span class="si">:</span><span class="s2">+.2f</span><span class="si">}</span><span class="s2"> [</span><span class="si">{</span><span class="n">units</span><span class="si">}</span><span class="s2">]/yr (R^2=</span><span class="si">{</span><span class="n">r_value</span><span class="o">**</span><span class="mi">2</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">, p=</span><span class="si">{</span><span class="n">p_value</span><span class="si">:</span><span class="s2">.3g</span><span class="si">}</span><span class="s2">)&quot;</span>
+            <span class="sa">f</span><span class="s2">"  Trend:          </span><span class="si">{</span><span class="n">slope</span><span class="si">:</span><span class="s2">+.2f</span><span class="si">}</span><span class="s2"> [</span><span class="si">{</span><span class="n">units</span><span class="si">}</span><span class="s2">]/yr (R^2=</span><span class="si">{</span><span class="n">r_value</span><span class="o">**</span><span class="mi">2</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">, p=</span><span class="si">{</span><span class="n">p_value</span><span class="si">:</span><span class="s2">.3g</span><span class="si">}</span><span class="s2">)"</span>
         <span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;==================================================&quot;</span><span class="p">)</span></div>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"=================================================="</span><span class="p">)</span></div>
 
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_cells</span><span class="p">(</span><span class="n">vector</span><span class="p">:</span> <span class="n">Vector</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">set</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;The (lat, lon) cells of a vector&#39;s ``flux`` block.&quot;&quot;&quot;</span>
-    <span class="n">flux</span> <span class="o">=</span> <span class="n">vector</span><span class="o">.</span><span class="n">space</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s2">&quot;flux&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="sd">"""The (lat, lon) cells of a vector's ``flux`` block."""</span>
+    <span class="n">flux</span> <span class="o">=</span> <span class="n">vector</span><span class="o">.</span><span class="n">space</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s2">"flux"</span><span class="p">)</span>
     <span class="k">return</span> <span class="nb">set</span><span class="p">(</span>
-        <span class="nb">zip</span><span class="p">(</span><span class="n">flux</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s2">&quot;lat&quot;</span><span class="p">),</span> <span class="n">flux</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s2">&quot;lon&quot;</span><span class="p">),</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="nb">zip</span><span class="p">(</span><span class="n">flux</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s2">"lat"</span><span class="p">),</span> <span class="n">flux</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s2">"lon"</span><span class="p">),</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="p">)</span>
 
 
@@ -709,17 +711,17 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">plot_obs</span><span class="p">(</span>
     <span class="n">post</span><span class="p">:</span> <span class="n">Posterior</span><span class="p">,</span>
     <span class="n">location</span><span class="p">:</span> <span class="n">Hashable</span> <span class="o">|</span> <span class="nb">list</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">location_level</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;obs_location&quot;</span><span class="p">,</span>
-    <span class="n">rolling_window</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">=</span> <span class="s2">&quot;30D&quot;</span><span class="p">,</span>
-    <span class="n">gap_threshold</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;7D&quot;</span><span class="p">,</span>
+    <span class="n">location_level</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"obs_location"</span><span class="p">,</span>
+    <span class="n">rolling_window</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">=</span> <span class="s2">"30D"</span><span class="p">,</span>
+    <span class="n">gap_threshold</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"7D"</span><span class="p">,</span>
     <span class="n">show_raw</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Plot the obs against what the prior and the posterior model, one figure per location.</span>
 
-<span class="sd">    Three series over time: the observed concentrations, the posterior&#39;s modeled ones</span>
-<span class="sd">    (``post.modeled_obs``) and the prior&#39;s (``problem.predict(problem.prior)``), each as</span>
-<span class="sd">    points and as a rolling mean. A gap in a location&#39;s times longer than</span>
+<span class="sd">    Three series over time: the observed concentrations, the posterior's modeled ones</span>
+<span class="sd">    (``post.modeled_obs``) and the prior's (``problem.predict(problem.prior)``), each as</span>
+<span class="sd">    points and as a rolling mean. A gap in a location's times longer than</span>
 <span class="sd">    ``gap_threshold`` is shaded, and the rolling means break there.</span>
 
 <span class="sd">    Parameters</span>
@@ -728,11 +730,11 @@
 <span class="sd">        The solved inversion.</span>
 <span class="sd">    location : label or list of labels, optional</span>
 <span class="sd">        The location (or locations) to plot. By default, every location.</span>
-<span class="sd">    location_level : str, default &#39;obs_location&#39;</span>
-<span class="sd">        The level of the obs&#39; labels that holds the locations.</span>
-<span class="sd">    rolling_window : str or int, default &#39;30D&#39;</span>
+<span class="sd">    location_level : str, default 'obs_location'</span>
+<span class="sd">        The level of the obs' labels that holds the locations.</span>
+<span class="sd">    rolling_window : str or int, default '30D'</span>
 <span class="sd">        The window of the rolling means, as ``DataFrame.rolling`` takes it.</span>
-<span class="sd">    gap_threshold : str, default &#39;7D&#39;</span>
+<span class="sd">    gap_threshold : str, default '7D'</span>
 <span class="sd">        The shortest gap between two times that is shaded as missing data.</span>
 <span class="sd">    show_raw : bool, default True</span>
 <span class="sd">        Whether to draw the points behind the rolling means.</span>
@@ -741,7 +743,7 @@
 <span class="sd">    -------</span>
 <span class="sd">    numpy.ndarray</span>
 <span class="sd">        The axes, one per location.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.artist</span><span class="w"> </span><span class="kn">import</span> <span class="n">Artist</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.lines</span><span class="w"> </span><span class="kn">import</span> <span class="n">Line2D</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.patches</span><span class="w"> </span><span class="kn">import</span> <span class="n">Patch</span>
@@ -749,9 +751,9 @@
     <span class="n">problem</span> <span class="o">=</span> <span class="n">post</span><span class="o">.</span><span class="n">problem</span>
     <span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
         <span class="p">[</span>
-            <span class="n">problem</span><span class="o">.</span><span class="n">obs</span><span class="o">.</span><span class="n">to_series</span><span class="p">(</span><span class="s2">&quot;concentration&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="s2">&quot;observed&quot;</span><span class="p">),</span>
-            <span class="n">post</span><span class="o">.</span><span class="n">modeled_obs</span><span class="o">.</span><span class="n">to_series</span><span class="p">(</span><span class="s2">&quot;concentration&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="s2">&quot;posterior&quot;</span><span class="p">),</span>
-            <span class="n">problem</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">problem</span><span class="o">.</span><span class="n">prior</span><span class="p">)</span><span class="o">.</span><span class="n">to_series</span><span class="p">(</span><span class="s2">&quot;concentration&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="s2">&quot;prior&quot;</span><span class="p">),</span>
+            <span class="n">problem</span><span class="o">.</span><span class="n">obs</span><span class="o">.</span><span class="n">to_series</span><span class="p">(</span><span class="s2">"concentration"</span><span class="p">)</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="s2">"observed"</span><span class="p">),</span>
+            <span class="n">post</span><span class="o">.</span><span class="n">modeled_obs</span><span class="o">.</span><span class="n">to_series</span><span class="p">(</span><span class="s2">"concentration"</span><span class="p">)</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="s2">"posterior"</span><span class="p">),</span>
+            <span class="n">problem</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">problem</span><span class="o">.</span><span class="n">prior</span><span class="p">)</span><span class="o">.</span><span class="n">to_series</span><span class="p">(</span><span class="s2">"concentration"</span><span class="p">)</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="s2">"prior"</span><span class="p">),</span>
         <span class="p">],</span>
         <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
     <span class="p">)</span>
@@ -762,7 +764,7 @@
     <span class="k">else</span><span class="p">:</span>
         <span class="n">locations</span> <span class="o">=</span> <span class="p">[</span><span class="n">location</span><span class="p">]</span>
 
-    <span class="n">colors</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="s2">&quot;blue&quot;</span><span class="p">]</span>
+    <span class="n">colors</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"black"</span><span class="p">,</span> <span class="s2">"red"</span><span class="p">,</span> <span class="s2">"blue"</span><span class="p">]</span>
     <span class="n">gap</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">gap_threshold</span><span class="p">)</span>
     <span class="n">axes</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">loc</span> <span class="ow">in</span> <span class="n">locations</span><span class="p">:</span>
@@ -772,11 +774,11 @@
         <span class="k">if</span> <span class="n">show_raw</span><span class="p">:</span>
             <span class="n">df</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
                 <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span>
-                <span class="n">style</span><span class="o">=</span><span class="s2">&quot;.&quot;</span><span class="p">,</span>
+                <span class="n">style</span><span class="o">=</span><span class="s2">"."</span><span class="p">,</span>
                 <span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span>
                 <span class="n">markersize</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
                 <span class="n">color</span><span class="o">=</span><span class="n">colors</span><span class="p">,</span>
-                <span class="n">markeredgecolor</span><span class="o">=</span><span class="s2">&quot;None&quot;</span><span class="p">,</span>
+                <span class="n">markeredgecolor</span><span class="o">=</span><span class="s2">"None"</span><span class="p">,</span>
                 <span class="n">legend</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
             <span class="p">)</span>
 
@@ -791,7 +793,7 @@
         <span class="n">smoothed</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">colors</span><span class="p">,</span> <span class="n">legend</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">gap_end</span> <span class="ow">in</span> <span class="n">gap_ends</span><span class="p">:</span>
             <span class="n">gap_start</span> <span class="o">=</span> <span class="n">times</span><span class="p">[</span><span class="n">times</span> <span class="o">&lt;</span> <span class="n">gap_end</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-            <span class="n">ax</span><span class="o">.</span><span class="n">axvspan</span><span class="p">(</span><span class="n">gap_start</span><span class="p">,</span> <span class="n">gap_end</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;grey&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.15</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">axvspan</span><span class="p">(</span><span class="n">gap_start</span><span class="p">,</span> <span class="n">gap_end</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">"grey"</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.15</span><span class="p">)</span>
 
         <span class="c1"># The legend shows the rolling means only</span>
         <span class="n">handles</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Artist</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
@@ -799,7 +801,7 @@
             <span class="k">for</span> <span class="n">c</span><span class="p">,</span> <span class="n">label</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">colors</span><span class="p">,</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
         <span class="p">]</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">gap_ends</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">handles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Patch</span><span class="p">(</span><span class="n">facecolor</span><span class="o">=</span><span class="s2">&quot;grey&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.15</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;no data&quot;</span><span class="p">))</span>
+            <span class="n">handles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Patch</span><span class="p">(</span><span class="n">facecolor</span><span class="o">=</span><span class="s2">"grey"</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.15</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"no data"</span><span class="p">))</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">handles</span><span class="o">=</span><span class="n">handles</span><span class="p">)</span>
 
         <span class="c1"># y-limits from the 1st and 99th percentiles, so outliers do not flatten the rest</span>
@@ -810,7 +812,7 @@
             <span class="n">margin</span> <span class="o">=</span> <span class="p">(</span><span class="n">p99</span> <span class="o">-</span> <span class="n">p01</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.1</span>
             <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">p01</span> <span class="o">-</span> <span class="n">margin</span><span class="p">,</span> <span class="n">p99</span> <span class="o">+</span> <span class="n">margin</span><span class="p">)</span>
 
-        <span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;concentration at </span><span class="si">{</span><span class="n">loc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;concentration&quot;</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s2">"concentration at </span><span class="si">{</span><span class="n">loc</span><span class="si">}</span><span class="s2">"</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s2">"concentration"</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="s2">"time"</span><span class="p">)</span>
         <span class="n">fig</span><span class="o">.</span><span class="n">autofmt_xdate</span><span class="p">()</span>
         <span class="n">axes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ax</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">axes</span><span class="p">)</span></div>
@@ -820,12 +822,12 @@
 <div class="viewcode-block" id="plot_inputs">
 <a class="viewcode-back" href="../../../_autosummary/slv.inversion.report.plot_inputs.html#slv.inversion.report.plot_inputs">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">plot_inputs</span><span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="n">InversionConfig</span><span class="p">,</span> <span class="n">problem</span><span class="p">:</span> <span class="n">Problem</span><span class="p">,</span> <span class="n">solved</span><span class="p">:</span> <span class="n">Problem</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Plot the grid and sites, the obs time series and the prior fluxes.</span>
 
 <span class="sd">    ``solved`` is the problem the solve gets: ``problem`` itself, or, with the coverage</span>
 <span class="sd">    filter on, its restriction to the covered cells (the others are shaded).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">viz</span><span class="o">.</span><span class="n">plot_grid</span><span class="p">(</span>
         <span class="n">config</span><span class="o">.</span><span class="n">grid</span><span class="p">,</span>
         <span class="n">extent</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">map_extent</span><span class="p">,</span>
@@ -834,9 +836,9 @@
         <span class="n">sites</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">sites</span><span class="p">,</span>
         <span class="n">site_config</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">site_config</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="n">viz</span><span class="o">.</span><span class="n">plot_concentrations</span><span class="p">(</span><span class="n">problem</span><span class="o">.</span><span class="n">obs</span><span class="o">.</span><span class="n">to_series</span><span class="p">(</span><span class="s2">&quot;concentration&quot;</span><span class="p">))</span>
+    <span class="n">viz</span><span class="o">.</span><span class="n">plot_concentrations</span><span class="p">(</span><span class="n">problem</span><span class="o">.</span><span class="n">obs</span><span class="o">.</span><span class="n">to_series</span><span class="p">(</span><span class="s2">"concentration"</span><span class="p">))</span>
 
-    <span class="n">prior</span> <span class="o">=</span> <span class="n">problem</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">to_series</span><span class="p">(</span><span class="s2">&quot;flux&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="s2">&quot;prior&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">to_xarray</span><span class="p">()</span>
+    <span class="n">prior</span> <span class="o">=</span> <span class="n">problem</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">to_series</span><span class="p">(</span><span class="s2">"flux"</span><span class="p">)</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="s2">"prior"</span><span class="p">)</span><span class="o">.</span><span class="n">to_xarray</span><span class="p">()</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">solved</span><span class="o">.</span><span class="n">prior</span><span class="p">)</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">problem</span><span class="o">.</span><span class="n">prior</span><span class="p">):</span>
         <span class="n">viz</span><span class="o">.</span><span class="n">plot_prior_with_coverage</span><span class="p">(</span>
             <span class="n">prior</span><span class="p">,</span>
@@ -859,11 +861,11 @@
 <div class="viewcode-block" id="plot_results">
 <a class="viewcode-back" href="../../../_autosummary/slv.inversion.report.plot_results.html#slv.inversion.report.plot_results">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">plot_results</span><span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="n">InversionConfig</span><span class="p">,</span> <span class="n">post</span><span class="p">:</span> <span class="n">Posterior</span><span class="p">,</span> <span class="n">problem</span><span class="p">:</span> <span class="n">Problem</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Plot the posterior fluxes, the full-domain posterior (with the coverage filter on),</span>
 <span class="sd">    domain totals over time, modelled vs observed concentrations, residuals, and</span>
 <span class="sd">    background and bias.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">viz</span><span class="o">.</span><span class="n">plot_fluxes</span><span class="p">(</span>
         <span class="n">post</span><span class="p">,</span>
         <span class="n">tiler</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">tiler</span><span class="p">,</span>
@@ -876,7 +878,7 @@
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">post</span><span class="o">.</span><span class="n">problem</span><span class="o">.</span><span class="n">prior</span><span class="p">)</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">problem</span><span class="o">.</span><span class="n">prior</span><span class="p">):</span>
         <span class="n">estimate</span> <span class="o">=</span> <span class="n">post</span><span class="o">.</span><span class="n">estimate</span><span class="o">.</span><span class="n">combine_first</span><span class="p">(</span><span class="n">problem</span><span class="o">.</span><span class="n">prior</span><span class="p">)</span>
         <span class="n">viz</span><span class="o">.</span><span class="n">plot_reconstructed_posterior</span><span class="p">(</span>
-            <span class="n">estimate</span><span class="o">.</span><span class="n">to_series</span><span class="p">(</span><span class="s2">&quot;flux&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="s2">&quot;posterior&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">to_xarray</span><span class="p">(),</span>
+            <span class="n">estimate</span><span class="o">.</span><span class="n">to_series</span><span class="p">(</span><span class="s2">"flux"</span><span class="p">)</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="s2">"posterior"</span><span class="p">)</span><span class="o">.</span><span class="n">to_xarray</span><span class="p">(),</span>
             <span class="n">_cells</span><span class="p">(</span><span class="n">post</span><span class="o">.</span><span class="n">problem</span><span class="o">.</span><span class="n">prior</span><span class="p">),</span>
             <span class="n">_cells</span><span class="p">(</span><span class="n">problem</span><span class="o">.</span><span class="n">prior</span><span class="p">),</span>
             <span class="n">dx</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">dx</span><span class="p">,</span>
@@ -904,10 +906,10 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">plot_diagnostics</span><span class="p">(</span>
     <span class="n">config</span><span class="p">:</span> <span class="n">InversionConfig</span><span class="p">,</span> <span class="n">post</span><span class="p">:</span> <span class="n">Posterior</span><span class="p">,</span> <span class="n">problem</span><span class="p">:</span> <span class="n">Problem</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Plot fluxes per time step, the Desroziers diagnostics and, with the coverage</span>
-<span class="sd">    filter on, the left-out cells&#39; contribution to the obs.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    filter on, the left-out cells' contribution to the obs.</span>
+<span class="sd">    """</span>
     <span class="n">viz</span><span class="o">.</span><span class="n">plot_fluxes_by_timestep</span><span class="p">(</span>
         <span class="n">post</span><span class="p">,</span>
         <span class="n">extent</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">map_extent</span><span class="p">,</span>
@@ -926,8 +928,8 @@
     <span class="n">solved</span> <span class="o">=</span> <span class="n">post</span><span class="o">.</span><span class="n">problem</span>
     <span class="n">filtered</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">solved</span><span class="o">.</span><span class="n">prior</span><span class="p">)</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">problem</span><span class="o">.</span><span class="n">prior</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">filtered</span> <span class="ow">and</span> <span class="n">solved</span><span class="o">.</span><span class="n">offset</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">problem</span><span class="o">.</span><span class="n">offset</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">offset</span> <span class="o">=</span> <span class="n">solved</span><span class="o">.</span><span class="n">offset</span><span class="o">.</span><span class="n">to_series</span><span class="p">(</span><span class="s2">&quot;concentration&quot;</span><span class="p">)</span>
-        <span class="n">removed</span> <span class="o">=</span> <span class="n">offset</span> <span class="o">-</span> <span class="n">problem</span><span class="o">.</span><span class="n">offset</span><span class="o">.</span><span class="n">to_series</span><span class="p">(</span><span class="s2">&quot;concentration&quot;</span><span class="p">)</span>
+        <span class="n">offset</span> <span class="o">=</span> <span class="n">solved</span><span class="o">.</span><span class="n">offset</span><span class="o">.</span><span class="n">to_series</span><span class="p">(</span><span class="s2">"concentration"</span><span class="p">)</span>
+        <span class="n">removed</span> <span class="o">=</span> <span class="n">offset</span> <span class="o">-</span> <span class="n">problem</span><span class="o">.</span><span class="n">offset</span><span class="o">.</span><span class="n">to_series</span><span class="p">(</span><span class="s2">"concentration"</span><span class="p">)</span>
         <span class="n">viz</span><span class="o">.</span><span class="n">plot_removed_contribution</span><span class="p">(</span><span class="n">removed</span><span class="p">,</span> <span class="n">offset</span><span class="p">)</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
 
@@ -960,8 +962,8 @@
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../../../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0"></script>
-<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0"></script>
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -981,7 +983,7 @@
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.2.0.
   </p>
 </div>
       
@@ -994,7 +996,7 @@
         <div class="footer-item">
 <p class="theme-version">
   <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.22.0.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.23.0.
 </p></div>
       
     </div>

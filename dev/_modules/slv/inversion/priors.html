@@ -25,28 +25,29 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../../_static/styles/theme.css?digest=64cc4de3f052d77215f0" rel="stylesheet" />
-<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=64cc4de3f052d77215f0" rel="stylesheet" />
+  <link href="../../../_static/styles/theme.css?digest=18bd87630a240e9c25be" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=18bd87630a240e9c25be" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx_autodoc_typehints.css?v=057ac668" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=ba117b66" />
   
   <!-- So that users can add custom icons -->
-  <script defer src="../../../_static/scripts/fontawesome.js?digest=64cc4de3f052d77215f0"></script>
+  <script defer src="../../../_static/scripts/fontawesome.js?digest=18bd87630a240e9c25be"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
-<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../_static/documentation_options.js?v=855ee6a5"></script>
+    <script src="../../../_static/documentation_options.js?v=1ef9135c"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../../../_static/copybutton.js?v=f281be69"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_modules/slv/inversion/priors';</script>
     <script>
-        DOCUMENTATION_OPTIONS.theme_version = '0.22.0';
+        DOCUMENTATION_OPTIONS.theme_version = '0.23.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://jmineau.github.io/slv/switcher.json';
         DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
@@ -56,8 +57,9 @@
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.10.4.dev5+g1346b5991" />
+  <meta name="docsearch:version" content="2026.10.4.dev6+gdb1f4b5c8" />
   
     
     <script src="../../../_static/searchtools.js"></script>
@@ -429,7 +431,7 @@
                 <article class="bd-article">
                   
   <h1>Source code for slv.inversion.priors</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Prior flux fields for the SLV inversion (EPA, EDGAR or constant) on the state grid.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Prior flux fields for the SLV inversion (EPA, EDGAR or constant) on the state grid."""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
 
@@ -444,20 +446,20 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">get_slv_prior</span><span class="p">(</span>
     <span class="n">prior</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">out_grid</span><span class="p">,</span> <span class="n">flux_times</span><span class="p">,</span> <span class="n">flux_freq</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">bbox</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">extent</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Build the prior flux for ``InversionConfig.prior``.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    prior : str</span>
-<span class="sd">        ``&quot;epa&quot;`` (:func:`load_epa_prior`), ``&quot;edgar&quot;`` (:func:`load_edgar_prior`) or</span>
-<span class="sd">        ``&quot;constant&quot;`` (:func:`build_constant_prior`); case-insensitive.</span>
+<span class="sd">        ``"epa"`` (:func:`load_epa_prior`), ``"edgar"`` (:func:`load_edgar_prior`) or</span>
+<span class="sd">        ``"constant"`` (:func:`build_constant_prior`); case-insensitive.</span>
 <span class="sd">    out_grid : xr.DataArray</span>
 <span class="sd">        Target lon/lat grid (``InversionConfig.grid``).</span>
 <span class="sd">    flux_times : pd.DatetimeIndex</span>
 <span class="sd">        Start of each flux interval.</span>
 <span class="sd">    flux_freq : str, optional</span>
-<span class="sd">        Flux interval (e.g. ``&quot;MS&quot;``); a coarser interval than the inventory&#39;s is</span>
+<span class="sd">        Flux interval (e.g. ``"MS"``); a coarser interval than the inventory's is</span>
 <span class="sd">        averaged to.</span>
 <span class="sd">    bbox, extent : tuple, optional</span>
 <span class="sd">        Clip the inventory before regridding.</span>
@@ -467,11 +469,11 @@
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    pd.Series</span>
-<span class="sd">        Flux in umol/m2/s (the Jacobian&#39;s units), indexed by (time, lat, lon) or</span>
+<span class="sd">        Flux in umol/m2/s (the Jacobian's units), indexed by (time, lat, lon) or</span>
 <span class="sd">        (time, lon, lat).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">units</span> <span class="o">=</span> <span class="s2">&quot;umol/m2/s&quot;</span>  <span class="c1"># Must match jacobian (STILT)</span>
-    <span class="k">if</span> <span class="n">prior</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;epa&quot;</span><span class="p">:</span>
+<span class="sd">    """</span>
+    <span class="n">units</span> <span class="o">=</span> <span class="s2">"umol/m2/s"</span>  <span class="c1"># Must match jacobian (STILT)</span>
+    <span class="k">if</span> <span class="n">prior</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">"epa"</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">load_epa_prior</span><span class="p">(</span>
             <span class="n">out_grid</span><span class="o">=</span><span class="n">out_grid</span><span class="p">,</span>
             <span class="n">flux_times</span><span class="o">=</span><span class="n">flux_times</span><span class="p">,</span>
@@ -482,9 +484,9 @@
             <span class="n">return_regridder</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
             <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
         <span class="p">)</span>
-    <span class="k">elif</span> <span class="n">prior</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;edgar&quot;</span><span class="p">:</span>
+    <span class="k">elif</span> <span class="n">prior</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">"edgar"</span><span class="p">:</span>
         <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span>
-            <span class="s2">&quot;express&quot;</span><span class="p">,</span> <span class="kc">None</span>
+            <span class="s2">"express"</span><span class="p">,</span> <span class="kc">None</span>
         <span class="p">)</span>  <span class="c1"># EPA-only kwarg; base_config injects it, N/A to EDGAR</span>
         <span class="k">return</span> <span class="n">load_edgar_prior</span><span class="p">(</span>
             <span class="n">out_grid</span><span class="o">=</span><span class="n">out_grid</span><span class="p">,</span>
@@ -496,7 +498,7 @@
             <span class="n">return_regridder</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
             <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
         <span class="p">)</span>
-    <span class="k">elif</span> <span class="n">prior</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;constant&quot;</span><span class="p">:</span>
+    <span class="k">elif</span> <span class="n">prior</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">"constant"</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">build_constant_prior</span><span class="p">(</span>
             <span class="n">out_grid</span><span class="o">=</span><span class="n">out_grid</span><span class="p">,</span>
             <span class="n">flux_times</span><span class="o">=</span><span class="n">flux_times</span><span class="p">,</span>
@@ -504,21 +506,21 @@
             <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
         <span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported prior: </span><span class="si">{</span><span class="n">prior</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Unsupported prior: </span><span class="si">{</span><span class="n">prior</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span></div>
 
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_infer_freq</span><span class="p">(</span><span class="n">times</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BaseOffset</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    The step of regular ``times`` as an offset (``pd.infer_freq``), or None if irregular.</span>
 
 <span class="sd">    pandas 3.1 warns that ``infer_freq`` will return an offset rather than a string, and</span>
 <span class="sd">    the option that asks for the offset is not in pandas 3.0; so the warning is silenced</span>
 <span class="sd">    here and the result made an offset, which both versions agree on.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">with</span> <span class="n">warnings</span><span class="o">.</span><span class="n">catch_warnings</span><span class="p">():</span>
         <span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span>
-            <span class="s2">&quot;ignore&quot;</span><span class="p">,</span> <span class="s2">&quot;A future version of pandas will return a BaseOffset&quot;</span>
+            <span class="s2">"ignore"</span><span class="p">,</span> <span class="s2">"A future version of pandas will return a BaseOffset"</span>
         <span class="p">)</span>
         <span class="n">freq</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">infer_freq</span><span class="p">(</span><span class="n">times</span><span class="p">)</span>
     <span class="k">return</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">freq</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">pd</span><span class="o">.</span><span class="n">tseries</span><span class="o">.</span><span class="n">frequencies</span><span class="o">.</span><span class="n">to_offset</span><span class="p">(</span><span class="n">freq</span><span class="p">)</span>
@@ -527,18 +529,18 @@
 <div class="viewcode-block" id="align_to_flux_times">
 <a class="viewcode-back" href="../../../_autosummary/slv.inversion.priors.align_to_flux_times.html#slv.inversion.priors.align_to_flux_times">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">align_to_flux_times</span><span class="p">(</span><span class="n">inventory</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span> <span class="o">|</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">flux_times</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Give each flux time the inventory period it falls in.</span>
 
 <span class="sd">    Inventory times label period starts (lair puts an annual inventory at Jan 1 and a</span>
 <span class="sd">    monthly one at the 1st), as do ``flux_times``, so each flux time takes the latest</span>
 <span class="sd">    inventory time at or before it -- a forward fill. Nearest-neighbour matching would</span>
-<span class="sd">    hand Aug-Dec of an annual inventory the *next* year&#39;s field. Flux times before the</span>
+<span class="sd">    hand Aug-Dec of an annual inventory the *next* year's field. Flux times before the</span>
 <span class="sd">    inventory starts hold its first period; times after it ends hold the last (e.g. EPA</span>
 <span class="sd">    2020 for 2021-2023).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">times</span> <span class="o">=</span> <span class="n">inventory</span><span class="o">.</span><span class="n">indexes</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">]</span>
-    <span class="n">pos</span> <span class="o">=</span> <span class="n">times</span><span class="o">.</span><span class="n">get_indexer</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">(</span><span class="n">flux_times</span><span class="p">),</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;ffill&quot;</span><span class="p">)</span>
+<span class="sd">    """</span>
+    <span class="n">times</span> <span class="o">=</span> <span class="n">inventory</span><span class="o">.</span><span class="n">indexes</span><span class="p">[</span><span class="s2">"time"</span><span class="p">]</span>
+    <span class="n">pos</span> <span class="o">=</span> <span class="n">times</span><span class="o">.</span><span class="n">get_indexer</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">(</span><span class="n">flux_times</span><span class="p">),</span> <span class="n">method</span><span class="o">=</span><span class="s2">"ffill"</span><span class="p">)</span>
     <span class="n">pos</span><span class="p">[</span><span class="n">pos</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="k">return</span> <span class="n">inventory</span><span class="o">.</span><span class="n">isel</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="n">pos</span><span class="p">)</span><span class="o">.</span><span class="n">assign_coords</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">(</span><span class="n">flux_times</span><span class="p">))</span></div>
 
@@ -547,7 +549,7 @@
 <div class="viewcode-block" id="build_constant_prior">
 <a class="viewcode-back" href="../../../_autosummary/slv.inversion.priors.build_constant_prior.html#slv.inversion.priors.build_constant_prior">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">build_constant_prior</span><span class="p">(</span><span class="n">out_grid</span><span class="p">,</span> <span class="n">flux_times</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Build a spatially and temporally uniform prior.</span>
 
 <span class="sd">    Parameters</span>
@@ -560,13 +562,13 @@
 <span class="sd">        Constant flux value to fill the prior with (default 0.0).</span>
 <span class="sd">    units : str, optional</span>
 <span class="sd">        Units string to attach as metadata.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">grid_da</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">DataArray</span><span class="p">(</span>
         <span class="n">data</span><span class="o">=</span><span class="n">value</span><span class="p">,</span>
-        <span class="n">coords</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;time&quot;</span><span class="p">:</span> <span class="n">flux_times</span><span class="p">,</span> <span class="s2">&quot;lon&quot;</span><span class="p">:</span> <span class="n">out_grid</span><span class="p">[</span><span class="s2">&quot;lon&quot;</span><span class="p">],</span> <span class="s2">&quot;lat&quot;</span><span class="p">:</span> <span class="n">out_grid</span><span class="p">[</span><span class="s2">&quot;lat&quot;</span><span class="p">]},</span>
-        <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="s2">&quot;lon&quot;</span><span class="p">,</span> <span class="s2">&quot;lat&quot;</span><span class="p">],</span>
-        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;flux&quot;</span><span class="p">,</span>
-        <span class="n">attrs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="n">units</span><span class="p">}</span> <span class="k">if</span> <span class="n">units</span> <span class="k">else</span> <span class="p">{},</span>
+        <span class="n">coords</span><span class="o">=</span><span class="p">{</span><span class="s2">"time"</span><span class="p">:</span> <span class="n">flux_times</span><span class="p">,</span> <span class="s2">"lon"</span><span class="p">:</span> <span class="n">out_grid</span><span class="p">[</span><span class="s2">"lon"</span><span class="p">],</span> <span class="s2">"lat"</span><span class="p">:</span> <span class="n">out_grid</span><span class="p">[</span><span class="s2">"lat"</span><span class="p">]},</span>
+        <span class="n">dims</span><span class="o">=</span><span class="p">[</span><span class="s2">"time"</span><span class="p">,</span> <span class="s2">"lon"</span><span class="p">,</span> <span class="s2">"lat"</span><span class="p">],</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">"flux"</span><span class="p">,</span>
+        <span class="n">attrs</span><span class="o">=</span><span class="p">{</span><span class="s2">"units"</span><span class="p">:</span> <span class="n">units</span><span class="p">}</span> <span class="k">if</span> <span class="n">units</span> <span class="k">else</span> <span class="p">{},</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">grid_da</span><span class="o">.</span><span class="n">to_series</span><span class="p">()</span></div>
 
@@ -584,10 +586,10 @@
     <span class="n">express</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="n">return_regridder</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    EPA gridded CH4 inventory (v2) regridded to ``out_grid`` and aligned to ``flux_times``.</span>
 
-<span class="sd">    Both options use EPA&#39;s express product (27 sectors including post-meter, 2012-2020),</span>
+<span class="sd">    Both options use EPA's express product (27 sectors including post-meter, 2012-2020),</span>
 <span class="sd">    so they hold the same annual emissions and differ only in seasonal timing. Sectors are</span>
 <span class="sd">    summed and regridded conservatively (needs ``xesmf``). With ``express=False`` it is</span>
 <span class="sd">    scaled by month: sectors with monthly scale factors vary by month, the rest hold their</span>
@@ -606,7 +608,7 @@
 <span class="sd">    bbox, extent : tuple, optional</span>
 <span class="sd">        Clip the inventory before regridding.</span>
 <span class="sd">    units : str, optional</span>
-<span class="sd">        Convert to these units (e.g. ``&quot;umol/m2/s&quot;``).</span>
+<span class="sd">        Convert to these units (e.g. ``"umol/m2/s"``).</span>
 <span class="sd">    express : bool</span>
 <span class="sd">        Keep the annual rates (True, paper 1) instead of scaling by month (False).</span>
 <span class="sd">    return_regridder : bool</span>
@@ -615,9 +617,9 @@
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    pd.Series or (pd.Series, xesmf.Regridder)</span>
-<span class="sd">        The prior flux named ``&quot;flux&quot;``.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># Both options read EPA&#39;s express product, the one paper 1 used: the 2012-2018 base</span>
+<span class="sd">        The prior flux named ``"flux"``.</span>
+<span class="sd">    """</span>
+    <span class="c1"># Both options read EPA's express product, the one paper 1 used: the 2012-2018 base</span>
     <span class="c1"># inventory revised, extended to 2020, plus the supplemental post-meter sector. The</span>
     <span class="c1"># base product (26 sectors, to 2018) is ~13% lower in the SLV, ~7.5 points of it</span>
     <span class="c1"># post-meter. express=False scales it by month: lair holds sectors without monthly</span>
@@ -639,17 +641,17 @@
     <span class="c1"># Regrid</span>
     <span class="kn">import</span><span class="w"> </span><span class="nn">xesmf</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xe</span>  <span class="c1"># conda-forge only; lazy</span>
 
-    <span class="n">regridder</span> <span class="o">=</span> <span class="n">xe</span><span class="o">.</span><span class="n">Regridder</span><span class="p">(</span><span class="n">total</span><span class="p">,</span> <span class="n">out_grid</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;conservative&quot;</span><span class="p">)</span>
+    <span class="n">regridder</span> <span class="o">=</span> <span class="n">xe</span><span class="o">.</span><span class="n">Regridder</span><span class="p">(</span><span class="n">total</span><span class="p">,</span> <span class="n">out_grid</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">"conservative"</span><span class="p">)</span>
     <span class="n">inventory</span> <span class="o">=</span> <span class="n">regridder</span><span class="p">(</span><span class="n">total</span><span class="p">)</span>
 
-    <span class="n">inventory</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;flux&quot;</span>  <span class="c1"># Rename emissions</span>
-    <span class="n">inventory</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">total</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">]</span>
+    <span class="n">inventory</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">"flux"</span>  <span class="c1"># Rename emissions</span>
+    <span class="n">inventory</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"units"</span><span class="p">]</span> <span class="o">=</span> <span class="n">total</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"units"</span><span class="p">]</span>
 
     <span class="c1"># Resample inventory to target flux frequency if needed</span>
     <span class="k">if</span> <span class="n">flux_freq</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">inv_freq</span> <span class="o">=</span> <span class="n">_infer_freq</span><span class="p">(</span><span class="n">inventory</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">inv_freq</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">ref</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="s2">&quot;2020-01-01&quot;</span><span class="p">)</span>
+            <span class="n">ref</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="s2">"2020-01-01"</span><span class="p">)</span>
             <span class="n">target_step</span> <span class="o">=</span> <span class="n">ref</span> <span class="o">+</span> <span class="n">pd</span><span class="o">.</span><span class="n">tseries</span><span class="o">.</span><span class="n">frequencies</span><span class="o">.</span><span class="n">to_offset</span><span class="p">(</span><span class="n">flux_freq</span><span class="p">)</span>
             <span class="n">inv_step</span> <span class="o">=</span> <span class="n">ref</span> <span class="o">+</span> <span class="n">inv_freq</span>
             <span class="k">if</span> <span class="n">target_step</span> <span class="o">&gt;</span> <span class="n">inv_step</span><span class="p">:</span>
@@ -675,14 +677,14 @@
     <span class="n">units</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">return_regridder</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    EDGAR v8 annual CH4 prior -- the sensitivity alternative to the EPA prior.</span>
 
-<span class="sd">    Mirrors ``load_epa_prior``&#39;s express branch (load -&gt; clip -&gt; convert -&gt; sum sectors -&gt;</span>
+<span class="sd">    Mirrors ``load_epa_prior``'s express branch (load -&gt; clip -&gt; convert -&gt; sum sectors -&gt;</span>
 <span class="sd">    conservative regrid -&gt; resample/align to flux_times). EDGAR v8 annual covers 1970-2022,</span>
 <span class="sd">    so 2023 holds 2022 (cf. EPA holding 2020 for 2021-2023).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">edgar</span> <span class="o">=</span> <span class="n">inventories</span><span class="o">.</span><span class="n">EDGARv8</span><span class="p">(</span><span class="s2">&quot;CH4&quot;</span><span class="p">,</span> <span class="n">time_step</span><span class="o">=</span><span class="s2">&quot;annual&quot;</span><span class="p">)</span>
+<span class="sd">    """</span>
+    <span class="n">edgar</span> <span class="o">=</span> <span class="n">inventories</span><span class="o">.</span><span class="n">EDGARv8</span><span class="p">(</span><span class="s2">"CH4"</span><span class="p">,</span> <span class="n">time_step</span><span class="o">=</span><span class="s2">"annual"</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="nb">any</span><span class="p">([</span><span class="n">bbox</span><span class="p">,</span> <span class="n">extent</span><span class="p">]):</span>
         <span class="n">edgar</span> <span class="o">=</span> <span class="n">edgar</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">bbox</span><span class="o">=</span><span class="n">bbox</span><span class="p">,</span> <span class="n">extent</span><span class="o">=</span><span class="n">extent</span><span class="p">)</span>
@@ -694,16 +696,16 @@
     <span class="c1"># Regrid</span>
     <span class="kn">import</span><span class="w"> </span><span class="nn">xesmf</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xe</span>  <span class="c1"># conda-forge only; lazy</span>
 
-    <span class="n">regridder</span> <span class="o">=</span> <span class="n">xe</span><span class="o">.</span><span class="n">Regridder</span><span class="p">(</span><span class="n">total</span><span class="p">,</span> <span class="n">out_grid</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;conservative&quot;</span><span class="p">)</span>
+    <span class="n">regridder</span> <span class="o">=</span> <span class="n">xe</span><span class="o">.</span><span class="n">Regridder</span><span class="p">(</span><span class="n">total</span><span class="p">,</span> <span class="n">out_grid</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">"conservative"</span><span class="p">)</span>
     <span class="n">inventory</span> <span class="o">=</span> <span class="n">regridder</span><span class="p">(</span><span class="n">total</span><span class="p">)</span>
 
-    <span class="n">inventory</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;flux&quot;</span>
-    <span class="n">inventory</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">total</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">]</span>
+    <span class="n">inventory</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">"flux"</span>
+    <span class="n">inventory</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"units"</span><span class="p">]</span> <span class="o">=</span> <span class="n">total</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"units"</span><span class="p">]</span>
 
     <span class="k">if</span> <span class="n">flux_freq</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">inv_freq</span> <span class="o">=</span> <span class="n">_infer_freq</span><span class="p">(</span><span class="n">inventory</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">inv_freq</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">ref</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="s2">&quot;2020-01-01&quot;</span><span class="p">)</span>
+            <span class="n">ref</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="s2">"2020-01-01"</span><span class="p">)</span>
             <span class="n">target_step</span> <span class="o">=</span> <span class="n">ref</span> <span class="o">+</span> <span class="n">pd</span><span class="o">.</span><span class="n">tseries</span><span class="o">.</span><span class="n">frequencies</span><span class="o">.</span><span class="n">to_offset</span><span class="p">(</span><span class="n">flux_freq</span><span class="p">)</span>
             <span class="n">inv_step</span> <span class="o">=</span> <span class="n">ref</span> <span class="o">+</span> <span class="n">inv_freq</span>
             <span class="k">if</span> <span class="n">target_step</span> <span class="o">&gt;</span> <span class="n">inv_step</span><span class="p">:</span>
@@ -744,8 +746,8 @@
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../../../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0"></script>
-<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0"></script>
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -765,7 +767,7 @@
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.2.0.
   </p>
 </div>
       
@@ -778,7 +780,7 @@
         <div class="footer-item">
 <p class="theme-version">
   <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.22.0.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.23.0.
 </p></div>
       
     </div>

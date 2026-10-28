@@ -25,28 +25,29 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../_static/styles/theme.css?digest=64cc4de3f052d77215f0" rel="stylesheet" />
-<link href="../../_static/styles/pydata-sphinx-theme.css?digest=64cc4de3f052d77215f0" rel="stylesheet" />
+  <link href="../../_static/styles/theme.css?digest=18bd87630a240e9c25be" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=18bd87630a240e9c25be" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx_autodoc_typehints.css?v=057ac668" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../_static/custom.css?v=ba117b66" />
   
   <!-- So that users can add custom icons -->
-  <script defer src="../../_static/scripts/fontawesome.js?digest=64cc4de3f052d77215f0"></script>
+  <script defer src="../../_static/scripts/fontawesome.js?digest=18bd87630a240e9c25be"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
-<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../_static/documentation_options.js?v=855ee6a5"></script>
+    <script src="../../_static/documentation_options.js?v=1ef9135c"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../../_static/copybutton.js?v=f281be69"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_modules/slv/basemap';</script>
     <script>
-        DOCUMENTATION_OPTIONS.theme_version = '0.22.0';
+        DOCUMENTATION_OPTIONS.theme_version = '0.23.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://jmineau.github.io/slv/switcher.json';
         DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
@@ -56,8 +57,9 @@
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.10.4.dev5+g1346b5991" />
+  <meta name="docsearch:version" content="2026.10.4.dev6+gdb1f4b5c8" />
   
     
     <script src="../../_static/searchtools.js"></script>
@@ -429,7 +431,7 @@
                 <article class="bd-article">
                   
   <h1>Source code for slv.basemap</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""</span>
 <span class="sd">Salt Lake Valley basemaps.</span>
 
 <span class="sd">:class:`SaltLake` makes a cartopy map of the valley and layers features onto it. Every</span>
@@ -438,21 +440,21 @@
 <span class="sd">    from slv.basemap import SaltLake</span>
 
 <span class="sd">    m = (</span>
-<span class="sd">        SaltLake(tiles=&quot;terrain&quot;)</span>
+<span class="sd">        SaltLake(tiles="terrain")</span>
 <span class="sd">        .add_population()</span>
-<span class="sd">        .add_trax(lines=&quot;RG&quot;)</span>
-<span class="sd">        .add_sites([&quot;wbb&quot;, &quot;ldf&quot;, &quot;hdp&quot;], labels={&quot;wbb&quot;: &quot;UOU&quot;})</span>
+<span class="sd">        .add_trax(lines="RG")</span>
+<span class="sd">        .add_sites(["wbb", "ldf", "hdp"], labels={"wbb": "UOU"})</span>
 <span class="sd">        .add_mesowest()</span>
 <span class="sd">        .add_legend()</span>
 <span class="sd">        .add_inset()</span>
 <span class="sd">        .add_north_arrow()</span>
 <span class="sd">    )</span>
-<span class="sd">    m.fig.savefig(&quot;slv.png&quot;, dpi=300)</span>
+<span class="sd">    m.fig.savefig("slv.png", dpi=300)</span>
 
-<span class="sd">The ``load_*`` functions read the layers&#39; data (group data via ``$SLV_SPATIAL_DIR``, slv</span>
+<span class="sd">The ``load_*`` functions read the layers' data (group data via ``$SLV_SPATIAL_DIR``, slv</span>
 <span class="sd">user data via ``$SLV_USER_DATA_DIR``) and return lon/lat GeoDataFrames; the ``add_*``</span>
 <span class="sd">methods only plot, so any of them also takes data you pass in.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">TypeVar</span>
@@ -478,14 +480,14 @@
 
 <span class="n">PC</span> <span class="o">=</span> <span class="n">ccrs</span><span class="o">.</span><span class="n">PlateCarree</span><span class="p">()</span>
 
-<span class="n">_Tiler</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;_Tiler&quot;</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="n">cimgt</span><span class="o">.</span><span class="n">GoogleWTS</span><span class="p">)</span>
+<span class="n">_Tiler</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">"_Tiler"</span><span class="p">,</span> <span class="n">bound</span><span class="o">=</span><span class="n">cimgt</span><span class="o">.</span><span class="n">GoogleWTS</span><span class="p">)</span>
 
 <span class="c1">#: Colour of each TRAX line, keyed by its ``line`` letter in UTA_TRAX.geojson.</span>
-<span class="n">TRAX_COLORS</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;R&quot;</span><span class="p">:</span> <span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="s2">&quot;G&quot;</span><span class="p">:</span> <span class="s2">&quot;green&quot;</span><span class="p">,</span> <span class="s2">&quot;B&quot;</span><span class="p">:</span> <span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="s2">&quot;S&quot;</span><span class="p">:</span> <span class="s2">&quot;gray&quot;</span><span class="p">}</span>
+<span class="n">TRAX_COLORS</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"R"</span><span class="p">:</span> <span class="s2">"red"</span><span class="p">,</span> <span class="s2">"G"</span><span class="p">:</span> <span class="s2">"green"</span><span class="p">,</span> <span class="s2">"B"</span><span class="p">:</span> <span class="s2">"blue"</span><span class="p">,</span> <span class="s2">"S"</span><span class="p">:</span> <span class="s2">"gray"</span><span class="p">}</span>
 
 <span class="c1">#: Stadia Maps credit, required wherever its tiles are shown.</span>
 <span class="n">STADIA_ATTRIBUTION</span> <span class="o">=</span> <span class="p">(</span>
-    <span class="s2">&quot;© Stadia Maps © Stamen Design © OpenMapTiles © OpenStreetMap contributors&quot;</span>
+    <span class="s2">"© Stadia Maps © Stamen Design © OpenMapTiles © OpenStreetMap contributors"</span>
 <span class="p">)</span>
 
 
@@ -495,46 +497,46 @@
 <div class="viewcode-block" id="load_population">
 <a class="viewcode-back" href="../../_autosummary/slv.basemap.load_population.html#slv.basemap.load_population">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">load_population</span><span class="p">(</span><span class="n">bbox</span><span class="o">=</span><span class="n">MAP_BBOX</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Block-group population and density (people km⁻², over land area).</span>
 
 <span class="sd">    ACS 2022 5-year population (``$SLV_USER_DATA_DIR/census/raw/acs5_2022_utah_bg.csv``)</span>
 <span class="sd">    joined on GEOID to the 2022 cartographic block groups</span>
 <span class="sd">    (``$SLV_SPATIAL_DIR/census/block_groups/utah``). Block groups with no land area get a</span>
 <span class="sd">    NaN density.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">shp</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">get_data_dir</span><span class="p">(</span><span class="s2">&quot;SLV_SPATIAL_DIR&quot;</span><span class="p">)</span>
-        <span class="o">/</span> <span class="s2">&quot;census/block_groups/utah/cb_2022_49_bg_500k.shp&quot;</span>
+        <span class="n">get_data_dir</span><span class="p">(</span><span class="s2">"SLV_SPATIAL_DIR"</span><span class="p">)</span>
+        <span class="o">/</span> <span class="s2">"census/block_groups/utah/cb_2022_49_bg_500k.shp"</span>
     <span class="p">)</span>
-    <span class="n">csv</span> <span class="o">=</span> <span class="n">get_data_dir</span><span class="p">(</span><span class="s2">&quot;SLV_USER_DATA_DIR&quot;</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;census/raw/acs5_2022_utah_bg.csv&quot;</span>
+    <span class="n">csv</span> <span class="o">=</span> <span class="n">get_data_dir</span><span class="p">(</span><span class="s2">"SLV_USER_DATA_DIR"</span><span class="p">)</span> <span class="o">/</span> <span class="s2">"census/raw/acs5_2022_utah_bg.csv"</span>
     <span class="n">bg</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">read_file</span><span class="p">(</span><span class="n">shp</span><span class="p">,</span> <span class="n">bbox</span><span class="o">=</span><span class="n">bbox</span><span class="p">)</span>
-    <span class="n">pop</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">csv</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;GEOID&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">})</span>
-    <span class="n">bg</span> <span class="o">=</span> <span class="n">bg</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">pop</span><span class="p">[[</span><span class="s2">&quot;GEOID&quot;</span><span class="p">,</span> <span class="s2">&quot;population&quot;</span><span class="p">]],</span> <span class="n">on</span><span class="o">=</span><span class="s2">&quot;GEOID&quot;</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">)</span>
-    <span class="n">land_km2</span> <span class="o">=</span> <span class="n">bg</span><span class="p">[</span><span class="s2">&quot;ALAND&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">bg</span><span class="p">[</span><span class="s2">&quot;ALAND&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="o">/</span> <span class="mf">1e6</span>
-    <span class="n">bg</span><span class="p">[</span><span class="s2">&quot;density_km2&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">bg</span><span class="p">[</span><span class="s2">&quot;population&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="n">land_km2</span>
-    <span class="k">return</span> <span class="n">bg</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="s2">&quot;EPSG:4326&quot;</span><span class="p">)</span></div>
+    <span class="n">pop</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">csv</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="p">{</span><span class="s2">"GEOID"</span><span class="p">:</span> <span class="nb">str</span><span class="p">})</span>
+    <span class="n">bg</span> <span class="o">=</span> <span class="n">bg</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">pop</span><span class="p">[[</span><span class="s2">"GEOID"</span><span class="p">,</span> <span class="s2">"population"</span><span class="p">]],</span> <span class="n">on</span><span class="o">=</span><span class="s2">"GEOID"</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">"left"</span><span class="p">)</span>
+    <span class="n">land_km2</span> <span class="o">=</span> <span class="n">bg</span><span class="p">[</span><span class="s2">"ALAND"</span><span class="p">]</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">bg</span><span class="p">[</span><span class="s2">"ALAND"</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="o">/</span> <span class="mf">1e6</span>
+    <span class="n">bg</span><span class="p">[</span><span class="s2">"density_km2"</span><span class="p">]</span> <span class="o">=</span> <span class="n">bg</span><span class="p">[</span><span class="s2">"population"</span><span class="p">]</span> <span class="o">/</span> <span class="n">land_km2</span>
+    <span class="k">return</span> <span class="n">bg</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="s2">"EPSG:4326"</span><span class="p">)</span></div>
 
 
 
 <div class="viewcode-block" id="load_mesowest">
 <a class="viewcode-back" href="../../_autosummary/slv.basemap.load_mesowest.html#slv.basemap.load_mesowest">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">load_mesowest</span><span class="p">(</span><span class="n">status</span><span class="o">=</span><span class="s2">&quot;ACTIVE&quot;</span><span class="p">,</span> <span class="n">networks</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;UUNET&quot;</span><span class="p">,))</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">load_mesowest</span><span class="p">(</span><span class="n">status</span><span class="o">=</span><span class="s2">"ACTIVE"</span><span class="p">,</span> <span class="n">networks</span><span class="o">=</span><span class="p">(</span><span class="s2">"UUNET"</span><span class="p">,))</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    MesoWest stations (``$SLV_USER_DATA_DIR/mesowest``), optionally filtered by</span>
 <span class="sd">    ``Status`` and ``Mesonet``; ``None`` keeps all.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">csv</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">get_data_dir</span><span class="p">(</span><span class="s2">&quot;SLV_USER_DATA_DIR&quot;</span><span class="p">)</span>
-        <span class="o">/</span> <span class="s2">&quot;mesowest/MesoWest_Utah_stations_20221017.csv&quot;</span>
+        <span class="n">get_data_dir</span><span class="p">(</span><span class="s2">"SLV_USER_DATA_DIR"</span><span class="p">)</span>
+        <span class="o">/</span> <span class="s2">"mesowest/MesoWest_Utah_stations_20221017.csv"</span>
     <span class="p">)</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">csv</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">status</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;Status&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">status</span><span class="o">.</span><span class="n">upper</span><span class="p">()]</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s2">"Status"</span><span class="p">]</span> <span class="o">==</span> <span class="n">status</span><span class="o">.</span><span class="n">upper</span><span class="p">()]</span>
     <span class="k">if</span> <span class="n">networks</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;Mesonet&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">networks</span><span class="p">)]</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s2">"Mesonet"</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">networks</span><span class="p">)]</span>
     <span class="k">return</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span>
-        <span class="n">df</span><span class="p">,</span> <span class="n">geometry</span><span class="o">=</span><span class="n">gpd</span><span class="o">.</span><span class="n">points_from_xy</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">Longitude</span><span class="p">,</span> <span class="n">df</span><span class="o">.</span><span class="n">Latitude</span><span class="p">),</span> <span class="n">crs</span><span class="o">=</span><span class="s2">&quot;EPSG:4326&quot;</span>
+        <span class="n">df</span><span class="p">,</span> <span class="n">geometry</span><span class="o">=</span><span class="n">gpd</span><span class="o">.</span><span class="n">points_from_xy</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">Longitude</span><span class="p">,</span> <span class="n">df</span><span class="o">.</span><span class="n">Latitude</span><span class="p">),</span> <span class="n">crs</span><span class="o">=</span><span class="s2">"EPSG:4326"</span>
     <span class="p">)</span></div>
 
 
@@ -542,42 +544,42 @@
 <div class="viewcode-block" id="load_interstates">
 <a class="viewcode-back" href="../../_autosummary/slv.basemap.load_interstates.html#slv.basemap.load_interstates">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">load_interstates</span><span class="p">(</span><span class="n">bbox</span><span class="o">=</span><span class="n">MAP_BBOX</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Interstates (UGRC road ``CARTOCODE`` &quot;1&quot;) from</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Interstates (UGRC road ``CARTOCODE`` "1") from</span>
 <span class="sd">    ``$SLV_SPATIAL_DIR/transportation/roads``.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">shp</span> <span class="o">=</span> <span class="n">get_data_dir</span><span class="p">(</span><span class="s2">&quot;SLV_SPATIAL_DIR&quot;</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;transportation/roads/Roads.shp&quot;</span>
-    <span class="n">roads</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">read_file</span><span class="p">(</span><span class="n">shp</span><span class="p">,</span> <span class="n">bbox</span><span class="o">=</span><span class="n">bbox</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;CARTOCODE&quot;</span><span class="p">])</span>
-    <span class="k">return</span> <span class="n">roads</span><span class="p">[</span><span class="n">roads</span><span class="p">[</span><span class="s2">&quot;CARTOCODE&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;1&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="s2">&quot;EPSG:4326&quot;</span><span class="p">)</span></div>
+<span class="sd">    """</span>
+    <span class="n">shp</span> <span class="o">=</span> <span class="n">get_data_dir</span><span class="p">(</span><span class="s2">"SLV_SPATIAL_DIR"</span><span class="p">)</span> <span class="o">/</span> <span class="s2">"transportation/roads/Roads.shp"</span>
+    <span class="n">roads</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">read_file</span><span class="p">(</span><span class="n">shp</span><span class="p">,</span> <span class="n">bbox</span><span class="o">=</span><span class="n">bbox</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">"CARTOCODE"</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">roads</span><span class="p">[</span><span class="n">roads</span><span class="p">[</span><span class="s2">"CARTOCODE"</span><span class="p">]</span> <span class="o">==</span> <span class="s2">"1"</span><span class="p">]</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="s2">"EPSG:4326"</span><span class="p">)</span></div>
 
 
 
 <div class="viewcode-block" id="load_borders">
 <a class="viewcode-back" href="../../_autosummary/slv.basemap.load_borders.html#slv.basemap.load_borders">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">load_borders</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="s2">&quot;county&quot;</span><span class="p">,</span> <span class="n">bbox</span><span class="o">=</span><span class="n">MAP_BBOX</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">load_borders</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="s2">"county"</span><span class="p">,</span> <span class="n">bbox</span><span class="o">=</span><span class="n">MAP_BBOX</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    2022 Census state or county boundaries from</span>
 <span class="sd">    ``$SLV_SPATIAL_DIR/administrative``.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">files</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;state&quot;</span><span class="p">:</span> <span class="s2">&quot;states/cb_2022_us_state_500k.shp&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;county&quot;</span><span class="p">:</span> <span class="s2">&quot;counties/cb_2022_us_county_500k.shp&quot;</span><span class="p">,</span>
+        <span class="s2">"state"</span><span class="p">:</span> <span class="s2">"states/cb_2022_us_state_500k.shp"</span><span class="p">,</span>
+        <span class="s2">"county"</span><span class="p">:</span> <span class="s2">"counties/cb_2022_us_county_500k.shp"</span><span class="p">,</span>
     <span class="p">}</span>
     <span class="k">if</span> <span class="n">level</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;level=</span><span class="si">{</span><span class="n">level</span><span class="si">!r}</span><span class="s2">; expected one of </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">files</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="n">shp</span> <span class="o">=</span> <span class="n">get_data_dir</span><span class="p">(</span><span class="s2">&quot;SLV_SPATIAL_DIR&quot;</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;administrative&quot;</span> <span class="o">/</span> <span class="n">files</span><span class="p">[</span><span class="n">level</span><span class="p">]</span>
-    <span class="k">return</span> <span class="n">gpd</span><span class="o">.</span><span class="n">read_file</span><span class="p">(</span><span class="n">shp</span><span class="p">,</span> <span class="n">bbox</span><span class="o">=</span><span class="n">bbox</span><span class="p">)</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="s2">&quot;EPSG:4326&quot;</span><span class="p">)</span></div>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"level=</span><span class="si">{</span><span class="n">level</span><span class="si">!r}</span><span class="s2">; expected one of </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">files</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="n">shp</span> <span class="o">=</span> <span class="n">get_data_dir</span><span class="p">(</span><span class="s2">"SLV_SPATIAL_DIR"</span><span class="p">)</span> <span class="o">/</span> <span class="s2">"administrative"</span> <span class="o">/</span> <span class="n">files</span><span class="p">[</span><span class="n">level</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">gpd</span><span class="o">.</span><span class="n">read_file</span><span class="p">(</span><span class="n">shp</span><span class="p">,</span> <span class="n">bbox</span><span class="o">=</span><span class="n">bbox</span><span class="p">)</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="s2">"EPSG:4326"</span><span class="p">)</span></div>
 
 
 
 <div class="viewcode-block" id="cached_tiler">
 <a class="viewcode-back" href="../../_autosummary/slv.basemap.cached_tiler.html#slv.basemap.cached_tiler">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">cached_tiler</span><span class="p">(</span><span class="n">tiles</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">_Tiler</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_Tiler</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    A cartopy tiler that caches its tiles on disk, safe to build in several processes</span>
 <span class="sd">    at the same moment.</span>
 
-<span class="sd">    The tiler is ``tiles(cache=True, **kwargs)``. cartopy checks that the tiler&#39;s cache</span>
+<span class="sd">    The tiler is ``tiles(cache=True, **kwargs)``. cartopy checks that the tiler's cache</span>
 <span class="sd">    folder is missing and then makes it with a plain ``mkdir``. When another process</span>
 <span class="sd">    makes the folder between the check and the ``mkdir`` (parallel tests, or jobs on</span>
 <span class="sd">    one node that each draw their first map), the tiler raises ``FileExistsError``.</span>
@@ -588,7 +590,7 @@
 <span class="sd">    tiles : type</span>
 <span class="sd">        The tiler class, e.g. ``cartopy.io.img_tiles.GoogleTiles``.</span>
 <span class="sd">    **kwargs</span>
-<span class="sd">        Passed to ``tiles``, e.g. ``style=&quot;satellite&quot;``.</span>
+<span class="sd">        Passed to ``tiles``, e.g. ``style="satellite"``.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -598,8 +600,8 @@
 <span class="sd">    Examples</span>
 <span class="sd">    --------</span>
 <span class="sd">    &gt;&gt;&gt; from cartopy.io.img_tiles import GoogleTiles</span>
-<span class="sd">    &gt;&gt;&gt; tiler = cached_tiler(GoogleTiles, style=&quot;satellite&quot;)</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    &gt;&gt;&gt; tiler = cached_tiler(GoogleTiles, style="satellite")</span>
+<span class="sd">    """</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">tiles</span><span class="p">(</span><span class="n">cache</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">FileExistsError</span><span class="p">:</span>
@@ -609,16 +611,16 @@
 
 <div class="viewcode-block" id="stadia_tiles">
 <a class="viewcode-back" href="../../_autosummary/slv.basemap.stadia_tiles.html#slv.basemap.stadia_tiles">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">stadia_tiles</span><span class="p">(</span><span class="n">style</span><span class="o">=</span><span class="s2">&quot;stamen_terrain&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">cimgt</span><span class="o">.</span><span class="n">StadiaMapsTiles</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">stadia_tiles</span><span class="p">(</span><span class="n">style</span><span class="o">=</span><span class="s2">"stamen_terrain"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">cimgt</span><span class="o">.</span><span class="n">StadiaMapsTiles</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    A Stadia Maps tiler (``$STADIA_API_KEY``), cached on disk by cartopy.</span>
 
 <span class="sd">    Fetched from tiles.stadiamaps.com when the map is drawn. Their terms ask for</span>
 <span class="sd">    :data:`STADIA_ATTRIBUTION` on the map, which :class:`SaltLake` adds by default.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">key</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;STADIA_API_KEY&quot;</span><span class="p">)</span>
+<span class="sd">    """</span>
+    <span class="n">key</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"STADIA_API_KEY"</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">key</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">OSError</span><span class="p">(</span><span class="s2">&quot;Set $STADIA_API_KEY to use Stadia Maps tiles.&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">OSError</span><span class="p">(</span><span class="s2">"Set $STADIA_API_KEY to use Stadia Maps tiles."</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">cached_tiler</span><span class="p">(</span><span class="n">cimgt</span><span class="o">.</span><span class="n">StadiaMapsTiles</span><span class="p">,</span> <span class="n">apikey</span><span class="o">=</span><span class="n">key</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="n">style</span><span class="p">)</span></div>
 
 
@@ -627,7 +629,7 @@
 
 
 <span class="k">class</span><span class="w"> </span><span class="nc">_StackedLines</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Legend handle for several lines drawn as one entry (e.g. the TRAX lines).&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Legend handle for several lines drawn as one entry (e.g. the TRAX lines)."""</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">colors</span><span class="p">,</span> <span class="n">linewidth</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">colors</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">colors</span><span class="p">)</span>
@@ -635,7 +637,7 @@
 
 
 <span class="k">class</span><span class="w"> </span><span class="nc">_StackedLinesHandler</span><span class="p">(</span><span class="n">HandlerBase</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Draws a :class:`_StackedLines` handle as horizontal lines stacked top to bottom.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Draws a :class:`_StackedLines` handle as horizontal lines stacked top to bottom."""</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">create_artists</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">legend</span><span class="p">,</span> <span class="n">orig_handle</span><span class="p">,</span> <span class="n">xdescent</span><span class="p">,</span> <span class="n">ydescent</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">,</span> <span class="n">fontsize</span><span class="p">,</span> <span class="n">trans</span>
@@ -655,7 +657,7 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_thousands</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">pos</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="k">return</span> <span class="s2">&quot;0&quot;</span> <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">x</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">1000</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2">k&quot;</span>
+    <span class="k">return</span> <span class="s2">"0"</span> <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">x</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="mi">1000</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2">k"</span>
 
 
 <span class="c1"># ----- map -----</span>
@@ -664,7 +666,7 @@
 <div class="viewcode-block" id="SaltLake">
 <a class="viewcode-back" href="../../_autosummary/slv.basemap.SaltLake.html#slv.basemap.SaltLake">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">SaltLake</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    A cartopy map of the Salt Lake Valley.</span>
 
 <span class="sd">    Parameters</span>
@@ -673,9 +675,9 @@
 <span class="sd">        (W, S, E, N) of the map in degrees; defaults to :data:`slv.domain.MAP_BBOX`.</span>
 <span class="sd">    ax : cartopy GeoAxes, optional</span>
 <span class="sd">        Draw on this map axis (e.g. a subplot) instead of a new figure.</span>
-<span class="sd">    tiles : &quot;terrain&quot;, cartopy tiler or None</span>
-<span class="sd">        Background tiles; &quot;terrain&quot; is Stadia&#39;s ``stamen_terrain``</span>
-<span class="sd">        (:func:`stadia_tiles`). A new figure then uses the tiler&#39;s projection.</span>
+<span class="sd">    tiles : "terrain", cartopy tiler or None</span>
+<span class="sd">        Background tiles; "terrain" is Stadia's ``stamen_terrain``</span>
+<span class="sd">        (:func:`stadia_tiles`). A new figure then uses the tiler's projection.</span>
 <span class="sd">    zoom : int</span>
 <span class="sd">        Tile zoom level.</span>
 <span class="sd">    figsize : tuple</span>
@@ -684,7 +686,7 @@
 <span class="sd">        Label the axes in degrees.</span>
 <span class="sd">    attribution : bool</span>
 <span class="sd">        Credit the tile source in the corner of the map.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -696,11 +698,11 @@
         <span class="n">latlon_ticks</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="n">attribution</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">):</span>
-        <span class="n">tiler</span> <span class="o">=</span> <span class="n">stadia_tiles</span><span class="p">()</span> <span class="k">if</span> <span class="n">tiles</span> <span class="o">==</span> <span class="s2">&quot;terrain&quot;</span> <span class="k">else</span> <span class="n">tiles</span>
+        <span class="n">tiler</span> <span class="o">=</span> <span class="n">stadia_tiles</span><span class="p">()</span> <span class="k">if</span> <span class="n">tiles</span> <span class="o">==</span> <span class="s2">"terrain"</span> <span class="k">else</span> <span class="n">tiles</span>
         <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">projection</span> <span class="o">=</span> <span class="n">tiler</span><span class="o">.</span><span class="n">crs</span> <span class="k">if</span> <span class="n">tiler</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">PC</span>
             <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span>
-                <span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span><span class="p">,</span> <span class="n">subplot_kw</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;projection&quot;</span><span class="p">:</span> <span class="n">projection</span><span class="p">}</span>
+                <span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span><span class="p">,</span> <span class="n">subplot_kw</span><span class="o">=</span><span class="p">{</span><span class="s2">"projection"</span><span class="p">:</span> <span class="n">projection</span><span class="p">}</span>
             <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ax</span> <span class="o">=</span> <span class="n">ax</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">bbox</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">bbox</span><span class="p">)</span>
@@ -716,23 +718,23 @@
                     <span class="mf">0.003</span><span class="p">,</span>
                     <span class="n">STADIA_ATTRIBUTION</span><span class="p">,</span>
                     <span class="n">transform</span><span class="o">=</span><span class="n">ax</span><span class="o">.</span><span class="n">transAxes</span><span class="p">,</span>
-                    <span class="n">ha</span><span class="o">=</span><span class="s2">&quot;right&quot;</span><span class="p">,</span>
-                    <span class="n">va</span><span class="o">=</span><span class="s2">&quot;bottom&quot;</span><span class="p">,</span>
+                    <span class="n">ha</span><span class="o">=</span><span class="s2">"right"</span><span class="p">,</span>
+                    <span class="n">va</span><span class="o">=</span><span class="s2">"bottom"</span><span class="p">,</span>
                     <span class="n">fontsize</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
                     <span class="n">zorder</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span>
-                    <span class="n">path_effects</span><span class="o">=</span><span class="p">[</span><span class="n">pe</span><span class="o">.</span><span class="n">withStroke</span><span class="p">(</span><span class="n">linewidth</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">foreground</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">)],</span>
+                    <span class="n">path_effects</span><span class="o">=</span><span class="p">[</span><span class="n">pe</span><span class="o">.</span><span class="n">withStroke</span><span class="p">(</span><span class="n">linewidth</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">foreground</span><span class="o">=</span><span class="s2">"white"</span><span class="p">)],</span>
                 <span class="p">)</span>
         <span class="k">if</span> <span class="n">latlon_ticks</span><span class="p">:</span>
             <span class="n">add_latlon_ticks</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">extent</span><span class="p">,</span> <span class="n">x_rotation</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">fig</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;The figure holding the map.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""The figure holding the map."""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">figure</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="n">label</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">label</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_legend</span><span class="p">]</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;SaltLake(bbox=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">bbox</span><span class="si">}</span><span class="s2">, legend=</span><span class="si">{</span><span class="n">labels</span><span class="si">}</span><span class="s2">)&quot;</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">"SaltLake(bbox=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">bbox</span><span class="si">}</span><span class="s2">, legend=</span><span class="si">{</span><span class="n">labels</span><span class="si">}</span><span class="s2">)"</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_add_to_legend</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">handle</span><span class="p">,</span> <span class="n">label</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">label</span><span class="p">:</span>
@@ -745,39 +747,39 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">add_population</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">population</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;pink_r&quot;</span><span class="p">,</span>
+        <span class="n">cmap</span><span class="o">=</span><span class="s2">"pink_r"</span><span class="p">,</span>
         <span class="n">vmax</span><span class="o">=</span><span class="mi">4000</span><span class="p">,</span>
         <span class="n">min_density</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
         <span class="n">alpha</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span>
         <span class="n">colorbar</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Block-group population density (people km⁻²) with a colorbar panel.</span>
 
 <span class="sd">        ``population`` defaults to :func:`load_population`; block groups below</span>
 <span class="sd">        ``min_density`` are left unshaded.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">gdf</span> <span class="o">=</span> <span class="n">load_population</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bbox</span><span class="p">)</span> <span class="k">if</span> <span class="n">population</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">population</span>
-        <span class="n">gdf</span> <span class="o">=</span> <span class="n">gdf</span><span class="p">[</span><span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;density_km2&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">min_density</span><span class="p">]</span>
+        <span class="n">gdf</span> <span class="o">=</span> <span class="n">gdf</span><span class="p">[</span><span class="n">gdf</span><span class="p">[</span><span class="s2">"density_km2"</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">min_density</span><span class="p">]</span>
         <span class="n">gdf</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
             <span class="n">ax</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="p">,</span>
-            <span class="n">column</span><span class="o">=</span><span class="s2">&quot;density_km2&quot;</span><span class="p">,</span>
+            <span class="n">column</span><span class="o">=</span><span class="s2">"density_km2"</span><span class="p">,</span>
             <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">,</span>
             <span class="n">vmin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
             <span class="n">vmax</span><span class="o">=</span><span class="n">vmax</span><span class="p">,</span>
             <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span>
-            <span class="n">edgecolor</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">,</span>
+            <span class="n">edgecolor</span><span class="o">=</span><span class="s2">"none"</span><span class="p">,</span>
             <span class="n">transform</span><span class="o">=</span><span class="n">PC</span><span class="p">,</span>
             <span class="n">zorder</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="n">colorbar</span><span class="p">:</span>
             <span class="n">mappable</span> <span class="o">=</span> <span class="n">ScalarMappable</span><span class="p">(</span><span class="n">norm</span><span class="o">=</span><span class="n">Normalize</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">vmax</span><span class="p">),</span> <span class="n">cmap</span><span class="o">=</span><span class="n">plt</span><span class="o">.</span><span class="n">get_cmap</span><span class="p">(</span><span class="n">cmap</span><span class="p">))</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_colorbar_panel</span><span class="p">(</span><span class="n">mappable</span><span class="p">,</span> <span class="s2">&quot;Population km$^{-2}$&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_colorbar_panel</span><span class="p">(</span><span class="n">mappable</span><span class="p">,</span> <span class="s2">"Population km$^{-2}$"</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span></div>
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_colorbar_panel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mappable</span><span class="p">,</span> <span class="n">label</span><span class="p">,</span> <span class="n">bounds</span><span class="o">=</span><span class="p">(</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.22</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">)):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;A white panel in the lower-left corner holding a vertical colorbar.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""A white panel in the lower-left corner holding a vertical colorbar."""</span>
         <span class="n">panel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">inset_axes</span><span class="p">(</span><span class="n">bounds</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
         <span class="n">panel</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">([])</span>
         <span class="n">panel</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">([])</span>
@@ -789,18 +791,18 @@
 <div class="viewcode-block" id="SaltLake.add_inventory">
 <a class="viewcode-back" href="../../_autosummary/slv.basemap.SaltLake.add_inventory.html#slv.basemap.SaltLake.add_inventory">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">add_inventory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inventory</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;A lair inventory (``Inventory.plot``; e.g. ``time=``, ``sector=``, ``alpha=``).&quot;&quot;&quot;</span>
-        <span class="n">kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;zorder&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="w">        </span><span class="sd">"""A lair inventory (``Inventory.plot``; e.g. ``time=``, ``sector=``, ``alpha=``)."""</span>
+        <span class="n">kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">"zorder"</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
         <span class="n">inventory</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span></div>
 
 
 <div class="viewcode-block" id="SaltLake.add_borders">
 <a class="viewcode-back" href="../../_autosummary/slv.basemap.SaltLake.add_borders.html#slv.basemap.SaltLake.add_borders">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">add_borders</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="s2">&quot;county&quot;</span><span class="p">,</span> <span class="n">borders</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;State or county boundaries (:func:`load_borders`).&quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_borders</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="s2">"county"</span><span class="p">,</span> <span class="n">borders</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""State or county boundaries (:func:`load_borders`)."""</span>
         <span class="n">gdf</span> <span class="o">=</span> <span class="n">load_borders</span><span class="p">(</span><span class="n">level</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">bbox</span><span class="p">)</span> <span class="k">if</span> <span class="n">borders</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">borders</span>
-        <span class="n">style</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;facecolor&quot;</span><span class="p">:</span> <span class="s2">&quot;none&quot;</span><span class="p">,</span> <span class="s2">&quot;edgecolor&quot;</span><span class="p">:</span> <span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="s2">&quot;linewidth&quot;</span><span class="p">:</span> <span class="mf">0.8</span><span class="p">}</span>
+        <span class="n">style</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"facecolor"</span><span class="p">:</span> <span class="s2">"none"</span><span class="p">,</span> <span class="s2">"edgecolor"</span><span class="p">:</span> <span class="s2">"black"</span><span class="p">,</span> <span class="s2">"linewidth"</span><span class="p">:</span> <span class="mf">0.8</span><span class="p">}</span>
         <span class="n">gdf</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="n">PC</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="o">**</span><span class="p">(</span><span class="n">style</span> <span class="o">|</span> <span class="n">kwargs</span><span class="p">))</span>
         <span class="k">return</span> <span class="bp">self</span></div>
 
@@ -808,21 +810,21 @@
 <div class="viewcode-block" id="SaltLake.add_interstates">
 <a class="viewcode-back" href="../../_autosummary/slv.basemap.SaltLake.add_interstates.html#slv.basemap.SaltLake.add_interstates">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">add_interstates</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">interstates</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Interstate highways (:func:`load_interstates`).&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Interstate highways (:func:`load_interstates`)."""</span>
         <span class="n">gdf</span> <span class="o">=</span> <span class="n">load_interstates</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bbox</span><span class="p">)</span> <span class="k">if</span> <span class="n">interstates</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">interstates</span>
-        <span class="n">style</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;dimgray&quot;</span><span class="p">,</span> <span class="s2">&quot;linewidth&quot;</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">}</span>
+        <span class="n">style</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"color"</span><span class="p">:</span> <span class="s2">"dimgray"</span><span class="p">,</span> <span class="s2">"linewidth"</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">}</span>
         <span class="n">gdf</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="n">PC</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="o">**</span><span class="p">(</span><span class="n">style</span> <span class="o">|</span> <span class="n">kwargs</span><span class="p">))</span>
         <span class="k">return</span> <span class="bp">self</span></div>
 
 
 <div class="viewcode-block" id="SaltLake.add_trax">
 <a class="viewcode-back" href="../../_autosummary/slv.basemap.SaltLake.add_trax.html#slv.basemap.SaltLake.add_trax">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">add_trax</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lines</span><span class="o">=</span><span class="s2">&quot;RG&quot;</span><span class="p">,</span> <span class="n">trax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">colors</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;TRAX&quot;</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        TRAX lines by their letters (R, G, B, S), in UTA&#39;s line colours.</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_trax</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lines</span><span class="o">=</span><span class="s2">"RG"</span><span class="p">,</span> <span class="n">trax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">colors</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"TRAX"</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        TRAX lines by their letters (R, G, B, S), in UTA's line colours.</span>
 
 <span class="sd">        ``trax`` defaults to :func:`slv.measurements.mobile.load_trax_lines`.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="n">trax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="kn">from</span><span class="w"> </span><span class="nn">slv.measurements.mobile</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_trax_lines</span>
 
@@ -830,16 +832,16 @@
         <span class="n">colors</span> <span class="o">=</span> <span class="n">TRAX_COLORS</span> <span class="o">|</span> <span class="p">(</span><span class="n">colors</span> <span class="ow">or</span> <span class="p">{})</span>
         <span class="n">used</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">letter</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">:</span>
-            <span class="n">line</span> <span class="o">=</span> <span class="n">trax</span><span class="p">[</span><span class="n">trax</span><span class="p">[</span><span class="s2">&quot;line&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">letter</span><span class="p">]</span>
+            <span class="n">line</span> <span class="o">=</span> <span class="n">trax</span><span class="p">[</span><span class="n">trax</span><span class="p">[</span><span class="s2">"line"</span><span class="p">]</span> <span class="o">==</span> <span class="n">letter</span><span class="p">]</span>
             <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No TRAX line </span><span class="si">{</span><span class="n">letter</span><span class="si">!r}</span><span class="s2">; have </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">trax</span><span class="p">[</span><span class="s1">&#39;line&#39;</span><span class="p">])</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"No TRAX line </span><span class="si">{</span><span class="n">letter</span><span class="si">!r}</span><span class="s2">; have </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">trax</span><span class="p">[</span><span class="s1">'line'</span><span class="p">])</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
             <span class="n">line</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
                 <span class="n">ax</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="p">,</span>
                 <span class="n">color</span><span class="o">=</span><span class="n">colors</span><span class="p">[</span><span class="n">letter</span><span class="p">],</span>
                 <span class="n">linewidth</span><span class="o">=</span><span class="n">linewidth</span><span class="p">,</span>
                 <span class="n">transform</span><span class="o">=</span><span class="n">PC</span><span class="p">,</span>
                 <span class="n">zorder</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
-                <span class="n">capstyle</span><span class="o">=</span><span class="s2">&quot;round&quot;</span><span class="p">,</span>
+                <span class="n">capstyle</span><span class="o">=</span><span class="s2">"round"</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="n">used</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">colors</span><span class="p">[</span><span class="n">letter</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_add_to_legend</span><span class="p">(</span><span class="n">_StackedLines</span><span class="p">(</span><span class="n">used</span><span class="p">,</span> <span class="n">linewidth</span> <span class="o">*</span> <span class="mf">0.8</span><span class="p">),</span> <span class="n">label</span><span class="p">)</span>
@@ -849,13 +851,13 @@
 <div class="viewcode-block" id="SaltLake.add_points">
 <a class="viewcode-back" href="../../_autosummary/slv.basemap.SaltLake.add_points.html#slv.basemap.SaltLake.add_points">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">add_points</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">points</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;o&quot;</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">points</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s2">"o"</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">"black"</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Point markers from a GeoDataFrame or a frame with longitude / latitude columns.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Point markers from a GeoDataFrame or a frame with longitude / latitude columns."""</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">points</span><span class="p">,</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">):</span>
             <span class="n">lon</span><span class="p">,</span> <span class="n">lat</span> <span class="o">=</span> <span class="n">points</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">points</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">y</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">lon</span><span class="p">,</span> <span class="n">lat</span> <span class="o">=</span> <span class="n">points</span><span class="p">[</span><span class="s2">&quot;longitude&quot;</span><span class="p">],</span> <span class="n">points</span><span class="p">[</span><span class="s2">&quot;latitude&quot;</span><span class="p">]</span>
+            <span class="n">lon</span><span class="p">,</span> <span class="n">lat</span> <span class="o">=</span> <span class="n">points</span><span class="p">[</span><span class="s2">"longitude"</span><span class="p">],</span> <span class="n">points</span><span class="p">[</span><span class="s2">"latitude"</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
             <span class="n">lon</span><span class="p">,</span>
             <span class="n">lat</span><span class="p">,</span>
@@ -867,7 +869,7 @@
             <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">handle</span> <span class="o">=</span> <span class="n">Line2D</span><span class="p">(</span>
-            <span class="p">[],</span> <span class="p">[],</span> <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="n">marker</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="n">size</span><span class="o">**</span><span class="mf">0.5</span>
+            <span class="p">[],</span> <span class="p">[],</span> <span class="n">linestyle</span><span class="o">=</span><span class="s2">"none"</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="n">marker</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="n">size</span><span class="o">**</span><span class="mf">0.5</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_add_to_legend</span><span class="p">(</span><span class="n">handle</span><span class="p">,</span> <span class="n">label</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span></div>
@@ -882,30 +884,30 @@
         <span class="n">labels</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
         <span class="n">label_offset</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span>
         <span class="n">size</span><span class="o">=</span><span class="mi">250</span><span class="p">,</span>
-        <span class="n">label</span><span class="o">=</span><span class="s2">&quot;stationary&quot;</span><span class="p">,</span>
+        <span class="n">label</span><span class="o">=</span><span class="s2">"stationary"</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Measurement sites (``site_config`` rows) as open circles.</span>
 
-<span class="sd">        ``labels=True`` writes each site&#39;s ID in capitals beside it; a dict maps IDs to</span>
-<span class="sd">        the text to write instead (e.g. ``{&quot;wbb&quot;: &quot;UOU&quot;}``). ``label_offset`` is in</span>
+<span class="sd">        ``labels=True`` writes each site's ID in capitals beside it; a dict maps IDs to</span>
+<span class="sd">        the text to write instead (e.g. ``{"wbb": "UOU"}``). ``label_offset`` is in</span>
 <span class="sd">        points from the site, one (x, y) for all or a dict of them by site.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="n">site_config</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="kn">from</span><span class="w"> </span><span class="nn">slv.measurements.sites</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_site_config</span>
 
             <span class="n">site_config</span> <span class="o">=</span> <span class="n">load_site_config</span><span class="p">()</span>
         <span class="n">missing</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">sites</span> <span class="k">if</span> <span class="n">s</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">site_config</span><span class="o">.</span><span class="n">index</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">missing</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown sites </span><span class="si">{</span><span class="n">missing</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Unknown sites </span><span class="si">{</span><span class="n">missing</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="n">rows</span> <span class="o">=</span> <span class="n">site_config</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">sites</span><span class="p">)]</span>
-        <span class="n">rows</span> <span class="o">=</span> <span class="n">rows</span><span class="p">[[</span><span class="s2">&quot;longitude&quot;</span><span class="p">,</span> <span class="s2">&quot;latitude&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
+        <span class="n">rows</span> <span class="o">=</span> <span class="n">rows</span><span class="p">[[</span><span class="s2">"longitude"</span><span class="p">,</span> <span class="s2">"latitude"</span><span class="p">]]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
-            <span class="n">rows</span><span class="p">[</span><span class="s2">&quot;longitude&quot;</span><span class="p">],</span>
-            <span class="n">rows</span><span class="p">[</span><span class="s2">&quot;latitude&quot;</span><span class="p">],</span>
+            <span class="n">rows</span><span class="p">[</span><span class="s2">"longitude"</span><span class="p">],</span>
+            <span class="n">rows</span><span class="p">[</span><span class="s2">"latitude"</span><span class="p">],</span>
             <span class="n">s</span><span class="o">=</span><span class="n">size</span><span class="p">,</span>
-            <span class="n">facecolors</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">,</span>
-            <span class="n">edgecolors</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span>
+            <span class="n">facecolors</span><span class="o">=</span><span class="s2">"none"</span><span class="p">,</span>
+            <span class="n">edgecolors</span><span class="o">=</span><span class="s2">"black"</span><span class="p">,</span>
             <span class="n">linewidths</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
             <span class="n">transform</span><span class="o">=</span><span class="n">PC</span><span class="p">,</span>
             <span class="n">zorder</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
@@ -913,10 +915,10 @@
         <span class="n">handle</span> <span class="o">=</span> <span class="n">Line2D</span><span class="p">(</span>
             <span class="p">[],</span>
             <span class="p">[],</span>
-            <span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">,</span>
-            <span class="n">marker</span><span class="o">=</span><span class="s2">&quot;o&quot;</span><span class="p">,</span>
-            <span class="n">markerfacecolor</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">,</span>
-            <span class="n">markeredgecolor</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span>
+            <span class="n">linestyle</span><span class="o">=</span><span class="s2">"none"</span><span class="p">,</span>
+            <span class="n">marker</span><span class="o">=</span><span class="s2">"o"</span><span class="p">,</span>
+            <span class="n">markerfacecolor</span><span class="o">=</span><span class="s2">"none"</span><span class="p">,</span>
+            <span class="n">markeredgecolor</span><span class="o">=</span><span class="s2">"black"</span><span class="p">,</span>
             <span class="n">markeredgewidth</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
             <span class="n">markersize</span><span class="o">=</span><span class="n">size</span><span class="o">**</span><span class="mf">0.5</span><span class="p">,</span>
         <span class="p">)</span>
@@ -930,24 +932,24 @@
                     <span class="p">(</span><span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">),</span>
                     <span class="n">xycoords</span><span class="o">=</span><span class="n">PC</span><span class="o">.</span><span class="n">_as_mpl_transform</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="p">),</span>
                     <span class="n">xytext</span><span class="o">=</span><span class="n">offsets</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">site</span><span class="p">,</span> <span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span> <span class="k">if</span> <span class="n">offsets</span> <span class="k">else</span> <span class="n">label_offset</span><span class="p">),</span>
-                    <span class="n">textcoords</span><span class="o">=</span><span class="s2">&quot;offset points&quot;</span><span class="p">,</span>
+                    <span class="n">textcoords</span><span class="o">=</span><span class="s2">"offset points"</span><span class="p">,</span>
                     <span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">,</span>
-                    <span class="n">fontweight</span><span class="o">=</span><span class="s2">&quot;bold&quot;</span><span class="p">,</span>
+                    <span class="n">fontweight</span><span class="o">=</span><span class="s2">"bold"</span><span class="p">,</span>
                     <span class="n">zorder</span><span class="o">=</span><span class="mi">7</span><span class="p">,</span>
-                    <span class="n">path_effects</span><span class="o">=</span><span class="p">[</span><span class="n">pe</span><span class="o">.</span><span class="n">withStroke</span><span class="p">(</span><span class="n">linewidth</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">foreground</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">)],</span>
+                    <span class="n">path_effects</span><span class="o">=</span><span class="p">[</span><span class="n">pe</span><span class="o">.</span><span class="n">withStroke</span><span class="p">(</span><span class="n">linewidth</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">foreground</span><span class="o">=</span><span class="s2">"white"</span><span class="p">)],</span>
                 <span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span></div>
 
 
 <div class="viewcode-block" id="SaltLake.add_mesowest">
 <a class="viewcode-back" href="../../_autosummary/slv.basemap.SaltLake.add_mesowest.html#slv.basemap.SaltLake.add_mesowest">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">add_mesowest</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stations</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;MesoWest&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_mesowest</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stations</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">"MesoWest"</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        MesoWest stations as crosses; ``stations`` defaults to active UUNET stations</span>
 <span class="sd">        (:func:`load_mesowest`).</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">gdf</span> <span class="o">=</span> <span class="n">load_mesowest</span><span class="p">()</span> <span class="k">if</span> <span class="n">stations</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">stations</span>
-        <span class="n">style</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;marker&quot;</span><span class="p">:</span> <span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;size&quot;</span><span class="p">:</span> <span class="mi">60</span><span class="p">,</span> <span class="s2">&quot;linewidths&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">}</span>
+        <span class="n">style</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"marker"</span><span class="p">:</span> <span class="s2">"x"</span><span class="p">,</span> <span class="s2">"size"</span><span class="p">:</span> <span class="mi">60</span><span class="p">,</span> <span class="s2">"linewidths"</span><span class="p">:</span> <span class="mi">2</span><span class="p">}</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_points</span><span class="p">(</span><span class="n">gdf</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">,</span> <span class="o">**</span><span class="p">(</span><span class="n">style</span> <span class="o">|</span> <span class="n">kwargs</span><span class="p">))</span></div>
 
 
@@ -955,18 +957,18 @@
 
 <div class="viewcode-block" id="SaltLake.add_legend">
 <a class="viewcode-back" href="../../_autosummary/slv.basemap.SaltLake.add_legend.html#slv.basemap.SaltLake.add_legend">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">add_legend</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="s2">&quot;upper left&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;A legend of the layers added so far, in the order they were added.&quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_legend</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="s2">"upper left"</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">"""A legend of the layers added so far, in the order they were added."""</span>
         <span class="n">handles</span> <span class="o">=</span> <span class="p">[</span><span class="n">h</span> <span class="k">for</span> <span class="n">h</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_legend</span><span class="p">]</span>
         <span class="n">labels</span> <span class="o">=</span> <span class="p">[</span><span class="n">label</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">label</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_legend</span><span class="p">]</span>
-        <span class="c1"># Keyword arguments of mixed types. Left to inference, the dict&#39;s values are one</span>
-        <span class="c1"># union, and matplotlib 3.11&#39;s stubs check that whole union against `loc`.</span>
+        <span class="c1"># Keyword arguments of mixed types. Left to inference, the dict's values are one</span>
+        <span class="c1"># union, and matplotlib 3.11's stubs check that whole union against `loc`.</span>
         <span class="n">style</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;loc&quot;</span><span class="p">:</span> <span class="n">loc</span><span class="p">,</span>
-            <span class="s2">&quot;handlelength&quot;</span><span class="p">:</span> <span class="mf">2.5</span><span class="p">,</span>
-            <span class="s2">&quot;handleheight&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
-            <span class="s2">&quot;labelspacing&quot;</span><span class="p">:</span> <span class="mf">0.6</span><span class="p">,</span>
-            <span class="s2">&quot;handler_map&quot;</span><span class="p">:</span> <span class="p">{</span><span class="n">_StackedLines</span><span class="p">:</span> <span class="n">_StackedLinesHandler</span><span class="p">()},</span>
+            <span class="s2">"loc"</span><span class="p">:</span> <span class="n">loc</span><span class="p">,</span>
+            <span class="s2">"handlelength"</span><span class="p">:</span> <span class="mf">2.5</span><span class="p">,</span>
+            <span class="s2">"handleheight"</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+            <span class="s2">"labelspacing"</span><span class="p">:</span> <span class="mf">0.6</span><span class="p">,</span>
+            <span class="s2">"handler_map"</span><span class="p">:</span> <span class="p">{</span><span class="n">_StackedLines</span><span class="p">:</span> <span class="n">_StackedLinesHandler</span><span class="p">()},</span>
         <span class="p">}</span>
         <span class="n">legend</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">handles</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="o">**</span><span class="p">(</span><span class="n">style</span> <span class="o">|</span> <span class="n">kwargs</span><span class="p">))</span>
         <span class="n">legend</span><span class="o">.</span><span class="n">set_zorder</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span>
@@ -979,21 +981,21 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">extent</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">125</span><span class="p">,</span> <span class="o">-</span><span class="mi">105</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">50</span><span class="p">),</span>
         <span class="n">bounds</span><span class="o">=</span><span class="p">(</span><span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.29</span><span class="p">,</span> <span class="mf">0.29</span><span class="p">),</span>
-        <span class="n">color</span><span class="o">=</span><span class="s2">&quot;red&quot;</span><span class="p">,</span>
+        <span class="n">color</span><span class="o">=</span><span class="s2">"red"</span><span class="p">,</span>
         <span class="n">projection</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        A locator map of the western US with the map&#39;s area marked.</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        A locator map of the western US with the map's area marked.</span>
 
-<span class="sd">        Uses cartopy&#39;s Natural Earth 50 m land, ocean and states (cached after the</span>
+<span class="sd">        Uses cartopy's Natural Earth 50 m land, ocean and states (cached after the</span>
 <span class="sd">        first download).</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="n">projection</span> <span class="o">=</span> <span class="n">projection</span> <span class="ow">or</span> <span class="n">ccrs</span><span class="o">.</span><span class="n">AlbersEqualArea</span><span class="p">(</span><span class="n">central_longitude</span><span class="o">=-</span><span class="mi">111</span><span class="p">)</span>
         <span class="n">inset</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">inset_axes</span><span class="p">(</span><span class="n">bounds</span><span class="p">,</span> <span class="n">projection</span><span class="o">=</span><span class="n">projection</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
         <span class="n">inset</span><span class="o">.</span><span class="n">set_extent</span><span class="p">(</span><span class="n">extent</span><span class="p">,</span> <span class="n">crs</span><span class="o">=</span><span class="n">PC</span><span class="p">)</span>
-        <span class="n">inset</span><span class="o">.</span><span class="n">add_feature</span><span class="p">(</span><span class="n">cfeature</span><span class="o">.</span><span class="n">OCEAN</span><span class="o">.</span><span class="n">with_scale</span><span class="p">(</span><span class="s2">&quot;50m&quot;</span><span class="p">))</span>
-        <span class="n">inset</span><span class="o">.</span><span class="n">add_feature</span><span class="p">(</span><span class="n">cfeature</span><span class="o">.</span><span class="n">LAND</span><span class="o">.</span><span class="n">with_scale</span><span class="p">(</span><span class="s2">&quot;50m&quot;</span><span class="p">))</span>
-        <span class="n">inset</span><span class="o">.</span><span class="n">add_feature</span><span class="p">(</span><span class="n">cfeature</span><span class="o">.</span><span class="n">STATES</span><span class="o">.</span><span class="n">with_scale</span><span class="p">(</span><span class="s2">&quot;50m&quot;</span><span class="p">),</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.8</span><span class="p">)</span>
+        <span class="n">inset</span><span class="o">.</span><span class="n">add_feature</span><span class="p">(</span><span class="n">cfeature</span><span class="o">.</span><span class="n">OCEAN</span><span class="o">.</span><span class="n">with_scale</span><span class="p">(</span><span class="s2">"50m"</span><span class="p">))</span>
+        <span class="n">inset</span><span class="o">.</span><span class="n">add_feature</span><span class="p">(</span><span class="n">cfeature</span><span class="o">.</span><span class="n">LAND</span><span class="o">.</span><span class="n">with_scale</span><span class="p">(</span><span class="s2">"50m"</span><span class="p">))</span>
+        <span class="n">inset</span><span class="o">.</span><span class="n">add_feature</span><span class="p">(</span><span class="n">cfeature</span><span class="o">.</span><span class="n">STATES</span><span class="o">.</span><span class="n">with_scale</span><span class="p">(</span><span class="s2">"50m"</span><span class="p">),</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.8</span><span class="p">)</span>
         <span class="n">inset</span><span class="o">.</span><span class="n">add_geometries</span><span class="p">(</span>
             <span class="p">[</span><span class="n">box</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">bbox</span><span class="p">)],</span> <span class="n">crs</span><span class="o">=</span><span class="n">PC</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span>
         <span class="p">)</span>
@@ -1004,17 +1006,17 @@
 <div class="viewcode-block" id="SaltLake.add_north_arrow">
 <a class="viewcode-back" href="../../_autosummary/slv.basemap.SaltLake.add_north_arrow.html#slv.basemap.SaltLake.add_north_arrow">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">add_north_arrow</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mf">0.95</span><span class="p">,</span> <span class="mf">0.07</span><span class="p">),</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">16</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;A north arrow (▲ N) in axes coordinates.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""A north arrow (▲ N) in axes coordinates."""</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span>
             <span class="o">*</span><span class="n">xy</span><span class="p">,</span>
-            <span class="s2">&quot;▲</span><span class="se">\n</span><span class="s2">N&quot;</span><span class="p">,</span>
+            <span class="s2">"▲</span><span class="se">\n</span><span class="s2">N"</span><span class="p">,</span>
             <span class="n">transform</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">transAxes</span><span class="p">,</span>
             <span class="n">fontsize</span><span class="o">=</span><span class="n">fontsize</span><span class="p">,</span>
-            <span class="n">fontweight</span><span class="o">=</span><span class="s2">&quot;bold&quot;</span><span class="p">,</span>
-            <span class="n">ha</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span>
-            <span class="n">va</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span>
+            <span class="n">fontweight</span><span class="o">=</span><span class="s2">"bold"</span><span class="p">,</span>
+            <span class="n">ha</span><span class="o">=</span><span class="s2">"center"</span><span class="p">,</span>
+            <span class="n">va</span><span class="o">=</span><span class="s2">"center"</span><span class="p">,</span>
             <span class="n">zorder</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span>
-            <span class="n">path_effects</span><span class="o">=</span><span class="p">[</span><span class="n">pe</span><span class="o">.</span><span class="n">withStroke</span><span class="p">(</span><span class="n">linewidth</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">foreground</span><span class="o">=</span><span class="s2">&quot;white&quot;</span><span class="p">)],</span>
+            <span class="n">path_effects</span><span class="o">=</span><span class="p">[</span><span class="n">pe</span><span class="o">.</span><span class="n">withStroke</span><span class="p">(</span><span class="n">linewidth</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">foreground</span><span class="o">=</span><span class="s2">"white"</span><span class="p">)],</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span></div>
 </div>
@@ -1048,8 +1050,8 @@
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0"></script>
-<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0"></script>
+  <script defer src="../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -1069,7 +1071,7 @@
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.2.0.
   </p>
 </div>
       
@@ -1082,7 +1084,7 @@
         <div class="footer-item">
 <p class="theme-version">
   <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.22.0.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.23.0.
 </p></div>
       
     </div>

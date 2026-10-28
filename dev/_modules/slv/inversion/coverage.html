@@ -25,28 +25,29 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../../_static/styles/theme.css?digest=64cc4de3f052d77215f0" rel="stylesheet" />
-<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=64cc4de3f052d77215f0" rel="stylesheet" />
+  <link href="../../../_static/styles/theme.css?digest=18bd87630a240e9c25be" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=18bd87630a240e9c25be" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx_autodoc_typehints.css?v=057ac668" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=ba117b66" />
   
   <!-- So that users can add custom icons -->
-  <script defer src="../../../_static/scripts/fontawesome.js?digest=64cc4de3f052d77215f0"></script>
+  <script defer src="../../../_static/scripts/fontawesome.js?digest=18bd87630a240e9c25be"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
-<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../_static/documentation_options.js?v=855ee6a5"></script>
+    <script src="../../../_static/documentation_options.js?v=1ef9135c"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../../../_static/copybutton.js?v=f281be69"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_modules/slv/inversion/coverage';</script>
     <script>
-        DOCUMENTATION_OPTIONS.theme_version = '0.22.0';
+        DOCUMENTATION_OPTIONS.theme_version = '0.23.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://jmineau.github.io/slv/switcher.json';
         DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
@@ -56,8 +57,9 @@
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.10.4.dev5+g1346b5991" />
+  <meta name="docsearch:version" content="2026.10.4.dev6+gdb1f4b5c8" />
   
     
     <script src="../../../_static/searchtools.js"></script>
@@ -429,12 +431,12 @@
                 <article class="bd-article">
                   
   <h1>Source code for slv.inversion.coverage</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""</span>
 <span class="sd">State cells: the prior/Jacobian agreement check and the Jacobian coverage filter.</span>
 
 <span class="sd">The filter only chooses the cells to keep; :meth:`fips.Problem.restrict` holds the others</span>
 <span class="sd">at their prior.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
@@ -442,21 +444,21 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_flux_cells</span><span class="p">(</span><span class="n">index</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Index</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">set</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;The (lon, lat) cells of the flux entries of a state index.&quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="s2">&quot;block&quot;</span> <span class="ow">in</span> <span class="n">index</span><span class="o">.</span><span class="n">names</span><span class="p">:</span>
-        <span class="n">index</span> <span class="o">=</span> <span class="n">index</span><span class="p">[</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s2">&quot;block&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;flux&quot;</span><span class="p">]</span>
-    <span class="n">lon</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s2">&quot;lon&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span> <span class="mi">6</span><span class="p">)</span>
-    <span class="n">lat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s2">&quot;lat&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span> <span class="mi">6</span><span class="p">)</span>
+<span class="w">    </span><span class="sd">"""The (lon, lat) cells of the flux entries of a state index."""</span>
+    <span class="k">if</span> <span class="s2">"block"</span> <span class="ow">in</span> <span class="n">index</span><span class="o">.</span><span class="n">names</span><span class="p">:</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="n">index</span><span class="p">[</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s2">"block"</span><span class="p">)</span> <span class="o">==</span> <span class="s2">"flux"</span><span class="p">]</span>
+    <span class="n">lon</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s2">"lon"</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span> <span class="mi">6</span><span class="p">)</span>
+    <span class="n">lat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s2">"lat"</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span> <span class="mi">6</span><span class="p">)</span>
     <span class="k">return</span> <span class="nb">set</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
 
 
 <div class="viewcode-block" id="check_state_cells">
 <a class="viewcode-back" href="../../../_autosummary/slv.inversion.coverage.check_state_cells.html#slv.inversion.coverage.check_state_cells">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">check_state_cells</span><span class="p">(</span><span class="n">prior</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Index</span><span class="p">,</span> <span class="n">jacobian</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Index</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Raise when the prior&#39;s flux cells and the Jacobian&#39;s flux columns differ.</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Raise when the prior's flux cells and the Jacobian's flux columns differ.</span>
 
-<span class="sd">    The Jacobian is placed on the prior&#39;s labels, a cell it lacks getting a column of</span>
+<span class="sd">    The Jacobian is placed on the prior's labels, a cell it lacks getting a column of</span>
 <span class="sd">    zeros, so a cell only in the prior would silently get zero sensitivity (a cell only</span>
 <span class="sd">    in the Jacobian makes the placing raise). The usual cause is a cached prior or</span>
 <span class="sd">    Jacobian built for a different state grid.</span>
@@ -464,19 +466,19 @@
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    prior, jacobian : pd.Index</span>
-<span class="sd">        The prior&#39;s labels and the Jacobian&#39;s columns, with ``lat`` and ``lon`` levels.</span>
+<span class="sd">        The prior's labels and the Jacobian's columns, with ``lat`` and ``lon`` levels.</span>
 <span class="sd">        With a ``block`` level, only the ``flux`` labels are compared.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">prior_cells</span> <span class="o">=</span> <span class="n">_flux_cells</span><span class="p">(</span><span class="n">prior</span><span class="p">)</span>
     <span class="n">jac_cells</span> <span class="o">=</span> <span class="n">_flux_cells</span><span class="p">(</span><span class="n">jacobian</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">prior_cells</span> <span class="ow">and</span> <span class="n">prior_cells</span> <span class="o">!=</span> <span class="n">jac_cells</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;State cells disagree: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">prior_cells</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">jac_cells</span><span class="p">)</span><span class="si">}</span><span class="s2"> prior cells have no &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;Jacobian column and </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">jac_cells</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">prior_cells</span><span class="p">)</span><span class="si">}</span><span class="s2"> Jacobian cells are not in &quot;</span>
-            <span class="s2">&quot;the prior. A cached prior or forward_operator was probably built for a &quot;</span>
-            <span class="s2">&quot;different state grid; rebuild with &quot;</span>
-            <span class="s1">&#39;cache_overwrite=[&quot;prior&quot;, &quot;prior_error&quot;, &quot;forward_operator&quot;, &#39;</span>
-            <span class="s1">&#39;&quot;modeldata_mismatch&quot;].&#39;</span>
+            <span class="sa">f</span><span class="s2">"State cells disagree: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">prior_cells</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">jac_cells</span><span class="p">)</span><span class="si">}</span><span class="s2"> prior cells have no "</span>
+            <span class="sa">f</span><span class="s2">"Jacobian column and </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">jac_cells</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">prior_cells</span><span class="p">)</span><span class="si">}</span><span class="s2"> Jacobian cells are not in "</span>
+            <span class="s2">"the prior. A cached prior or forward_operator was probably built for a "</span>
+            <span class="s2">"different state grid; rebuild with "</span>
+            <span class="s1">'cache_overwrite=["prior", "prior_error", "forward_operator", '</span>
+            <span class="s1">'"modeldata_mismatch"].'</span>
         <span class="p">)</span></div>
 
 
@@ -484,12 +486,12 @@
 <div class="viewcode-block" id="covered_state">
 <a class="viewcode-back" href="../../../_autosummary/slv.inversion.coverage.covered_state.html#slv.inversion.coverage.covered_state">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">covered_state</span><span class="p">(</span><span class="n">problem</span><span class="p">:</span> <span class="n">Problem</span><span class="p">,</span> <span class="n">percentile</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Space</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    The state without its poorly covered cells: those below ``percentile`` of coverage.</span>
 
-<span class="sd">    A cell&#39;s coverage is its absolute sensitivity, summed over every obs and time, per</span>
+<span class="sd">    A cell's coverage is its absolute sensitivity, summed over every obs and time, per</span>
 <span class="sd">    obs location (divided by their number). Cells below the ``percentile``-th</span>
-<span class="sd">    percentile of all cells&#39; are left out at every time, which keeps the prior error&#39;s</span>
+<span class="sd">    percentile of all cells' are left out at every time, which keeps the prior error's</span>
 <span class="sd">    Kronecker structure; every other block of the state is kept whole. The problem of</span>
 <span class="sd">    the kept state is ``problem.restrict(keep)``, which holds the left-out cells at</span>
 <span class="sd">    their prior (their modeled enhancement moves into the offset);</span>
@@ -507,15 +509,15 @@
 <span class="sd">    -------</span>
 <span class="sd">    Space</span>
 <span class="sd">        The state to keep.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">flux</span> <span class="o">=</span> <span class="n">problem</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">space</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s2">&quot;flux&quot;</span><span class="p">)</span>
-    <span class="n">H</span> <span class="o">=</span> <span class="n">problem</span><span class="o">.</span><span class="n">forward</span><span class="p">[</span><span class="s2">&quot;concentration&quot;</span><span class="p">,</span> <span class="s2">&quot;flux&quot;</span><span class="p">]</span>
+<span class="sd">    """</span>
+    <span class="n">flux</span> <span class="o">=</span> <span class="n">problem</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">space</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s2">"flux"</span><span class="p">)</span>
+    <span class="n">H</span> <span class="o">=</span> <span class="n">problem</span><span class="o">.</span><span class="n">forward</span><span class="p">[</span><span class="s2">"concentration"</span><span class="p">,</span> <span class="s2">"flux"</span><span class="p">]</span>
     <span class="n">column_sums</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">H</span><span class="o">.</span><span class="n">sparse</span><span class="p">())</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
     <span class="n">cells</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span><span class="o">.</span><span class="n">from_arrays</span><span class="p">(</span>
-        <span class="p">[</span><span class="n">flux</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s2">&quot;lat&quot;</span><span class="p">),</span> <span class="n">flux</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s2">&quot;lon&quot;</span><span class="p">)]</span>
+        <span class="p">[</span><span class="n">flux</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s2">"lat"</span><span class="p">),</span> <span class="n">flux</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s2">"lon"</span><span class="p">)]</span>
     <span class="p">)</span>
-    <span class="n">obs</span> <span class="o">=</span> <span class="n">problem</span><span class="o">.</span><span class="n">obs</span><span class="o">.</span><span class="n">space</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s2">&quot;concentration&quot;</span><span class="p">)</span>
-    <span class="n">n_obs_locations</span> <span class="o">=</span> <span class="n">obs</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s2">&quot;obs_location&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">nunique</span><span class="p">()</span>
+    <span class="n">obs</span> <span class="o">=</span> <span class="n">problem</span><span class="o">.</span><span class="n">obs</span><span class="o">.</span><span class="n">space</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s2">"concentration"</span><span class="p">)</span>
+    <span class="n">n_obs_locations</span> <span class="o">=</span> <span class="n">obs</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s2">"obs_location"</span><span class="p">)</span><span class="o">.</span><span class="n">nunique</span><span class="p">()</span>
     <span class="n">coverage</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">column_sums</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">cells</span><span class="p">)</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
     <span class="n">coverage</span> <span class="o">=</span> <span class="n">coverage</span> <span class="o">/</span> <span class="n">n_obs_locations</span>
 
@@ -523,14 +525,14 @@
     <span class="n">retained</span> <span class="o">=</span> <span class="n">coverage</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="n">coverage</span> <span class="o">&gt;=</span> <span class="n">threshold</span><span class="p">]</span>
     <span class="n">n_total</span><span class="p">,</span> <span class="n">n_removed</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">coverage</span><span class="p">),</span> <span class="nb">int</span><span class="p">((</span><span class="n">coverage</span> <span class="o">&lt;</span> <span class="n">threshold</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
     <span class="nb">print</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;  Keeping </span><span class="si">{</span><span class="n">n_total</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">n_removed</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">n_total</span><span class="si">}</span><span class="s2"> cells &quot;</span>
-        <span class="sa">f</span><span class="s2">&quot;(removed </span><span class="si">{</span><span class="n">n_removed</span><span class="si">}</span><span class="s2"> below </span><span class="si">{</span><span class="n">percentile</span><span class="si">}</span><span class="s2">th percentile, &quot;</span>
-        <span class="sa">f</span><span class="s2">&quot;threshold=</span><span class="si">{</span><span class="n">threshold</span><span class="si">:</span><span class="s2">.2e</span><span class="si">}</span><span class="s2">)&quot;</span>
+        <span class="sa">f</span><span class="s2">"  Keeping </span><span class="si">{</span><span class="n">n_total</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">n_removed</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">n_total</span><span class="si">}</span><span class="s2"> cells "</span>
+        <span class="sa">f</span><span class="s2">"(removed </span><span class="si">{</span><span class="n">n_removed</span><span class="si">}</span><span class="s2"> below </span><span class="si">{</span><span class="n">percentile</span><span class="si">}</span><span class="s2">th percentile, "</span>
+        <span class="sa">f</span><span class="s2">"threshold=</span><span class="si">{</span><span class="n">threshold</span><span class="si">:</span><span class="s2">.2e</span><span class="si">}</span><span class="s2">)"</span>
     <span class="p">)</span>
     <span class="n">blocks</span> <span class="o">=</span> <span class="p">{</span>
         <span class="n">name</span><span class="p">:</span> <span class="n">problem</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">space</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">problem</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">space</span><span class="o">.</span><span class="n">names</span>
     <span class="p">}</span>
-    <span class="n">blocks</span><span class="p">[</span><span class="s2">&quot;flux&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">flux</span><span class="p">[</span><span class="n">cells</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">retained</span><span class="p">)]</span>
+    <span class="n">blocks</span><span class="p">[</span><span class="s2">"flux"</span><span class="p">]</span> <span class="o">=</span> <span class="n">flux</span><span class="p">[</span><span class="n">cells</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">retained</span><span class="p">)]</span>
     <span class="k">return</span> <span class="n">Space</span><span class="p">(</span><span class="n">blocks</span><span class="p">)</span></div>
 
 </pre></div>
@@ -562,8 +564,8 @@
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../../../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0"></script>
-<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0"></script>
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -583,7 +585,7 @@
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.2.0.
   </p>
 </div>
       
@@ -596,7 +598,7 @@
         <div class="footer-item">
 <p class="theme-version">
   <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.22.0.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.23.0.
 </p></div>
       
     </div>

@@ -25,28 +25,29 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../../_static/styles/theme.css?digest=64cc4de3f052d77215f0" rel="stylesheet" />
-<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=64cc4de3f052d77215f0" rel="stylesheet" />
+  <link href="../../../_static/styles/theme.css?digest=18bd87630a240e9c25be" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=18bd87630a240e9c25be" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx_autodoc_typehints.css?v=057ac668" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=ba117b66" />
   
   <!-- So that users can add custom icons -->
-  <script defer src="../../../_static/scripts/fontawesome.js?digest=64cc4de3f052d77215f0"></script>
+  <script defer src="../../../_static/scripts/fontawesome.js?digest=18bd87630a240e9c25be"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
-<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../_static/documentation_options.js?v=855ee6a5"></script>
+    <script src="../../../_static/documentation_options.js?v=1ef9135c"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../../../_static/copybutton.js?v=f281be69"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_modules/slv/inversion/cache';</script>
     <script>
-        DOCUMENTATION_OPTIONS.theme_version = '0.22.0';
+        DOCUMENTATION_OPTIONS.theme_version = '0.23.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://jmineau.github.io/slv/switcher.json';
         DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
@@ -56,8 +57,9 @@
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.10.4.dev5+g1346b5991" />
+  <meta name="docsearch:version" content="2026.10.4.dev6+gdb1f4b5c8" />
   
     
     <script src="../../../_static/searchtools.js"></script>
@@ -429,13 +431,13 @@
                 <article class="bd-article">
                   
   <h1>Source code for slv.inversion.cache</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">Content-addressed cache for the inversion pipeline&#39;s components.</span>
+<span></span><span class="sd">"""</span>
+<span class="sd">Content-addressed cache for the inversion pipeline's components.</span>
 
 <span class="sd">Each component (obs, prior, forward operator, ...) is pickled under</span>
 <span class="sd">``{cache}/.fips/{version tag}/{component}/{hash}.pkl``: the tag pins the fips + pystilt</span>
 <span class="sd">source revision and the hash covers only the config fields that component depends on.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">functools</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">hashlib</span>
@@ -450,91 +452,91 @@
 
 <span class="c1"># ---------------------------------------------------------------------------</span>
 <span class="c1"># Component dependency sets: maps each cache component to the InversionConfig fields</span>
-<span class="c1"># that actually affect that component&#39;s output.  Used to compute content-addressed</span>
+<span class="c1"># that actually affect that component's output.  Used to compute content-addressed</span>
 <span class="c1"># cache paths so that only truly-stale components are recomputed when parameters</span>
 <span class="c1"># change.</span>
 <span class="c1"># ---------------------------------------------------------------------------</span>
 <span class="n">_OBS_DEPS</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span>
     <span class="p">{</span>
-        <span class="s2">&quot;tstart&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;tend&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;sites&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;filter_pcaps&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;subset_hours&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;utc_offset&quot;</span><span class="p">,</span>
+        <span class="s2">"tstart"</span><span class="p">,</span>
+        <span class="s2">"tend"</span><span class="p">,</span>
+        <span class="s2">"sites"</span><span class="p">,</span>
+        <span class="s2">"filter_pcaps"</span><span class="p">,</span>
+        <span class="s2">"subset_hours"</span><span class="p">,</span>
+        <span class="s2">"utc_offset"</span><span class="p">,</span>
         <span class="c1"># fingerprint, not the raw path: a mobile_obs file rebuilt in place must re-key</span>
-        <span class="s2">&quot;mobile_obs_key&quot;</span><span class="p">,</span>
+        <span class="s2">"mobile_obs_key"</span><span class="p">,</span>
     <span class="p">}</span>
 <span class="p">)</span>
 <span class="c1">#: Obs-filter deps: change WHICH obs survive (and so the obs-indexed MDM/constant),</span>
 <span class="c1">#: but NOT the footprint Jacobian, which is built per simulation receptor (filtered</span>
 <span class="c1">#: only by obs_location) and reindexed to the surviving obs. Keeping these out of the</span>
 <span class="c1">#: forward_operator key avoids a needless (expensive) Jacobian rebuild when toggled.</span>
-<span class="n">_OBS_FILTER_DEPS</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">({</span><span class="s2">&quot;filter_spikes&quot;</span><span class="p">,</span> <span class="s2">&quot;spike_percentile&quot;</span><span class="p">})</span>
+<span class="n">_OBS_FILTER_DEPS</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">({</span><span class="s2">"filter_spikes"</span><span class="p">,</span> <span class="s2">"spike_percentile"</span><span class="p">})</span>
 <span class="c1">#: State-filter deps: filter_state_space drops obs in flux intervals (months) with too</span>
 <span class="c1">#: few obs (min_obs_per_interval). The obs-indexed MDM and constant are built AFTER that</span>
 <span class="c1">#: filter, so they must re-key on it -- otherwise a run at a lower threshold would reuse</span>
 <span class="c1">#: the higher-threshold MDM, whose labels then miss the recovered months (the problem</span>
 <span class="c1">#: refuses it). Not on forward_operator (receptor-based, placed on the obs) or obs</span>
 <span class="c1">#: (get_obs returns the full record; the filter is applied downstream).</span>
-<span class="n">_STATE_FILTER_DEPS</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">({</span><span class="s2">&quot;min_obs_per_interval&quot;</span><span class="p">})</span>
+<span class="n">_STATE_FILTER_DEPS</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">({</span><span class="s2">"min_obs_per_interval"</span><span class="p">})</span>
 <span class="n">_PRIOR_DEPS</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span>
     <span class="p">{</span>
-        <span class="s2">&quot;prior&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;prior_kwargs&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;dx&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;dy&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;xmin&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;xmax&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;ymin&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;ymax&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;flux_freq&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;tstart&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;tend&quot;</span><span class="p">,</span>
+        <span class="s2">"prior"</span><span class="p">,</span>
+        <span class="s2">"prior_kwargs"</span><span class="p">,</span>
+        <span class="s2">"dx"</span><span class="p">,</span>
+        <span class="s2">"dy"</span><span class="p">,</span>
+        <span class="s2">"xmin"</span><span class="p">,</span>
+        <span class="s2">"xmax"</span><span class="p">,</span>
+        <span class="s2">"ymin"</span><span class="p">,</span>
+        <span class="s2">"ymax"</span><span class="p">,</span>
+        <span class="s2">"flux_freq"</span><span class="p">,</span>
+        <span class="s2">"tstart"</span><span class="p">,</span>
+        <span class="s2">"tend"</span><span class="p">,</span>
     <span class="p">}</span>
 <span class="p">)</span>
 
 <span class="c1">#: Default mapping of pipeline component → config fields that affect it.</span>
 <span class="n">DEFAULT_COMPONENT_DEPS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">frozenset</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;obs&quot;</span><span class="p">:</span> <span class="n">_OBS_DEPS</span> <span class="o">|</span> <span class="n">_OBS_FILTER_DEPS</span><span class="p">,</span>
-    <span class="s2">&quot;prior&quot;</span><span class="p">:</span> <span class="n">_PRIOR_DEPS</span><span class="p">,</span>
-    <span class="s2">&quot;forward_operator&quot;</span><span class="p">:</span> <span class="n">_OBS_DEPS</span>
+    <span class="s2">"obs"</span><span class="p">:</span> <span class="n">_OBS_DEPS</span> <span class="o">|</span> <span class="n">_OBS_FILTER_DEPS</span><span class="p">,</span>
+    <span class="s2">"prior"</span><span class="p">:</span> <span class="n">_PRIOR_DEPS</span><span class="p">,</span>
+    <span class="s2">"forward_operator"</span><span class="p">:</span> <span class="n">_OBS_DEPS</span>
     <span class="o">|</span> <span class="n">_PRIOR_DEPS</span>
     <span class="o">|</span> <span class="p">{</span>
-        <span class="s2">&quot;stilt_project&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;sparse_jacobian&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;variant&quot;</span><span class="p">,</span>
+        <span class="s2">"stilt_project"</span><span class="p">,</span>
+        <span class="s2">"sparse_jacobian"</span><span class="p">,</span>
+        <span class="s2">"variant"</span><span class="p">,</span>
         <span class="c1"># num_processes intentionally excluded: a computational knob</span>
         <span class="c1"># that does not change the Jacobian result.</span>
     <span class="p">},</span>
-    <span class="s2">&quot;prior_error&quot;</span><span class="p">:</span> <span class="n">_PRIOR_DEPS</span>
+    <span class="s2">"prior_error"</span><span class="p">:</span> <span class="n">_PRIOR_DEPS</span>
     <span class="o">|</span> <span class="p">{</span>
-        <span class="s2">&quot;prior_base_std&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;prior_std_frac&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;prior_time_scale&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;prior_spatial_scale&quot;</span><span class="p">,</span>
+        <span class="s2">"prior_base_std"</span><span class="p">,</span>
+        <span class="s2">"prior_std_frac"</span><span class="p">,</span>
+        <span class="s2">"prior_time_scale"</span><span class="p">,</span>
+        <span class="s2">"prior_spatial_scale"</span><span class="p">,</span>
     <span class="p">},</span>
     <span class="c1"># A multiplicative MDM term scales with the enhancement (observed obs-background, or the</span>
     <span class="c1"># prior-modeled H x_prior), so the MDM also depends on the background and forward-operator</span>
     <span class="c1"># + prior deps -- not just the obs deps -- and, like the forward operator, it also keys on</span>
     <span class="c1"># the footprints it was built from (``key`` in fips_cache). The background CSV is keyed</span>
     <span class="c1"># by its fingerprint (background_kwargs_key), not its path: a file rebuilt in place re-keys.</span>
-    <span class="s2">&quot;modeldata_mismatch&quot;</span><span class="p">:</span> <span class="n">_OBS_DEPS</span>
+    <span class="s2">"modeldata_mismatch"</span><span class="p">:</span> <span class="n">_OBS_DEPS</span>
     <span class="o">|</span> <span class="n">_OBS_FILTER_DEPS</span>
     <span class="o">|</span> <span class="n">_STATE_FILTER_DEPS</span>
     <span class="o">|</span> <span class="n">_PRIOR_DEPS</span>
     <span class="o">|</span> <span class="p">{</span>
-        <span class="s2">&quot;mdm_components&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;stilt_project&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;sparse_jacobian&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;variant&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;background&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;background_kwargs_key&quot;</span><span class="p">,</span>
+        <span class="s2">"mdm_components"</span><span class="p">,</span>
+        <span class="s2">"stilt_project"</span><span class="p">,</span>
+        <span class="s2">"sparse_jacobian"</span><span class="p">,</span>
+        <span class="s2">"variant"</span><span class="p">,</span>
+        <span class="s2">"background"</span><span class="p">,</span>
+        <span class="s2">"background_kwargs_key"</span><span class="p">,</span>
     <span class="p">},</span>
-    <span class="s2">&quot;constant&quot;</span><span class="p">:</span> <span class="n">_OBS_DEPS</span>
+    <span class="s2">"constant"</span><span class="p">:</span> <span class="n">_OBS_DEPS</span>
     <span class="o">|</span> <span class="n">_OBS_FILTER_DEPS</span>
     <span class="o">|</span> <span class="n">_STATE_FILTER_DEPS</span>
-    <span class="o">|</span> <span class="p">{</span><span class="s2">&quot;background&quot;</span><span class="p">,</span> <span class="s2">&quot;background_kwargs_key&quot;</span><span class="p">},</span>
+    <span class="o">|</span> <span class="p">{</span><span class="s2">"background"</span><span class="p">,</span> <span class="s2">"background_kwargs_key"</span><span class="p">},</span>
 <span class="p">}</span>
 
 
@@ -543,23 +545,23 @@
 <span class="c1">#: prior error and the MDM are built from those. Not the forward_operator: the Jacobian is</span>
 <span class="c1">#: fips + pystilt only, and re-keying it would mean a full rebuild.</span>
 <span class="n">DEFAULT_COMPONENT_PACKAGES</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;obs&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;lair&quot;</span><span class="p">,</span> <span class="s2">&quot;uataq&quot;</span><span class="p">),</span>
-    <span class="s2">&quot;prior&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;lair&quot;</span><span class="p">,),</span>
-    <span class="s2">&quot;prior_error&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;lair&quot;</span><span class="p">,),</span>
-    <span class="s2">&quot;modeldata_mismatch&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;lair&quot;</span><span class="p">,</span> <span class="s2">&quot;uataq&quot;</span><span class="p">),</span>
-    <span class="s2">&quot;constant&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;lair&quot;</span><span class="p">,</span> <span class="s2">&quot;uataq&quot;</span><span class="p">),</span>
+    <span class="s2">"obs"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"lair"</span><span class="p">,</span> <span class="s2">"uataq"</span><span class="p">),</span>
+    <span class="s2">"prior"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"lair"</span><span class="p">,),</span>
+    <span class="s2">"prior_error"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"lair"</span><span class="p">,),</span>
+    <span class="s2">"modeldata_mismatch"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"lair"</span><span class="p">,</span> <span class="s2">"uataq"</span><span class="p">),</span>
+    <span class="s2">"constant"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"lair"</span><span class="p">,</span> <span class="s2">"uataq"</span><span class="p">),</span>
 <span class="p">}</span>
 
 
 <span class="c1">#: What a component holds, numbered: bumped when slv changes what it builds for the same</span>
-<span class="c1">#: config, so a file cached before the change is not read as the new kind. slv&#39;s own</span>
+<span class="c1">#: config, so a file cached before the change is not read as the new kind. slv's own</span>
 <span class="c1">#: revision is not in the key (see :func:`_version_tag`). forward_operator 2: receptors</span>
 <span class="c1">#: with an empty footprint have a row of zeros, so a missing row means no footprint.</span>
-<span class="n">DEFAULT_COMPONENT_REVISIONS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;forward_operator&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">}</span>
+<span class="n">DEFAULT_COMPONENT_REVISIONS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"forward_operator"</span><span class="p">:</span> <span class="mi">2</span><span class="p">}</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_json_default</span><span class="p">(</span><span class="n">v</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fallback JSON serializer: converts non-primitive types to strings.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Fallback JSON serializer: converts non-primitive types to strings."""</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">_json_default</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">v</span><span class="p">]</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
@@ -576,25 +578,25 @@
     <span class="n">revision</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">extra</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Return the first 12 hex chars of sha256 over the given config fields, plus the</span>
-<span class="sd">    release versions of ``packages`` (see :func:`_release`), the component&#39;s</span>
+<span class="sd">    release versions of ``packages`` (see :func:`_release`), the component's</span>
 <span class="sd">    ``revision`` (see ``DEFAULT_COMPONENT_REVISIONS``) and ``extra``, what the</span>
 <span class="sd">    component depends on beyond the config (the ``key`` of :func:`fips_cache`).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="n">f</span><span class="p">:</span> <span class="n">_json_default</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">f</span><span class="p">))</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">fields</span><span class="p">)}</span>
     <span class="k">if</span> <span class="n">packages</span><span class="p">:</span>
-        <span class="n">data</span><span class="p">[</span><span class="s2">&quot;__packages__&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">p</span><span class="p">:</span> <span class="n">_release</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">packages</span><span class="p">)}</span>
+        <span class="n">data</span><span class="p">[</span><span class="s2">"__packages__"</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">p</span><span class="p">:</span> <span class="n">_release</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">packages</span><span class="p">)}</span>
     <span class="k">if</span> <span class="n">revision</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">data</span><span class="p">[</span><span class="s2">&quot;__revision__&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">revision</span>
+        <span class="n">data</span><span class="p">[</span><span class="s2">"__revision__"</span><span class="p">]</span> <span class="o">=</span> <span class="n">revision</span>
     <span class="k">if</span> <span class="n">extra</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">data</span><span class="p">[</span><span class="s2">&quot;__key__&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_json_default</span><span class="p">(</span><span class="n">extra</span><span class="p">)</span>
+        <span class="n">data</span><span class="p">[</span><span class="s2">"__key__"</span><span class="p">]</span> <span class="o">=</span> <span class="n">_json_default</span><span class="p">(</span><span class="n">extra</span><span class="p">)</span>
     <span class="n">serialized</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha256</span><span class="p">(</span><span class="n">serialized</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()[:</span><span class="mi">12</span><span class="p">]</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_source_dir</span><span class="p">(</span><span class="n">import_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;The directory a package is imported from, or None if it can&#39;t be imported.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""The directory a package is imported from, or None if it can't be imported."""</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="n">mod</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="n">import_name</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
@@ -603,95 +605,95 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_is_installed</span><span class="p">(</span><span class="n">src</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A regular install (under site-packages), as opposed to an editable checkout.&quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="nb">bool</span><span class="p">({</span><span class="s2">&quot;site-packages&quot;</span><span class="p">,</span> <span class="s2">&quot;dist-packages&quot;</span><span class="p">}</span> <span class="o">&amp;</span> <span class="nb">set</span><span class="p">(</span><span class="n">src</span><span class="o">.</span><span class="n">parts</span><span class="p">))</span>
+<span class="w">    </span><span class="sd">"""A regular install (under site-packages), as opposed to an editable checkout."""</span>
+    <span class="k">return</span> <span class="nb">bool</span><span class="p">({</span><span class="s2">"site-packages"</span><span class="p">,</span> <span class="s2">"dist-packages"</span><span class="p">}</span> <span class="o">&amp;</span> <span class="nb">set</span><span class="p">(</span><span class="n">src</span><span class="o">.</span><span class="n">parts</span><span class="p">))</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_pkg_version</span><span class="p">(</span><span class="n">import_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">dist_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Release version of a package, for cache keying -- coarser than :func:`_pkg_rev`.</span>
 
-<span class="sd">    An installed copy reports its metadata version. An editable checkout&#39;s metadata is</span>
+<span class="sd">    An installed copy reports its metadata version. An editable checkout's metadata is</span>
 <span class="sd">    frozen at install time, so the source is read instead: the static</span>
 <span class="sd">    ``[project].version`` of its pyproject.toml, or for a setuptools-scm package, its</span>
 <span class="sd">    latest git tag. Either changes on a release, not on every commit or edit.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">src</span> <span class="o">=</span> <span class="n">_source_dir</span><span class="p">(</span><span class="n">import_name</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">src</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">_is_installed</span><span class="p">(</span><span class="n">src</span><span class="p">):</span>
         <span class="n">pyproject</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span>
             <span class="p">(</span>
-                <span class="n">d</span> <span class="o">/</span> <span class="s2">&quot;pyproject.toml&quot;</span>
+                <span class="n">d</span> <span class="o">/</span> <span class="s2">"pyproject.toml"</span>
                 <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="p">[</span><span class="n">src</span><span class="p">,</span> <span class="o">*</span><span class="n">src</span><span class="o">.</span><span class="n">parents</span><span class="p">][:</span><span class="mi">4</span><span class="p">]</span>
-                <span class="k">if</span> <span class="p">(</span><span class="n">d</span> <span class="o">/</span> <span class="s2">&quot;pyproject.toml&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">d</span> <span class="o">/</span> <span class="s2">"pyproject.toml"</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>
             <span class="p">),</span>
             <span class="kc">None</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="n">pyproject</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">project</span> <span class="o">=</span> <span class="n">tomllib</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">pyproject</span><span class="o">.</span><span class="n">read_text</span><span class="p">())</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;project&quot;</span><span class="p">,</span> <span class="p">{})</span>
-            <span class="k">if</span> <span class="s2">&quot;version&quot;</span> <span class="ow">in</span> <span class="n">project</span><span class="p">:</span>
-                <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">project</span><span class="p">[</span><span class="s2">&quot;version&quot;</span><span class="p">])</span>
-            <span class="k">if</span> <span class="s2">&quot;version&quot;</span> <span class="ow">in</span> <span class="n">project</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;dynamic&quot;</span><span class="p">,</span> <span class="p">[]):</span>
+            <span class="n">project</span> <span class="o">=</span> <span class="n">tomllib</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">pyproject</span><span class="o">.</span><span class="n">read_text</span><span class="p">())</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"project"</span><span class="p">,</span> <span class="p">{})</span>
+            <span class="k">if</span> <span class="s2">"version"</span> <span class="ow">in</span> <span class="n">project</span><span class="p">:</span>
+                <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">project</span><span class="p">[</span><span class="s2">"version"</span><span class="p">])</span>
+            <span class="k">if</span> <span class="s2">"version"</span> <span class="ow">in</span> <span class="n">project</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"dynamic"</span><span class="p">,</span> <span class="p">[]):</span>
                 <span class="k">try</span><span class="p">:</span>
                     <span class="n">out</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
                         <span class="p">[</span>
-                            <span class="s2">&quot;git&quot;</span><span class="p">,</span>
-                            <span class="s2">&quot;-C&quot;</span><span class="p">,</span>
+                            <span class="s2">"git"</span><span class="p">,</span>
+                            <span class="s2">"-C"</span><span class="p">,</span>
                             <span class="nb">str</span><span class="p">(</span><span class="n">pyproject</span><span class="o">.</span><span class="n">parent</span><span class="p">),</span>
-                            <span class="s2">&quot;describe&quot;</span><span class="p">,</span>
-                            <span class="s2">&quot;--tags&quot;</span><span class="p">,</span>
-                            <span class="s2">&quot;--abbrev=0&quot;</span><span class="p">,</span>
+                            <span class="s2">"describe"</span><span class="p">,</span>
+                            <span class="s2">"--tags"</span><span class="p">,</span>
+                            <span class="s2">"--abbrev=0"</span><span class="p">,</span>
                         <span class="p">],</span>
                         <span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                         <span class="n">text</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                         <span class="n">timeout</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
                     <span class="p">)</span>
                     <span class="k">if</span> <span class="n">out</span><span class="o">.</span><span class="n">returncode</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">out</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
-                        <span class="k">return</span> <span class="n">out</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">removeprefix</span><span class="p">(</span><span class="s2">&quot;v&quot;</span><span class="p">)</span>
+                        <span class="k">return</span> <span class="n">out</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">removeprefix</span><span class="p">(</span><span class="s2">"v"</span><span class="p">)</span>
                 <span class="k">except</span> <span class="p">(</span><span class="ne">OSError</span><span class="p">,</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">SubprocessError</span><span class="p">):</span>
                     <span class="k">pass</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">_dist_version</span><span class="p">(</span><span class="n">dist_name</span><span class="p">)</span>
     <span class="k">except</span> <span class="n">PackageNotFoundError</span><span class="p">:</span>
-        <span class="k">return</span> <span class="s2">&quot;unknown&quot;</span>
+        <span class="k">return</span> <span class="s2">"unknown"</span>
 
 
 <span class="nd">@functools</span><span class="o">.</span><span class="n">cache</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">_release</span><span class="p">(</span><span class="n">package</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    :func:`_pkg_version` of ``package`` (import and distribution names match), once</span>
 <span class="sd">    per process.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">return</span> <span class="n">_pkg_version</span><span class="p">(</span><span class="n">package</span><span class="p">,</span> <span class="n">package</span><span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_pkg_rev</span><span class="p">(</span><span class="n">import_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">dist_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Source revision of a package, for cache keying.</span>
 
 <span class="sd">    For an editable git checkout (the dev setup), ``git describe`` yields a tag +</span>
 <span class="sd">    commits-since + short SHA (+ ``-dirty``), so any commit *or* uncommitted edit</span>
 <span class="sd">    to the package busts the cache automatically -- no reinstall or version bump</span>
-<span class="sd">    needed.  A regular install gives its metadata version, written as the release&#39;s</span>
+<span class="sd">    needed.  A regular install gives its metadata version, written as the release's</span>
 <span class="sd">    tag (``v0.1.0b9``), so a release names the same cache folder whether it is</span>
 <span class="sd">    installed or checked out.</span>
 
 <span class="sd">    A regular install lives under ``site-packages``, and git must not be asked about</span>
-<span class="sd">    it: a venv inside another repo (slv&#39;s own ``.venv``) would answer with *that*</span>
-<span class="sd">    repo&#39;s revision, so every slv commit would orphan the whole cache.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    it: a venv inside another repo (slv's own ``.venv``) would answer with *that*</span>
+<span class="sd">    repo's revision, so every slv commit would orphan the whole cache.</span>
+<span class="sd">    """</span>
     <span class="n">src</span> <span class="o">=</span> <span class="n">_source_dir</span><span class="p">(</span><span class="n">import_name</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">src</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">_is_installed</span><span class="p">(</span><span class="n">src</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">out</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
                 <span class="p">[</span>
-                    <span class="s2">&quot;git&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;-C&quot;</span><span class="p">,</span>
+                    <span class="s2">"git"</span><span class="p">,</span>
+                    <span class="s2">"-C"</span><span class="p">,</span>
                     <span class="nb">str</span><span class="p">(</span><span class="n">src</span><span class="p">),</span>
-                    <span class="s2">&quot;describe&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;--tags&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;--always&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;--dirty&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;--abbrev=8&quot;</span><span class="p">,</span>
+                    <span class="s2">"describe"</span><span class="p">,</span>
+                    <span class="s2">"--tags"</span><span class="p">,</span>
+                    <span class="s2">"--always"</span><span class="p">,</span>
+                    <span class="s2">"--dirty"</span><span class="p">,</span>
+                    <span class="s2">"--abbrev=8"</span><span class="p">,</span>
                 <span class="p">],</span>
                 <span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                 <span class="n">text</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
@@ -702,39 +704,39 @@
         <span class="k">except</span> <span class="p">(</span><span class="ne">OSError</span><span class="p">,</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">SubprocessError</span><span class="p">):</span>
             <span class="k">pass</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;v</span><span class="si">{</span><span class="n">_dist_version</span><span class="p">(</span><span class="n">dist_name</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">"v</span><span class="si">{</span><span class="n">_dist_version</span><span class="p">(</span><span class="n">dist_name</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
     <span class="k">except</span> <span class="n">PackageNotFoundError</span><span class="p">:</span>
-        <span class="k">return</span> <span class="s2">&quot;unknown&quot;</span>
+        <span class="k">return</span> <span class="s2">"unknown"</span>
 
 
 <span class="nd">@functools</span><span class="o">.</span><span class="n">lru_cache</span><span class="p">(</span><span class="n">maxsize</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">_version_tag</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    ``.fips/`` cache namespace pinning the running fips + pystilt source revision.</span>
 
 <span class="sd">    Computed once per process from ``_pkg_rev`` so that committing or editing</span>
 <span class="sd">    fips/pystilt code lands the cache in a fresh tree instead of silently reusing a</span>
 <span class="sd">    stale component -- e.g. a Jacobian built by the old footprint aggregation.</span>
 
-<span class="sd">    slv&#39;s own revision is intentionally *not* in the key: slv changes often, so</span>
+<span class="sd">    slv's own revision is intentionally *not* in the key: slv changes often, so</span>
 <span class="sd">    when you change slv component-building logic (obs/prior/mdm/constant), force a</span>
 <span class="sd">    rebuild via ``config.cache_overwrite`` rather than relying on the tag.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;fips-</span><span class="si">{</span><span class="n">_pkg_rev</span><span class="p">(</span><span class="s1">&#39;fips&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;fips&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">_pystilt-</span><span class="si">{</span><span class="n">_pkg_rev</span><span class="p">(</span><span class="s1">&#39;stilt&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;pystilt&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">"fips-</span><span class="si">{</span><span class="n">_pkg_rev</span><span class="p">(</span><span class="s1">'fips'</span><span class="p">,</span><span class="w"> </span><span class="s1">'fips'</span><span class="p">)</span><span class="si">}</span><span class="s2">_pystilt-</span><span class="si">{</span><span class="n">_pkg_rev</span><span class="p">(</span><span class="s1">'stilt'</span><span class="p">,</span><span class="w"> </span><span class="s1">'pystilt'</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
 
 
 <div class="viewcode-block" id="fips_cache">
 <a class="viewcode-back" href="../../../_autosummary/slv.inversion.cache.fips_cache.html#slv.inversion.cache.fips_cache">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">fips_cache</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Content-addressed cache decorator for the pipeline&#39;s component functions.</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Content-addressed cache decorator for the pipeline's component functions.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    filename :</span>
-<span class="sd">        Stage name / cache stem (e.g. ``&quot;obs&quot;``, ``&quot;prior_error&quot;``).</span>
+<span class="sd">        Stage name / cache stem (e.g. ``"obs"``, ``"prior_error"``).</span>
 <span class="sd">    key :</span>
-<span class="sd">        Optional ``key(config, *args, **kwargs)``, called with the function&#39;s arguments</span>
+<span class="sd">        Optional ``key(config, *args, **kwargs)``, called with the function's arguments</span>
 <span class="sd">        before the cache is looked up: what the component depends on beyond the config</span>
 <span class="sd">        (JSON-able), hashed into its key. The forward operator and the MDM use it for</span>
 <span class="sd">        the footprints they are built from (``_footprint_key`` in :mod:`slv.inversion.pipelines`).</span>
@@ -749,7 +751,7 @@
 <span class="sd">    ``hash`` is derived only from the config fields that actually affect that</span>
 <span class="sd">    component (see :data:`DEFAULT_COMPONENT_DEPS`), plus the release versions of the</span>
 <span class="sd">    packages it is built with (lair / uataq, see :data:`DEFAULT_COMPONENT_PACKAGES`; a</span>
-<span class="sd">    new lair release rebuilds the obs and prior, not the Jacobian) and the component&#39;s</span>
+<span class="sd">    new lair release rebuilds the obs and prior, not the Jacobian) and the component's</span>
 <span class="sd">    revision (see :data:`DEFAULT_COMPONENT_REVISIONS`; bumped when slv changes what the</span>
 <span class="sd">    component holds).  Committing/bumping</span>
 <span class="sd">    a package therefore lands in a fresh tree rather than silently reusing a stale</span>
@@ -769,20 +771,20 @@
 <span class="sd">    ``config.cache_overwrite`` controls forced recomputation:</span>
 
 <span class="sd">    * ``[]``        — never overwrite (default)</span>
-<span class="sd">    * ``&quot;all&quot;``     — overwrite every component</span>
+<span class="sd">    * ``"all"``     — overwrite every component</span>
 <span class="sd">    * ``[component, …]`` — overwrite specific components (all hashes for that component</span>
 <span class="sd">      are deleted and the component is recomputed fresh)</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">decorator</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
         <span class="nd">@functools</span><span class="o">.</span><span class="n">wraps</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
         <span class="k">def</span><span class="w"> </span><span class="nf">wrapper</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-            <span class="n">cache</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;cache&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+            <span class="n">cache</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s2">"cache"</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">cache</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">func</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
-            <span class="n">overwrite</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;cache_overwrite&quot;</span><span class="p">,</span> <span class="p">[])</span>
-            <span class="k">if</span> <span class="n">overwrite</span> <span class="o">==</span> <span class="s2">&quot;all&quot;</span><span class="p">:</span>
+            <span class="n">overwrite</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s2">"cache_overwrite"</span><span class="p">,</span> <span class="p">[])</span>
+            <span class="k">if</span> <span class="n">overwrite</span> <span class="o">==</span> <span class="s2">"all"</span><span class="p">:</span>
                 <span class="n">should_overwrite</span> <span class="o">=</span> <span class="kc">True</span>
             <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">overwrite</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
                 <span class="n">should_overwrite</span> <span class="o">=</span> <span class="n">filename</span> <span class="o">==</span> <span class="n">overwrite</span>
@@ -793,7 +795,7 @@
             <span class="c1"># All fips-managed cache files live under ``.fips/&lt;version tag&gt;/`` so</span>
             <span class="c1"># the workflow tree stays clean and a fips/pystilt change lands in a</span>
             <span class="c1"># fresh tree instead of silently reusing stale components.</span>
-            <span class="n">fips_dir</span> <span class="o">=</span> <span class="n">cache_dir</span> <span class="o">/</span> <span class="s2">&quot;.fips&quot;</span> <span class="o">/</span> <span class="n">_version_tag</span><span class="p">()</span>
+            <span class="n">fips_dir</span> <span class="o">=</span> <span class="n">cache_dir</span> <span class="o">/</span> <span class="s2">".fips"</span> <span class="o">/</span> <span class="n">_version_tag</span><span class="p">()</span>
 
             <span class="c1"># --- Content-addressed path ---</span>
             <span class="n">fields</span> <span class="o">=</span> <span class="n">DEFAULT_COMPONENT_DEPS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
@@ -806,33 +808,33 @@
                     <span class="kc">None</span> <span class="k">if</span> <span class="n">key</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">key</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">),</span>
                 <span class="p">)</span>
                 <span class="n">component_dir</span> <span class="o">=</span> <span class="n">fips_dir</span> <span class="o">/</span> <span class="n">filename</span>
-                <span class="n">path</span> <span class="o">=</span> <span class="n">component_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">h</span><span class="si">}</span><span class="s2">.pkl&quot;</span>
+                <span class="n">path</span> <span class="o">=</span> <span class="n">component_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">h</span><span class="si">}</span><span class="s2">.pkl"</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="c1"># Fallback: flat file for components not listed in DEFAULT_COMPONENT_DEPS</span>
-                <span class="n">h</span> <span class="o">=</span> <span class="s2">&quot;flat&quot;</span>
+                <span class="n">h</span> <span class="o">=</span> <span class="s2">"flat"</span>
                 <span class="n">component_dir</span> <span class="o">=</span> <span class="n">fips_dir</span>
-                <span class="n">path</span> <span class="o">=</span> <span class="n">fips_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">.pkl&quot;</span>
+                <span class="n">path</span> <span class="o">=</span> <span class="n">fips_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">.pkl"</span>
 
             <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">should_overwrite</span><span class="p">:</span>
-                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Loading cached </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2"> [</span><span class="si">{</span><span class="n">h</span><span class="si">}</span><span class="s2">] from </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Loading cached </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2"> [</span><span class="si">{</span><span class="n">h</span><span class="si">}</span><span class="s2">] from </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">"rb"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
                     <span class="k">return</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="n">should_overwrite</span> <span class="ow">and</span> <span class="n">fields</span> <span class="ow">and</span> <span class="n">component_dir</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
                 <span class="c1"># Remove all stale hashes for this component before recomputing</span>
-                <span class="n">stale</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">component_dir</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">&quot;*.pkl&quot;</span><span class="p">))</span>
+                <span class="n">stale</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">component_dir</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">"*.pkl"</span><span class="p">))</span>
                 <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">stale</span><span class="p">:</span>
                     <span class="n">s</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
                 <span class="k">if</span> <span class="n">stale</span><span class="p">:</span>
                     <span class="nb">print</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;Cleared </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">stale</span><span class="p">)</span><span class="si">}</span><span class="s2"> stale cache file(s) for component &#39;</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+                        <span class="sa">f</span><span class="s2">"Cleared </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">stale</span><span class="p">)</span><span class="si">}</span><span class="s2"> stale cache file(s) for component '</span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">'"</span>
                     <span class="p">)</span>
 
             <span class="n">result</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
             <span class="n">component_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Saving </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2"> [</span><span class="si">{</span><span class="n">h</span><span class="si">}</span><span class="s2">] to </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Saving </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2"> [</span><span class="si">{</span><span class="n">h</span><span class="si">}</span><span class="s2">] to </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">"wb"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
                 <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">protocol</span><span class="o">=</span><span class="n">pickle</span><span class="o">.</span><span class="n">HIGHEST_PROTOCOL</span><span class="p">)</span>
 
             <span class="k">return</span> <span class="n">result</span>
@@ -870,8 +872,8 @@
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../../../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0"></script>
-<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0"></script>
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -891,7 +893,7 @@
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.2.0.
   </p>
 </div>
       
@@ -904,7 +906,7 @@
         <div class="footer-item">
 <p class="theme-version">
   <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.22.0.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.23.0.
 </p></div>
       
     </div>

@@ -25,28 +25,29 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../../_static/styles/theme.css?digest=64cc4de3f052d77215f0" rel="stylesheet" />
-<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=64cc4de3f052d77215f0" rel="stylesheet" />
+  <link href="../../../_static/styles/theme.css?digest=18bd87630a240e9c25be" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=18bd87630a240e9c25be" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx_autodoc_typehints.css?v=057ac668" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=ba117b66" />
   
   <!-- So that users can add custom icons -->
-  <script defer src="../../../_static/scripts/fontawesome.js?digest=64cc4de3f052d77215f0"></script>
+  <script defer src="../../../_static/scripts/fontawesome.js?digest=18bd87630a240e9c25be"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
-<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../_static/documentation_options.js?v=855ee6a5"></script>
+    <script src="../../../_static/documentation_options.js?v=1ef9135c"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../../../_static/copybutton.js?v=f281be69"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_modules/slv/inversion/covariances';</script>
     <script>
-        DOCUMENTATION_OPTIONS.theme_version = '0.22.0';
+        DOCUMENTATION_OPTIONS.theme_version = '0.23.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://jmineau.github.io/slv/switcher.json';
         DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
@@ -56,8 +57,9 @@
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.10.4.dev5+g1346b5991" />
+  <meta name="docsearch:version" content="2026.10.4.dev6+gdb1f4b5c8" />
   
     
     <script src="../../../_static/searchtools.js"></script>
@@ -429,7 +431,7 @@
                 <article class="bd-article">
                   
   <h1>Source code for slv.inversion.covariances</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Prior error and model-data mismatch covariances for the SLV inversion.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Prior error and model-data mismatch covariances for the SLV inversion."""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
@@ -441,13 +443,13 @@
 <div class="viewcode-block" id="normalize_duration">
 <a class="viewcode-back" href="../../../_autosummary/slv.inversion.covariances.normalize_duration.html#slv.inversion.covariances.normalize_duration">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">normalize_duration</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    ``&quot;14d&quot;`` -&gt; ``&quot;14D&quot;``. pandas deprecates the lowercase day unit (Pandas4Warning).</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    ``"14d"`` -&gt; ``"14D"``. pandas deprecates the lowercase day unit (Pandas4Warning).</span>
 <span class="sd">    Config strings keep their spelling -- they are hashed into cache keys and sweep IDs --</span>
 <span class="sd">    and are converted only where they are parsed.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">value</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;d&quot;</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">value</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;D&quot;</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">value</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">"d"</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">value</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="s2">"D"</span>
     <span class="k">return</span> <span class="n">value</span></div>
 
 
@@ -462,10 +464,10 @@
     <span class="n">base_std</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
     <span class="n">std_frac</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Covariance</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    The prior flux error covariance S_0: a Kronecker product of a time and a space decay.</span>
 
-<span class="sd">    Each cell&#39;s standard deviation is ``base_std + std_frac * prior``; the correlation</span>
+<span class="sd">    Each cell's standard deviation is ``base_std + std_frac * prior``; the correlation</span>
 <span class="sd">    decays exponentially in time (``time_scale``) and with the great-circle distance</span>
 <span class="sd">    between cells (``spatial_scale``, km). The covariance is kept as its two factors.</span>
 
@@ -474,27 +476,27 @@
 <span class="sd">    prior : pd.Series</span>
 <span class="sd">        The flux prior, indexed by (time, lat, lon) in any order of the levels.</span>
 <span class="sd">    time_scale : str</span>
-<span class="sd">        The e-folding time of the correlation (``&quot;32d&quot;``).</span>
+<span class="sd">        The e-folding time of the correlation (``"32d"``).</span>
 <span class="sd">    spatial_scale : float</span>
 <span class="sd">        The e-folding distance of the correlation, in km.</span>
 <span class="sd">    base_std, std_frac : float</span>
-<span class="sd">        The standard deviation&#39;s floor and its fraction of the prior.</span>
+<span class="sd">        The standard deviation's floor and its fraction of the prior.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    Covariance</span>
-<span class="sd">        S_0 on the prior&#39;s labels, as the one block ``flux``, kept as Kronecker factors.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># The variances are computed in the prior&#39;s own dtype (float32 for the EPA prior)</span>
-    <span class="c1"># and square-rooted, as slv and fips 0.1 did, so paper 1&#39;s S_0 is unchanged.</span>
+<span class="sd">        S_0 on the prior's labels, as the one block ``flux``, kept as Kronecker factors.</span>
+<span class="sd">    """</span>
+    <span class="c1"># The variances are computed in the prior's own dtype (float32 for the EPA prior)</span>
+    <span class="c1"># and square-rooted, as slv and fips 0.1 did, so paper 1's S_0 is unchanged.</span>
     <span class="n">variances</span> <span class="o">=</span> <span class="p">(</span><span class="n">base_std</span> <span class="o">+</span> <span class="n">std_frac</span> <span class="o">*</span> <span class="n">prior</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
-    <span class="c1"># a Series on the prior&#39;s labels, which with_std lines up with the space</span>
+    <span class="c1"># a Series on the prior's labels, which with_std lines up with the space</span>
     <span class="n">std</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">variances</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()),</span> <span class="n">index</span><span class="o">=</span><span class="n">variances</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
     <span class="n">model</span> <span class="o">=</span> <span class="n">Kronecker</span><span class="p">(</span>
-        <span class="n">Exponential</span><span class="p">(</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="n">normalize_duration</span><span class="p">(</span><span class="n">time_scale</span><span class="p">)),</span>
-        <span class="n">Exponential</span><span class="p">([</span><span class="s2">&quot;lat&quot;</span><span class="p">,</span> <span class="s2">&quot;lon&quot;</span><span class="p">],</span> <span class="n">spatial_scale</span><span class="p">,</span> <span class="n">metric</span><span class="o">=</span><span class="s2">&quot;haversine&quot;</span><span class="p">),</span>
+        <span class="n">Exponential</span><span class="p">(</span><span class="s2">"time"</span><span class="p">,</span> <span class="n">normalize_duration</span><span class="p">(</span><span class="n">time_scale</span><span class="p">)),</span>
+        <span class="n">Exponential</span><span class="p">([</span><span class="s2">"lat"</span><span class="p">,</span> <span class="s2">"lon"</span><span class="p">],</span> <span class="n">spatial_scale</span><span class="p">,</span> <span class="n">metric</span><span class="o">=</span><span class="s2">"haversine"</span><span class="p">),</span>
     <span class="p">)</span>
-    <span class="k">return</span> <span class="n">model</span><span class="o">.</span><span class="n">with_std</span><span class="p">(</span><span class="n">std</span><span class="p">)</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">Space</span><span class="p">({</span><span class="s2">&quot;flux&quot;</span><span class="p">:</span> <span class="n">prior</span><span class="o">.</span><span class="n">index</span><span class="p">}),</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;prior_error&quot;</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">model</span><span class="o">.</span><span class="n">with_std</span><span class="p">(</span><span class="n">std</span><span class="p">)</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">Space</span><span class="p">({</span><span class="s2">"flux"</span><span class="p">:</span> <span class="n">prior</span><span class="o">.</span><span class="n">index</span><span class="p">}),</span> <span class="n">name</span><span class="o">=</span><span class="s2">"prior_error"</span><span class="p">)</span></div>
 
 
 
@@ -507,15 +509,15 @@
     <span class="n">correlated</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="n">scale</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">interday</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-    <span class="n">time_dim</span><span class="o">=</span><span class="s2">&quot;obs_time&quot;</span><span class="p">,</span>
+    <span class="n">time_dim</span><span class="o">=</span><span class="s2">"obs_time"</span><span class="p">,</span>
     <span class="n">site_config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">obs_sites</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CovarianceModel</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Unified builder for Model-Data Mismatch covariance components.</span>
 
-<span class="sd">    Returns a covariance model, to build on the observations&#39; space (whose labels must</span>
+<span class="sd">    Returns a covariance model, to build on the observations' space (whose labels must</span>
 <span class="sd">    be ``obs_index``, in that order: a per-observation ``std`` is read in that order).</span>
 
 <span class="sd">    Parameters</span>
@@ -523,7 +525,7 @@
 <span class="sd">    name : str</span>
 <span class="sd">        Component name (used in error messages)</span>
 <span class="sd">    obs_index : pd.MultiIndex</span>
-<span class="sd">        Observation index with &#39;obs_location&#39; and &#39;obs_time&#39; levels</span>
+<span class="sd">        Observation index with 'obs_location' and 'obs_time' levels</span>
 <span class="sd">    std : float or dict</span>
 <span class="sd">        Absolute standard deviation in ppm.</span>
 <span class="sd">        If dict with nested dicts: std[site][season] structure (site/season-specific)</span>
@@ -537,21 +539,21 @@
 <span class="sd">    time_dim : str</span>
 <span class="sd">        Name of the time dimension</span>
 <span class="sd">    site_config : pd.DataFrame, optional</span>
-<span class="sd">        Site configuration with &#39;organization&#39; column, required for organization-based std</span>
+<span class="sd">        Site configuration with 'organization' column, required for organization-based std</span>
 <span class="sd">    obs_sites : sequence of str, optional</span>
 <span class="sd">        The site of each observation, aligned with ``obs_index``, for site- or</span>
 <span class="sd">        organization-keyed ``std``. Defaults to the ``obs_location`` level, which is the</span>
 <span class="sd">        site for a tower but a PYSTILT location_id for a mobile receptor.</span>
 <span class="sd">    **kwargs</span>
 <span class="sd">        Additional unused parameters (for compatibility)</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># Check if std is a dict (site/season-specific or organization-specific) or scalar</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">std</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
         <span class="n">times</span> <span class="o">=</span> <span class="n">obs_index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="n">time_dim</span><span class="p">)</span>
         <span class="n">locations</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">pd</span><span class="o">.</span><span class="n">Index</span><span class="p">(</span><span class="n">obs_sites</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">obs_sites</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-            <span class="k">else</span> <span class="n">obs_index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s2">&quot;obs_location&quot;</span><span class="p">)</span>
+            <span class="k">else</span> <span class="n">obs_index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s2">"obs_location"</span><span class="p">)</span>
         <span class="p">)</span>
 
         <span class="c1"># Detect if this is a nested dict (site/season) or flat dict (organization)</span>
@@ -570,25 +572,25 @@
                     <span class="n">std_values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">std_val</span><span class="p">)</span>
                 <span class="k">except</span> <span class="p">(</span><span class="ne">KeyError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">):</span>
                     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;No std value found for site=&#39;</span><span class="si">{</span><span class="n">loc</span><span class="si">}</span><span class="s2">&#39;, season=&#39;</span><span class="si">{</span><span class="n">season</span><span class="si">}</span><span class="s2">&#39; in component &#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+                        <span class="sa">f</span><span class="s2">"No std value found for site='</span><span class="si">{</span><span class="n">loc</span><span class="si">}</span><span class="s2">', season='</span><span class="si">{</span><span class="n">season</span><span class="si">}</span><span class="s2">' in component '</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">'"</span>
                     <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="kc">None</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># Organization-specific std (flat dict)</span>
             <span class="k">if</span> <span class="n">site_config</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;site_config must be provided for organization-based std in component &#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+                    <span class="sa">f</span><span class="s2">"site_config must be provided for organization-based std in component '</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">'"</span>
                 <span class="p">)</span>
 
             <span class="c1"># Look up std for each observation by organization</span>
             <span class="n">std_values</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">for</span> <span class="n">loc</span> <span class="ow">in</span> <span class="n">locations</span><span class="p">:</span>
-                <span class="n">org</span> <span class="o">=</span> <span class="n">site_config</span><span class="o">.</span><span class="n">at</span><span class="p">[</span><span class="n">loc</span><span class="p">,</span> <span class="s2">&quot;organization&quot;</span><span class="p">]</span>
+                <span class="n">org</span> <span class="o">=</span> <span class="n">site_config</span><span class="o">.</span><span class="n">at</span><span class="p">[</span><span class="n">loc</span><span class="p">,</span> <span class="s2">"organization"</span><span class="p">]</span>
                 <span class="k">try</span><span class="p">:</span>
                     <span class="n">std_val</span> <span class="o">=</span> <span class="n">std</span><span class="p">[</span><span class="n">org</span><span class="p">]</span>
                     <span class="n">std_values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">std_val</span><span class="p">)</span>
                 <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;No std value found for organization=&#39;</span><span class="si">{</span><span class="n">org</span><span class="si">}</span><span class="s2">&#39; (site=&#39;</span><span class="si">{</span><span class="n">loc</span><span class="si">}</span><span class="s2">&#39;) in component &#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+                        <span class="sa">f</span><span class="s2">"No std value found for organization='</span><span class="si">{</span><span class="n">org</span><span class="si">}</span><span class="s2">' (site='</span><span class="si">{</span><span class="n">loc</span><span class="si">}</span><span class="s2">') in component '</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">'"</span>
                     <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="kc">None</span>
 
         <span class="n">std</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">std_values</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">obs_index</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
@@ -598,20 +600,20 @@
         <span class="n">std</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">std</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">std</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">obs_index</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Component &#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; has </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">std</span><span class="p">)</span><span class="si">}</span><span class="s2"> stds for </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">obs_index</span><span class="p">)</span><span class="si">}</span><span class="s2"> obs.&quot;</span>
+                <span class="sa">f</span><span class="s2">"Component '</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">' has </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">std</span><span class="p">)</span><span class="si">}</span><span class="s2"> stds for </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">obs_index</span><span class="p">)</span><span class="si">}</span><span class="s2"> obs."</span>
             <span class="p">)</span>
-        <span class="c1"># fips&#39;s with_std lines a Series up with the obs by label (a plain array raises)</span>
+        <span class="c1"># fips's with_std lines a Series up with the obs by label (a plain array raises)</span>
         <span class="n">std</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">std</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">obs_index</span><span class="p">)</span>
 
     <span class="c1"># Uncorrelated errors (diagonal)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">correlated</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">Independent</span><span class="p">()</span><span class="o">.</span><span class="n">with_std</span><span class="p">(</span><span class="n">std</span><span class="p">)</span>
 
-    <span class="c1"># Correlated errors: within groups of all non-time levels (e.g. &#39;obs_location&#39;),</span>
+    <span class="c1"># Correlated errors: within groups of all non-time levels (e.g. 'obs_location'),</span>
     <span class="c1"># and within a day unless ``interday`` (to sever midnight correlations)</span>
     <span class="n">within</span> <span class="o">=</span> <span class="p">[</span><span class="n">level</span> <span class="k">for</span> <span class="n">level</span> <span class="ow">in</span> <span class="n">obs_index</span><span class="o">.</span><span class="n">names</span> <span class="k">if</span> <span class="n">level</span> <span class="o">!=</span> <span class="n">time_dim</span><span class="p">]</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">interday</span><span class="p">:</span>
-        <span class="n">within</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">time_dim</span><span class="si">}</span><span class="s2">.date&quot;</span><span class="p">)</span>
+        <span class="n">within</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">time_dim</span><span class="si">}</span><span class="s2">.date"</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">scale</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">Constant</span><span class="p">(</span><span class="n">within</span><span class="o">=</span><span class="n">within</span><span class="p">)</span><span class="o">.</span><span class="n">with_std</span><span class="p">(</span><span class="n">std</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">Exponential</span><span class="p">(</span><span class="n">time_dim</span><span class="p">,</span> <span class="n">normalize_duration</span><span class="p">(</span><span class="n">scale</span><span class="p">),</span> <span class="n">within</span><span class="o">=</span><span class="n">within</span><span class="p">)</span><span class="o">.</span><span class="n">with_std</span><span class="p">(</span><span class="n">std</span><span class="p">)</span></div>
@@ -645,8 +647,8 @@
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../../../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0"></script>
-<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0"></script>
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -666,7 +668,7 @@
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.2.0.
   </p>
 </div>
       
@@ -679,7 +681,7 @@
         <div class="footer-item">
 <p class="theme-version">
   <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.22.0.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.23.0.
 </p></div>
       
     </div>

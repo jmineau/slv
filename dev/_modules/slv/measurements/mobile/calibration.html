@@ -25,28 +25,29 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../../../_static/styles/theme.css?digest=64cc4de3f052d77215f0" rel="stylesheet" />
-<link href="../../../../_static/styles/pydata-sphinx-theme.css?digest=64cc4de3f052d77215f0" rel="stylesheet" />
+  <link href="../../../../_static/styles/theme.css?digest=18bd87630a240e9c25be" rel="stylesheet" />
+<link href="../../../../_static/styles/pydata-sphinx-theme.css?digest=18bd87630a240e9c25be" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sphinx_autodoc_typehints.css?v=057ac668" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css?v=ba117b66" />
   
   <!-- So that users can add custom icons -->
-  <script defer src="../../../../_static/scripts/fontawesome.js?digest=64cc4de3f052d77215f0"></script>
+  <script defer src="../../../../_static/scripts/fontawesome.js?digest=18bd87630a240e9c25be"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
-<link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
+  <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
+<link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../../_static/documentation_options.js?v=855ee6a5"></script>
+    <script src="../../../../_static/documentation_options.js?v=1ef9135c"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../../../../_static/copybutton.js?v=f281be69"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_modules/slv/measurements/mobile/calibration';</script>
     <script>
-        DOCUMENTATION_OPTIONS.theme_version = '0.22.0';
+        DOCUMENTATION_OPTIONS.theme_version = '0.23.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://jmineau.github.io/slv/switcher.json';
         DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
@@ -56,8 +57,9 @@
     <link rel="index" title="Index" href="../../../../genindex.html" />
     <link rel="search" title="Search" href="../../../../search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.10.4.dev5+g1346b5991" />
+  <meta name="docsearch:version" content="2026.10.4.dev6+gdb1f4b5c8" />
   
     
     <script src="../../../../_static/searchtools.js"></script>
@@ -429,10 +431,10 @@
                 <article class="bd-article">
                   
   <h1>Source code for slv.measurements.mobile.calibration</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""</span>
 <span class="sd">Calibration provenance of the TRAX CH4 record: ``cal_source`` tags and the windows</span>
 <span class="sd">where the analyzer ran without a reference tank but its raw data are usable.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">"""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
@@ -441,17 +443,17 @@
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 
-<span class="n">CAL_SOURCES</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;pipeline&quot;</span><span class="p">,</span> <span class="s2">&quot;manual_cal&quot;</span><span class="p">,</span> <span class="s2">&quot;uncalibrated&quot;</span><span class="p">)</span>
-<span class="sd">&quot;&quot;&quot;Provenance tag carried by every TRAX observation in ``cal_source``:</span>
+<span class="n">CAL_SOURCES</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"pipeline"</span><span class="p">,</span> <span class="s2">"manual_cal"</span><span class="p">,</span> <span class="s2">"uncalibrated"</span><span class="p">)</span>
+<span class="sd">"""Provenance tag carried by every TRAX observation in ``cal_source``:</span>
 
 <span class="sd">- ``pipeline``: pipeline-calibrated value (``CH4d_ppm_cal`` from the ``calibrated`` level).</span>
 <span class="sd">- ``manual_cal``: the ``lgr_ugga_manual_cal`` instrument (installed 2023-11-18, when the</span>
 <span class="sd">  on-board tank was removed; a tank ran again in 2024 and the last pipeline calibration is</span>
-<span class="sd">  2024-08-20); the pipeline applies no calibration, so this is the analyzer&#39;s raw ``CH4d_ppm``.</span>
+<span class="sd">  2024-08-20); the pipeline applies no calibration, so this is the analyzer's raw ``CH4d_ppm``.</span>
 <span class="sd">- ``uncalibrated``: raw ``CH4d_ppm`` from the ``lgr_ugga`` qaqc level inside a window listed in</span>
 <span class="sd">  ``trax_uncalibrated_windows.csv`` (tank empty, no valid reference). Same treatment as</span>
-<span class="sd">  ``manual_cal``; the LGR&#39;s gain was within 0.5% of unity on either side of every window.</span>
-<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">  ``manual_cal``; the LGR's gain was within 0.5% of unity on either side of every window.</span>
+<span class="sd">"""</span>
 
 
 <div class="viewcode-block" id="load_trax_uncalibrated_windows">
@@ -459,27 +461,27 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">load_trax_uncalibrated_windows</span><span class="p">(</span>
     <span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">enabled_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Windows where the LGR ran without a valid reference tank but the raw data are good.</span>
 
 <span class="sd">    Packaged in ``trax_uncalibrated_windows.csv`` (columns: start, end, reason, enabled; start/end</span>
 <span class="sd">    are ISO dates or date-times, e.g. ``2015-10-11T16:00``).</span>
 <span class="sd">    Set ``enabled`` to false to drop a window without deleting the row.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="n">path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">with</span> <span class="p">(</span>
-            <span class="n">files</span><span class="p">(</span><span class="s2">&quot;slv.measurements.mobile&quot;</span><span class="p">)</span>
-            <span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s2">&quot;trax_uncalibrated_windows.csv&quot;</span><span class="p">)</span>
-            <span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span>
+            <span class="n">files</span><span class="p">(</span><span class="s2">"slv.measurements.mobile"</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s2">"trax_uncalibrated_windows.csv"</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">"r"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span>
         <span class="p">):</span>
             <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
-    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;start&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;start&quot;</span><span class="p">],</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;ISO8601&quot;</span><span class="p">)</span>  <span class="c1"># dates or date-times</span>
-    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;end&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;end&quot;</span><span class="p">],</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;ISO8601&quot;</span><span class="p">)</span>
-    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;enabled&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;enabled&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">isin</span><span class="p">((</span><span class="s2">&quot;true&quot;</span><span class="p">,</span> <span class="s2">&quot;1&quot;</span><span class="p">,</span> <span class="s2">&quot;yes&quot;</span><span class="p">))</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">"start"</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">"start"</span><span class="p">],</span> <span class="nb">format</span><span class="o">=</span><span class="s2">"ISO8601"</span><span class="p">)</span>  <span class="c1"># dates or date-times</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">"end"</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">"end"</span><span class="p">],</span> <span class="nb">format</span><span class="o">=</span><span class="s2">"ISO8601"</span><span class="p">)</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">"enabled"</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">"enabled"</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">isin</span><span class="p">((</span><span class="s2">"true"</span><span class="p">,</span> <span class="s2">"1"</span><span class="p">,</span> <span class="s2">"yes"</span><span class="p">))</span>
     <span class="k">if</span> <span class="n">enabled_only</span><span class="p">:</span>
-        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;enabled&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()]</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s2">"enabled"</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()]</span>
     <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">df</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
 
 
@@ -489,34 +491,34 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">load_trax_epoch_offsets</span><span class="p">(</span>
     <span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">enabled_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Analyzer-epoch offsets of the uncalibrated (manual-cal) era, ppm.</span>
 
 <span class="sd">    Packaged in ``trax_epoch_offsets.csv`` (start, end, analyzer, offset_ppm, n_hours,</span>
 <span class="sd">    enabled, note). Since the tank came off the train (2023-11-17) the pipeline applies no</span>
-<span class="sd">    calibration at all, so each analyzer carries its own gain. ``offset_ppm`` is the epoch&#39;s</span>
+<span class="sd">    calibration at all, so each analyzer carries its own gain. ``offset_ppm`` is the epoch's</span>
 <span class="sd">    median TRAX-minus-UOU afternoon difference measured where the train runs within 2 km of</span>
 <span class="sd">    the UOU tower, against a tank-calibrated reference level of 0.000 ppm (the tank epochs</span>
-<span class="sd">    sit at -0.005 to +0.009 ppm, which is the method&#39;s own uncertainty). Values are</span>
+<span class="sd">    sit at -0.005 to +0.009 ppm, which is the method's own uncertainty). Values are</span>
 <span class="sd">    -0.002 to -0.024 ppm; :func:`apply_epoch_offset` subtracts them.</span>
 
 <span class="sd">    Derived in ``measurements/trax/audit/`` (``checks/answers.py``); rebuild it there after</span>
 <span class="sd">    an analyzer swap or a rebuild of ``obs.parquet``.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="n">path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">with</span> <span class="p">(</span>
-            <span class="n">files</span><span class="p">(</span><span class="s2">&quot;slv.measurements.mobile&quot;</span><span class="p">)</span>
-            <span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s2">&quot;trax_epoch_offsets.csv&quot;</span><span class="p">)</span>
-            <span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span>
+            <span class="n">files</span><span class="p">(</span><span class="s2">"slv.measurements.mobile"</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s2">"trax_epoch_offsets.csv"</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">"r"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span>
         <span class="p">):</span>
             <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
-    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;start&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;start&quot;</span><span class="p">],</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;ISO8601&quot;</span><span class="p">)</span>
-    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;end&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;end&quot;</span><span class="p">],</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;ISO8601&quot;</span><span class="p">)</span>
-    <span class="n">df</span><span class="p">[</span><span class="s2">&quot;enabled&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;enabled&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">isin</span><span class="p">((</span><span class="s2">&quot;true&quot;</span><span class="p">,</span> <span class="s2">&quot;1&quot;</span><span class="p">,</span> <span class="s2">&quot;yes&quot;</span><span class="p">))</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">"start"</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">"start"</span><span class="p">],</span> <span class="nb">format</span><span class="o">=</span><span class="s2">"ISO8601"</span><span class="p">)</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">"end"</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">"end"</span><span class="p">],</span> <span class="nb">format</span><span class="o">=</span><span class="s2">"ISO8601"</span><span class="p">)</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">"enabled"</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">"enabled"</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">isin</span><span class="p">((</span><span class="s2">"true"</span><span class="p">,</span> <span class="s2">"1"</span><span class="p">,</span> <span class="s2">"yes"</span><span class="p">))</span>
     <span class="k">if</span> <span class="n">enabled_only</span><span class="p">:</span>
-        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;enabled&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()]</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s2">"enabled"</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()]</span>
     <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">df</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
 
 
@@ -524,18 +526,18 @@
 <div class="viewcode-block" id="epoch_offset_column">
 <a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.calibration.epoch_offset_column.html#slv.measurements.mobile.calibration.epoch_offset_column">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">epoch_offset_column</span><span class="p">(</span><span class="n">times</span><span class="p">,</span> <span class="n">offsets</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    The epoch offset (ppm) in force at each time, 0.0 outside every epoch.</span>
 
 <span class="sd">    Stored in ``obs.parquet`` as ``epoch_offset_ppm`` so the correction can be applied or</span>
 <span class="sd">    removed at load time without rebuilding (:func:`apply_epoch_offset`).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="n">offsets</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">offsets</span> <span class="o">=</span> <span class="n">load_trax_epoch_offsets</span><span class="p">()</span>
     <span class="n">t</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">times</span><span class="p">))</span>
     <span class="n">out</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">t</span><span class="p">)))</span>
     <span class="k">for</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">off</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
-        <span class="n">offsets</span><span class="p">[</span><span class="s2">&quot;start&quot;</span><span class="p">],</span> <span class="n">offsets</span><span class="p">[</span><span class="s2">&quot;end&quot;</span><span class="p">],</span> <span class="n">offsets</span><span class="p">[</span><span class="s2">&quot;offset_ppm&quot;</span><span class="p">],</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span>
+        <span class="n">offsets</span><span class="p">[</span><span class="s2">"start"</span><span class="p">],</span> <span class="n">offsets</span><span class="p">[</span><span class="s2">"end"</span><span class="p">],</span> <span class="n">offsets</span><span class="p">[</span><span class="s2">"offset_ppm"</span><span class="p">],</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span>
     <span class="p">):</span>
         <span class="n">out</span><span class="p">[(</span><span class="n">t</span> <span class="o">&gt;=</span> <span class="n">start</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">t</span> <span class="o">&lt;</span> <span class="n">end</span><span class="p">)]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">off</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">out</span></div>
@@ -545,7 +547,7 @@
 <div class="viewcode-block" id="apply_epoch_offset">
 <a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.calibration.apply_epoch_offset.html#slv.measurements.mobile.calibration.apply_epoch_offset">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">apply_epoch_offset</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">apply</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Subtract the analyzer-epoch offset from ``CH4_ppm`` (no-op when ``apply`` is False).</span>
 
 <span class="sd">    Uses the ``epoch_offset_ppm`` column written by :func:`build_trax_obs`; a frame built</span>
@@ -554,14 +556,14 @@
 <span class="sd">    either way. The uncorrected value is recoverable as ``CH4_ppm + epoch_offset_ppm``, so</span>
 <span class="sd">    ``load_trax_obs(epoch_offset=False)`` and ``True`` differ only by this step — test the</span>
 <span class="sd">    effect without rebuilding.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">apply</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">df</span>
     <span class="n">out</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-    <span class="k">if</span> <span class="s2">&quot;epoch_offset_ppm&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">out</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
-        <span class="n">out</span><span class="p">[</span><span class="s2">&quot;epoch_offset_ppm&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">epoch_offset_column</span><span class="p">(</span><span class="n">out</span><span class="p">[</span><span class="s2">&quot;Time_UTC&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
-    <span class="n">out</span><span class="p">[</span><span class="s2">&quot;CH4_ppm&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">out</span><span class="p">[</span><span class="s2">&quot;CH4_ppm&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span>
-        <span class="n">out</span><span class="p">[</span><span class="s2">&quot;epoch_offset_ppm&quot;</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span>
+    <span class="k">if</span> <span class="s2">"epoch_offset_ppm"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">out</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">out</span><span class="p">[</span><span class="s2">"epoch_offset_ppm"</span><span class="p">]</span> <span class="o">=</span> <span class="n">epoch_offset_column</span><span class="p">(</span><span class="n">out</span><span class="p">[</span><span class="s2">"Time_UTC"</span><span class="p">])</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+    <span class="n">out</span><span class="p">[</span><span class="s2">"CH4_ppm"</span><span class="p">]</span> <span class="o">=</span> <span class="n">out</span><span class="p">[</span><span class="s2">"CH4_ppm"</span><span class="p">]</span> <span class="o">-</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span>
+        <span class="n">out</span><span class="p">[</span><span class="s2">"epoch_offset_ppm"</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">"coerce"</span>
     <span class="p">)</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">out</span></div>
 
@@ -572,23 +574,23 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">select_uncalibrated</span><span class="p">(</span>
     <span class="n">qaqc</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">windows</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">exclude_times</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Index</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Rows of a qaqc-level LGR frame that fall inside the uncalibrated windows.</span>
 
 <span class="sd">    ``qaqc`` must have a ``Time_UTC`` column (or a datetime index) and a ``CH4`` column that</span>
 <span class="sd">    has already passed :func:`slv.measurements.pollutants.normalize_pollutant`. Rows whose</span>
 <span class="sd">    time is in ``exclude_times`` (e.g. times that do have a pipeline calibration) are dropped.</span>
-<span class="sd">    Returns ``Time_UTC``, ``CH4`` and ``cal_source == &quot;uncalibrated&quot;``.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">df</span> <span class="o">=</span> <span class="n">qaqc</span> <span class="k">if</span> <span class="s2">&quot;Time_UTC&quot;</span> <span class="ow">in</span> <span class="n">qaqc</span><span class="o">.</span><span class="n">columns</span> <span class="k">else</span> <span class="n">qaqc</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
-    <span class="n">t</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;Time_UTC&quot;</span><span class="p">])</span>
+<span class="sd">    Returns ``Time_UTC``, ``CH4`` and ``cal_source == "uncalibrated"``.</span>
+<span class="sd">    """</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">qaqc</span> <span class="k">if</span> <span class="s2">"Time_UTC"</span> <span class="ow">in</span> <span class="n">qaqc</span><span class="o">.</span><span class="n">columns</span> <span class="k">else</span> <span class="n">qaqc</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">"Time_UTC"</span><span class="p">])</span>
     <span class="n">mask</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">windows</span><span class="p">[</span><span class="s2">&quot;start&quot;</span><span class="p">],</span> <span class="n">windows</span><span class="p">[</span><span class="s2">&quot;end&quot;</span><span class="p">],</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">windows</span><span class="p">[</span><span class="s2">"start"</span><span class="p">],</span> <span class="n">windows</span><span class="p">[</span><span class="s2">"end"</span><span class="p">],</span> <span class="n">strict</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="n">mask</span> <span class="o">|=</span> <span class="p">(</span><span class="n">t</span> <span class="o">&gt;=</span> <span class="n">start</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">t</span> <span class="o">&lt;</span> <span class="n">end</span><span class="p">)</span>
-    <span class="n">out</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">mask</span> <span class="o">&amp;</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;CH4&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">notna</span><span class="p">(),</span> <span class="p">[</span><span class="s2">&quot;Time_UTC&quot;</span><span class="p">,</span> <span class="s2">&quot;CH4&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">mask</span> <span class="o">&amp;</span> <span class="n">df</span><span class="p">[</span><span class="s2">"CH4"</span><span class="p">]</span><span class="o">.</span><span class="n">notna</span><span class="p">(),</span> <span class="p">[</span><span class="s2">"Time_UTC"</span><span class="p">,</span> <span class="s2">"CH4"</span><span class="p">]]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">exclude_times</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">exclude_times</span><span class="p">):</span>
-        <span class="n">out</span> <span class="o">=</span> <span class="n">out</span><span class="p">[</span><span class="o">~</span><span class="n">out</span><span class="p">[</span><span class="s2">&quot;Time_UTC&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">exclude_times</span><span class="p">)]</span>
-    <span class="n">out</span><span class="p">[</span><span class="s2">&quot;cal_source&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;uncalibrated&quot;</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">out</span><span class="p">[</span><span class="o">~</span><span class="n">out</span><span class="p">[</span><span class="s2">"Time_UTC"</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">exclude_times</span><span class="p">)]</span>
+    <span class="n">out</span><span class="p">[</span><span class="s2">"cal_source"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"uncalibrated"</span>
     <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
 
 
@@ -598,15 +600,15 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">filter_cal_source</span><span class="p">(</span>
     <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">include_uncalibrated</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Drop the ``uncalibrated`` rows when ``include_uncalibrated`` is False.</span>
 
 <span class="sd">    ``manual_cal`` rows are always kept: after the last pipeline calibration (2024-08-20)</span>
 <span class="sd">    they are the only data.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">include_uncalibrated</span> <span class="ow">or</span> <span class="s2">&quot;cal_source&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">include_uncalibrated</span> <span class="ow">or</span> <span class="s2">"cal_source"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">df</span>
-    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;cal_source&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;uncalibrated&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()])</span></div>
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[(</span><span class="n">df</span><span class="p">[</span><span class="s2">"cal_source"</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">"uncalibrated"</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()])</span></div>
 
 </pre></div>
 
@@ -637,8 +639,8 @@
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../../../../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0"></script>
-<script defer src="../../../../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0"></script>
+  <script defer src="../../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be"></script>
+<script defer src="../../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -658,7 +660,7 @@
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.2.0.
   </p>
 </div>
       
@@ -671,7 +673,7 @@
         <div class="footer-item">
 <p class="theme-version">
   <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.22.0.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.23.0.
 </p></div>
       
     </div>

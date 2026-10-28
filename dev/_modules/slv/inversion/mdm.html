@@ -25,28 +25,29 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../../_static/styles/theme.css?digest=64cc4de3f052d77215f0" rel="stylesheet" />
-<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=64cc4de3f052d77215f0" rel="stylesheet" />
+  <link href="../../../_static/styles/theme.css?digest=18bd87630a240e9c25be" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=18bd87630a240e9c25be" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx_autodoc_typehints.css?v=057ac668" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=ba117b66" />
   
   <!-- So that users can add custom icons -->
-  <script defer src="../../../_static/scripts/fontawesome.js?digest=64cc4de3f052d77215f0"></script>
+  <script defer src="../../../_static/scripts/fontawesome.js?digest=18bd87630a240e9c25be"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
-<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../_static/documentation_options.js?v=855ee6a5"></script>
+    <script src="../../../_static/documentation_options.js?v=1ef9135c"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../../../_static/copybutton.js?v=f281be69"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_modules/slv/inversion/mdm';</script>
     <script>
-        DOCUMENTATION_OPTIONS.theme_version = '0.22.0';
+        DOCUMENTATION_OPTIONS.theme_version = '0.23.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://jmineau.github.io/slv/switcher.json';
         DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
@@ -56,8 +57,9 @@
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.10.4.dev5+g1346b5991" />
+  <meta name="docsearch:version" content="2026.10.4.dev6+gdb1f4b5c8" />
   
     
     <script src="../../../_static/searchtools.js"></script>
@@ -429,7 +431,7 @@
                 <article class="bd-article">
                   
   <h1>Source code for slv.inversion.mdm</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;The model-data mismatch (S_z) of the SLV inversion: the sum of ``config.mdm_components``.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""The model-data mismatch (S_z) of the SLV inversion: the sum of ``config.mdm_components``."""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
@@ -443,7 +445,7 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_on_obs</span><span class="p">(</span><span class="n">values</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="n">obs</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;``values`` (keyed by some of the obs&#39; levels) for each obs, 0 where it has none.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""``values`` (keyed by some of the obs' levels) for each obs, 0 where it has none."""</span>
     <span class="n">key</span> <span class="o">=</span> <span class="n">obs</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">droplevel</span><span class="p">(</span>
         <span class="p">[</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">obs</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">names</span> <span class="k">if</span> <span class="n">n</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">values</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">names</span><span class="p">]</span>
     <span class="p">)</span>
@@ -460,14 +462,14 @@
     <span class="n">jacobian</span><span class="p">:</span> <span class="n">Operator</span><span class="p">,</span>
     <span class="n">constant</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Per-obs scale [ppm] for a multiplicative MDM term.</span>
 
-<span class="sd">    ``scale_on=&quot;obs&quot;`` gives ``|obs - background|``, the observed enhancement: the actual</span>
+<span class="sd">    ``scale_on="obs"`` gives ``|obs - background|``, the observed enhancement: the actual</span>
 <span class="sd">    signal, so extreme shallow-PBL days the prior under-predicts still get a large error.</span>
-<span class="sd">    ``scale_on=&quot;prior&quot;`` gives ``|H x_prior|``, the prior-modeled enhancement; it</span>
+<span class="sd">    ``scale_on="prior"`` gives ``|H x_prior|``, the prior-modeled enhancement; it</span>
 <span class="sd">    under-scales where the EPA prior is low, exactly the over-leveraged days. Obs</span>
-<span class="sd">    lacking the needed term get 0 (floor-only error). ``scale_on=&quot;footprint&quot;`` gives</span>
+<span class="sd">    lacking the needed term get 0 (floor-only error). ``scale_on="footprint"`` gives</span>
 <span class="sd">    ``|H| * mean(x_prior)``, the footprint strength in enhancement units. It</span>
 <span class="sd">    down-weights extreme shallow-PBL days by how much air they integrate, independent of</span>
 <span class="sd">    the obs (no circularity) or the EPA pattern, so it eases both the low-obs winter</span>
@@ -477,7 +479,7 @@
 <span class="sd">    ----------</span>
 <span class="sd">    obs : pd.Series</span>
 <span class="sd">        The obs, indexed by ``(obs_location, obs_time)``.</span>
-<span class="sd">    scale_on : {&quot;footprint&quot;, &quot;obs&quot;, &quot;prior&quot;}</span>
+<span class="sd">    scale_on : {"footprint", "obs", "prior"}</span>
 <span class="sd">        The scale.</span>
 <span class="sd">    prior : pd.Series</span>
 <span class="sd">        The flux prior, as :func:`~slv.inversion.pipelines.get_prior` gives it.</span>
@@ -487,13 +489,13 @@
 <span class="sd">    constant : pd.Series</span>
 <span class="sd">        The background of each obs, as :func:`~slv.inversion.pipelines.get_constant`</span>
 <span class="sd">        gives it.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">receptors</span> <span class="o">=</span> <span class="n">jacobian</span><span class="o">.</span><span class="n">rows</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s2">&quot;concentration&quot;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">scale_on</span> <span class="o">==</span> <span class="s2">&quot;footprint&quot;</span><span class="p">:</span>
+<span class="sd">    """</span>
+    <span class="n">receptors</span> <span class="o">=</span> <span class="n">jacobian</span><span class="o">.</span><span class="n">rows</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s2">"concentration"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">scale_on</span> <span class="o">==</span> <span class="s2">"footprint"</span><span class="p">:</span>
         <span class="n">xref</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">prior</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()))</span>
         <span class="n">row_abs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">jacobian</span><span class="o">.</span><span class="n">sparse</span><span class="p">())</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">_on_obs</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">row_abs</span> <span class="o">*</span> <span class="n">xref</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">receptors</span><span class="p">),</span> <span class="n">obs</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">scale_on</span> <span class="o">==</span> <span class="s2">&quot;obs&quot;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">scale_on</span> <span class="o">==</span> <span class="s2">"obs"</span><span class="p">:</span>
         <span class="n">key</span> <span class="o">=</span> <span class="n">obs</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">droplevel</span><span class="p">(</span>
             <span class="p">[</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">obs</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">names</span> <span class="k">if</span> <span class="n">n</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">constant</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">names</span><span class="p">]</span>
         <span class="p">)</span>
@@ -501,7 +503,7 @@
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan_to_num</span><span class="p">(</span><span class="n">obs</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span> <span class="o">-</span> <span class="n">bg</span><span class="p">,</span> <span class="n">nan</span><span class="o">=</span><span class="mf">0.0</span><span class="p">))</span>
     <span class="c1"># Match the prior to the Jacobian columns by label, not position: their level</span>
     <span class="c1"># orders differ (the EPA prior is (time, lat, lon), the Jacobian (lon, lat, time)).</span>
-    <span class="n">cells</span> <span class="o">=</span> <span class="n">jacobian</span><span class="o">.</span><span class="n">cols</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s2">&quot;flux&quot;</span><span class="p">)</span>
+    <span class="n">cells</span> <span class="o">=</span> <span class="n">jacobian</span><span class="o">.</span><span class="n">cols</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s2">"flux"</span><span class="p">)</span>
     <span class="n">x</span> <span class="o">=</span> <span class="n">prior</span><span class="o">.</span><span class="n">reorder_levels</span><span class="p">(</span><span class="n">cells</span><span class="o">.</span><span class="n">names</span><span class="p">)</span><span class="o">.</span><span class="n">reindex</span><span class="p">(</span><span class="n">cells</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
     <span class="n">e</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">jacobian</span><span class="o">.</span><span class="n">sparse</span><span class="p">()</span> <span class="o">@</span> <span class="n">x</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">),</span> <span class="n">index</span><span class="o">=</span><span class="n">receptors</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">_on_obs</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">obs</span><span class="p">))</span></div>
@@ -511,15 +513,15 @@
 <div class="viewcode-block" id="per_obs_std">
 <a class="viewcode-back" href="../../../_autosummary/slv.inversion.mdm.per_obs_std.html#slv.inversion.mdm.per_obs_std">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">per_obs_std</span><span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="n">InversionConfig</span><span class="p">,</span> <span class="n">obs</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="n">src</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Per-obs std [ppm] for a data-derived MDM term.</span>
 
-<span class="sd">    ``src=&quot;subhour&quot;`` -&gt; each obs&#39;s within-hour CH4 std (temporal representativeness error:</span>
+<span class="sd">    ``src="subhour"`` -&gt; each obs's within-hour CH4 std (temporal representativeness error:</span>
 <span class="sd">    the sub-hour variability an hour-mean footprint cannot represent). Obs with no</span>
 <span class="sd">    multi-point hour (std undefined) get 0 -- no representativeness penalty.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">src</span> <span class="o">!=</span> <span class="s2">&quot;subhour&quot;</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;unknown per_obs MDM source </span><span class="si">{</span><span class="n">src</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">src</span> <span class="o">!=</span> <span class="s2">"subhour"</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"unknown per_obs MDM source </span><span class="si">{</span><span class="n">src</span><span class="si">!r}</span><span class="s2">"</span><span class="p">)</span>
     <span class="n">s</span> <span class="o">=</span> <span class="n">get_slv_subhour_std</span><span class="p">(</span>
         <span class="n">sites</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">sites</span><span class="p">,</span>
         <span class="n">site_config</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">site_config</span><span class="p">,</span>
@@ -534,7 +536,7 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_footprint_key</span><span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="n">InversionConfig</span><span class="p">,</span> <span class="n">obs</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span> <span class="o">**</span><span class="n">_</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;The footprints the MDM is built from, for its cache key (a multiplicative term scales with the Jacobian&#39;s rows).&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""The footprints the MDM is built from, for its cache key (a multiplicative term scales with the Jacobian's rows)."""</span>
     <span class="c1"># imported here: pipelines imports this module</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">slv.inversion.pipelines</span><span class="w"> </span><span class="kn">import</span> <span class="n">_footprint_key</span> <span class="k">as</span> <span class="n">footprints</span>
 
@@ -543,7 +545,7 @@
 
 <div class="viewcode-block" id="get_modeldata_mismatch">
 <a class="viewcode-back" href="../../../_autosummary/slv.inversion.mdm.get_modeldata_mismatch.html#slv.inversion.mdm.get_modeldata_mismatch">[docs]</a>
-<span class="nd">@fips_cache</span><span class="p">(</span><span class="s2">&quot;modeldata_mismatch&quot;</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">_footprint_key</span><span class="p">)</span>
+<span class="nd">@fips_cache</span><span class="p">(</span><span class="s2">"modeldata_mismatch"</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">_footprint_key</span><span class="p">)</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_modeldata_mismatch</span><span class="p">(</span>
     <span class="n">config</span><span class="p">:</span> <span class="n">InversionConfig</span><span class="p">,</span>
     <span class="n">obs</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span>
@@ -553,14 +555,14 @@
     <span class="n">constant</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">,</span>
     <span class="n">obs_sites</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Index</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Covariance</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Model-data mismatch covariance: the sum of ``config.mdm_components``, on the obs.</span>
 
 <span class="sd">    Each component is built by :func:`~slv.inversion.covariances.build_mdm_error`</span>
 <span class="sd">    over the obs index, with site-keyed terms resolved through ``obs_sites`` (TRAX</span>
-<span class="sd">    receptors belong to their mobile site). A ``multiplicative`` component&#39;s std is</span>
+<span class="sd">    receptors belong to their mobile site). A ``multiplicative`` component's std is</span>
 <span class="sd">    ``fraction`` times the per-obs enhancement scale (:func:`multiplicative_scale`,</span>
-<span class="sd">    ``scale_on``); a ``per_obs`` component&#39;s is ``fraction`` times a per-obs std (e.g.</span>
+<span class="sd">    ``scale_on``); a ``per_obs`` component's is ``fraction`` times a per-obs std (e.g.</span>
 <span class="sd">    the within-hour std for ``subhour``, :func:`per_obs_std`).</span>
 
 <span class="sd">    Parameters</span>
@@ -570,32 +572,32 @@
 <span class="sd">    obs : pd.Series</span>
 <span class="sd">        The obs the problem has, indexed by ``(obs_location, obs_time)``.</span>
 <span class="sd">    prior, jacobian, constant :</span>
-<span class="sd">        The run&#39;s prior, flux Jacobian and background, for the multiplicative terms.</span>
+<span class="sd">        The run's prior, flux Jacobian and background, for the multiplicative terms.</span>
 <span class="sd">    obs_sites : pd.Index</span>
 <span class="sd">        The site of each obs (:func:`~slv.inversion.pipelines.obs_sites`).</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    Covariance</span>
-<span class="sd">        S_z on the obs&#39; labels, as the one block ``concentration``.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">space</span> <span class="o">=</span> <span class="n">Space</span><span class="p">({</span><span class="s2">&quot;concentration&quot;</span><span class="p">:</span> <span class="n">obs</span><span class="o">.</span><span class="n">index</span><span class="p">})</span>
+<span class="sd">        S_z on the obs' labels, as the one block ``concentration``.</span>
+<span class="sd">    """</span>
+    <span class="n">space</span> <span class="o">=</span> <span class="n">Space</span><span class="p">({</span><span class="s2">"concentration"</span><span class="p">:</span> <span class="n">obs</span><span class="o">.</span><span class="n">index</span><span class="p">})</span>
     <span class="n">components</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">for</span> <span class="n">comp</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">mdm_components</span><span class="p">:</span>
         <span class="n">c</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">comp</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;multiplicative&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">"multiplicative"</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
             <span class="n">scale</span> <span class="o">=</span> <span class="n">multiplicative_scale</span><span class="p">(</span>
                 <span class="n">obs</span><span class="p">,</span>
-                <span class="n">c</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;scale_on&quot;</span><span class="p">,</span> <span class="s2">&quot;footprint&quot;</span><span class="p">),</span>
+                <span class="n">c</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">"scale_on"</span><span class="p">,</span> <span class="s2">"footprint"</span><span class="p">),</span>
                 <span class="n">prior</span><span class="o">=</span><span class="n">prior</span><span class="p">,</span>
                 <span class="n">jacobian</span><span class="o">=</span><span class="n">jacobian</span><span class="p">,</span>
                 <span class="n">constant</span><span class="o">=</span><span class="n">constant</span><span class="p">,</span>
             <span class="p">)</span>
-            <span class="n">c</span><span class="p">[</span><span class="s2">&quot;std&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;fraction&quot;</span><span class="p">)</span> <span class="o">*</span> <span class="n">scale</span>  <span class="c1"># sigma = fraction * enhancement</span>
-        <span class="k">elif</span> <span class="p">(</span><span class="n">src</span> <span class="o">:=</span> <span class="n">c</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;per_obs&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">c</span><span class="p">[</span><span class="s2">"std"</span><span class="p">]</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">"fraction"</span><span class="p">)</span> <span class="o">*</span> <span class="n">scale</span>  <span class="c1"># sigma = fraction * enhancement</span>
+        <span class="k">elif</span> <span class="p">(</span><span class="n">src</span> <span class="o">:=</span> <span class="n">c</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">"per_obs"</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="c1"># sigma = fraction * per-obs data-derived std (e.g. subhour within-hour std)</span>
-            <span class="n">c</span><span class="p">[</span><span class="s2">&quot;std&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;fraction&quot;</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">*</span> <span class="n">per_obs_std</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">obs</span><span class="p">,</span> <span class="n">src</span><span class="p">)</span>
-        <span class="n">components</span><span class="p">[</span><span class="n">c</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">build_mdm_error</span><span class="p">(</span>
+            <span class="n">c</span><span class="p">[</span><span class="s2">"std"</span><span class="p">]</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">"fraction"</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">*</span> <span class="n">per_obs_std</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">obs</span><span class="p">,</span> <span class="n">src</span><span class="p">)</span>
+        <span class="n">components</span><span class="p">[</span><span class="n">c</span><span class="p">[</span><span class="s2">"name"</span><span class="p">]]</span> <span class="o">=</span> <span class="n">build_mdm_error</span><span class="p">(</span>
             <span class="n">obs_index</span><span class="o">=</span><span class="n">obs</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
             <span class="n">site_config</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">site_config</span><span class="p">,</span>
             <span class="n">obs_sites</span><span class="o">=</span><span class="n">obs_sites</span><span class="p">,</span>
@@ -610,7 +612,7 @@
     <span class="n">total</span> <span class="o">=</span> <span class="n">models</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="n">models</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
         <span class="n">total</span> <span class="o">=</span> <span class="n">total</span> <span class="o">+</span> <span class="n">model</span>
-    <span class="k">return</span> <span class="n">total</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">space</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;modeldata_mismatch&quot;</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">total</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">space</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"modeldata_mismatch"</span><span class="p">)</span></div>
 
 </pre></div>
 
@@ -641,8 +643,8 @@
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../../../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0"></script>
-<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0"></script>
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -662,7 +664,7 @@
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.2.0.
   </p>
 </div>
       
@@ -675,7 +677,7 @@
         <div class="footer-item">
 <p class="theme-version">
   <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.22.0.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.23.0.
 </p></div>
       
     </div>

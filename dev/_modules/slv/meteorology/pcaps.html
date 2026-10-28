@@ -25,28 +25,29 @@
   </noscript>
   
   <!-- Loaded before other Sphinx assets -->
-  <link href="../../../_static/styles/theme.css?digest=64cc4de3f052d77215f0" rel="stylesheet" />
-<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=64cc4de3f052d77215f0" rel="stylesheet" />
+  <link href="../../../_static/styles/theme.css?digest=18bd87630a240e9c25be" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=18bd87630a240e9c25be" rel="stylesheet" />
 
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
     <link rel="stylesheet" type="text/css" href="../../../_static/plot_directive.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx_autodoc_typehints.css?v=057ac668" />
     <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
     <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=ba117b66" />
   
   <!-- So that users can add custom icons -->
-  <script defer src="../../../_static/scripts/fontawesome.js?digest=64cc4de3f052d77215f0"></script>
+  <script defer src="../../../_static/scripts/fontawesome.js?digest=18bd87630a240e9c25be"></script>
   <!-- Pre-loaded scripts that we'll load fully later -->
-  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0" />
-<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0" />
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../_static/documentation_options.js?v=855ee6a5"></script>
+    <script src="../../../_static/documentation_options.js?v=1ef9135c"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../../../_static/copybutton.js?v=f281be69"></script>
     <script>DOCUMENTATION_OPTIONS.pagename = '_modules/slv/meteorology/pcaps';</script>
     <script>
-        DOCUMENTATION_OPTIONS.theme_version = '0.22.0';
+        DOCUMENTATION_OPTIONS.theme_version = '0.23.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://jmineau.github.io/slv/switcher.json';
         DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
@@ -56,8 +57,9 @@
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.10.4.dev5+g1346b5991" />
+  <meta name="docsearch:version" content="2026.10.4.dev6+gdb1f4b5c8" />
   
     
     <script src="../../../_static/searchtools.js"></script>
@@ -429,7 +431,7 @@
                 <article class="bd-article">
                   
   <h1>Source code for slv.meteorology.pcaps</h1><div class="highlight"><pre>
-<span></span><span class="sd">&quot;&quot;&quot;Persistent cold-air pool (PCAP) events from SLC soundings, and filtering obs by them.&quot;&quot;&quot;</span>
+<span></span><span class="sd">"""Persistent cold-air pool (PCAP) events from SLC soundings, and filtering obs by them."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 
@@ -443,22 +445,22 @@
 <div class="viewcode-block" id="get_soundings">
 <a class="viewcode-back" href="../../../_autosummary/slv.meteorology.pcaps.get_soundings.html#slv.meteorology.pcaps.get_soundings">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_soundings</span><span class="p">(</span>
-    <span class="n">station</span><span class="o">=</span><span class="s2">&quot;SLC&quot;</span><span class="p">,</span>
+    <span class="n">station</span><span class="o">=</span><span class="s2">"SLC"</span><span class="p">,</span>
     <span class="n">start</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">end</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">sounding_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">months</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-    <span class="n">driver</span><span class="o">=</span><span class="s2">&quot;pandas&quot;</span><span class="p">,</span>
+    <span class="n">driver</span><span class="o">=</span><span class="s2">"pandas"</span><span class="p">,</span>
     <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Load upper-air soundings for ``station`` with :func:`lair.soundings.get_soundings`.</span>
 
 <span class="sd">    If ``sounding_dir`` is not given, soundings are read from</span>
 <span class="sd">    ``$SLV_SOUNDINGS_DIR/&lt;station&gt;``.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="n">sounding_dir</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">sounding_dir</span> <span class="o">=</span> <span class="n">get_data_dir</span><span class="p">(</span><span class="s2">&quot;SLV_SOUNDINGS_DIR&quot;</span><span class="p">)</span> <span class="o">/</span> <span class="n">station</span>
+        <span class="n">sounding_dir</span> <span class="o">=</span> <span class="n">get_data_dir</span><span class="p">(</span><span class="s2">"SLV_SOUNDINGS_DIR"</span><span class="p">)</span> <span class="o">/</span> <span class="n">station</span>
     <span class="k">return</span> <span class="n">lair</span><span class="o">.</span><span class="n">soundings</span><span class="o">.</span><span class="n">get_soundings</span><span class="p">(</span>
         <span class="n">station</span><span class="o">=</span><span class="n">station</span><span class="p">,</span>
         <span class="n">start</span><span class="o">=</span><span class="n">start</span><span class="p">,</span>
@@ -476,24 +478,24 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_pcap_events_cache</span><span class="p">(</span><span class="n">threshold</span><span class="p">,</span> <span class="n">min_periods</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Cache file for PCAP events found with ``threshold`` and ``min_periods``, or</span>
 <span class="sd">    None if ``SLV_USER_DATA_DIR`` is not set.</span>
 
 <span class="sd">    The defaults use ``pcap_events.csv``; other parameters get their own file.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="n">data_dir</span> <span class="o">=</span> <span class="n">get_data_dir</span><span class="p">(</span><span class="s2">&quot;SLV_USER_DATA_DIR&quot;</span><span class="p">)</span>
+        <span class="n">data_dir</span> <span class="o">=</span> <span class="n">get_data_dir</span><span class="p">(</span><span class="s2">"SLV_USER_DATA_DIR"</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">None</span>
     <span class="k">if</span> <span class="n">threshold</span> <span class="o">==</span> <span class="n">DEFAULT_THRESHOLD</span> <span class="ow">and</span> <span class="n">min_periods</span> <span class="o">==</span> <span class="n">DEFAULT_MIN_PERIODS</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">data_dir</span> <span class="o">/</span> <span class="s2">&quot;pcap_events.csv&quot;</span>
-    <span class="k">return</span> <span class="n">data_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;pcap_events_t</span><span class="si">{</span><span class="n">threshold</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2">_m</span><span class="si">{</span><span class="n">min_periods</span><span class="si">}</span><span class="s2">.csv&quot;</span>
+        <span class="k">return</span> <span class="n">data_dir</span> <span class="o">/</span> <span class="s2">"pcap_events.csv"</span>
+    <span class="k">return</span> <span class="n">data_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"pcap_events_t</span><span class="si">{</span><span class="n">threshold</span><span class="si">:</span><span class="s2">g</span><span class="si">}</span><span class="s2">_m</span><span class="si">{</span><span class="n">min_periods</span><span class="si">}</span><span class="s2">.csv"</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_determine_pcap_events</span><span class="p">(</span><span class="n">time_range</span><span class="p">,</span> <span class="n">threshold</span><span class="p">,</span> <span class="n">min_periods</span><span class="p">,</span> <span class="n">sounding_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;PCAP events from the soundings in ``time_range`` ((None, None) for all).&quot;&quot;&quot;</span>
-    <span class="n">driver</span> <span class="o">=</span> <span class="s2">&quot;xarray&quot;</span>  <span class="c1"># Use xarray for aligned (interpolated values) soundings</span>
+<span class="w">    </span><span class="sd">"""PCAP events from the soundings in ``time_range`` ((None, None) for all)."""</span>
+    <span class="n">driver</span> <span class="o">=</span> <span class="s2">"xarray"</span>  <span class="c1"># Use xarray for aligned (interpolated values) soundings</span>
     <span class="n">soundings</span> <span class="o">=</span> <span class="n">get_soundings</span><span class="p">(</span>
         <span class="n">start</span><span class="o">=</span><span class="n">time_range</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">end</span><span class="o">=</span><span class="n">time_range</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">driver</span><span class="o">=</span><span class="n">driver</span><span class="p">,</span> <span class="o">**</span><span class="p">(</span><span class="n">sounding_kwargs</span> <span class="ow">or</span> <span class="p">{})</span>
     <span class="p">)</span>
@@ -511,7 +513,7 @@
     <span class="n">min_periods</span><span class="o">=</span><span class="n">DEFAULT_MIN_PERIODS</span><span class="p">,</span>
     <span class="n">sounding_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
 <span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Determines PCAP events based on valley heat deficit from soundings.</span>
 
 <span class="sd">    Parameters</span>
@@ -533,7 +535,7 @@
 <span class="sd">    built from the full sounding record, and every cached event is returned whatever</span>
 <span class="sd">    the ``time_range``. Without the cache, or with ``sounding_kwargs``, events are</span>
 <span class="sd">    determined from the soundings in ``time_range`` only.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">cache</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">sounding_kwargs</span><span class="p">:</span>
         <span class="n">cache</span> <span class="o">=</span> <span class="n">_pcap_events_cache</span><span class="p">(</span><span class="n">threshold</span><span class="p">,</span> <span class="n">min_periods</span><span class="p">)</span>
@@ -546,23 +548,23 @@
     <span class="k">if</span> <span class="ow">not</span> <span class="n">cache</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
         <span class="n">events</span> <span class="o">=</span> <span class="n">_determine_pcap_events</span><span class="p">((</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="n">threshold</span><span class="p">,</span> <span class="n">min_periods</span><span class="p">)</span>
         <span class="n">cache</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Saving PCAP events to </span><span class="si">{</span><span class="n">cache</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Saving PCAP events to </span><span class="si">{</span><span class="n">cache</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="n">events</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">cache</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Loading cached PCAP events from </span><span class="si">{</span><span class="n">cache</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">cache</span><span class="p">,</span> <span class="n">parse_dates</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;start&quot;</span><span class="p">,</span> <span class="s2">&quot;end&quot;</span><span class="p">])</span></div>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Loading cached PCAP events from </span><span class="si">{</span><span class="n">cache</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">cache</span><span class="p">,</span> <span class="n">parse_dates</span><span class="o">=</span><span class="p">[</span><span class="s2">"start"</span><span class="p">,</span> <span class="s2">"end"</span><span class="p">])</span></div>
 
 
 
 <div class="viewcode-block" id="filter_pcap_events">
 <a class="viewcode-back" href="../../../_autosummary/slv.meteorology.pcaps.filter_pcap_events.html#slv.meteorology.pcaps.filter_pcap_events">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">filter_pcap_events</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Drop the rows of ``data`` that fall within a PCAP event.</span>
 
 <span class="sd">    ``data`` must have a datetime index; for a MultiIndex, ``level`` names the</span>
 <span class="sd">    time level.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">times</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="n">level</span><span class="p">)</span> <span class="k">if</span> <span class="n">level</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">data</span><span class="o">.</span><span class="n">index</span>
     <span class="n">time_range</span> <span class="o">=</span> <span class="p">(</span><span class="n">times</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">times</span><span class="o">.</span><span class="n">max</span><span class="p">())</span>
     <span class="n">events</span> <span class="o">=</span> <span class="n">get_pcap_events</span><span class="p">(</span><span class="n">time_range</span><span class="p">)</span>
@@ -597,8 +599,8 @@
   </div>
   
   <!-- Scripts loaded after <body> so the DOM is not blocked -->
-  <script defer src="../../../_static/scripts/bootstrap.js?digest=64cc4de3f052d77215f0"></script>
-<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=64cc4de3f052d77215f0"></script>
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be"></script>
 
   <footer class="bd-footer">
 <div class="bd-footer__inner bd-page-width">
@@ -618,7 +620,7 @@
         <div class="footer-item">
 
   <p class="sphinx-version">
-    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.2.0.
   </p>
 </div>
       
@@ -631,7 +633,7 @@
         <div class="footer-item">
 <p class="theme-version">
   <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
-  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.22.0.
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.23.0.
 </p></div>
       
     </div>
