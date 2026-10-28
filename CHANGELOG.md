@@ -2,7 +2,8 @@
 
 All notable changes to `slv` are documented here.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/);
-versions are calendar-based (YYYY.M.PATCH).
+versions are calendar-based (YYYY.M.PATCH). Pull requests leave this file
+alone: the entries are written at release (`just changelog` drafts them).
 
 ## [Unreleased]
 

@@ -53,7 +53,7 @@ the orientation file it should read.
    just quality-check
    ```
 
-4. Run test suite:
+4. Run test suite (it also runs the `>>>` examples in the docstrings under `src/`):
    ```bash
    just test
    ```
@@ -80,8 +80,8 @@ the orientation file it should read.
 ## Pull Request Guidelines
 
 - Keep pull requests focused on a single feature or bugfix
-- Write clear, descriptive commit messages
-- Add user-visible changes to `CHANGELOG.md` under `## [Unreleased]`
+- Write clear, descriptive commit messages: they become the changelog entries
+- Leave `CHANGELOG.md` alone: the release notes are written at release (see Releasing)
 - Ensure all tests pass
 - Maintain or improve test coverage
 - Update documentation as needed
@@ -102,9 +102,10 @@ CI (`.github/workflows/`) runs the same `just` recipes:
   `stable/`), on the `gh-pages` branch that GitHub Pages serves;
   `.github/scripts/docs_versions.py` maintains that branch.
 - `publish.yml` makes the GitHub Release from a tag (Zenodo archives it).
-- `pixi-update.yml` is described under Dependency updates.
+- `lock-upgrade.yml` and `pixi-update.yml` are described under Dependency updates.
 
-No CHPC data roots are set in CI, so tests must not read group data. Warnings are
+No CHPC data roots are set in CI, so tests must not read group data. A docstring
+example that needs data CI lacks gets `# doctest: +SKIP` on its `>>>` line. Warnings are
 errors in the tests: a test that expects one asserts it with `pytest.warns`, and a
 third-party one is ignored by message in `[tool.pytest]`. pyrefly fails on any error
 not in `pyrefly-baseline.json`; fix the listed ones over time and run
@@ -115,10 +116,11 @@ not in `pyrefly-baseline.json`; fix the listed ones over time and run
 The version comes from git tags, through setuptools-scm, so there is no
 version string to bump. Versions are calendar-based, `YYYY.M.PATCH`.
 
-1. Run `just changelog` to draft the entries from your commit messages, edit
-   them into `CHANGELOG.md` under `## [Unreleased]`, then rename that heading
-   to `## [X.Y.Z] - YYYY-MM-DD` and start a new empty `## [Unreleased]` above
-   it. Commit (`chore(release): X.Y.Z`) and push to `main`.
+1. Write the changelog: `just changelog` drafts the entries from the commit
+   messages since the last release. Edit them into `CHANGELOG.md` under
+   `## [Unreleased]`, then rename that heading to `## [X.Y.Z] - YYYY-MM-DD` and
+   start a new empty `## [Unreleased]` above it. Commit (`chore(release): X.Y.Z`)
+   and push to `main`.
 2. Run `just release X.Y.Z`. It checks that the tree is clean, that `main` is in
    sync with GitHub, and that the version is newer than every existing tag, then
    pushes the tag `vX.Y.Z`.
@@ -130,18 +132,28 @@ slv is not published to PyPI; it is installed from GitHub.
 
 ## Dependency updates
 
-Dependabot opens one pull request a month per kind of pin: GitHub Actions,
-pre-commit hooks, and `uv.lock` (it never raises the minimum versions in
-`pyproject.toml`). Merge it when CI passes. `pixi.lock` (the
-environment with xesmf) is separate: after changing a dependency in
-`pyproject.toml`, run `pixi lock` as well as `uv lock`.
+Dependabot opens one pull request a month for each of GitHub Actions and
+pre-commit hooks. Merge it when CI passes.
 
-Dependabot updates `uv.lock` only, so `pixi-update.yml` runs `pixi update` monthly
-(and on demand from the Actions tab) and opens one pull request, branch
-`chore/pixi-update`, when `pixi.lock` changes. A pull request opened with a
-workflow's own token starts no CI, so the workflow dispatches Tests on that branch;
-it needs the repository setting "Allow GitHub Actions to create and approve pull
-requests".
+`uv.lock` (the dev tools and every dependency) is updated by the Upgrade lock
+workflow alone, not by Dependabot, which would leave a package at its old
+version when the newest release needs a newer Python than the oldest one this
+project supports. On the 1st of each month `lock-upgrade.yml` runs
+`uv lock --upgrade` (`uv.lock` then holds the newest release for each Python; it
+never raises the minimum versions in `pyproject.toml`) and, when the lock changes,
+opens the pull request `chore/lock-upgrade` (or updates it). GitHub does not start
+workflows on a pull request that its own token opened, so the workflow starts
+Tests, Code Quality and Documentation on the branch itself; their results show on
+the pull request. Merge it when they pass. You can also run it by hand: Actions >
+Upgrade lock > Run workflow. It does `uv.lock` only.
+
+`pixi.lock` (the environment with xesmf) is separate: after changing a dependency
+in `pyproject.toml`, run `pixi lock` as well as `uv lock`. `pixi-update.yml` runs
+`pixi update` monthly (and on demand from the Actions tab) and opens one pull
+request, branch `chore/pixi-update`, when `pixi.lock` changes. A pull request
+opened with a workflow's own token starts no CI, so the workflow dispatches Tests
+on that branch; it needs the repository setting "Allow GitHub Actions to create
+and approve pull requests", as the Upgrade lock workflow does.
 
 ## Template
 
