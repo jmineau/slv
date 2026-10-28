@@ -48,14 +48,14 @@ Driven by `just` + `uv`; CI runs the same recipes (`just` lists them all).
 | Command | What it does |
 |---|---|
 | `just sync` | `uv sync`: slv, `slv[inversion]` and the dev tools into `.venv` |
-| `just test` | the tests, in parallel (extra args go to pytest; `-n 0` for serial) |
+| `just test` | the tests and the `>>>` examples under `src/`, in parallel (extra args go to pytest; `-n 0` for serial) |
 | `just lint` / `just format` | ruff check and format check / fix and format |
 | `just type-check` | pyrefly |
 | `just docstr` | docstring coverage of the public API (95%) |
 | `just quality-check` | lint, type check, docstrings, tests |
 | `just build-docs` | clean Sphinx HTML build, running every example; warnings are errors (`just docs-serve` previews) |
 | `just pre-commit` | every pre-commit hook on every file |
-| `just changelog` / `just release X` | draft CHANGELOG entries / tag and push a release |
+| `just changelog` / `just release X` | at release: draft CHANGELOG entries / tag and push a release |
 | `just clean` | wipe build artifacts, caches, coverage, docs |
 
 What each CI workflow does, the pixi job and the monthly `pixi update` are in
@@ -70,6 +70,13 @@ What each CI workflow does, the pixi job and the monthly `pixi update` are in
   `pytest.warns`, and a third-party one is ignored by message in `[tool.pytest]`.
 - **pyrefly fails on any error not in `pyrefly-baseline.json`**: fix them over time and
   `--update-baseline`.
+- **`uv.lock` is upgraded by the Upgrade lock workflow alone**
+  (`lock-upgrade.yml`, monthly `uv lock --upgrade`); Dependabot keeps the Actions and
+  pre-commit hooks. `pixi-update.yml` does `pixi.lock`, separately.
+- **A pull request leaves `CHANGELOG.md` alone**: at release, `just changelog` drafts
+  the entries from the commit messages, so write each one as the line a user would read.
+- **A docstring example that needs data CI lacks gets `# doctest: +SKIP`** on its `>>>`
+  line (`--doctest-modules` runs the rest as tests).
 - **The tooling comes from**
   [jmineau/python-template](https://github.com/jmineau/python-template)
   (`.copier-answers.yml`); `copier update` pulls in its changes.
@@ -127,8 +134,9 @@ when one breaks. A figure in a docstring is a `.. plot::` directive in its Examp
 section; code in an `.rst` page is a `.. ipython:: python` block (a worked example of
 each, the `@savefig`, `:okexcept:` and `:okwarning:` options, and the notebook switch:
 `docs/contributing.rst`, "Writing the docs"). All `.rst` pages share one session, so
-each page imports and defines what it uses. `just build-docs` runs everything, as CI
-does.
+each page imports and defines what it uses. Split a long block so that no multi-line
+statement is its 10th (or 100th) statement: the directive runs only that statement's
+first line. `just build-docs` runs everything, as CI does.
 
 - **Data:** the docs build on GitHub Actions, so an example uses synthetic data,
   a small file in the repository, or a public download, never a machine-specific
