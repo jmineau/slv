@@ -18,7 +18,7 @@ name: Pixi update
 # permissions > "Allow GitHub Actions to create and approve pull requests".
 on:
   schedule:
-    - cron: "17 6 2 * *"  # the 2nd of each month, after Dependabot's
+    - cron: "17 6 2 * *"  # the 2nd of each month, after the monthly uv.lock update (the 1st)
   workflow_dispatch:
 
 permissions:
