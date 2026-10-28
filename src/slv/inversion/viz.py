@@ -833,7 +833,7 @@ def plot_residuals(
     ax.legend()
 
     # Percentile-based y-limits
-    all_vals = residuals.values
+    all_vals = residuals.to_numpy(dtype=float)
     all_vals = all_vals[~np.isnan(all_vals)]
     if len(all_vals) > 0:
         p01, p99 = np.percentile(all_vals, [1, 99])
