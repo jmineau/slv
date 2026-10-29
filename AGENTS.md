@@ -187,4 +187,5 @@ first line. `just build-docs` runs everything, as CI does.
   `--cov=slv`: `--cov=slv.inversion.viz` imports numpy twice and fails collection. Why the
   pixi env pins the no-MPI ESMF build: `docs/contributing.rst`, "Notes on the tests".
 - `merge_with_gps` is on the `build_trax_obs` path, so changing what it drops (the
-  altitude range, a repeated reading) changes `obs.parquet` on the next rebuild.
+  altitude range) or the pinned uataq's choice of fix for a second with two changes
+  `obs.parquet` on the next rebuild.
