@@ -36,13 +36,18 @@ BACKGROUNDS = ("rolling", "gml", "ct_stilt")
 PRIORS = ("epa", "edgar", "constant")
 
 
+def _stilt_project_setting() -> str:
+    """``$SLV_STILT_DIR``, or :data:`DEFAULT_STILT_PROJECT` when it is unset or empty."""
+    return os.environ.get("SLV_STILT_DIR") or DEFAULT_STILT_PROJECT
+
+
 def stilt_project_dir() -> Path:
     """
-    The paper-1 PYSTILT project: ``$SLV_STILT_DIR`` if set, else
+    The paper-1 PYSTILT project: ``$SLV_STILT_DIR`` if set and not empty, else
     :data:`DEFAULT_STILT_PROJECT`. Use this in scripts instead of spelling the path out;
     ``stilt.Project(stilt_project_dir())`` opens it.
     """
-    return Path(os.environ.get("SLV_STILT_DIR", DEFAULT_STILT_PROJECT))
+    return Path(_stilt_project_setting())
 
 
 def _file_key(path: str | Path) -> str:
@@ -375,7 +380,7 @@ class InversionConfig:
     # paper-1 project (UOU, DAQ) and the TRAX project -- into one Jacobian: each project
     # contributes the rows for the obs it has footprints for (see ``stilt_projects``).
     stilt_project: str | Path | list[str | Path] = field(
-        default_factory=lambda: os.environ.get("SLV_STILT_DIR", DEFAULT_STILT_PROJECT)
+        default_factory=_stilt_project_setting
     )
     # PYSTILT variant whose footprints make the Jacobian; None = the project's one variant
     # with a footprint. The cache key sees only this value, not what None resolved to: set

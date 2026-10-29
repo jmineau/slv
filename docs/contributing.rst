@@ -262,7 +262,7 @@ Notes on the pipeline
   silently, leaving the MDM cache hash unchanged.
 - ``get_slv_observations`` loads the TRAX route points only when a mobile site is in
   ``sites``; tower-only runs need no TRAX data.
-- ``InversionConfig.stilt_project`` defaults to ``SLV_STILT_DIR`` if set, else
+- ``InversionConfig.stilt_project`` defaults to ``SLV_STILT_DIR`` if set and not empty, else
   ``DEFAULT_STILT_PROJECT`` (the CHPC paper-1 PYSTILT project), so the config stays
   usable without the environment variable.
 - ``load_epa_prior`` reads EPA's express product either way
