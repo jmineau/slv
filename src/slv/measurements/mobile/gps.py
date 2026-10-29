@@ -415,7 +415,8 @@ def merge_with_gps(
     pd.DataFrame
         ``obs`` with the GPS columns (``Latitude_deg``, ``Longitude_deg``,
         ``Altitude_msl``, ...), each observation once: when two fixes fall in one
-        second of the Pi clock, the observation keeps the first.
+        second of the Pi clock, ``uataq`` keeps the one nearest the observation in time
+        (the first on a tie).
     """
     # Get routes and storage polygon defaults if not provided
     # Can be set to False to skip these filters, or provide custom geodataframes/paths
@@ -490,11 +491,6 @@ def merge_with_gps(
         on = "Time_UTC"
 
     data = uataq.sites.MobileSite.merge_gps(obs, gps, on=on).reset_index()
-    # uataq's merge_gps returns an observation once per GPS fix in its second, so when two
-    # fixes share a Pi second the reading comes out twice, a second apart (uataq#93). Keep
-    # the first: a row with the same values as an earlier one in the same second is a copy.
-    # Remove this once slv pins a uataq with the fix (uataq PR #97); it is a no-op there.
-    data = data[~data.duplicated(subset=[on, *obs.columns])]
     data["gps_source"] = "lin"
 
     # The merge is an inner join, so rows the lin GPS never covered are gone. Offer them to the
