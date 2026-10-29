@@ -41,7 +41,7 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="_static/documentation_options.js?v=f7c55744"></script>
+    <script src="_static/documentation_options.js?v=3fa67122"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -61,7 +61,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.10.4.dev7+gd2e90c390" />
+  <meta name="docsearch:version" content="2026.10.4.dev8+g1a7b7077d" />
   
     
     <script src="_static/searchtools.js"></script>
@@ -692,7 +692,7 @@ else. Retired keys (<code class="docutils literal notranslate"><span class="pre"
 silently, leaving the MDM cache hash unchanged.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">get_slv_observations</span></code> loads the TRAX route points only when a mobile site is in
 <code class="docutils literal notranslate"><span class="pre">sites</span></code>; tower-only runs need no TRAX data.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">InversionConfig.stilt_project</span></code> defaults to <code class="docutils literal notranslate"><span class="pre">SLV_STILT_DIR</span></code> if set, else
+<li><p><code class="docutils literal notranslate"><span class="pre">InversionConfig.stilt_project</span></code> defaults to <code class="docutils literal notranslate"><span class="pre">SLV_STILT_DIR</span></code> if set and not empty, else
 <code class="docutils literal notranslate"><span class="pre">DEFAULT_STILT_PROJECT</span></code> (the CHPC paper-1 PYSTILT project), so the config stays
 usable without the environment variable.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">load_epa_prior</span></code> reads EPA’s express product either way

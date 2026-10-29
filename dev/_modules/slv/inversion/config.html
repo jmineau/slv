@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../_static/documentation_options.js?v=f7c55744"></script>
+    <script src="../../../_static/documentation_options.js?v=3fa67122"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -59,7 +59,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.10.4.dev7+gd2e90c390" />
+  <meta name="docsearch:version" content="2026.10.4.dev8+g1a7b7077d" />
   
     
     <script src="../../../_static/searchtools.js"></script>
@@ -469,15 +469,20 @@
 <span class="n">PRIORS</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"epa"</span><span class="p">,</span> <span class="s2">"edgar"</span><span class="p">,</span> <span class="s2">"constant"</span><span class="p">)</span>
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">_stilt_project_setting</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""``$SLV_STILT_DIR``, or :data:`DEFAULT_STILT_PROJECT` when it is unset or empty."""</span>
+    <span class="k">return</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"SLV_STILT_DIR"</span><span class="p">)</span> <span class="ow">or</span> <span class="n">DEFAULT_STILT_PROJECT</span>
+
+
 <div class="viewcode-block" id="stilt_project_dir">
 <a class="viewcode-back" href="../../../_autosummary/slv.inversion.config.stilt_project_dir.html#slv.inversion.config.stilt_project_dir">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">stilt_project_dir</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""</span>
-<span class="sd">    The paper-1 PYSTILT project: ``$SLV_STILT_DIR`` if set, else</span>
+<span class="sd">    The paper-1 PYSTILT project: ``$SLV_STILT_DIR`` if set and not empty, else</span>
 <span class="sd">    :data:`DEFAULT_STILT_PROJECT`. Use this in scripts instead of spelling the path out;</span>
 <span class="sd">    ``stilt.Project(stilt_project_dir())`` opens it.</span>
 <span class="sd">    """</span>
-    <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"SLV_STILT_DIR"</span><span class="p">,</span> <span class="n">DEFAULT_STILT_PROJECT</span><span class="p">))</span></div>
+    <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="n">_stilt_project_setting</span><span class="p">())</span></div>
 
 
 
@@ -819,7 +824,7 @@
     <span class="c1"># paper-1 project (UOU, DAQ) and the TRAX project -- into one Jacobian: each project</span>
     <span class="c1"># contributes the rows for the obs it has footprints for (see ``stilt_projects``).</span>
     <span class="n">stilt_project</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
-        <span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"SLV_STILT_DIR"</span><span class="p">,</span> <span class="n">DEFAULT_STILT_PROJECT</span><span class="p">)</span>
+        <span class="n">default_factory</span><span class="o">=</span><span class="n">_stilt_project_setting</span>
     <span class="p">)</span>
     <span class="c1"># PYSTILT variant whose footprints make the Jacobian; None = the project's one variant</span>
     <span class="c1"># with a footprint. The cache key sees only this value, not what None resolved to: set</span>
