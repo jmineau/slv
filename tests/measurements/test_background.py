@@ -113,6 +113,15 @@ def test_lair_gml_dir_falls_back_to_the_old_built_in(monkeypatch, tmp_path):
     assert background.lair_gml_dir() is None
 
 
+def test_gml_with_an_empty_user_dir_variable_reads_the_group_copy(
+    gml_dirs, monkeypatch
+):
+    group, _, downloads = gml_dirs
+    write_gml(group, 1950.0)
+    monkeypatch.setenv("SLV_USER_DATA_DIR", "")
+    assert gml().data.tolist() == [1950.0] and downloads == []
+
+
 def test_gml_without_a_user_dir_and_no_group_copy(gml_dirs, monkeypatch):
     monkeypatch.delenv("SLV_USER_DATA_DIR")
     with pytest.raises(OSError, match="SLV_USER_DATA_DIR"):

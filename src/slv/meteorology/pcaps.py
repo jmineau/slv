@@ -50,7 +50,7 @@ def _pcap_events_cache(threshold, min_periods) -> Path | None:
     """
     try:
         data_dir = get_data_dir("SLV_USER_DATA_DIR")
-    except OSError:
+    except ValueError:
         return None
     if threshold == DEFAULT_THRESHOLD and min_periods == DEFAULT_MIN_PERIODS:
         return data_dir / "pcap_events.csv"
