@@ -304,6 +304,27 @@ def test_stilt_project_dir_env_override(monkeypatch):
     assert stilt_project_dir() == Path("/tmp/other_stilt")
 
 
+def test_stilt_project_dir_empty_variable_counts_as_unset(monkeypatch):
+    from slv.inversion.config import DEFAULT_STILT_PROJECT, stilt_project_dir
+
+    # An empty variable (`export SLV_STILT_DIR=`) is not the current directory.
+    monkeypatch.setenv("SLV_STILT_DIR", "")
+    assert stilt_project_dir() == Path(DEFAULT_STILT_PROJECT)
+
+
+def test_config_stilt_project_empty_variable_counts_as_unset(monkeypatch):
+    from slv.inversion.config import DEFAULT_STILT_PROJECT
+
+    monkeypatch.setenv("SLV_STILT_DIR", "")
+    assert InversionConfig().stilt_project == DEFAULT_STILT_PROJECT
+
+
+def test_config_stilt_project_follows_the_variable(monkeypatch):
+    # The config keeps the string as given (the cache keys see it).
+    monkeypatch.setenv("SLV_STILT_DIR", "/tmp/other_stilt/")
+    assert InversionConfig().stilt_project == "/tmp/other_stilt/"
+
+
 # ---------------------------------------------------------------------------
 # InversionConfig — validation and derived values
 # ---------------------------------------------------------------------------
