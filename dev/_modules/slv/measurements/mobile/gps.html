@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../../_static/documentation_options.js?v=1ef9135c"></script>
+    <script src="../../../../_static/documentation_options.js?v=f7c55744"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -59,7 +59,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.10.4.dev6+gdb1f4b5c8" />
+  <meta name="docsearch:version" content="2026.10.4.dev7+gd2e90c390" />
   
     
     <script src="../../../../_static/searchtools.js"></script>
@@ -868,7 +868,8 @@
 <span class="sd">    pd.DataFrame</span>
 <span class="sd">        ``obs`` with the GPS columns (``Latitude_deg``, ``Longitude_deg``,</span>
 <span class="sd">        ``Altitude_msl``, ...), each observation once: when two fixes fall in one</span>
-<span class="sd">        second of the Pi clock, the observation keeps the first.</span>
+<span class="sd">        second of the Pi clock, ``uataq`` keeps the one nearest the observation in time</span>
+<span class="sd">        (the first on a tie).</span>
 <span class="sd">    """</span>
     <span class="c1"># Get routes and storage polygon defaults if not provided</span>
     <span class="c1"># Can be set to False to skip these filters, or provide custom geodataframes/paths</span>
@@ -943,11 +944,6 @@
         <span class="n">on</span> <span class="o">=</span> <span class="s2">"Time_UTC"</span>
 
     <span class="n">data</span> <span class="o">=</span> <span class="n">uataq</span><span class="o">.</span><span class="n">sites</span><span class="o">.</span><span class="n">MobileSite</span><span class="o">.</span><span class="n">merge_gps</span><span class="p">(</span><span class="n">obs</span><span class="p">,</span> <span class="n">gps</span><span class="p">,</span> <span class="n">on</span><span class="o">=</span><span class="n">on</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
-    <span class="c1"># uataq's merge_gps returns an observation once per GPS fix in its second, so when two</span>
-    <span class="c1"># fixes share a Pi second the reading comes out twice, a second apart (uataq#93). Keep</span>
-    <span class="c1"># the first: a row with the same values as an earlier one in the same second is a copy.</span>
-    <span class="c1"># Remove this once slv pins a uataq with the fix (uataq PR #97); it is a no-op there.</span>
-    <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="o">~</span><span class="n">data</span><span class="o">.</span><span class="n">duplicated</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="p">[</span><span class="n">on</span><span class="p">,</span> <span class="o">*</span><span class="n">obs</span><span class="o">.</span><span class="n">columns</span><span class="p">])]</span>
     <span class="n">data</span><span class="p">[</span><span class="s2">"gps_source"</span><span class="p">]</span> <span class="o">=</span> <span class="s2">"lin"</span>
 
     <span class="c1"># The merge is an inner join, so rows the lin GPS never covered are gone. Offer them to the</span>
