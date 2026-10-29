@@ -41,7 +41,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../_static/documentation_options.js?v=3fa67122"></script>
+    <script src="../_static/documentation_options.js?v=4702d984"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -62,7 +62,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.10.4.dev8+g1a7b7077d" />
+  <meta name="docsearch:version" content="2026.10.4.dev9+ge578eaef1" />
   
     
     <script src="../_static/searchtools.js"></script>
@@ -682,14 +682,24 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="slv.get_data_dir">
 <span class="sig-prename descclassname"><span class="pre">slv.</span></span><span class="sig-name descname"><span class="pre">get_data_dir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env_var</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/slv.html#get_data_dir"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#slv.get_data_dir" title="Link to this definition">#</a></dt>
-<dd><p>Return the directory stored in <em>env_var</em>, raising a clear error if unset.</p>
-<p>Set environment variables in your shell profile, e.g.:</p>
+<dd><p>Return the directory stored in <em>env_var</em>.</p>
+<p>This calls <code class="docutils literal notranslate"><span class="pre">lair.config.get_data_dir</span></code> (imported on the call, so
+<code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">slv</span></code> stays light). Set the variable in your shell profile, e.g.:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">export</span> <span class="n">SLV_DAQ_DIR</span><span class="o">=/</span><span class="n">path</span><span class="o">/</span><span class="n">to</span><span class="o">/</span><span class="n">SLV</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">DAQ</span><span class="o">/</span><span class="n">processed</span>
 </pre></div>
 </div>
 <dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>env_var</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a></span>) – Name of the environment variable, e.g. <code class="docutils literal notranslate"><span class="pre">&quot;SLV_DAQ_DIR&quot;</span></code>.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The directory.</p>
+</dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></a></span></p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#ValueError" title="(in Python v3.15)"><strong>ValueError</strong></a> – If the variable is unset or empty.</p>
 </dd>
 </dl>
 </dd></dl>

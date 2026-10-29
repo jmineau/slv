@@ -36,7 +36,7 @@ Data locations
 --------------
 
 Data outside the package are found through environment variables, read when they are
-used; a missing one raises ``OSError`` naming it.
+used; a missing or empty one raises ``ValueError`` naming it.
 
 .. list-table::
    :header-rows: 1

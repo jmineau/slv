@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../_static/documentation_options.js?v=3fa67122"></script>
+    <script src="../_static/documentation_options.js?v=4702d984"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -59,7 +59,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.10.4.dev8+g1a7b7077d" />
+  <meta name="docsearch:version" content="2026.10.4.dev9+ge578eaef1" />
   
     
     <script src="../_static/searchtools.js"></script>
@@ -434,7 +434,6 @@
 <span class="sd">Salt Lake Valley python modules</span>
 <span class="sd">"""</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">importlib.metadata</span><span class="w"> </span><span class="kn">import</span> <span class="n">PackageNotFoundError</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">importlib.metadata</span><span class="w"> </span><span class="kn">import</span> <span class="n">version</span> <span class="k">as</span> <span class="n">_version</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
@@ -451,19 +450,31 @@
 <a class="viewcode-back" href="../_autosummary/slv.get_data_dir.html#slv.get_data_dir">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_data_dir</span><span class="p">(</span><span class="n">env_var</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""</span>
-<span class="sd">    Return the directory stored in *env_var*, raising a clear error if unset.</span>
+<span class="sd">    Return the directory stored in *env_var*.</span>
 
-<span class="sd">    Set environment variables in your shell profile, e.g.::</span>
+<span class="sd">    This calls ``lair.config.get_data_dir`` (imported on the call, so</span>
+<span class="sd">    ``import slv`` stays light). Set the variable in your shell profile, e.g.::</span>
 
 <span class="sd">        export SLV_DAQ_DIR=/path/to/SLV/data/DAQ/processed</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    env_var : str</span>
+<span class="sd">        Name of the environment variable, e.g. ``"SLV_DAQ_DIR"``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Path</span>
+<span class="sd">        The directory.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If the variable is unset or empty.</span>
 <span class="sd">    """</span>
-    <span class="n">value</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">env_var</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">OSError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">"Environment variable '</span><span class="si">{</span><span class="n">env_var</span><span class="si">}</span><span class="s2">' is not set. "</span>
-            <span class="sa">f</span><span class="s2">"Please set it to the appropriate data directory before using this feature."</span>
-        <span class="p">)</span>
-    <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="n">value</span><span class="p">)</span></div>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">lair.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_data_dir</span> <span class="k">as</span> <span class="n">_get_data_dir</span>
+
+    <span class="k">return</span> <span class="n">_get_data_dir</span><span class="p">(</span><span class="n">env_var</span><span class="p">)</span></div>
 
 </pre></div>
 
