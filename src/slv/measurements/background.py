@@ -110,7 +110,7 @@ class GMLDiscrete(noaa.GMLData):
         """
         try:
             user = user_gml_dir()
-        except OSError:
+        except ValueError:
             user = None
         dirs = [d for d in (user, lair_gml_dir()) if d is not None]
         if not refresh:

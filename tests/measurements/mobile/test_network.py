@@ -56,7 +56,10 @@ def env(roots, monkeypatch):
 
 def test_data_roots_resolve_on_use(monkeypatch, tmp_path):
     monkeypatch.delenv("SLV_USER_DATA_DIR", raising=False)
-    with pytest.raises(OSError, match="SLV_USER_DATA_DIR"):
+    with pytest.raises(ValueError, match="SLV_USER_DATA_DIR"):
+        network.user_dir()
+    monkeypatch.setenv("SLV_USER_DATA_DIR", "")  # empty counts as unset
+    with pytest.raises(ValueError, match="SLV_USER_DATA_DIR"):
         network.user_dir()
     monkeypatch.setenv("SLV_USER_DATA_DIR", str(tmp_path))
     monkeypatch.setenv("LINGROUP_DATA_DIR", str(tmp_path / "group"))

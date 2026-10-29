@@ -96,6 +96,13 @@ def test_no_cache_without_user_data_dir(fake_soundings, tmp_path):
     assert not any(tmp_path.iterdir())
 
 
+def test_no_cache_with_an_empty_user_data_dir(fake_soundings, monkeypatch):
+    monkeypatch.setenv("SLV_USER_DATA_DIR", "")
+    assert pcaps._pcap_events_cache(pcaps.DEFAULT_THRESHOLD, 3) is None
+    pcaps.get_pcap_events(TIME_RANGE)
+    assert fake_soundings == [TIME_RANGE]
+
+
 def test_sounding_kwargs_not_cached(fake_soundings, monkeypatch, tmp_path):
     monkeypatch.setenv("SLV_USER_DATA_DIR", str(tmp_path))
     pcaps.get_pcap_events(TIME_RANGE, sounding_kwargs={"months": [1]})

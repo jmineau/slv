@@ -94,8 +94,9 @@ What each CI workflow does, the pixi job and the monthly `pixi update` are in
 - **Domain constants live in one place** (`slv.domain`). Don't hardcode
   `XMIN`/`XMAX`/`YMIN`/`YMAX` elsewhere; import from `slv.domain`.
 - **Data paths via `get_data_dir`** (`get_data_dir("SLV_DAQ_DIR")`), not raw
-  `os.environ.get`. It raises `OSError` (not `KeyError`, on purpose) naming the env
-  var to set, so don't paper over it. The one exception is
+  `os.environ.get`. It is lair's `config.get_data_dir`: a `ValueError` (not `KeyError`,
+  on purpose) naming the env var to set, for an unset or empty variable, so don't
+  paper over it. The one exception is
   `InversionConfig.stilt_project`, which defaults to `SLV_STILT_DIR` if set, else
   `DEFAULT_STILT_PROJECT`, so the config stays usable without the env var. Env vars
   are documented on the docs' installation page ("Data locations").
