@@ -7,27 +7,37 @@ Midvale RSC (MRSC, the old-train yard beside the red/blue line). Sometimes a tra
 parked outside on the yard tracks, sometimes inside the maintenance shed. The
 pipeline's storage flag (GPS ``QAQC_Flag == 20``) and the slv loader's storage polygon
 lump everything at a yard together. This module separates them from the GPS
-behaviour, at one-minute resolution, so that **outdoor** minutes can be kept even when
+behavior, at one-minute resolution, so that **outdoor** minutes can be kept even when
 the train is not on the line and **indoor** minutes dropped:
 
 * **depot** (indoor) — stationary at a yard and the GPS fix is degraded: the
-  per-minute position scatter is metres (multipath under the roof, the "crazy" GPS)
+  per-minute position scatter is meters (multipath under the roof, the "crazy" GPS)
   and the satellite count is low. JRRSC site visits (which happen inside the shed)
   show 2.5–7 m scatter and 6–7 satellites; parked outside the scatter is < 0.3 m with
   8–12 satellites. The scattered fixes' medians cluster inside the shed footprints
-  (:func:`load_depot_footprint`, derived from 2025 data).
+  (:func:`load_depot_footprint`, derived from 2025 data), but the multipath throws
+  some of them tens to hundreds of meters out of the yard: a stationary minute within
+  :data:`NEAR_YARD` m of a storage polygon with a scattered fix is ``depot`` too.
 * **yard** (outdoor) — stationary (or creeping) with a clean fix inside a storage
   polygon (+ :data:`YARD_BUFFER`). Includes yard tracks within 50 m of the main line.
-* **line** (outdoor) — moving (max speed ≥ :data:`MOVING_SPEED` m/s) on a track
-  (within :data:`LINE_DISTANCE` m) within :data:`NEAR_YARD` m of a storage polygon:
-  a pass-by, or arriving/leaving. Kept separate so pass-by data can be evaluated.
+* **line** (outdoor) — moving on a track (within :data:`LINE_DISTANCE` m) within
+  :data:`NEAR_YARD` m of a storage polygon: a pass-by, or arriving/leaving. Kept
+  separate so pass-by data can be evaluated.
 * **route** (outdoor) — moving on a track anywhere else (normal operation).
 * **stopped** (outdoor) — stationary on a track away from the yards (a station
   stop, a layover).
 * **unknown** — no usable GPS in the minute, or a position that cannot be trusted:
   more than :data:`OFF_TRACK` m from any TRAX track (GPS junk, or a siding missing
   from the line geojson), or within :data:`NEAR_YARD` m of a storage polygon but
-  neither on a track nor inside the yard buffer (multipath ejecta from the shed).
+  neither on a track nor inside the yard buffer, with a clean fix or moving.
+
+A minute is **moving** when its median position moves: ``speed_est``, the displacement
+between the minute medians one minute before and after over 120 s, is at least
+:data:`MOVING_SPEED_EST`, and where the receiver gave a speed its maximum in the minute
+is at least :data:`MOVING_SPEED` too. A speed alone is not enough: inside the sheds the
+multipath gives a standing train speeds of 2–15 m/s while its median position stays put
+(``speed_est`` a median 0.2 m/s), and as moving minutes they would be ``yard`` or
+``line`` (outdoor).
 
 ``indoor`` in the output is True for ``depot``, False for the four outdoor states, and
 NA for ``unknown``; ``yard_name`` says which service center the minute is at.
@@ -45,13 +55,14 @@ Typical use::
     intervals = state_intervals(states)  # start/end/state table
 
 ``gps`` needs a datetime index and ``Latitude_deg``, ``Longitude_deg``;
-``Speed_m_s`` and ``N_Sat`` are optional. Speed is missing wherever only GPGGA was
-logged (lin-group GPS Dec 2015 – 19 Jan 2018; horel pilot logger Nov 2014 – Nov 2018):
-there ``moving`` comes from the position-derived ``speed_est`` instead. Either the lin-group GPS (``uataq.read_data
-('trx01', 'gps', lvl='qaqc')``) or the horel-group logger GPS (:func:`read_horel_cr1000`)
-works; :func:`read_trax_gps` picks by era (lin GPS for the pilot years, horel logger
-from 19 Nov 2018, which runs on its own battery and keeps recording when train power
-is off). trx03 has no lin-group GPS; its horel record starts Nov 2019.
+``Speed_m_s`` and ``N_Sat`` are optional. Where only GPGGA was logged (lin-group GPS
+Dec 2015 – 19 Jan 2018; horel pilot logger Nov 2014 – Nov 2018) the receiver gave no
+speed: uataq estimates ``Speed_m_s`` from consecutive fixes there, and a minute with no
+speed at all is moving on ``speed_est`` alone. Either the lin-group GPS
+(``uataq.read_data('trx01', 'gps', lvl='qaqc')``) or the horel-group logger GPS
+(:func:`read_horel_cr1000`) works; :func:`read_trax_gps` picks by era (lin GPS for the
+pilot years, horel logger from 19 Nov 2018, which runs on its own battery and keeps
+recording when train power is off). trx03 has no lin-group GPS; its horel record starts Nov 2019.
 """
 
 from __future__ import annotations
@@ -72,12 +83,13 @@ from slv.measurements.mobile.network import (
     load_trax_lines,
 )
 
-#: Speed (m/s, per-minute maximum) at or above which the train counts as moving.
-#: Depot multipath produces spurious speeds up to ~1 m/s; a real move exceeds 2.
+#: Speed (m/s, per-minute maximum) a moving minute reaches, where a speed was recorded.
+#: Not enough on its own: shed multipath gives standing trains 2–15 m/s.
 MOVING_SPEED = 2.0
-#: Threshold (m/s) for the position-derived speed estimate used when no speed was
-#: recorded (GPGGA-only eras): displacement between the minute medians one minute
-#: before and after, over 120 s. Reproduces the speed rule on 98.9 % of 2025 minutes.
+#: Position-derived speed (m/s) at or above which a minute is moving: displacement
+#: between the minute medians one minute before and after, over 120 s. Standing shed
+#: minutes with multipath speeds have a median of 0.2 m/s (99 % below 1.5); 98 % of
+#: moving minutes more than 2 km from a yard are above it (all cars, 2018-11..2026-09).
 MOVING_SPEED_EST = 1.5
 #: Distance (m) from a TRAX track within which a moving train is "on the line".
 LINE_DISTANCE = 50.0
@@ -87,15 +99,16 @@ SCATTER_M = 1.0
 LOW_NSAT = 6
 #: Buffer (m) around the storage polygon: scattered depot fixes leak past its edge.
 YARD_BUFFER = 30.0
-#: Radius (m) around the storage polygon inside which an off-line, off-yard minute is
-#: multipath ejecta from the depot rather than a real stop → ``unknown``.
+#: Radius (m) around the storage polygon inside which a minute outside the yard buffer
+#: can be the shed's multipath ejecta rather than a real stop: ``depot`` when stationary
+#: with a scattered fix, else ``unknown`` off the line.
 NEAR_YARD = 300.0
 #: Distance (m) from any TRAX track beyond which a minute is ``unknown`` (a train is
 #: never that far off the mapped lines; catches GPS junk and unmapped sidings).
 OFF_TRACK = 100.0
 #: Logger battery voltage below which train power is off (charging level is ~13–14 V).
 POWER_OFF_V = 12.5
-#: Centred window (minutes) for the majority vote that removes single-minute flips.
+#: Centered window (minutes) for the majority vote that removes single-minute flips.
 SMOOTH_MIN = 15
 
 STATES = ("depot", "yard", "line", "route", "stopped", "unknown")
@@ -218,7 +231,7 @@ def location_features(
 
 
 def _smooth_bool(s: pd.Series, window: int) -> pd.Series:
-    """Centred majority vote over ``window`` samples (NaN counts as 0)."""
+    """Centered majority vote over ``window`` samples (NaN counts as 0)."""
     return s.astype(float).rolling(window, center=True, min_periods=1).mean() > 0.5
 
 
@@ -241,8 +254,8 @@ def classify_location(
     Rules, per minute:
 
     1. no fixes → ``unknown``
-    2. moving (``speed_max >= moving_speed``, or where no speed was recorded
-       ``speed_est >= moving_speed_est``) on a track (``d_track < line_distance``):
+    2. moving (``speed_est >= moving_speed_est`` and, where a speed was recorded,
+       ``speed_max >= moving_speed``) on a track (``d_track < line_distance``):
        ``line`` if within ``near_yard_m`` of a storage polygon, else ``route``;
        moving off-track inside the yard buffer → ``yard``.
     3. stationary near the yard: degraded fix (``scatter > scatter_m`` or
@@ -255,6 +268,10 @@ def classify_location(
     5. overrides to ``unknown``: ``d_track > off_track_m`` (unless inside the yard
        buffer), or within ``near_yard_m`` of the storage polygon while neither on the
        line nor inside the yard buffer.
+    6. ...except that a stationary minute within ``near_yard_m`` of the storage polygon,
+       outside the buffer, with ``scatter > scatter_m`` is ``depot``, on the line or
+       off it: the shed's multipath threw its median out of the yard. Only the
+       scatter counts here, not a low satellite count, which also happens outdoors.
 
     Returns a frame with ``state`` (categorical), ``indoor`` (nullable boolean:
     depot → True, other located states → False, unknown → NA), ``yard_name``
@@ -264,10 +281,10 @@ def classify_location(
     """
     out = pd.DataFrame(index=feat.index)
     has_fix = feat.n_gps.fillna(0) > 0
-    moving = feat.speed_max >= moving_speed
-    if "speed_est" in feat.columns:  # GPGGA-only eras: no recorded speed
-        no_speed = feat.speed_max.isna()
-        moving = moving | (no_speed & (feat.speed_est >= moving_speed_est))
+    # the position must move; where a speed was recorded it must be fast too
+    # (under the shed roof multipath gives a standing train speeds of 2-15 m/s)
+    moving = feat.speed_est >= moving_speed_est
+    moving &= feat.speed_max.isna() | (feat.speed_max >= moving_speed)
     near_yard = feat.d_yard <= yard_buffer
     on_track = feat.d_track < line_distance
     by_yard = feat.d_yard <= near_yard_m
@@ -300,6 +317,10 @@ def classify_location(
         has_fix & ~near_yard & (by_yard & ~on_track | (feat.d_track > off_track_m))
     )
     state[untrusted] = "unknown"
+    # ...except a standing minute with a scattered fix: the shed's multipath threw its
+    # median out of the yard, so the train is in the shed
+    ejecta = has_fix & ~moving & ~near_yard & by_yard & (feat.scatter > scatter_m)
+    state[ejecta] = "depot"
     out["state"] = pd.Categorical(state, categories=STATES)
     indoor = pd.Series(pd.NA, index=feat.index, dtype="boolean")
     indoor[out.state == "depot"] = True

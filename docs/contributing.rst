@@ -62,10 +62,12 @@ Module layout
                          (the files are read on that many processes; build_trax_obs passes its
                          own to the location step's GPS read)
           location.py    per-minute indoor/outdoor classifier: depot (degraded GPS:
-                         scatter > 1 m or <= 6 sats, 15-min vote) / yard / line
+                         scatter > 1 m or <= 6 sats, 15-min vote; or a standing minute
+                         thrown 30-300 m out of a yard with scatter > 1 m) / yard / line
                          (pass-by within 300 m of a yard) / route / stopped / unknown
-                         (no fix, > 100 m off track, shed ejecta); speed_est fallback
-                         for GPGGA-only eras; state_intervals, label_observations;
+                         (no fix, > 100 m off track, clean-fix ejecta); moving needs the
+                         minute medians to move (speed_est >= 1.5 m/s), not just a speed:
+                         shed multipath fakes 2-15 m/s; state_intervals, label_observations;
                          location_features(num_processes=) measures every fix's distance to the
                          track and the yards on that many threads (shapely releases the GIL;
                          build_trax_obs passes its own num_processes)
