@@ -46,14 +46,23 @@ used; a missing or empty one raises ``ValueError`` naming it.
    * - ``SLV_SPATIAL_DIR``
      - census block groups, roads and borders (:mod:`slv.basemap`)
    * - ``SLV_USER_DATA_DIR``
-     - ACS population, MesoWest stations, TRAX obs and point caches, PCAP events
+     - ACS population, MesoWest stations, TRAX obs and point caches, PCAP events; slv also
+       writes what it builds and downloads here (the TRAX caches, NOAA GML files), so the
+       folder must be writable
    * - ``LINGROUP_DATA_DIR``
      - the TRAX line geometry
    * - ``SLV_DAQ_DIR``
-     - Utah DAQ Picarro files
+     - Utah DAQ Picarro files, read from ``formaldehyde_methane/data/<site>/picarro_g2307/``
+       under it
    * - ``SLV_SOUNDINGS_DIR``
      - SLC soundings, for PCAP events (:mod:`slv.meteorology.pcaps`)
    * - ``SLV_STILT_DIR``
      - the PYSTILT project with the footprints (default, also when empty: the CHPC paper-1 project)
+   * - ``LAIR_INVENTORY_DIR``
+     - the emission inventories behind the EPA and EDGAR priors; it is lair's variable,
+       so slv has no ``SLV_`` one for it (missing, it raises ``ValueError``)
+   * - ``LAIR_GML_DIR``
+     - the shared copy of NOAA GML data for ``background="gml"``; a file not there is
+       downloaded into ``$SLV_USER_DATA_DIR/gml`` (on a machine with network access)
    * - ``STADIA_API_KEY``
      - Stadia map tiles (``SaltLake(tiles="terrain")``)
