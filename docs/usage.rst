@@ -137,5 +137,5 @@ over a 2-km track segment, and one point receptor per hour a train sits parked.
    dwell_receptors = build_dwell_receptors(fixes, dwells, hours=range(12, 17))
 
 The observation for each receptor comes from
-:func:`~slv.measurements.mobile.trax_receptor_observations`, and the inversion reads
-them through ``InversionConfig(mobile_obs=...)``.
+:func:`~slv.measurements.mobile.receptor_obs.trax_receptor_observations`, and the
+inversion reads them through ``InversionConfig(mobile_obs=...)``.
