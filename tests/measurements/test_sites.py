@@ -11,6 +11,18 @@ from slv.measurements.sites import load_site_config
 SITE_CONFIG = load_site_config()
 UATAQ_STIDS = list(SITE_CONFIG.index[SITE_CONFIG["organization"] == "UATAQ"])
 
+# uataq calls WBB "William Browning"; both places are to say "William Browning
+# Building", and the change is in uataq's config. strict: when slv's pinned uataq
+# carries the new name this test passes, the run fails, and the mark is removed.
+NAME_MARKS = {
+    "wbb": pytest.mark.xfail(
+        strict=True,
+        reason="uataq's WBB name is still 'William Browning'; its config is to be "
+        "changed to 'William Browning Building'. Remove this mark when the "
+        "uataq pin carries the change.",
+    )
+}
+
 
 def test_there_are_uataq_rows():
     """The guard below tests something."""
@@ -18,12 +30,13 @@ def test_there_are_uataq_rows():
 
 
 @pytest.mark.parametrize("stid", UATAQ_STIDS)
-def test_uataq_row_matches_uataq(stid):
+def test_uataq_row_position_and_status_match_uataq(stid):
     """
-    A UATAQ row repeats what uataq's config holds, so the two must not drift.
+    A UATAQ row repeats uataq's latitude, longitude and active flag.
 
-    Compared: latitude, longitude (both missing for a mobile site), the active flag
-    (uataq's ``is_active``, which a site that is still up leaves out) and the name.
+    A mobile site has no latitude or longitude in either place. uataq's
+    ``is_active`` is left out for a site that is still up, so a missing key is
+    active.
     """
     row = SITE_CONFIG.loc[stid]
     config = uataq.get_site(stid).config
@@ -42,7 +55,14 @@ def test_uataq_row_matches_uataq(stid):
         f"{stid} active: slv has {row['active']}, uataq {config.get('is_active', True)}"
     )
 
-    if config.get("name") is not None and pd.notna(row["name"]):
-        assert row["name"] == config["name"], (
-            f"{stid} name: slv has {row['name']!r}, uataq {config['name']!r}"
-        )
+
+@pytest.mark.parametrize(
+    "stid",
+    [pytest.param(s, marks=NAME_MARKS.get(s, ())) for s in UATAQ_STIDS],
+)
+def test_uataq_row_name_matches_uataq(stid):
+    """A UATAQ row has the name uataq gives its site, where both hold one."""
+    ours = SITE_CONFIG.loc[stid, "name"]
+    theirs = uataq.get_site(stid).config.get("name")
+    if theirs is not None and pd.notna(ours):
+        assert ours == theirs, f"{stid} name: slv has {ours!r}, uataq {theirs!r}"
