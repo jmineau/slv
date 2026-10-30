@@ -148,7 +148,8 @@ def location_features(
     ``yard_name`` (that polygon's name where ``d_yard`` ≤ :data:`NEAR_YARD`),
     ``in_yard`` (fraction of fixes inside a polygon), ``in_depot`` (median position
     inside a :func:`load_depot_footprint` shed), ``nsat`` (median, if present), and
-    from ``cr1000``: ``volt`` (median), ``volt_min``, ``amb_T``, ``amb_RH``.
+    from ``cr1000`` (when it has ``Battery_Voltage_V``): ``volt`` (median),
+    ``volt_min``, and ``amb_T``, ``amb_RH`` when it has the roof T/RH columns.
     ``storage_polygons`` defaults to :func:`load_storage_polygons` (all yards); pass a
     frame with a ``name`` column to restrict or replace them. ``num_processes`` threads
     measure the distance of every fix to the track and to the yards (the slow part of
@@ -212,8 +213,10 @@ def location_features(
         c = cr1000.resample(freq)
         f["volt"] = c.Battery_Voltage_V.median()
         f["volt_min"] = c.Battery_Voltage_V.min()
-        f["amb_T"] = c.Ambient_T_C.median()
-        f["amb_RH"] = c.Ambient_RH_pct.median()
+        # roof T/RH only where the logger has the sensor (trx02 had none in Nov-Dec 2018)
+        for col, name in (("Ambient_T_C", "amb_T"), ("Ambient_RH_pct", "amb_RH")):
+            if col in cr1000.columns:
+                f[name] = c[col].median()
     return f
 
 
