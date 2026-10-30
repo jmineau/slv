@@ -69,7 +69,7 @@ from pathlib import Path
 from typing import Any
 
 import pandas as pd
-from fips import Posterior
+from fips import Posterior, Problem
 from joblib import Parallel, delayed
 
 from slv.inversion import pipelines
@@ -198,6 +198,22 @@ def _import_pipeline(name: str) -> Pipeline:
     return getattr(importlib.import_module(module_path), func_name)
 
 
+def _solve(pipeline: Pipeline, config: InversionConfig) -> tuple[Posterior, Problem]:
+    """
+    Solve one config; return the posterior and the whole problem it was given.
+
+    The default pipeline, :func:`~slv.inversion.pipelines.run`, is handed the problem
+    :func:`~slv.inversion.pipelines.build_problem` builds, so that the domain totals
+    (:func:`collect_metrics`) count the cells the coverage filter holds at the prior.
+    Any other pipeline returns only its posterior, so its totals cover ``post.problem``.
+    """
+    if pipeline is pipelines.run:
+        problem = pipelines.build_problem(config)
+        return pipelines.run(config, problem), problem
+    post = pipeline(config)
+    return post, post.problem
+
+
 # ---------------------------------------------------------------------------
 # Config identification
 # ---------------------------------------------------------------------------
@@ -284,7 +300,9 @@ class Sweep:
         pipeline :
             The function that solves one config (``InversionConfig -> Posterior``);
             :func:`slv.inversion.pipelines.run` by default. It must be importable by
-            name (a module-level function), so the grid can name it.
+            name (a module-level function), so the grid can name it. With another
+            pipeline the domain totals cover only the cells it solved
+            (``post.problem``): the sweep cannot see the cells it left out.
         base_config :
             Base configuration for all configs.
         grid_path :
@@ -503,10 +521,12 @@ class Sweep:
             # Suppress stdout/stderr when running in parallel
             if suppress_output:
                 with _suppress_output():
-                    post = pipeline(config)
+                    post, problem = _solve(pipeline, config)
             else:
-                post = pipeline(config)
-            row = collect_metrics(post, config, swept_params=swept_params)
+                post, problem = _solve(pipeline, config)
+            row = collect_metrics(
+                post, config, swept_params=swept_params, problem=problem
+            )
             row["runtime_seconds"] = round(time.perf_counter() - start, 1)
             return row
         except Exception as exc:
@@ -591,6 +611,7 @@ def collect_metrics(
     post: Posterior,
     config: InversionConfig,
     swept_params: list[str] | None = None,
+    problem: Problem | None = None,
 ) -> dict[str, Any]:
     """
     Extract goodness-of-fit and flux metrics from a solved inversion.
@@ -614,11 +635,20 @@ def collect_metrics(
     swept_params :
         Config field names to capture as ``cfg_*`` columns in the output row.
         If *None*, all non-scientific fields are excluded and the rest included.
+    problem :
+        The whole problem the pipeline was given (``post.problem`` by default). The
+        domain totals (``prior_flux_mean``, ``posterior_flux_mean``,
+        ``posterior_flux_std``, ``flux_change_pct``) cover every cell of it, as
+        :func:`~slv.inversion.report.summarize` does: with the coverage filter on
+        (``config.jacobian_coverage_percentile``), the cells left out of the solve
+        count at their prior. The fit columns and ``n_state`` are of the problem
+        that was solved, ``post.problem``.
 
     Returns
     -------
     Flat :class:`dict` ready to append as a row to the results CSV.
     """
+    whole = post.problem if problem is None else problem
     problem = post.problem
 
     metrics: dict[str, Any] = dict.fromkeys(_RESULT_COLUMNS)
@@ -635,14 +665,18 @@ def collect_metrics(
     }
     prior_fluxes = problem.prior.to_series("flux").rename("prior")
 
-    # Domain-integrated flux totals
+    # Domain-integrated flux totals over every cell, the left-out ones at their prior
     try:
         total_prior = calculate_total_flux(
-            config, prior_fluxes, units=config.output_units
+            config,
+            whole.prior.to_series("flux").rename("prior"),
+            units=config.output_units,
         )
         total_posterior = calculate_total_flux(
             config,
-            post.estimate.to_series("flux").rename("posterior"),
+            post.estimate.combine_first(whole.prior)
+            .to_series("flux")
+            .rename("posterior"),
             units=config.output_units,
         )
         metrics["prior_flux_mean"] = float(total_prior.mean())
@@ -778,7 +812,8 @@ def run_sweep_job(results_dir: str | Path) -> None:
 
     start = time.perf_counter()
     try:
-        row = collect_metrics(pipeline(cfg), cfg, swept_params=None)
+        post, problem = _solve(pipeline, cfg)
+        row = collect_metrics(post, cfg, swept_params=None, problem=problem)
     except Exception as exc:
         import traceback
 
