@@ -638,3 +638,15 @@ def test_clock_checked_days_rejects_a_drifting_clock():
 
     offsets = pd.Series([3600.0], index=pd.to_datetime(["2018-08-14"]))
     assert clock_checked_days(offsets, pd.to_datetime(["2018-08-14"])) == set()
+
+
+def test_no_lin_gps_means_no_day_with_a_checked_clock():
+    # #70: an empty offsets Series used to carry a RangeIndex that cannot be compared
+    # with a day, so the neighbour test raised TypeError
+    from slv.measurements.mobile.gps import clock_checked_days, lin_clock_offset_by_day
+
+    days = pd.DatetimeIndex(["2024-01-01", "2024-01-02"])
+    for no_gps in (pd.DataFrame(), pd.DataFrame({"Time_UTC": pd.to_datetime([])})):
+        offsets = lin_clock_offset_by_day(no_gps)
+        assert isinstance(offsets.index, pd.DatetimeIndex) and offsets.empty
+        assert clock_checked_days(offsets, days) == set()
