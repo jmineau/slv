@@ -175,6 +175,31 @@ def test_location_features_without_speed_column(monkeypatch):
     assert f.speed_est.dropna().iloc[0] > 0.5
 
 
+def test_location_features_from_a_logger_without_roof_sensor(monkeypatch):
+    # #66: trx02's logger had battery voltage but no roof T/RH in Nov-Dec 2018
+    from slv.measurements.mobile.location import location_features
+
+    _use_stand_in_track(monkeypatch)
+    idx = pd.date_range("2018-11-20", periods=180, freq="1s")
+    gps = pd.DataFrame(
+        {
+            "Latitude_deg": np.linspace(40.7235, 40.7236, 180),
+            "Longitude_deg": np.linspace(-111.92, -111.918, 180),
+            "Battery_Voltage_V": 13.5,
+            "Logger_T_C": 5.0,
+        },
+        index=idx,
+    )
+    f = location_features(gps, cr1000=gps)
+    assert f.volt_min.tolist() == [13.5] * 3
+    assert "amb_T" not in f.columns and "amb_RH" not in f.columns
+
+    # with the sensor, both are there
+    roof = gps.assign(Ambient_T_C=2.0, Ambient_RH_pct=60.0)
+    f = location_features(roof, cr1000=roof)
+    assert f.amb_T.tolist() == [2.0] * 3 and f.amb_RH.tolist() == [60.0] * 3
+
+
 def test_distance_over_threads_is_the_serial_distance():
     import geopandas as gpd
     import shapely
