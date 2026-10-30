@@ -420,3 +420,44 @@ def test_two_streams_with_one_value_in_one_second_are_both_kept(monkeypatch):
     pi = ["2024-01-01 12:00:00.20", "2024-01-01 12:00:00.70"]
     out = _merge(monkeypatch, fixes, pi, [2.0, 2.0], ["pipeline", "manual_cal"])
     assert out["cal_source"].tolist() == ["pipeline", "manual_cal"]
+
+
+# --------------------------------------------------------------------------- no lin GPS
+
+
+def test_load_concentrations_with_no_lin_gps_returns_no_rows_and_no_error(
+    monkeypatch,
+):
+    # #70: a window with TRX01 readings, a horel record, and not one lin-GPS fix to
+    # check the Pi clock with. The horel fallback fills nothing there (as it does for a
+    # day with no lin GPS within three days of a checked one), and a reading with no
+    # position is not returned: the table is empty, with its columns, and nothing raises
+    from slv.measurements import load_concentrations
+
+    t = pd.date_range("2024-01-01 12:00", periods=5, freq="s")
+    lgr = pd.DataFrame(
+        {"CH4d_ppm": 2.0, "ID_CH4": -10.0, "QAQC_Flag": 0},
+        index=pd.DatetimeIndex(t, name="Time_UTC"),
+    )
+    no_fixes = pd.DataFrame(
+        columns=["Latitude_deg", "Longitude_deg", "Altitude_msl", "Pi_Time"],
+        index=pd.DatetimeIndex([], name="Time_UTC"),
+    )
+
+    def read_data(site, instruments, **kwargs):
+        if instruments == "lgr_ugga":  # TRX01 had only its manual-cal analyzer then
+            raise uataq.errors.ReaderError("no files")
+        return {instruments: no_fixes if instruments == "gps" else lgr}
+
+    horel = _frame(t, Latitude_deg=40.7, Longitude_deg=-111.9, Speed_m_s=10.0)
+    monkeypatch.setattr(uataq, "read_data", read_data)
+    monkeypatch.setattr(gps, "read_horel_cr1000", lambda *a, **kw: horel)
+
+    out = load_concentrations(
+        "CH4",
+        sites=["trx01"],
+        time_range=("2024-01-01", "2024-01-03"),
+        mobile_kwargs={"routes": False, "storage_polygon": False},
+    )
+    assert out.empty
+    assert {"Time_UTC", "site", "CH4", "latitude", "longitude"} <= set(out.columns)
