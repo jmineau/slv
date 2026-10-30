@@ -13,6 +13,7 @@ under ``$SLV_USER_DATA_DIR/trax``.
 from __future__ import annotations
 
 from importlib.resources import files
+from importlib.resources.abc import Traversable
 from pathlib import Path
 
 import cartopy.crs as ccrs
@@ -59,7 +60,7 @@ storage_locations = {
 
 
 def get_geodf(
-    obj: str | Path | gpd.GeoDataFrame | bool | None,
+    obj: str | Path | gpd.GeoDataFrame | Traversable | bool | None,
 ) -> gpd.GeoDataFrame | None:
     """
     Resolve a geometry argument: a GeoDataFrame, a path or packaged file to read, or

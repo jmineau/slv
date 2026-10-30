@@ -351,6 +351,47 @@ def test_constant_altitude_keeps_every_fix(monkeypatch):
     assert len(seen["gps"]) == 5
 
 
+def test_horel_fallback_keeps_the_filters(monkeypatch):
+    # #75: seven readings 1 s apart along a track (Pi clock = GPS time). The lin GPS has
+    # #0-#1 on the track, #2-#3 in the yard, #4 on the track at 9000 m, and no fix for
+    # #5 and #6. The horel logger has every position at 1300 m; #6's is in the yard.
+    x = X0 + 100.0 * np.array([0, 1, 2, 3, 4, 5, 2.5])
+    lon, lat = (
+        gpd.GeoSeries(gpd.points_from_xy(x, np.full(7, Y0)), crs=UTM12)
+        .to_crs(4326)
+        .pipe(lambda s: (s.x.to_numpy(), s.y.to_numpy()))
+    )
+    t = pd.date_range("2024-06-01 12:00", periods=7, freq="s")
+    alt = np.array([1300.0, 1300, 1300, 1300, 9000, np.nan, np.nan])
+    fixes = _frame(
+        t[:5],
+        Pi_Time=t[:5],
+        Latitude_deg=lat[:5],
+        Longitude_deg=lon[:5],
+        Altitude_msl=alt[:5],
+    )
+    horel = _frame(t, Latitude_deg=lat, Longitude_deg=lon, Altitude_msl=1300.0)
+    monkeypatch.setattr(uataq, "read_data", lambda site, **kw: {"gps": fixes})
+    monkeypatch.setattr(gps, "read_horel_cr1000", lambda time_range, site: horel)
+    routes = gpd.GeoDataFrame(
+        geometry=[LineString([(X0, Y0), (X0 + 900, Y0)])], crs=UTM12
+    )
+    yard = gpd.GeoDataFrame(
+        geometry=[box(X0 + 150, Y0 - 20, X0 + 350, Y0 + 20)], crs=UTM12
+    )
+    obs = pd.DataFrame({"Time_UTC": t, "CH4": np.arange(7.0)})
+    kw = {"routes": routes, "route_buffer": 50, "storage_polygon": yard}
+
+    out = gps.merge_with_gps("trx01", "UATAQ", obs, **kw)
+    no_fallback = gps.merge_with_gps("trx01", "UATAQ", obs, horel_fallback=False, **kw)
+
+    # the yard and junk-altitude readings stay dropped; only #5, which no lin fix
+    # covered and whose horel position is on the track, is filled
+    assert out["CH4"].tolist() == [0.0, 1.0, 5.0]
+    assert out["gps_source"].tolist() == ["lin", "lin", "horel"]
+    assert no_fallback["CH4"].tolist() == [0.0, 1.0]
+
+
 # --------------------------------------------------------------------------- repeated rows
 
 
