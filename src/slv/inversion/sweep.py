@@ -74,7 +74,7 @@ from joblib import Parallel, delayed
 
 from slv.inversion import pipelines
 from slv.inversion.config import InversionConfig
-from slv.inversion.report import calculate_total_flux
+from slv.inversion.report import calculate_total_flux, fit_metrics
 
 #: A pipeline: the function that solves one config, as :func:`~slv.inversion.pipelines.run`.
 Pipeline = Callable[[InversionConfig], Posterior]
@@ -105,7 +105,6 @@ _RESULT_COLUMNS = (
     "runtime_seconds",
     "reduced_chi2",
     "chi2_distance",
-    "R2",
     "RMSE",
     "DOFS",
     "uncertainty_reduction",
@@ -115,8 +114,12 @@ _RESULT_COLUMNS = (
     "flux_change_pct",
     "prior_conc_rmse",
     "posterior_conc_rmse",
-    "prior_conc_bias",
-    "posterior_conc_bias",
+    "prior_conc_mean_bias",
+    "posterior_conc_mean_bias",
+    "prior_enh_r2",
+    "posterior_enh_r2",
+    "prior_enh_corr2",
+    "posterior_enh_corr2",
     "n_obs",
     "n_state",
 )
@@ -598,12 +601,18 @@ def collect_metrics(
     The primary target metric is ``reduced_chi2`` — ideally close to 1.0,
     which indicates the error covariances are well-specified.
 
-    The ``prior_conc_*`` and ``posterior_conc_*`` columns summarize the residual
-    ``observed concentration - modeled concentration`` (the model is
-    ``H x + background``) with its root mean square (``*_rmse``) and mean
-    (``*_bias``, positive when the model is below the observations), in the
-    units of the observations. ``R2`` is fips's ``Posterior.r2``, the R² of the
-    enhancement: ``corr(obs - background, H x_hat)²``.
+    The ``prior_*`` and ``posterior_*`` fit columns are the rows of
+    :func:`~slv.inversion.report.fit_metrics`, the numbers
+    :func:`~slv.inversion.report.summarize` prints: the root mean square
+    (``*_conc_rmse``) and the mean (``*_conc_mean_bias``, **model minus
+    observed**, positive when the model is above the observations) of the
+    residual between the modeled concentration (``H x + background``) and the
+    observed one, in the units of the observations; and two R² of the
+    enhancement (observed concentration minus background): ``*_enh_r2``, the
+    enhancement-variance R² ``1 - SS_res/SS_tot`` that paper 1 quotes, and
+    ``*_enh_corr2``, the squared correlation, which ignores a bias or a scale.
+    ``RMSE`` is fips's ``Posterior.rmse``, the same number as
+    ``posterior_conc_rmse``.
 
     Parameters
     ----------
@@ -628,7 +637,6 @@ def collect_metrics(
         "reduced_chi2": float(post.reduced_chi2),
         "chi2_distance": abs(float(post.reduced_chi2) - 1.0),
         # Supplementary fit metrics
-        "R2": float(post.r2),
         "RMSE": float(post.rmse),
         "DOFS": float(post.dofs),
         "uncertainty_reduction": float(post.uncertainty_reduction),
@@ -660,21 +668,16 @@ def collect_metrics(
         metrics["prior_flux_mean"] = metrics["posterior_flux_mean"] = None
         metrics["posterior_flux_std"] = metrics["flux_change_pct"] = None
 
-    # Concentration residuals: observed minus modeled concentration. The modeled
-    # concentrations are H x + background, so they are compared with the observed
-    # concentration, not the enhancement (obs - background).
+    # Fit to the observed concentrations, from the one helper the printed report uses
     try:
-        obs_c = problem.obs.to_series("concentration")
-        rp = obs_c - problem.predict(problem.prior).to_series("concentration")
-        rq = obs_c - post.modeled_obs.to_series("concentration")
-        metrics["prior_conc_rmse"] = float((rp**2).mean() ** 0.5)
-        metrics["posterior_conc_rmse"] = float((rq**2).mean() ** 0.5)
-        metrics["prior_conc_bias"] = float(rp.mean())
-        metrics["posterior_conc_bias"] = float(rq.mean())
-        metrics["n_obs"] = int(len(obs_c))
+        fit = fit_metrics(post)
+        for state in fit.index:
+            for name, value in fit.loc[state].items():
+                metrics[f"{state}_{name}"] = float(value)
+        metrics["n_obs"] = int(len(problem.obs))
         metrics["n_state"] = int(len(prior_fluxes))
     except Exception:
-        logger.debug("collect_metrics: concentration residuals failed", exc_info=True)
+        logger.debug("collect_metrics: concentration fit failed", exc_info=True)
 
     # Capture swept config field values as cfg_* columns
     metrics.update(_cfg_columns(config, swept_params))
