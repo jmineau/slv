@@ -12,7 +12,7 @@ import pandas as pd
 import pytest
 from fips import Independent, Operator, Problem, Vector
 
-from slv.inversion import pipelines, sweep
+from slv.inversion import pipelines, report, sweep
 from slv.inversion.cache import (
     DEFAULT_COMPONENT_DEPS,
     _component_hash,
@@ -333,6 +333,24 @@ class TestCollectMetrics:
         totals = post.estimate.to_series().groupby(level="time").sum()
         assert row["posterior_flux_mean"] == pytest.approx(totals.mean())
 
+    def test_flux_totals_cover_the_cells_left_out(self, summing):
+        # #76: with the coverage filter on, post.problem holds only the kept cells;
+        # the totals cover the whole problem, the left-out cell at its prior
+        full = _solved().problem
+        cells = full.prior.space.select("flux")
+        keep = fips.Space({"flux": cells[cells.get_level_values("lon") == -111.9]})
+        post = fips.solve(full.restrict(keep))
+
+        row = collect_metrics(post, _cfg(), problem=full)
+
+        kept = post.estimate.to_series().groupby(level="time").sum()
+        totals = kept + np.array([1.0, 1.5])  # lon -112.0's prior in each month
+        assert row["prior_flux_mean"] == pytest.approx(3.5)  # as without the filter
+        assert row["posterior_flux_mean"] == pytest.approx(totals.mean())
+        assert row["posterior_flux_std"] == pytest.approx(totals.std())
+        assert row["flux_change_pct"] == pytest.approx((totals.mean() / 3.5 - 1) * 100)
+        assert row["n_state"] == 2  # the solved state
+
     def test_concentration_residuals(self, summing):
         row = collect_metrics(_solved(), _cfg())
         assert "prior_conc_rmse" in row
@@ -576,12 +594,12 @@ class TestSweepResults:
 # ---------------------------------------------------------------------------
 
 
-def _fake_pipeline(config):
+def _fake_pipeline(config, problem=None):
     """Returns a solved inversion instead of running one."""
     return _solved()
 
 
-def _failing_pipeline(config):
+def _failing_pipeline(config, problem=None):
     raise RuntimeError("boom")
 
 
@@ -620,6 +638,26 @@ class TestResultRows:
         ok = results.df.set_index("config_id").loc[rows["ok"]["config_id"]]
         assert ok["reduced_chi2"] == pytest.approx(_solved().reduced_chi2)
 
+    def test_totals_cover_the_cells_the_coverage_filter_left_out(
+        self, tmp_path, monkeypatch, summing
+    ):
+        # #76: the sweep hands run the whole problem and totals over it, as summarize
+        full = _solved().problem
+        monkeypatch.setattr(pipelines, "build_problem", lambda config: full)
+        monkeypatch.setattr(
+            report,
+            "calculate_total_flux",
+            lambda config, fluxes, units=None: fluxes.groupby(level="time").sum(),
+        )
+        config = _cfg(jacobian_coverage_percentile=30)
+        sweep = Sweep(cache=str(tmp_path / "cache"), prior_base_std=[0.01])
+
+        row = sweep._run_single((config, pipelines.run, str(tmp_path), None, True))
+
+        assert row["error"] is None
+        assert row["n_state"] == 2  # one of the two cells left out in each month
+        assert row["prior_flux_mean"] == pytest.approx(3.5)  # both cells
+
 
 class TestAppendRow:
     def test_aligns_by_column_name(self, tmp_path):
@@ -657,6 +695,8 @@ def test_run_sweep_job_rows_read_back(tmp_path, monkeypatch, summing):
 
     # the grid names the pipeline, which is looked up when the job runs
     monkeypatch.setenv("SLURM_ARRAY_TASK_ID", "0")
+    # the default pipeline is handed the problem the sweep builds
+    monkeypatch.setattr(pipelines, "build_problem", lambda config: _solved().problem)
     monkeypatch.setattr(pipelines, "run", _fake_pipeline)
     run_sweep_job(tmp_path)
     monkeypatch.setenv("SLURM_ARRAY_TASK_ID", "1")
