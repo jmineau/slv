@@ -235,31 +235,42 @@ def recover_hot_rows(
     Hot-cavity CH4 is unbiased: on the same days, the 10th percentile above 45 C differs from
     below by -0.002 ppm (IQR -0.008..+0.010, 65 days; measurements/trax/audit).
 
-    Returns the recovered rows (``Time_UTC``, ``CH4``), which the caller appends to the
-    calibrated ones.
+    A blank ``CH4`` does not mean the row was air: ``normalize_pollutant`` also blanks the rows
+    measuring the reference tank or flushing toward it. So the recovered value goes through
+    :func:`~slv.measurements.pollutants.normalize_pollutant` with the qaqc row's ``ID_CH4``,
+    the ID and range check every other source gets: only atmosphere rows (``ID_CH4 == -10``;
+    a missing ID is not atmosphere) inside the valid range come back.
+
+    Returns the recovered rows (``Time_UTC``, ``CH4``), indexed like ``cal``, which the
+    caller appends to the calibrated ones.
     """
+    from slv.measurements.pollutants import normalize_pollutant
+
+    empty = pd.DataFrame(
+        {"Time_UTC": pd.to_datetime([]), "CH4": pd.Series(dtype=float)}
+    )
     need = {"Time_UTC", "CH4d_m", "QAQC_Flag"}
     if cal.empty or support.empty or not need.issubset(cal.columns):
-        return pd.DataFrame(
-            {"Time_UTC": pd.to_datetime([]), "CH4": pd.Series(dtype=float)}
-        )
+        return empty
     hot = cal[(cal["QAQC_Flag"] == flag) & cal["CH4"].isna()]
     if hot.empty:
-        return pd.DataFrame(
-            {"Time_UTC": pd.to_datetime([]), "CH4": pd.Series(dtype=float)}
-        )
+        return empty
     m = pd.to_numeric(
         pd.Series(hot["CH4d_m"].to_numpy(), dtype=object), errors="coerce"
     )
-    raw = support.drop_duplicates("Time_UTC").set_index("Time_UTC")["CH4_raw"]
-    val = pd.to_numeric(raw.reindex(pd.to_datetime(hot["Time_UTC"])), errors="coerce")
+    qaqc = support.drop_duplicates("Time_UTC").set_index("Time_UTC")
+    qaqc = qaqc.reindex(pd.to_datetime(hot["Time_UTC"]))
+    val = pd.to_numeric(qaqc["CH4_raw"], errors="coerce")
     out = pd.DataFrame(
         {
             "Time_UTC": pd.to_datetime(hot["Time_UTC"]).to_numpy(),
             "CH4": val.to_numpy() / m.to_numpy(),
-        }
+            "ID_CH4": pd.to_numeric(qaqc["ID_CH4"], errors="coerce").to_numpy(),
+        },
+        index=hot.index,
     )
-    return out[out["CH4"].between(1.7, 300)].reset_index(drop=True)
+    out["CH4"] = normalize_pollutant(out, "CH4")
+    return pd.DataFrame(out.loc[out["CH4"].notna(), ["Time_UTC", "CH4"]])
 
 
 def _read_support(site, instrument, time_range, num_processes) -> pd.DataFrame:
