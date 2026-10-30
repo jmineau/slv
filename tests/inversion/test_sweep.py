@@ -20,6 +20,7 @@ from slv.inversion.cache import (
     fips_cache,
 )
 from slv.inversion.config import InversionConfig
+from slv.inversion.report import fit_metrics
 from slv.inversion.sweep import (
     _RESULT_COLUMNS,
     Sweep,
@@ -321,7 +322,7 @@ class TestCollectMetrics:
         row = collect_metrics(post, _cfg())
         assert row["reduced_chi2"] == pytest.approx(post.reduced_chi2)
         assert row["chi2_distance"] == pytest.approx(abs(post.reduced_chi2 - 1))
-        assert row["R2"] == pytest.approx(post.r2)
+        assert row["posterior_enh_corr2"] == pytest.approx(post.r2)
         assert row["RMSE"] == pytest.approx(post.rmse)
         assert row["DOFS"] == pytest.approx(post.dofs)
         assert row["n_obs"] == 4 and row["n_state"] == 4
@@ -337,6 +338,15 @@ class TestCollectMetrics:
         row = collect_metrics(_solved(), _cfg())
         assert "prior_conc_rmse" in row
         assert "posterior_conc_rmse" in row
+
+    def test_r2_columns_are_the_helper_s(self, summing):
+        post = _solved()
+        row = collect_metrics(post, _cfg())
+        fit = fit_metrics(post)
+        for state in ("prior", "posterior"):
+            for name in ("conc_rmse", "conc_mean_bias", "enh_r2", "enh_corr2"):
+                assert row[f"{state}_{name}"] == pytest.approx(fit.loc[state, name])
+        assert "R2" not in row
 
     def test_swept_params_captured(self, summing):
         config = _cfg(prior_base_std=0.019, prior_std_frac=0.5)
@@ -380,7 +390,7 @@ def _solved_with_background(background: float, truth_scale: float = 1.0):
 
 class TestConcentrationResiduals:
     """
-    The residuals compare the observed concentration with the modeled one.
+    The residuals compare the modeled concentration with the observed one.
 
     The model adds the background to ``H x``, so a residual taken against the
     observed enhancement (obs minus background) is off by the background (#27).
@@ -389,36 +399,38 @@ class TestConcentrationResiduals:
     def test_prior_that_fits_the_obs_has_no_residual(self, summing):
         # The issue's reproduction: z = H x0 + c with c = 1.9 ppm.
         row = collect_metrics(_solved_with_background(1.9), _cfg())
-        for col in ("prior_conc_rmse", "prior_conc_bias"):
+        for col in ("prior_conc_rmse", "prior_conc_mean_bias"):
             assert row[col] == pytest.approx(0.0, abs=1e-12)
-        for col in ("posterior_conc_rmse", "posterior_conc_bias"):
+        for col in ("posterior_conc_rmse", "posterior_conc_mean_bias"):
             assert row[col] == pytest.approx(0.0, abs=1e-9)
 
-    def test_residuals_are_obs_minus_model(self, summing):
-        # The prior flux is two thirds of the truth: residual = obs - (H x + c).
+    def test_residuals_are_model_minus_obs(self, summing):
+        # The prior flux is two thirds of the truth: residual = (H x + c) - obs.
         post = _solved_with_background(1.9, truth_scale=1.5)
         problem = post.problem
         obs = problem.obs.to_series("concentration")
-        prior_resid = obs - problem.predict(problem.prior).to_series("concentration")
-        post_resid = obs - post.modeled_obs.to_series("concentration")
+        prior_resid = problem.predict(problem.prior).to_series("concentration") - obs
+        post_resid = post.modeled_obs.to_series("concentration") - obs
 
         row = collect_metrics(post, _cfg())
 
         assert row["prior_conc_rmse"] == pytest.approx(np.sqrt((prior_resid**2).mean()))
-        assert row["prior_conc_bias"] == pytest.approx(prior_resid.mean())
+        assert row["prior_conc_mean_bias"] == pytest.approx(prior_resid.mean())
         assert row["posterior_conc_rmse"] == pytest.approx(
             np.sqrt((post_resid**2).mean())
         )
-        assert row["posterior_conc_bias"] == pytest.approx(post_resid.mean())
-        assert row["prior_conc_bias"] > 0  # the model is below the obs
+        assert row["posterior_conc_mean_bias"] == pytest.approx(post_resid.mean())
+        assert (
+            row["prior_conc_mean_bias"] < 0
+        )  # model - obs: the model is below the obs
         assert row["n_obs"] == 3
 
     def test_residuals_do_not_depend_on_the_background(self, summing):
         keys = (
             "prior_conc_rmse",
             "posterior_conc_rmse",
-            "prior_conc_bias",
-            "posterior_conc_bias",
+            "prior_conc_mean_bias",
+            "posterior_conc_mean_bias",
         )
         rows = [
             collect_metrics(_solved_with_background(bg, truth_scale=1.5), _cfg())

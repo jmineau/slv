@@ -125,30 +125,135 @@ def _totals(
     )
 
 
+def _obs_and_background(problem: Problem) -> tuple[pd.Series, pd.Series | float]:
+    """The observed concentration of ``problem`` and its background (0 if it has none)."""
+    obs = problem.obs.to_series("concentration")
+    if problem.offset is None:
+        return obs, 0.0
+    return obs, problem.offset.to_series("concentration")
+
+
+def fit_metrics(post: Posterior) -> pd.DataFrame:
+    r"""
+    The fit of the prior and the posterior to the observations, one row each.
+
+    The one place the sweep table (:func:`~slv.inversion.sweep.collect_metrics`) and
+    the printed report (:func:`summarize`) take their fit numbers from, so the two
+    always agree. The modeled concentration is :math:`H x + c`, with :math:`c` the
+    background (the problem's offset), and the residual is the modeled minus the
+    observed concentration. Let :math:`z` be the observed concentration and
+    :math:`e = z - c` the observed enhancement.
+
+    Parameters
+    ----------
+    post :
+        The solved :class:`~fips.Posterior`; ``post.problem`` supplies the
+        observations, the background and the prior.
+
+    Returns
+    -------
+    pandas.DataFrame
+        Index ``prior`` and ``posterior``; columns, in the units of the observations
+        except the two R²:
+
+        ``conc_rmse``
+            The root mean square of the residual.
+        ``conc_mean_bias``
+            The mean of the residual, **model minus observed**: positive when the
+            model is above the observations.
+        ``enh_r2``
+            The R² of the enhancement variance,
+            :math:`1 - \sum (e - m)^2 / \sum (e - \bar{e})^2`, with :math:`m` the
+            modeled enhancement :math:`H x`. It penalizes a bias or a wrong scale
+            (a model twice too large everywhere scores far below 1), and is negative
+            when the model fits worse than the mean enhancement. Paper 1 quotes this
+            one.
+        ``enh_corr2``
+            The squared correlation of :math:`e` and :math:`m`. It ignores a bias
+            and a scale (a model twice too large everywhere scores 1). For the
+            posterior it is fips's :attr:`~fips.Posterior.r2`.
+
+        Both R² are taken on the enhancement, not on the concentration: the
+        background follows the observations from day to day, so an R² of the
+        concentration scores the background's fit, not the state's. Both are
+        ``nan`` when the observed enhancement is constant.
+
+    See Also
+    --------
+    summarize : Prints these numbers.
+    slv.inversion.sweep.collect_metrics : Puts them in the sweep table.
+
+    Examples
+    --------
+    A model that is 1 above the observations everywhere has a mean bias of +1, and
+    an enhancement R² below its squared correlation of 1:
+
+    >>> import fips
+    >>> import numpy as np
+    >>> import pandas as pd
+    >>> from slv.inversion.report import fit_metrics
+    >>> index = pd.MultiIndex.from_product(
+    ...     [["wbb"], pd.date_range("2020-01-01", periods=4)],
+    ...     names=["obs_location", "obs_time"],
+    ... )
+    >>> x0 = fips.Vector.from_series(
+    ...     pd.Series([1.0], index=pd.Index([0], name="cell")), block="flux"
+    ... )
+    >>> obs = fips.Vector.from_series(
+    ...     pd.Series([1.0, 2.0, 3.0, 4.0], index=index), block="concentration"
+    ... )
+    >>> H = np.array([[1.0], [2.0], [3.0], [4.0]])
+    >>> problem = fips.Problem(
+    ...     prior=x0,
+    ...     prior_cov=fips.Independent().with_std(0.1),
+    ...     obs=obs,
+    ...     obs_cov=fips.Independent().with_std(1.0),
+    ...     forward=fips.Operator(H, obs.space, x0.space),
+    ...     offset=1.0,  # the model is H x + 1: 1 above these observations
+    ... )
+    >>> post = fips.solve(problem)
+    >>> fit_metrics(post).loc["prior", ["conc_mean_bias", "enh_corr2"]].round(
+    ...     2
+    ... ).tolist()
+    [1.0, 1.0]
+    """
+    problem = post.problem
+    obs, background = _obs_and_background(problem)
+    enhancement = obs - background
+    ss_tot = float(((enhancement - enhancement.mean()) ** 2).sum())
+
+    modeled = {
+        "prior": problem.predict(problem.prior),
+        "posterior": post.modeled_obs,
+    }
+    rows = {}
+    for state, vector in modeled.items():
+        model = vector.to_series("concentration")
+        residual = model - obs
+        ss_res = float((residual**2).sum())
+        rows[state] = {
+            "conc_rmse": float(np.sqrt((residual**2).mean())),
+            "conc_mean_bias": float(residual.mean()),
+            "enh_r2": 1 - ss_res / ss_tot if ss_tot > 0 else float("nan"),
+            "enh_corr2": float(enhancement.corr(model - background) ** 2),
+        }
+    return pd.DataFrame.from_dict(rows, orient="index")
+
+
 def _print_fit(post: Posterior) -> None:
     """The fit of the solve, its fluxes and the modeled concentrations, printed."""
     from scipy import stats
 
     problem = post.problem
-    obs = problem.obs.to_series("concentration")
-    background = 0.0
-    if problem.offset is not None:
-        background = problem.offset.to_series("concentration")
+    obs, background = _obs_and_background(problem)
     enhancement = obs - background
     prior_flux = problem.prior.to_series("flux")
     post_flux = post.estimate.to_series("flux")
-    prior_obs = problem.predict(problem.prior).to_series("concentration")
-    post_obs = post.modeled_obs.to_series("concentration")
 
     # --- Atmospheric metrics ---
     mean_enhancement = np.mean(enhancement)
-    rmse_prior = np.sqrt(((prior_obs - obs) ** 2).mean())
-    rmse_post = np.sqrt(((post_obs - obs) ** 2).mean())
-    mb_prior = np.mean(prior_obs - obs)
-    mb_post = np.mean(post_obs - obs)
-    ss_tot = ((obs - obs.mean()) ** 2).sum()
-    r2_prior = 1 - (((obs - prior_obs) ** 2).sum() / ss_tot)
-    r2_post = 1 - (((obs - post_obs) ** 2).sum() / ss_tot)
+    fit = fit_metrics(post)
+    prior_fit, post_fit = fit.loc["prior"], fit.loc["posterior"]
 
     # --- Flux and Bayesian metrics ---
     n = len(prior_flux)
@@ -166,7 +271,6 @@ def _print_fit(post: Posterior) -> None:
     print(f"Observation Vector Size (m): {m}")
     print(f"Degrees of Freedom (DOFS):   {dofs:.2f} ({(dofs / n) * 100:.1f}% of state)")
     print(f"Reduced Chi-Square:          {post.reduced_chi2:.3f}")
-    print(f"Bayesian R^2:                {post.r2:.3f}")
     print(f"Bayesian RMSE:               {post.rmse:.3f}")
     print(f"Uncertainty Reduction:       {post.uncertainty_reduction * 100:.1f}%")
     print("--------------------------------------------------")
@@ -177,12 +281,16 @@ def _print_fit(post: Posterior) -> None:
     print("--------------------------------------------------")
     print("ATMOSPHERIC CONCENTRATIONS (Model vs Obs):")
     print(f"  Mean Obs Enhancement: {mean_enhancement:.4f}")
-    print(f"  RMSE (Prior):         {rmse_prior:.4f}")
-    print(f"  RMSE (Posterior):     {rmse_post:.4f}")
-    print(f"  Mean Bias (Prior):    {mb_prior:.4f}")
-    print(f"  Mean Bias (Posterior):{mb_post:.4f}")
-    print(f"  R^2 (Prior):          {r2_prior:.3f}")
-    print(f"  R^2 (Posterior):      {r2_post:.3f}")
+    print(f"  RMSE (Prior):         {prior_fit.conc_rmse:.4f}")
+    print(f"  RMSE (Posterior):     {post_fit.conc_rmse:.4f}")
+    print(f"  Mean Bias, model - obs (Prior):     {prior_fit.conc_mean_bias:.4f}")
+    print(f"  Mean Bias, model - obs (Posterior): {post_fit.conc_mean_bias:.4f}")
+    print(f"  Enhancement R^2, 1 - SS_res/SS_tot (Prior):     {prior_fit.enh_r2:.3f}")
+    print(f"  Enhancement R^2, 1 - SS_res/SS_tot (Posterior): {post_fit.enh_r2:.3f}")
+    print(
+        f"  Enhancement corr^2 (Prior):                     {prior_fit.enh_corr2:.3f}"
+    )
+    print(f"  Enhancement corr^2 (Posterior):                 {post_fit.enh_corr2:.3f}")
     print("--------------------------------------------------")
     print("MEAN FLUX BY TIMESTEP:")
     timestep_df = pd.DataFrame(
@@ -208,6 +316,10 @@ def summarize(
 ) -> None:
     """
     Print the fit of the solve, then prior and posterior domain totals.
+
+    The fit against the observed concentrations (RMSE, mean bias as model minus
+    observed, and the two R² of the enhancement) is :func:`fit_metrics`, the same
+    numbers the sweep table holds.
 
     Totals are per flux interval (:func:`calculate_total_flux`) in
     ``config.output_units``, over every cell of ``problem`` (``post.problem`` by

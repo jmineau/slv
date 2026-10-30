@@ -187,8 +187,9 @@ and pipeline internals, in one place.
                        multiplicative_scale, per_obs_std (subhour)
       coverage.py      check_state_cells, covered_state (the Jacobian coverage filter's
                        cells; the problem of them is problem.restrict(keep))
-      report.py        domain totals (calculate_total_flux, fluxes_as_inventory), summarize
-                       (prints), desroziers_diagnostic, plot_inputs/results/diagnostics
+      report.py        domain totals (calculate_total_flux, fluxes_as_inventory), fit_metrics
+                       (RMSE, bias, R^2: the one source for summarize and the sweep table),
+                       summarize (prints), desroziers_diagnostic, plot_inputs/results/diagnostics
       priors.py        prior flux construction
       covariances.py   covariance models: build_prior_error (Kronecker factors),
                        build_mdm_error (one MDM component)
