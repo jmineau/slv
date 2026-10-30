@@ -367,6 +367,45 @@ def fill_gps_gaps_with_horel(
     return data
 
 
+def _filter_fixes(
+    df: pd.DataFrame, altitude_range, routes, route_buffer, storage_polygon
+) -> pd.DataFrame:
+    """
+    The positions :func:`merge_with_gps` keeps, lin fixes and horel-filled rows alike.
+
+    Drops the rows with an ``Altitude_msl`` outside ``altitude_range`` (rows without one
+    are kept), those farther than ``route_buffer`` from ``routes`` and those inside
+    ``storage_polygon``; a ``None`` argument skips its filter. ``routes`` and
+    ``storage_polygon`` are GeoDataFrames (:func:`~.network.get_geodf`).
+    """
+    gps = gpd.GeoDataFrame(
+        df,
+        geometry=gpd.points_from_xy(df.Longitude_deg, df.Latitude_deg),
+        crs="EPSG:4326",
+    )
+
+    # Drop GPS junk by altitude. A fixed range, not per-chunk quantiles: those dropped 2 %
+    # of every chunk (the high end of a line along with it) and every fix when the altitude
+    # was constant or missing.
+    if altitude_range is not None:
+        alt = pd.to_numeric(gps.Altitude_msl, errors="coerce")
+        gps = gps[alt.isna() | alt.between(*altitude_range)]
+
+    # Filter to locations within buffer of routes
+    if routes is not None and route_buffer is not None:
+        print("Filtering GPS points near routes...")
+        gps = filter_near_routes(gps, routes, route_buffer)
+
+    # Remove gps points within storage polygon
+    if storage_polygon is not None:
+        print("Removing GPS points within storage polygon...")
+        storage_polygon = storage_polygon.to_crs(gps.crs)  # a UTM yard matched nothing
+        gps = gpd.sjoin(gps, storage_polygon, how="left", predicate="within")
+        gps = gps[gps.index_right.isnull()].drop(columns=["index_right"])
+
+    return pd.DataFrame(gps.drop(columns=["geometry"]))
+
+
 def merge_with_gps(
     site,
     org,
@@ -388,7 +427,8 @@ def merge_with_gps(
     ``route_buffer`` m from ``routes`` and those inside ``storage_polygon``, then joins
     on the GPS clock (the Pi clock of the lin loggers is not trusted). For ``trx*``
     sites the defaults are the TRAX lines, 50 m and the JRRSC yard; pass ``False`` to
-    skip a filter.
+    skip a filter. A record whose lin fix a filter dropped is dropped with it; the same
+    filters apply to the positions ``horel_fallback`` adds.
 
     Parameters
     ----------
@@ -407,8 +447,10 @@ def merge_with_gps(
     altitude_range : (float, float), optional
         Plausible altitudes, default :data:`ALTITUDE_RANGE_MSL`.
     horel_fallback : bool
-        Georeference the rows the lin GPS never covered from the horel logger, where the Pi
-        clock checks out (:func:`fill_gps_gaps_with_horel`). Every row is tagged ``gps_source``.
+        Georeference the rows the lin GPS never covered (no lin fix at all in their second
+        of the Pi clock, before the filters) from the horel logger, where the Pi clock
+        checks out (:func:`fill_gps_gaps_with_horel`), and keep those whose horel position
+        passes the same filters. Every row is tagged ``gps_source``.
 
     Returns
     -------
@@ -435,43 +477,23 @@ def merge_with_gps(
     print("Reading GPS data...")
 
     if org == "UATAQ":
-        gps = uataq.read_data(
+        lin = uataq.read_data(
             site,
             instruments="gps",
             lvl="final",
             time_range=time_range,
             num_processes=num_processes,
         )["gps"]
-        gps = gpd.GeoDataFrame(
-            gps,
-            geometry=gpd.points_from_xy(gps.Longitude_deg, gps.Latitude_deg),
-            crs="EPSG:4326",
-        )
     else:
         raise ValueError(f"Organization {org} not supported for GPS loading.")
 
-    # Drop GPS junk by altitude. A fixed range, not per-chunk quantiles: those dropped 2 %
-    # of every chunk (the high end of a line along with it) and every fix when the altitude
-    # was constant or missing.
-    if altitude_range is not None:
-        alt = pd.to_numeric(gps.Altitude_msl, errors="coerce")
-        gps = gps[alt.isna() | alt.between(*altitude_range)]
-
-    # Filter to locations within buffer of routes
-    routes = get_geodf(routes)
-    if routes is not None and route_buffer is not None:
-        print("Filtering GPS points near routes...")
-        gps = filter_near_routes(gps, routes, route_buffer)
-
-    # Remove gps points within storage polygon
-    storage_polygon = get_geodf(storage_polygon)
-    if storage_polygon is not None:
-        print("Removing GPS points within storage polygon...")
-        storage_polygon = storage_polygon.to_crs(gps.crs)  # a UTM yard matched nothing
-        gps = gpd.sjoin(gps, storage_polygon, how="left", predicate="within")
-        gps = gps[gps.index_right.isnull()].drop(columns=["index_right"])
-
-    gps = gps.drop(columns=["geometry"])
+    filters = {
+        "altitude_range": altitude_range,
+        "routes": get_geodf(routes),
+        "route_buffer": route_buffer,
+        "storage_polygon": get_geodf(storage_polygon),
+    }
+    gps = _filter_fixes(lin, **filters)
 
     # Merge obs and GPS data
     print(f"Merging {site} obs and GPS data...")
@@ -495,14 +517,16 @@ def merge_with_gps(
 
     # The merge is an inner join, so rows the lin GPS never covered are gone. Offer them to the
     # horel logger, which recorded position through those outages (see fill_gps_gaps_with_horel).
+    # A row is a gap only when no lin fix fell in its Pi second before the filters: a row
+    # whose fix a filter dropped (in the yard, off the route, junk altitude) stays dropped.
     if horel_fallback and site.startswith("trx") and on == "Pi_Time":
-        matched = (
-            set(pd.to_datetime(data["Pi_Time"]).to_numpy())
-            if "Pi_Time" in data
-            else set()
+        pi_fix = pd.to_datetime(lin["Pi_Time"], errors="coerce")
+        has_fix = (
+            pi_fix.notna() & lin["Latitude_deg"].notna() & lin["Longitude_deg"].notna()
         )
+        covered = pd.DatetimeIndex(pi_fix[has_fix]).floor("s")
         pi = pd.DatetimeIndex(obs.index).floor("s")
-        gap = obs.loc[~pi.isin(matched)]
+        gap = obs.loc[~pi.isin(covered)]
         if len(gap):
             gap = gap.reset_index().rename(columns={"Pi_Time": "Time_UTC"})
             for c in (
@@ -516,6 +540,8 @@ def merge_with_gps(
                     gap[c] = np.nan
             gap = fill_gps_gaps_with_horel(gap, site, gps)
             gap = gap[gap["Latitude_deg"].notna()]
+            if len(gap):
+                gap = _filter_fixes(gap, **filters)
             if len(gap):
                 data = pd.concat([data, gap], ignore_index=True).sort_values("Time_UTC")
 
