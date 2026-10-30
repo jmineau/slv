@@ -242,7 +242,7 @@ def recover_hot_rows(
     a missing ID is not atmosphere) inside the valid range come back.
 
     Returns the recovered rows (``Time_UTC``, ``CH4``), indexed like ``cal``, which the
-    caller appends to the calibrated ones.
+    caller writes into ``cal`` before :func:`apply_slope_guard`.
     """
     from slv.measurements.pollutants import normalize_pollutant
 
@@ -433,12 +433,14 @@ def _build_chunk(
             num_processes,
             keep=("CH4d_m", "QAQC_Flag"),
         )
-        cal = apply_slope_guard(cal, slope_tol)
         hot = recover_hot_rows(cal, support) if recover_hot else empty
-        cal = pd.concat(
-            [cal[cal.CH4.notna()][["Time_UTC", "CH4"]], hot[["Time_UTC", "CH4"]]],
-            ignore_index=True,
-        ).assign(cal_source="pipeline")
+        # before the slope guard: a recovered row is the reading over the same fitted slope,
+        # so a slope the guard rejects miscalibrates it as much as a calibrated row
+        cal.loc[hot.index, "CH4"] = hot["CH4"]
+        cal = apply_slope_guard(cal, slope_tol)
+        cal = cal.loc[cal.CH4.notna(), ["Time_UTC", "CH4"]].assign(
+            cal_source="pipeline"
+        )
         if len(hot):
             print(f"  recovered {len(hot):,} flag -64 rows (hot cavity)", flush=True)
     except (FileNotFoundError, KeyError, ValueError, uataq.errors.ReaderError):
@@ -563,7 +565,8 @@ def build_trax_obs(
     tagged ``low_pressure=True``, whatever its flag (:func:`apply_low_pressure_rule`);
     ``low_pressure=None`` drops the −63 rows and tags none. Pipeline-calibrated rows whose slope deviates more than ``slope_tol`` from the
     day's median slope are dropped (:func:`apply_slope_guard`; one bad reference period
-    otherwise miscalibrates the next hour by 20–100 %). Then merged with *every* GPS fix by :func:`merge_with_gps` (no route buffer,
+    otherwise miscalibrates the next hour by 20–100 %), the hot-cavity rows that
+    :func:`recover_hot_rows` brings back included. Then merged with *every* GPS fix by :func:`merge_with_gps` (no route buffer,
     no storage-yard removal) and, with ``classify``, labelled per minute by
     :func:`label_trax_location` (``state``, ``indoor``, ``yard_name``) so that the location
     filter is applied at load time (:func:`load_trax_obs`). Pass ``routes`` /
