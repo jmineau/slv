@@ -58,7 +58,10 @@ m = (SaltLake(tiles="terrain")          # Stadia stamen_terrain; needs $STADIA_A
 m.fig.savefig("slv.png", dpi=300)
 ```
 
-A methane inversion (builds the Jacobian from the PYSTILT footprints; run it through SLURM):
+A methane inversion (builds the Jacobian from the PYSTILT footprints; run it through
+SLURM, in the pixi environment: the default prior needs `xesmf`, and on Python 3.14 a
+script needs an `if __name__ == "__main__":` guard, see the
+[usage guide](https://jmineau.github.io/slv/stable/usage.html#a-methane-inversion)):
 
 ```python
 from slv.inversion import InversionConfig, run
