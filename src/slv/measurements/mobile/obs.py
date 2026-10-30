@@ -235,31 +235,42 @@ def recover_hot_rows(
     Hot-cavity CH4 is unbiased: on the same days, the 10th percentile above 45 C differs from
     below by -0.002 ppm (IQR -0.008..+0.010, 65 days; measurements/trax/audit).
 
-    Returns the recovered rows (``Time_UTC``, ``CH4``), which the caller appends to the
-    calibrated ones.
+    A blank ``CH4`` does not mean the row was air: ``normalize_pollutant`` also blanks the rows
+    measuring the reference tank or flushing toward it. So the recovered value goes through
+    :func:`~slv.measurements.pollutants.normalize_pollutant` with the qaqc row's ``ID_CH4``,
+    the ID and range check every other source gets: only atmosphere rows (``ID_CH4 == -10``;
+    a missing ID is not atmosphere) inside the valid range come back.
+
+    Returns the recovered rows (``Time_UTC``, ``CH4``), indexed like ``cal``, which the
+    caller writes into ``cal`` before :func:`apply_slope_guard`.
     """
+    from slv.measurements.pollutants import normalize_pollutant
+
+    empty = pd.DataFrame(
+        {"Time_UTC": pd.to_datetime([]), "CH4": pd.Series(dtype=float)}
+    )
     need = {"Time_UTC", "CH4d_m", "QAQC_Flag"}
     if cal.empty or support.empty or not need.issubset(cal.columns):
-        return pd.DataFrame(
-            {"Time_UTC": pd.to_datetime([]), "CH4": pd.Series(dtype=float)}
-        )
+        return empty
     hot = cal[(cal["QAQC_Flag"] == flag) & cal["CH4"].isna()]
     if hot.empty:
-        return pd.DataFrame(
-            {"Time_UTC": pd.to_datetime([]), "CH4": pd.Series(dtype=float)}
-        )
+        return empty
     m = pd.to_numeric(
         pd.Series(hot["CH4d_m"].to_numpy(), dtype=object), errors="coerce"
     )
-    raw = support.drop_duplicates("Time_UTC").set_index("Time_UTC")["CH4_raw"]
-    val = pd.to_numeric(raw.reindex(pd.to_datetime(hot["Time_UTC"])), errors="coerce")
+    qaqc = support.drop_duplicates("Time_UTC").set_index("Time_UTC")
+    qaqc = qaqc.reindex(pd.to_datetime(hot["Time_UTC"]))
+    val = pd.to_numeric(qaqc["CH4_raw"], errors="coerce")
     out = pd.DataFrame(
         {
             "Time_UTC": pd.to_datetime(hot["Time_UTC"]).to_numpy(),
             "CH4": val.to_numpy() / m.to_numpy(),
-        }
+            "ID_CH4": pd.to_numeric(qaqc["ID_CH4"], errors="coerce").to_numpy(),
+        },
+        index=hot.index,
     )
-    return out[out["CH4"].between(1.7, 300)].reset_index(drop=True)
+    out["CH4"] = normalize_pollutant(out, "CH4")
+    return pd.DataFrame(out.loc[out["CH4"].notna(), ["Time_UTC", "CH4"]])
 
 
 def _read_support(site, instrument, time_range, num_processes) -> pd.DataFrame:
@@ -422,12 +433,14 @@ def _build_chunk(
             num_processes,
             keep=("CH4d_m", "QAQC_Flag"),
         )
-        cal = apply_slope_guard(cal, slope_tol)
         hot = recover_hot_rows(cal, support) if recover_hot else empty
-        cal = pd.concat(
-            [cal[cal.CH4.notna()][["Time_UTC", "CH4"]], hot[["Time_UTC", "CH4"]]],
-            ignore_index=True,
-        ).assign(cal_source="pipeline")
+        # before the slope guard: a recovered row is the reading over the same fitted slope,
+        # so a slope the guard rejects miscalibrates it as much as a calibrated row
+        cal.loc[hot.index, "CH4"] = hot["CH4"]
+        cal = apply_slope_guard(cal, slope_tol)
+        cal = cal.loc[cal.CH4.notna(), ["Time_UTC", "CH4"]].assign(
+            cal_source="pipeline"
+        )
         if len(hot):
             print(f"  recovered {len(hot):,} flag -64 rows (hot cavity)", flush=True)
     except (FileNotFoundError, KeyError, ValueError, uataq.errors.ReaderError):
@@ -552,7 +565,8 @@ def build_trax_obs(
     tagged ``low_pressure=True``, whatever its flag (:func:`apply_low_pressure_rule`);
     ``low_pressure=None`` drops the −63 rows and tags none. Pipeline-calibrated rows whose slope deviates more than ``slope_tol`` from the
     day's median slope are dropped (:func:`apply_slope_guard`; one bad reference period
-    otherwise miscalibrates the next hour by 20–100 %). Then merged with *every* GPS fix by :func:`merge_with_gps` (no route buffer,
+    otherwise miscalibrates the next hour by 20–100 %), the hot-cavity rows that
+    :func:`recover_hot_rows` brings back included. Then merged with *every* GPS fix by :func:`merge_with_gps` (no route buffer,
     no storage-yard removal) and, with ``classify``, labelled per minute by
     :func:`label_trax_location` (``state``, ``indoor``, ``yard_name``) so that the location
     filter is applied at load time (:func:`load_trax_obs`). Pass ``routes`` /
