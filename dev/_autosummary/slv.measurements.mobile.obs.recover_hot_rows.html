@@ -41,7 +41,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../_static/documentation_options.js?v=4702d984"></script>
+    <script src="../_static/documentation_options.js?v=1f576591"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -62,7 +62,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.10.4.dev9+ge578eaef1" />
+  <meta name="docsearch:version" content="2026.10.4.dev10+g5b89abb28" />
   
     
     <script src="../_static/searchtools.js"></script>
@@ -697,8 +697,13 @@
 record — never reach obs.parquet. The value is simply the qaqc reading over the fitted slope.
 Hot-cavity CH4 is unbiased: on the same days, the 10th percentile above 45 C differs from
 below by -0.002 ppm (IQR -0.008..+0.010, 65 days; measurements/trax/audit).</p>
-<p>Returns the recovered rows (<code class="docutils literal notranslate"><span class="pre">Time_UTC</span></code>, <code class="docutils literal notranslate"><span class="pre">CH4</span></code>), which the caller appends to the
-calibrated ones.</p>
+<p>A blank <code class="docutils literal notranslate"><span class="pre">CH4</span></code> does not mean the row was air: <code class="docutils literal notranslate"><span class="pre">normalize_pollutant</span></code> also blanks the rows
+measuring the reference tank or flushing toward it. So the recovered value goes through
+<a class="reference internal" href="slv.measurements.pollutants.normalize_pollutant.html#slv.measurements.pollutants.normalize_pollutant" title="slv.measurements.pollutants.normalize_pollutant"><code class="xref py py-func docutils literal notranslate"><span class="pre">normalize_pollutant()</span></code></a> with the qaqc row’s <code class="docutils literal notranslate"><span class="pre">ID_CH4</span></code>,
+the ID and range check every other source gets: only atmosphere rows (<code class="docutils literal notranslate"><span class="pre">ID_CH4</span> <span class="pre">==</span> <span class="pre">-10</span></code>;
+a missing ID is not atmosphere) inside the valid range come back.</p>
+<p>Returns the recovered rows (<code class="docutils literal notranslate"><span class="pre">Time_UTC</span></code>, <code class="docutils literal notranslate"><span class="pre">CH4</span></code>), indexed like <code class="docutils literal notranslate"><span class="pre">cal</span></code>, which the
+caller appends to the calibrated ones.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a></span></p>
