@@ -130,8 +130,9 @@ DROPOUT_CH4_PPM: float = 1.70
 DROPOUT_WINDOW_MIN: int = 8
 
 #: Calibrated rows whose slope ``CH4d_m`` deviates more than this fraction from the day's median
-#: slope are dropped. One bad reference period (a restart with air still in the line, a dying
-#: tank) is interpolated over the next hour by the pipeline's single-tank calibration; the
+#: slope are dropped, or from 1 on a day whose median is itself more than this from 1
+#: (:func:`apply_slope_guard`). One bad reference period (a restart with air still in the line, a
+#: dying tank) is interpolated over the next hour by the pipeline's single-tank calibration; the
 #: ±100 ppm tolerances never catch it (measurements/trax/record/outputs/trax_cal_audit.txt).
 SLOPE_TOL: float | None = 0.05
 
@@ -139,8 +140,15 @@ SLOPE_TOL: float | None = 0.05
 def apply_slope_guard(df: pd.DataFrame, tol: float | None = SLOPE_TOL) -> pd.DataFrame:
     """
     Set ``CH4`` to NaN where ``CH4d_m`` differs from the same UTC day's median slope by more
-    than ``tol`` (fraction). ``df`` needs ``Time_UTC``, ``CH4`` and ``CH4d_m``; ``tol=None`` is a
-    no-op. Days with fewer than 100 sloped rows are left alone (no robust median).
+    than ``tol`` (fraction).
+
+    A median more than ``tol`` from 1 can't judge its day: reference periods that read near zero
+    pull it to 0 or about half, and every row with a working calibration would then look wrong.
+    On such a day each row is judged against 1 instead, so rows near 1 stay and rows on the
+    failed calibration go, those matching the broken median included.
+
+    ``df`` needs ``Time_UTC``, ``CH4`` and ``CH4d_m``; ``tol=None`` is a no-op. Days with fewer
+    than 100 sloped rows are left alone (no robust median).
     """
     if tol is None or "CH4d_m" not in df.columns:
         return df
@@ -155,7 +163,9 @@ def apply_slope_guard(df: pd.DataFrame, tol: float | None = SLOPE_TOL) -> pd.Dat
     day = pd.to_datetime(out["Time_UTC"]).dt.floor("D")
     med = m.groupby(day).transform("median")
     n = m.notna().groupby(day).transform("sum")
-    bad = m.notna() & (n >= 100) & ((m / med - 1).abs() > tol)
+    # a median this far from 1 is the failed calibration itself, so it can't judge the day's rows
+    reference = med.where((med - 1).abs() <= tol, 1.0)
+    bad = m.notna() & (n >= 100) & ((m / reference - 1).abs() > tol)
     out.loc[bad, "CH4"] = np.nan
     return out
 
@@ -564,7 +574,8 @@ def build_trax_obs(
     every manual-cal row whose measured pressure is inside that band and outside 135–145 torr is
     tagged ``low_pressure=True``, whatever its flag (:func:`apply_low_pressure_rule`);
     ``low_pressure=None`` drops the −63 rows and tags none. Pipeline-calibrated rows whose slope deviates more than ``slope_tol`` from the
-    day's median slope are dropped (:func:`apply_slope_guard`; one bad reference period
+    day's median slope, or from 1 where that median is itself more than ``slope_tol`` from 1,
+    are dropped (:func:`apply_slope_guard`; one bad reference period
     otherwise miscalibrates the next hour by 20–100 %), the hot-cavity rows that
     :func:`recover_hot_rows` brings back included. Then merged with *every* GPS fix by :func:`merge_with_gps` (no route buffer,
     no storage-yard removal) and, with ``classify``, labelled per minute by

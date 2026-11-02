@@ -269,6 +269,60 @@ def test_slope_guard_drops_outlier_slope_rows():
     assert apply_slope_guard(df.iloc[:50], 0.05).CH4.notna().all()
 
 
+def _guard_day(slopes, day="2017-04-15"):
+    """One day's rows at these slopes, each with a CH4, run through the guard at 5 %."""
+    from slv.measurements.mobile.obs import apply_slope_guard
+
+    t = pd.date_range(day, periods=len(slopes), freq="10s")
+    df = pd.DataFrame({"Time_UTC": t, "CH4": 2.0, "CH4d_m": slopes})
+    return apply_slope_guard(df, 0.05).CH4.notna().to_numpy()
+
+
+def test_slope_guard_broken_median_keeps_the_rows_near_1():
+    """Most of the day is a dead reference, so its median is near 0: the rows near 1 stay."""
+    slopes = np.r_[np.full(200, -0.004), np.full(100, 1.006)]
+    kept = _guard_day(slopes)
+    assert kept.tolist() == [False] * 200 + [True] * 100
+
+
+def test_slope_guard_broken_median_drops_a_row_matching_it():
+    """A slope of 0.37 is a failed calibration even when the day's median is 0.37 too."""
+    slopes = np.r_[np.full(200, 0.37), np.full(100, 1.006)]
+    kept = _guard_day(slopes)
+    assert kept.tolist() == [False] * 200 + [True] * 100
+
+
+def test_slope_guard_broken_median_drops_a_bad_slope():
+    """A day on a ramp, no working calibration in it: judged against 1, nothing stays."""
+    slopes = np.r_[np.full(200, 0.03), np.full(100, 0.785)]
+    assert not _guard_day(slopes).any()
+
+
+def test_slope_guard_low_slope_on_a_sane_day_still_goes():
+    """A median near 1 is still the reference: 0.91 on a day at 0.99 goes, as in Aug 2020."""
+    slopes = np.r_[np.full(200, 0.99), np.full(100, 0.91)]
+    kept = _guard_day(slopes)
+    assert kept.tolist() == [True] * 200 + [False] * 100
+
+
+def test_slope_guard_low_median_inside_the_tolerance_stays_the_reference():
+    """A median 4.5 % from 1 is judged as before: rows near it stay, rows 5 % off it go."""
+    slopes = np.r_[np.full(200, 0.955), np.full(50, 0.948), np.full(50, 0.90)]
+    kept = _guard_day(slopes)
+    assert kept.tolist() == [True] * 250 + [False] * 50
+
+
+def test_slope_guard_decides_each_day_on_its_own_median():
+    """A broken day beside a working one: the working day's rows are not judged against 1."""
+    from slv.measurements.mobile.obs import apply_slope_guard
+
+    t = pd.date_range("2019-01-23 22:00", periods=540, freq="min")  # 120 rows, then 420
+    m = np.r_[np.full(120, 0.955), np.full(320, -0.004), np.full(100, 1.006)]
+    df = pd.DataFrame({"Time_UTC": t, "CH4": 2.0, "CH4d_m": m})
+    kept = apply_slope_guard(df, 0.05).CH4.notna().to_numpy()
+    assert kept.tolist() == [True] * 120 + [False] * 320 + [True] * 100
+
+
 def test_slope_guard_accepts_string_slopes():
     """Multiprocess uataq reads can hand back the slope column as strings."""
     from slv.measurements.mobile.obs import apply_slope_guard
