@@ -41,7 +41,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../_static/documentation_options.js?v=1f576591"></script>
+    <script src="../_static/documentation_options.js?v=5b4d2f4a"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -62,7 +62,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.10.4.dev10+g5b89abb28" />
+  <meta name="docsearch:version" content="2026.10.4.dev12+gaa3fab037" />
   
     
     <script src="../_static/searchtools.js"></script>
@@ -692,28 +692,37 @@ Midvale RSC (MRSC, the old-train yard beside the red/blue line). Sometimes a tra
 parked outside on the yard tracks, sometimes inside the maintenance shed. The
 pipeline’s storage flag (GPS <code class="docutils literal notranslate"><span class="pre">QAQC_Flag</span> <span class="pre">==</span> <span class="pre">20</span></code>) and the slv loader’s storage polygon
 lump everything at a yard together. This module separates them from the GPS
-behaviour, at one-minute resolution, so that <strong>outdoor</strong> minutes can be kept even when
+behavior, at one-minute resolution, so that <strong>outdoor</strong> minutes can be kept even when
 the train is not on the line and <strong>indoor</strong> minutes dropped:</p>
 <ul class="simple">
 <li><p><strong>depot</strong> (indoor) — stationary at a yard and the GPS fix is degraded: the
-per-minute position scatter is metres (multipath under the roof, the “crazy” GPS)
+per-minute position scatter is meters (multipath under the roof, the “crazy” GPS)
 and the satellite count is low. JRRSC site visits (which happen inside the shed)
 show 2.5–7 m scatter and 6–7 satellites; parked outside the scatter is &lt; 0.3 m with
 8–12 satellites. The scattered fixes’ medians cluster inside the shed footprints
-(<code class="xref py py-func docutils literal notranslate"><span class="pre">load_depot_footprint()</span></code>, derived from 2025 data).</p></li>
+(<code class="xref py py-func docutils literal notranslate"><span class="pre">load_depot_footprint()</span></code>, derived from 2025 data), but the multipath throws
+some of them tens to hundreds of meters out of the yard: a stationary minute within
+<a class="reference internal" href="slv.measurements.mobile.location.NEAR_YARD.html#slv.measurements.mobile.location.NEAR_YARD" title="slv.measurements.mobile.location.NEAR_YARD"><code class="xref py py-data docutils literal notranslate"><span class="pre">NEAR_YARD</span></code></a> m of a storage polygon with a scattered fix is <code class="docutils literal notranslate"><span class="pre">depot</span></code> too.</p></li>
 <li><p><strong>yard</strong> (outdoor) — stationary (or creeping) with a clean fix inside a storage
 polygon (+ <a class="reference internal" href="slv.measurements.mobile.location.YARD_BUFFER.html#slv.measurements.mobile.location.YARD_BUFFER" title="slv.measurements.mobile.location.YARD_BUFFER"><code class="xref py py-data docutils literal notranslate"><span class="pre">YARD_BUFFER</span></code></a>). Includes yard tracks within 50 m of the main line.</p></li>
-<li><p><strong>line</strong> (outdoor) — moving (max speed ≥ <a class="reference internal" href="slv.measurements.mobile.location.MOVING_SPEED.html#slv.measurements.mobile.location.MOVING_SPEED" title="slv.measurements.mobile.location.MOVING_SPEED"><code class="xref py py-data docutils literal notranslate"><span class="pre">MOVING_SPEED</span></code></a> m/s) on a track
-(within <a class="reference internal" href="slv.measurements.mobile.location.LINE_DISTANCE.html#slv.measurements.mobile.location.LINE_DISTANCE" title="slv.measurements.mobile.location.LINE_DISTANCE"><code class="xref py py-data docutils literal notranslate"><span class="pre">LINE_DISTANCE</span></code></a> m) within <a class="reference internal" href="slv.measurements.mobile.location.NEAR_YARD.html#slv.measurements.mobile.location.NEAR_YARD" title="slv.measurements.mobile.location.NEAR_YARD"><code class="xref py py-data docutils literal notranslate"><span class="pre">NEAR_YARD</span></code></a> m of a storage polygon:
-a pass-by, or arriving/leaving. Kept separate so pass-by data can be evaluated.</p></li>
+<li><p><strong>line</strong> (outdoor) — moving on a track (within <a class="reference internal" href="slv.measurements.mobile.location.LINE_DISTANCE.html#slv.measurements.mobile.location.LINE_DISTANCE" title="slv.measurements.mobile.location.LINE_DISTANCE"><code class="xref py py-data docutils literal notranslate"><span class="pre">LINE_DISTANCE</span></code></a> m) within
+<a class="reference internal" href="slv.measurements.mobile.location.NEAR_YARD.html#slv.measurements.mobile.location.NEAR_YARD" title="slv.measurements.mobile.location.NEAR_YARD"><code class="xref py py-data docutils literal notranslate"><span class="pre">NEAR_YARD</span></code></a> m of a storage polygon: a pass-by, or arriving/leaving. Kept
+separate so pass-by data can be evaluated.</p></li>
 <li><p><strong>route</strong> (outdoor) — moving on a track anywhere else (normal operation).</p></li>
 <li><p><strong>stopped</strong> (outdoor) — stationary on a track away from the yards (a station
 stop, a layover).</p></li>
 <li><p><strong>unknown</strong> — no usable GPS in the minute, or a position that cannot be trusted:
 more than <a class="reference internal" href="slv.measurements.mobile.location.OFF_TRACK.html#slv.measurements.mobile.location.OFF_TRACK" title="slv.measurements.mobile.location.OFF_TRACK"><code class="xref py py-data docutils literal notranslate"><span class="pre">OFF_TRACK</span></code></a> m from any TRAX track (GPS junk, or a siding missing
 from the line geojson), or within <a class="reference internal" href="slv.measurements.mobile.location.NEAR_YARD.html#slv.measurements.mobile.location.NEAR_YARD" title="slv.measurements.mobile.location.NEAR_YARD"><code class="xref py py-data docutils literal notranslate"><span class="pre">NEAR_YARD</span></code></a> m of a storage polygon but
-neither on a track nor inside the yard buffer (multipath ejecta from the shed).</p></li>
+neither on a track nor inside the yard buffer, with a clean fix or moving.</p></li>
 </ul>
+<p>A minute is <strong>moving</strong> when its median position moves: <code class="docutils literal notranslate"><span class="pre">speed_est</span></code>, the displacement
+between the minute medians one minute before and after over 120 s, is at least
+<a class="reference internal" href="slv.measurements.mobile.location.MOVING_SPEED_EST.html#slv.measurements.mobile.location.MOVING_SPEED_EST" title="slv.measurements.mobile.location.MOVING_SPEED_EST"><code class="xref py py-data docutils literal notranslate"><span class="pre">MOVING_SPEED_EST</span></code></a>, and where the receiver gave a speed its maximum in the minute
+is at least <a class="reference internal" href="slv.measurements.mobile.location.MOVING_SPEED.html#slv.measurements.mobile.location.MOVING_SPEED" title="slv.measurements.mobile.location.MOVING_SPEED"><code class="xref py py-data docutils literal notranslate"><span class="pre">MOVING_SPEED</span></code></a> too. A speed alone is not enough: inside the sheds the
+multipath gives a standing train speeds of 2–15 m/s while its median position stays put
+(<code class="docutils literal notranslate"><span class="pre">speed_est</span></code> a median 0.2 m/s), and as moving minutes they would be <code class="docutils literal notranslate"><span class="pre">yard</span></code> or
+<code class="docutils literal notranslate"><span class="pre">line</span></code> (outdoor).</p>
 <p><code class="docutils literal notranslate"><span class="pre">indoor</span></code> in the output is True for <code class="docutils literal notranslate"><span class="pre">depot</span></code>, False for the four outdoor states, and
 NA for <code class="docutils literal notranslate"><span class="pre">unknown</span></code>; <code class="docutils literal notranslate"><span class="pre">yard_name</span></code> says which service center the minute is at.</p>
 <p>Supporting evidence that is <em>not</em> used by the classifier but is worth plotting:
@@ -728,21 +737,22 @@ not depot from yard, so it is returned as a separate <code class="docutils liter
 </pre></div>
 </div>
 <p><code class="docutils literal notranslate"><span class="pre">gps</span></code> needs a datetime index and <code class="docutils literal notranslate"><span class="pre">Latitude_deg</span></code>, <code class="docutils literal notranslate"><span class="pre">Longitude_deg</span></code>;
-<code class="docutils literal notranslate"><span class="pre">Speed_m_s</span></code> and <code class="docutils literal notranslate"><span class="pre">N_Sat</span></code> are optional. Speed is missing wherever only GPGGA was
-logged (lin-group GPS Dec 2015 – 19 Jan 2018; horel pilot logger Nov 2014 – Nov 2018):
-there <code class="docutils literal notranslate"><span class="pre">moving</span></code> comes from the position-derived <code class="docutils literal notranslate"><span class="pre">speed_est</span></code> instead. Either the lin-group GPS (<code class="docutils literal notranslate"><span class="pre">uataq.read_data</span>
-<span class="pre">('trx01',</span> <span class="pre">'gps',</span> <span class="pre">lvl='qaqc')</span></code>) or the horel-group logger GPS (<code class="xref py py-func docutils literal notranslate"><span class="pre">read_horel_cr1000()</span></code>)
-works; <code class="xref py py-func docutils literal notranslate"><span class="pre">read_trax_gps()</span></code> picks by era (lin GPS for the pilot years, horel logger
-from 19 Nov 2018, which runs on its own battery and keeps recording when train power
-is off). trx03 has no lin-group GPS; its horel record starts Nov 2019.</p>
+<code class="docutils literal notranslate"><span class="pre">Speed_m_s</span></code> and <code class="docutils literal notranslate"><span class="pre">N_Sat</span></code> are optional. Where only GPGGA was logged (lin-group GPS
+Dec 2015 – 19 Jan 2018; horel pilot logger Nov 2014 – Nov 2018) the receiver gave no
+speed: uataq estimates <code class="docutils literal notranslate"><span class="pre">Speed_m_s</span></code> from consecutive fixes there, and a minute with no
+speed at all is moving on <code class="docutils literal notranslate"><span class="pre">speed_est</span></code> alone. Either the lin-group GPS
+(<code class="docutils literal notranslate"><span class="pre">uataq.read_data('trx01',</span> <span class="pre">'gps',</span> <span class="pre">lvl='qaqc')</span></code>) or the horel-group logger GPS
+(<code class="xref py py-func docutils literal notranslate"><span class="pre">read_horel_cr1000()</span></code>) works; <code class="xref py py-func docutils literal notranslate"><span class="pre">read_trax_gps()</span></code> picks by era (lin GPS for the
+pilot years, horel logger from 19 Nov 2018, which runs on its own battery and keeps
+recording when train power is off). trx03 has no lin-group GPS; its horel record starts Nov 2019.</p>
 <p class="rubric">Attributes</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="slv.measurements.mobile.location.MOVING_SPEED.html#slv.measurements.mobile.location.MOVING_SPEED" title="slv.measurements.mobile.location.MOVING_SPEED"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MOVING_SPEED</span></code></a></p></td>
-<td><p>Speed (m/s, per-minute maximum) at or above which the train counts as moving.</p></td>
+<td><p>Speed (m/s, per-minute maximum) a moving minute reaches, where a speed was recorded.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="slv.measurements.mobile.location.MOVING_SPEED_EST.html#slv.measurements.mobile.location.MOVING_SPEED_EST" title="slv.measurements.mobile.location.MOVING_SPEED_EST"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MOVING_SPEED_EST</span></code></a></p></td>
-<td><p>Threshold (m/s) for the position-derived speed estimate used when no speed was recorded (GPGGA-only eras): displacement between the minute medians one minute before and after, over 120 s.</p></td>
+<td><p>displacement between the minute medians one minute before and after, over 120 s.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="slv.measurements.mobile.location.LINE_DISTANCE.html#slv.measurements.mobile.location.LINE_DISTANCE" title="slv.measurements.mobile.location.LINE_DISTANCE"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LINE_DISTANCE</span></code></a></p></td>
 <td><p>Distance (m) from a TRAX track within which a moving train is &quot;on the line&quot;.</p></td>
@@ -757,7 +767,7 @@ is off). trx03 has no lin-group GPS; its horel record starts Nov 2019.</p>
 <td><p>scattered depot fixes leak past its edge.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="slv.measurements.mobile.location.NEAR_YARD.html#slv.measurements.mobile.location.NEAR_YARD" title="slv.measurements.mobile.location.NEAR_YARD"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NEAR_YARD</span></code></a></p></td>
-<td><p>Radius (m) around the storage polygon inside which an off-line, off-yard minute is multipath ejecta from the depot rather than a real stop → <code class="docutils literal notranslate"><span class="pre">unknown</span></code>.</p></td>
+<td><p>Radius (m) around the storage polygon inside which a minute outside the yard buffer can be the shed's multipath ejecta rather than a real stop: <code class="docutils literal notranslate"><span class="pre">depot</span></code> when stationary with a scattered fix, else <code class="docutils literal notranslate"><span class="pre">unknown</span></code> off the line.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="slv.measurements.mobile.location.OFF_TRACK.html#slv.measurements.mobile.location.OFF_TRACK" title="slv.measurements.mobile.location.OFF_TRACK"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OFF_TRACK</span></code></a></p></td>
 <td><p>Distance (m) from any TRAX track beyond which a minute is <code class="docutils literal notranslate"><span class="pre">unknown</span></code> (a train is never that far off the mapped lines; catches GPS junk and unmapped sidings).</p></td>
@@ -766,7 +776,7 @@ is off). trx03 has no lin-group GPS; its horel record starts Nov 2019.</p>
 <td><p>Logger battery voltage below which train power is off (charging level is ~13–14 V).</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="slv.measurements.mobile.location.SMOOTH_MIN.html#slv.measurements.mobile.location.SMOOTH_MIN" title="slv.measurements.mobile.location.SMOOTH_MIN"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SMOOTH_MIN</span></code></a></p></td>
-<td><p>Centred window (minutes) for the majority vote that removes single-minute flips.</p></td>
+<td><p>Centered window (minutes) for the majority vote that removes single-minute flips.</p></td>
 </tr>
 </tbody>
 </table>

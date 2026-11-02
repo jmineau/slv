@@ -41,7 +41,7 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="_static/documentation_options.js?v=1f576591"></script>
+    <script src="_static/documentation_options.js?v=5b4d2f4a"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -61,7 +61,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.10.4.dev10+g5b89abb28" />
+  <meta name="docsearch:version" content="2026.10.4.dev12+gaa3fab037" />
   
     
     <script src="_static/searchtools.js"></script>
@@ -498,15 +498,19 @@ orientation file it should read.</p>
                      outages from the lin GPS), merge_with_gps (horel_fallback:
                      rows the lin GPS never covered are georeferenced from the horel
                      logger where the Pi clock checks out -- lin_clock_offset_by_day /
-                     clock_checked_days / fill_gps_gaps_with_horel; gps_source tags each row);
+                     clock_checked_days / fill_gps_gaps_with_horel; a row whose lin fix
+                     the altitude/route/yard filters dropped is no gap, and the horel
+                     positions pass the same filters; gps_source tags each row);
                      read_lin_gps, read_horel_cr1000 and read_trax_gps take num_processes
                      (the files are read on that many processes; build_trax_obs passes its
                      own to the location step's GPS read)
       location.py    per-minute indoor/outdoor classifier: depot (degraded GPS:
-                     scatter &gt; 1 m or &lt;= 6 sats, 15-min vote) / yard / line
+                     scatter &gt; 1 m or &lt;= 6 sats, 15-min vote; or a standing minute
+                     thrown 30-300 m out of a yard with scatter &gt; 1 m) / yard / line
                      (pass-by within 300 m of a yard) / route / stopped / unknown
-                     (no fix, &gt; 100 m off track, shed ejecta); speed_est fallback
-                     for GPGGA-only eras; state_intervals, label_observations;
+                     (no fix, &gt; 100 m off track, clean-fix ejecta); moving needs the
+                     minute medians to move (speed_est &gt;= 1.5 m/s), not just a speed:
+                     shed multipath fakes 2-15 m/s; state_intervals, label_observations;
                      location_features(num_processes=) measures every fix's distance to the
                      track and the yards on that many threads (shapely releases the GIL;
                      build_trax_obs passes its own num_processes)

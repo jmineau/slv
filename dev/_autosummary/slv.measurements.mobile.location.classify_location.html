@@ -41,7 +41,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../_static/documentation_options.js?v=1f576591"></script>
+    <script src="../_static/documentation_options.js?v=5b4d2f4a"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -62,7 +62,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.10.4.dev10+g5b89abb28" />
+  <meta name="docsearch:version" content="2026.10.4.dev12+gaa3fab037" />
   
     
     <script src="../_static/searchtools.js"></script>
@@ -695,8 +695,8 @@
 <p>Rules, per minute:</p>
 <ol class="arabic simple">
 <li><p>no fixes → <code class="docutils literal notranslate"><span class="pre">unknown</span></code></p></li>
-<li><p>moving (<code class="docutils literal notranslate"><span class="pre">speed_max</span> <span class="pre">&gt;=</span> <span class="pre">moving_speed</span></code>, or where no speed was recorded
-<code class="docutils literal notranslate"><span class="pre">speed_est</span> <span class="pre">&gt;=</span> <span class="pre">moving_speed_est</span></code>) on a track (<code class="docutils literal notranslate"><span class="pre">d_track</span> <span class="pre">&lt;</span> <span class="pre">line_distance</span></code>):
+<li><p>moving (<code class="docutils literal notranslate"><span class="pre">speed_est</span> <span class="pre">&gt;=</span> <span class="pre">moving_speed_est</span></code> and, where a speed was recorded,
+<code class="docutils literal notranslate"><span class="pre">speed_max</span> <span class="pre">&gt;=</span> <span class="pre">moving_speed</span></code>) on a track (<code class="docutils literal notranslate"><span class="pre">d_track</span> <span class="pre">&lt;</span> <span class="pre">line_distance</span></code>):
 <code class="docutils literal notranslate"><span class="pre">line</span></code> if within <code class="docutils literal notranslate"><span class="pre">near_yard_m</span></code> of a storage polygon, else <code class="docutils literal notranslate"><span class="pre">route</span></code>;
 moving off-track inside the yard buffer → <code class="docutils literal notranslate"><span class="pre">yard</span></code>.</p></li>
 <li><p>stationary near the yard: degraded fix (<code class="docutils literal notranslate"><span class="pre">scatter</span> <span class="pre">&gt;</span> <span class="pre">scatter_m</span></code> or
@@ -709,6 +709,10 @@ Otherwise <code class="docutils literal notranslate"><span class="pre">yard</spa
 <li><p>overrides to <code class="docutils literal notranslate"><span class="pre">unknown</span></code>: <code class="docutils literal notranslate"><span class="pre">d_track</span> <span class="pre">&gt;</span> <span class="pre">off_track_m</span></code> (unless inside the yard
 buffer), or within <code class="docutils literal notranslate"><span class="pre">near_yard_m</span></code> of the storage polygon while neither on the
 line nor inside the yard buffer.</p></li>
+<li><p>…except that a stationary minute within <code class="docutils literal notranslate"><span class="pre">near_yard_m</span></code> of the storage polygon,
+outside the buffer, with <code class="docutils literal notranslate"><span class="pre">scatter</span> <span class="pre">&gt;</span> <span class="pre">scatter_m</span></code> is <code class="docutils literal notranslate"><span class="pre">depot</span></code>, on the line or
+off it: the shed’s multipath threw its median out of the yard. Only the
+scatter counts here, not a low satellite count, which also happens outdoors.</p></li>
 </ol>
 <p>Returns a frame with <code class="docutils literal notranslate"><span class="pre">state</span></code> (categorical), <code class="docutils literal notranslate"><span class="pre">indoor</span></code> (nullable boolean:
 depot → True, other located states → False, unknown → NA), <code class="docutils literal notranslate"><span class="pre">yard_name</span></code>

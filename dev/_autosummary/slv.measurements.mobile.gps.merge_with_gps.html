@@ -41,7 +41,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../_static/documentation_options.js?v=1f576591"></script>
+    <script src="../_static/documentation_options.js?v=5b4d2f4a"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -62,7 +62,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.10.4.dev10+g5b89abb28" />
+  <meta name="docsearch:version" content="2026.10.4.dev12+gaa3fab037" />
   
     
     <script src="../_static/searchtools.js"></script>
@@ -698,7 +698,8 @@ fixes with an altitude outside <code class="docutils literal notranslate"><span 
 <code class="docutils literal notranslate"><span class="pre">route_buffer</span></code> m from <code class="docutils literal notranslate"><span class="pre">routes</span></code> and those inside <code class="docutils literal notranslate"><span class="pre">storage_polygon</span></code>, then joins
 on the GPS clock (the Pi clock of the lin loggers is not trusted). For <code class="docutils literal notranslate"><span class="pre">trx*</span></code>
 sites the defaults are the TRAX lines, 50 m and the JRRSC yard; pass <code class="docutils literal notranslate"><span class="pre">False</span></code> to
-skip a filter.</p>
+skip a filter. A record whose lin fix a filter dropped is dropped with it; the same
+filters apply to the positions <code class="docutils literal notranslate"><span class="pre">horel_fallback</span></code> adds.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -711,8 +712,10 @@ skip a filter.</p>
 <li><p><strong>storage_polygon</strong> (<em>GeoDataFrame</em><em>, </em><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><em>str</em></a><em> or </em><em>False</em><em>, </em><em>optional</em>) – See <a class="reference internal" href="slv.measurements.mobile.network.get_geodf.html#slv.measurements.mobile.network.get_geodf" title="slv.measurements.mobile.network.get_geodf"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_geodf()</span></code></a>.</p></li>
 <li><p><strong>route_buffer</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><em>float</em></a><em>, </em><em>optional</em>) – Metres, in the routes’ CRS.</p></li>
 <li><p><strong>altitude_range</strong> (<em>(</em><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><em>float</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/builtins/functions.html#float" title="(in Python v3.15)"><em>float</em></a><em>)</em><em>, </em><em>optional</em>) – Plausible altitudes, default <a class="reference internal" href="slv.measurements.mobile.gps.ALTITUDE_RANGE_MSL.html#slv.measurements.mobile.gps.ALTITUDE_RANGE_MSL" title="slv.measurements.mobile.gps.ALTITUDE_RANGE_MSL"><code class="xref py py-data docutils literal notranslate"><span class="pre">ALTITUDE_RANGE_MSL</span></code></a>.</p></li>
-<li><p><strong>horel_fallback</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><em>bool</em></a>) – Georeference the rows the lin GPS never covered from the horel logger, where the Pi
-clock checks out (<a class="reference internal" href="slv.measurements.mobile.gps.fill_gps_gaps_with_horel.html#slv.measurements.mobile.gps.fill_gps_gaps_with_horel" title="slv.measurements.mobile.gps.fill_gps_gaps_with_horel"><code class="xref py py-func docutils literal notranslate"><span class="pre">fill_gps_gaps_with_horel()</span></code></a>). Every row is tagged <code class="docutils literal notranslate"><span class="pre">gps_source</span></code>.</p></li>
+<li><p><strong>horel_fallback</strong> (<a class="reference external" href="https://docs.python.org/3/builtins/functions.html#bool" title="(in Python v3.15)"><em>bool</em></a>) – Georeference the rows the lin GPS never covered (no lin fix at all in their second
+of the Pi clock, before the filters) from the horel logger, where the Pi clock
+checks out (<a class="reference internal" href="slv.measurements.mobile.gps.fill_gps_gaps_with_horel.html#slv.measurements.mobile.gps.fill_gps_gaps_with_horel" title="slv.measurements.mobile.gps.fill_gps_gaps_with_horel"><code class="xref py py-func docutils literal notranslate"><span class="pre">fill_gps_gaps_with_horel()</span></code></a>), and keep those whose horel position
+passes the same filters. Every row is tagged <code class="docutils literal notranslate"><span class="pre">gps_source</span></code>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
