@@ -23,7 +23,7 @@ def get_data_dir(env_var: str) -> Path:
     This calls ``lair.config.get_data_dir`` (imported on the call, so
     ``import slv`` stays light). Set the variable in your shell profile, e.g.::
 
-        export SLV_DAQ_DIR=/path/to/SLV/data/DAQ/processed
+        export SLV_DAQ_DIR=/path/to/DAQ
 
     Parameters
     ----------
