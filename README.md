@@ -68,7 +68,7 @@ config = InversionConfig(tstart="2016-01-01", tend="2024-01-01", flux_freq="MS",
 post = run(config)  # a fips Posterior: post.estimate, post.variances, post.cov(W)
 ```
 
-The [usage guide](https://jmineau.github.io/slv/usage.html) also covers loading
+The [usage guide](https://jmineau.github.io/slv/stable/usage.html) also covers loading
 measurements, hyperparameter sweeps and building TRAX receptors.
 
 ## Documentation
