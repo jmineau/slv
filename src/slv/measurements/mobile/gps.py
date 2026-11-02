@@ -167,9 +167,9 @@ def read_lin_gps(
     Lin-group (air-trend) GPS at 1 s from the pipeline ``qaqc`` level, Dec 2014 on.
 
     ``uataq`` read with ``N_Satellites`` renamed to ``N_Sat``; rows with
-    :data:`LIN_GPS_DROP_FLAGS` are removed. ``Speed_m_s`` is NA from Dec 2015 to
-    19 Jan 2018 (GPGGA only), which :func:`~.location.classify_location` handles via
-    ``speed_est``. Indexed by GPS ``Time_UTC``; ``Pi_Time`` is kept for merging with
+    :data:`LIN_GPS_DROP_FLAGS` are removed. From Dec 2015 to 19 Jan 2018 only GPGGA was
+    logged, so ``Speed_m_s`` there is uataq's estimate from consecutive fixes
+    (``Speed_Estimated`` is True). Indexed by GPS ``Time_UTC``; ``Pi_Time`` is kept for merging with
     the LGR. Only records while the Pi has train power. ``num_processes`` is the number of
     processes that read the files (passed to ``uataq.read_data``); the frame is the same for
     any number.

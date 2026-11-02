@@ -20,6 +20,7 @@ def _feat(n, **cols):
         "scatter": 0.1,
         "speed": 0.0,
         "speed_max": 0.0,
+        "speed_est": 0.0,
         "d_track": 200.0,
         "d_yard": 0.0,
         "in_yard": 1.0,
@@ -75,6 +76,7 @@ def test_line_pass_route_stopped_and_unknown():
     f = _feat(
         6,
         speed_max=[0.0, 12.0, 12.0, 12.0, 0.0, 0.0],
+        speed_est=[0.0, 12.0, 12.0, 12.0, 0.0, 0.0],
         d_track=[200.0, 10.0, 200.0, 5.0, 5.0, 5.0],
         d_yard=[0.0, 0.0, 0.0, 3000.0, 3000.0, 3000.0],
         n_gps=[12, 12, 12, 12, 12, 0],
@@ -230,9 +232,49 @@ def test_untrusted_positions_are_unknown():
         d_yard=[120.0, 120.0, 3000.0, 3000.0],
         d_track=[150.0, 10.0, 130.0, 5.0],
         speed_max=[0.0, 12.0, 0.0, 0.0],
+        speed_est=[0.0, 12.0, 0.0, 0.0],
     )
     st = classify_location(f, smooth_min=1)
     assert st.state.tolist() == ["unknown", "line", "unknown", "stopped"]
     # inside the yard buffer the track distance is irrelevant (yard tracks are unmapped)
     f = _feat(2, d_yard=0.0, d_track=250.0)
     assert (classify_location(f, smooth_min=1).state == "yard").all()
+
+
+def test_multipath_speed_in_the_shed_is_not_moving():
+    # inside the shed the receiver reports 2-15 m/s while the minute medians stay put:
+    # a speed alone does not make a minute moving, so these are depot, not yard or line
+    n = 40
+    f = _feat(
+        n, scatter=8.0, nsat=5.0, speed_max=np.tile([3.0, 9.0], n // 2), speed_est=0.2
+    )
+    assert (classify_location(f).state == "depot").all()
+    # the same with the median on a track by the yard: depot, not a pass-by (line)
+    f["d_track"] = 20.0
+    assert (classify_location(f).state == "depot").all()
+    # a real move: the position moves as well
+    f["speed_est"] = 8.0
+    assert (classify_location(f).state == "line").all()
+
+
+def test_scattered_ejecta_by_the_yard_are_depot():
+    # medians thrown 30-300 m out of the yard by shed multipath, off the line or on it
+    f = _feat(
+        6,
+        d_yard=120.0,
+        d_track=[150.0, 150.0, 150.0, 20.0, 20.0, 150.0],
+        scatter=[15.0, 0.2, 15.0, 15.0, 0.2, 15.0],
+        nsat=[4.0, 4.0, 4.0, 4.0, 4.0, 4.0],
+        speed_max=[3.0, 0.0, 12.0, 3.0, 0.0, 3.0],
+        speed_est=[0.1, 0.0, 12.0, 0.1, 0.0, 0.1],
+    )
+    f.loc[f.index[5], "d_yard"] = 3000.0  # far from any yard: GPS junk, not the shed
+    st = classify_location(f, smooth_min=1)
+    assert st.state.tolist() == [
+        "depot",
+        "unknown",
+        "unknown",
+        "depot",
+        "stopped",
+        "unknown",
+    ]
