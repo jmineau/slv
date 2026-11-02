@@ -250,10 +250,12 @@ def lin_clock_offset_by_day(gps: pd.DataFrame) -> pd.Series:
 
     The Pi had no working real-time clock for most of the record, so its time can be hours to
     days off. A horel fix can only georeference an LGR row (which carries Pi time) while the two
-    clocks agree, which this measures: see :func:`fill_gps_gaps_with_horel`.
+    clocks agree, which this measures: see :func:`fill_gps_gaps_with_horel`. A frame with no
+    fixes (or no ``Pi_Time``) gives an empty series, still indexed by day, so that
+    :func:`clock_checked_days` finds no checked day in it.
     """
     if not len(gps) or "Pi_Time" not in gps.columns:
-        return pd.Series(dtype=float)
+        return pd.Series(dtype=float, index=pd.DatetimeIndex([]))
     t = pd.to_datetime(
         gps["Time_UTC"] if "Time_UTC" in gps.columns else gps.index, errors="coerce"
     )
