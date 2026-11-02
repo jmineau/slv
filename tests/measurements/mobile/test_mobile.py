@@ -601,6 +601,62 @@ def test_recover_hot_rows_divides_by_the_fitted_slope():
     assert out.CH4.iloc[0] == pytest.approx(1.96 / 0.98)
 
 
+def _hot_frames(ids, raw=None):
+    """A ``cal``/``support`` pair of hot (-64) rows, one per ID, blanked as the pipeline does."""
+    n = len(ids)
+    t = pd.date_range("2019-07-20 20:00:00", periods=n, freq="1s")
+    cal = pd.DataFrame(
+        {
+            "Time_UTC": t,
+            "CH4": [np.nan] * n,
+            "CH4d_m": [1.004] * n,
+            "QAQC_Flag": [-64] * n,
+        }
+    )
+    support = pd.DataFrame(
+        {
+            "Time_UTC": t,
+            "CH4_raw": raw if raw is not None else [1.92 + 0.01 * i for i in range(n)],
+            "QAQC_Flag": [-64.0] * n,
+            "Cavity_P_torr": [140.0] * n,
+            "ID_CH4": ids,
+        }
+    )
+    return t, cal, support
+
+
+def test_recover_hot_rows_skips_reference_tank_and_flush_rows():
+    """#80: a tank or flush row's CH4 is blank too; only the air row comes back."""
+    from slv.measurements.mobile.obs import recover_hot_rows
+
+    # air, flushing toward the tank, the 2.85 ppm tank
+    t, cal, support = _hot_frames([-10.0, -99.0, 2.85], raw=[1.92, 2.40, 2.862])
+    out = recover_hot_rows(cal, support)
+    assert out.Time_UTC.tolist() == [t[0]]
+    assert out.CH4.iloc[0] == pytest.approx(1.92 / 1.004)
+    assert out.index.tolist() == [0]  # indexed like cal
+
+
+def test_recover_hot_rows_skips_rows_without_an_atmosphere_id():
+    """A missing ID is not atmosphere (as in normalize_pollutant), nor is a missing qaqc row."""
+    from slv.measurements.mobile.obs import recover_hot_rows
+
+    t, cal, support = _hot_frames([np.nan, -10.0, 2.66])
+    out = recover_hot_rows(cal, support.iloc[:2])  # the 2.66 row has no qaqc reading
+    assert out.Time_UTC.tolist() == [t[1]]
+
+
+def test_recover_hot_rows_keeps_every_air_row_as_before():
+    """An all-air frame recovers the same rows and values as the slope division alone."""
+    from slv.measurements.mobile.obs import recover_hot_rows
+
+    raw = [1.92, 2.05, 0.5, 2.40, 350.0]  # 0.5 and 350 ppm are outside the valid range
+    t, cal, support = _hot_frames([-10.0] * 5, raw=raw)
+    out = recover_hot_rows(cal, support)
+    assert out.Time_UTC.tolist() == [t[0], t[1], t[3]]
+    assert out.CH4.tolist() == [1.92 / 1.004, 2.05 / 1.004, 2.40 / 1.004]
+
+
 def test_epoch_offset_is_stored_and_reversible():
     from slv.measurements.mobile.calibration import (
         apply_epoch_offset,
