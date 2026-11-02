@@ -41,7 +41,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../_static/documentation_options.js?v=401c68dd"></script>
+    <script src="../_static/documentation_options.js?v=eab2a841"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -62,7 +62,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.10.4.dev19+ga75f5fc7e" />
+  <meta name="docsearch:version" content="2026.10.4.dev20+ga87fe1ecc" />
   
     
     <script src="../_static/searchtools.js"></script>
@@ -694,7 +694,9 @@
 <dd><p>Median GPS-minus-Pi clock offset (s) per UTC day, from a lin GPS frame.</p>
 <p>The Pi had no working real-time clock for most of the record, so its time can be hours to
 days off. A horel fix can only georeference an LGR row (which carries Pi time) while the two
-clocks agree, which this measures: see <a class="reference internal" href="slv.measurements.mobile.gps.fill_gps_gaps_with_horel.html#slv.measurements.mobile.gps.fill_gps_gaps_with_horel" title="slv.measurements.mobile.gps.fill_gps_gaps_with_horel"><code class="xref py py-func docutils literal notranslate"><span class="pre">fill_gps_gaps_with_horel()</span></code></a>.</p>
+clocks agree, which this measures: see <a class="reference internal" href="slv.measurements.mobile.gps.fill_gps_gaps_with_horel.html#slv.measurements.mobile.gps.fill_gps_gaps_with_horel" title="slv.measurements.mobile.gps.fill_gps_gaps_with_horel"><code class="xref py py-func docutils literal notranslate"><span class="pre">fill_gps_gaps_with_horel()</span></code></a>. A frame with no
+fixes (or no <code class="docutils literal notranslate"><span class="pre">Pi_Time</span></code>) gives an empty series, still indexed by day, so that
+<a class="reference internal" href="slv.measurements.mobile.gps.clock_checked_days.html#slv.measurements.mobile.gps.clock_checked_days" title="slv.measurements.mobile.gps.clock_checked_days"><code class="xref py py-func docutils literal notranslate"><span class="pre">clock_checked_days()</span></code></a> finds no checked day in it.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.Series.html#pandas.Series" title="(in pandas v3.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code></a></span></p>
