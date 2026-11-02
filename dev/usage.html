@@ -41,7 +41,7 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="_static/documentation_options.js?v=fa41b92a"></script>
+    <script src="_static/documentation_options.js?v=401c68dd"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -62,7 +62,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.10.4.dev17+g8866b0c53" />
+  <meta name="docsearch:version" content="2026.10.4.dev19+ga75f5fc7e" />
   
     
     <script src="_static/searchtools.js"></script>
@@ -516,7 +516,20 @@ particles left the domain, keeps its obs: it saw no emissions.</p>
 
 <span class="n">post</span><span class="o">.</span><span class="n">estimate</span><span class="p">[</span><span class="s2">"flux"</span><span class="p">]</span><span class="o">.</span><span class="n">to_series</span><span class="p">()</span>  <span class="c1"># the posterior flux by time and cell</span>
 <span class="n">post</span><span class="o">.</span><span class="n">problem</span><span class="o">.</span><span class="n">prior</span><span class="p">[</span><span class="s2">"flux"</span><span class="p">]</span>  <span class="c1"># the prior, a fips Vector</span>
-<span class="n">post</span><span class="o">.</span><span class="n">cov</span><span class="p">(</span><span class="n">W</span><span class="p">)</span>  <span class="c1"># the posterior covariance of aggregates W (an Operator), such as totals</span>
+
+<span class="c1"># W is a fips Operator with one row per aggregate and one column per state element;</span>
+<span class="c1"># this one is the mean flux over every cell and month</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">fips</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+<span class="n">prior</span> <span class="o">=</span> <span class="n">post</span><span class="o">.</span><span class="n">problem</span><span class="o">.</span><span class="n">prior</span>
+<span class="n">W</span> <span class="o">=</span> <span class="n">fips</span><span class="o">.</span><span class="n">Operator</span><span class="p">(</span>
+    <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">((</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">prior</span><span class="p">)),</span> <span class="mi">1</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">prior</span><span class="p">)),</span>
+    <span class="n">fips</span><span class="o">.</span><span class="n">Space</span><span class="p">({</span><span class="s2">"mean"</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Index</span><span class="p">([</span><span class="s2">"all"</span><span class="p">],</span> <span class="n">name</span><span class="o">=</span><span class="s2">"region"</span><span class="p">)}),</span>
+    <span class="n">prior</span><span class="o">.</span><span class="n">space</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">post</span><span class="o">.</span><span class="n">cov</span><span class="p">(</span><span class="n">W</span><span class="p">)</span>  <span class="c1"># the posterior covariance of the aggregates in W, here 1 x 1</span>
 </pre></div>
 </div>
 <p>The flux intervals are whole <code class="docutils literal notranslate"><span class="pre">flux_freq</span></code> periods from <code class="docutils literal notranslate"><span class="pre">tstart</span></code> to <code class="docutils literal notranslate"><span class="pre">tend</span></code>, so both
@@ -526,6 +539,19 @@ is off them raises <code class="docutils literal notranslate"><span class="pre">
 periods with no flux to fit.</p>
 <p>Building the Jacobian reads every footprint in the period: run it through SLURM, not
 on a login node.</p>
+<p>Two things to know before running the block above as a script:</p>
+<ul class="simple">
+<li><p>The default prior, <code class="docutils literal notranslate"><span class="pre">prior=&quot;epa&quot;</span></code> (and <code class="docutils literal notranslate"><span class="pre">&quot;edgar&quot;</span></code>), is regridded with <code class="docutils literal notranslate"><span class="pre">xesmf</span></code>, which
+only the pixi environment has (see <a class="reference internal" href="installation.html"><span class="doc">Installation</span></a>): run it with
+<code class="docutils literal notranslate"><span class="pre">pixi</span> <span class="pre">run</span> <span class="pre">python</span> <span class="pre">script.py</span></code>. In the <code class="docutils literal notranslate"><span class="pre">uv</span> <span class="pre">sync</span></code> environment the run stops at the
+prior with <code class="docutils literal notranslate"><span class="pre">ModuleNotFoundError:</span> <span class="pre">No</span> <span class="pre">module</span> <span class="pre">named</span> <span class="pre">'xesmf'</span></code>; <code class="docutils literal notranslate"><span class="pre">prior=&quot;constant&quot;</span></code>
+(<code class="docutils literal notranslate"><span class="pre">prior_kwargs={&quot;value&quot;:</span> <span class="pre">...}</span></code>) needs none.</p></li>
+<li><p>Python 3.14 and later start worker processes by spawning a fresh interpreter that
+imports the script again. With <code class="docutils literal notranslate"><span class="pre">num_processes</span></code> above 1 (the default is 8), put the
+config and the <code class="docutils literal notranslate"><span class="pre">run</span></code> call under <code class="docutils literal notranslate"><span class="pre">if</span> <span class="pre">__name__</span> <span class="pre">==</span> <span class="pre">&quot;__main__&quot;:</span></code>; without it every
+worker repeats the run and the obs load as “No data loaded”. Python 3.13 and earlier
+fork on Linux and do not need it (checked on 3.12).</p></li>
+</ul>
 </section>
 <section id="sweeping-hyperparameters">
 <h2>Sweeping hyperparameters<a class="headerlink" href="#sweeping-hyperparameters" title="Link to this heading">#</a></h2>

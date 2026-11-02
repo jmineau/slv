@@ -77,7 +77,20 @@ particles left the domain, keeps its obs: it saw no emissions.
 
    post.estimate["flux"].to_series()  # the posterior flux by time and cell
    post.problem.prior["flux"]  # the prior, a fips Vector
-   post.cov(W)  # the posterior covariance of aggregates W (an Operator), such as totals
+
+   # W is a fips Operator with one row per aggregate and one column per state element;
+   # this one is the mean flux over every cell and month
+   import fips
+   import numpy as np
+   import pandas as pd
+
+   prior = post.problem.prior
+   W = fips.Operator(
+       np.full((1, len(prior)), 1 / len(prior)),
+       fips.Space({"mean": pd.Index(["all"], name="region")}),
+       prior.space,
+   )
+   post.cov(W)  # the posterior covariance of the aggregates in W, here 1 x 1
 
 The flux intervals are whole ``flux_freq`` periods from ``tstart`` to ``tend``, so both
 must be on its boundaries: January 1 for ``"YS"``, the first of a quarter for ``"QS"``,
@@ -87,6 +100,19 @@ periods with no flux to fit.
 
 Building the Jacobian reads every footprint in the period: run it through SLURM, not
 on a login node.
+
+Two things to know before running the block above as a script:
+
+- The default prior, ``prior="epa"`` (and ``"edgar"``), is regridded with ``xesmf``, which
+  only the pixi environment has (see :doc:`installation`): run it with
+  ``pixi run python script.py``. In the ``uv sync`` environment the run stops at the
+  prior with ``ModuleNotFoundError: No module named 'xesmf'``; ``prior="constant"``
+  (``prior_kwargs={"value": ...}``) needs none.
+- Python 3.14 and later start worker processes by spawning a fresh interpreter that
+  imports the script again. With ``num_processes`` above 1 (the default is 8), put the
+  config and the ``run`` call under ``if __name__ == "__main__":``; without it every
+  worker repeats the run and the obs load as "No data loaded". Python 3.13 and earlier
+  fork on Linux and do not need it (checked on 3.12).
 
 Sweeping hyperparameters
 ------------------------

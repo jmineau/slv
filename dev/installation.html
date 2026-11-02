@@ -41,7 +41,7 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="_static/documentation_options.js?v=fa41b92a"></script>
+    <script src="_static/documentation_options.js?v=401c68dd"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -62,7 +62,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.10.4.dev17+g8866b0c53" />
+  <meta name="docsearch:version" content="2026.10.4.dev19+ga75f5fc7e" />
   
     
     <script src="_static/searchtools.js"></script>
@@ -489,19 +489,30 @@ used; a missing or empty one raises <code class="docutils literal notranslate"><
 <td><p>census block groups, roads and borders (<a class="reference internal" href="_autosummary/slv.basemap.html#module-slv.basemap" title="slv.basemap"><code class="xref py py-mod docutils literal notranslate"><span class="pre">slv.basemap</span></code></a>)</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">SLV_USER_DATA_DIR</span></code></p></td>
-<td><p>ACS population, MesoWest stations, TRAX obs and point caches, PCAP events</p></td>
+<td><p>ACS population, MesoWest stations, TRAX obs and point caches, PCAP events; slv also
+writes what it builds and downloads here (the TRAX caches, NOAA GML files), so the
+folder must be writable</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">LINGROUP_DATA_DIR</span></code></p></td>
 <td><p>the TRAX line geometry</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">SLV_DAQ_DIR</span></code></p></td>
-<td><p>Utah DAQ Picarro files</p></td>
+<td><p>Utah DAQ Picarro files, read from <code class="docutils literal notranslate"><span class="pre">formaldehyde_methane/data/&lt;site&gt;/picarro_g2307/</span></code>
+under it</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">SLV_SOUNDINGS_DIR</span></code></p></td>
 <td><p>SLC soundings, for PCAP events (<a class="reference internal" href="_autosummary/slv.meteorology.pcaps.html#module-slv.meteorology.pcaps" title="slv.meteorology.pcaps"><code class="xref py py-mod docutils literal notranslate"><span class="pre">slv.meteorology.pcaps</span></code></a>)</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">SLV_STILT_DIR</span></code></p></td>
 <td><p>the PYSTILT project with the footprints (default, also when empty: the CHPC paper-1 project)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">LAIR_INVENTORY_DIR</span></code></p></td>
+<td><p>the emission inventories behind the EPA and EDGAR priors; it is lair’s variable,
+so slv has no <code class="docutils literal notranslate"><span class="pre">SLV_</span></code> one for it (missing, it raises <code class="docutils literal notranslate"><span class="pre">ValueError</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">LAIR_GML_DIR</span></code></p></td>
+<td><p>the shared copy of NOAA GML data for <code class="docutils literal notranslate"><span class="pre">background=&quot;gml&quot;</span></code>; a file not there is
+downloaded into <code class="docutils literal notranslate"><span class="pre">$SLV_USER_DATA_DIR/gml</span></code> (on a machine with network access)</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">STADIA_API_KEY</span></code></p></td>
 <td><p>Stadia map tiles (<code class="docutils literal notranslate"><span class="pre">SaltLake(tiles=&quot;terrain&quot;)</span></code>)</p></td>
