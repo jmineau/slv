@@ -41,7 +41,7 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="_static/documentation_options.js?v=5b4d2f4a"></script>
+    <script src="_static/documentation_options.js?v=851c9541"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -61,7 +61,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.10.4.dev12+gaa3fab037" />
+  <meta name="docsearch:version" content="2026.10.4.dev13+g476d161ec" />
   
     
     <script src="_static/searchtools.js"></script>
@@ -534,7 +534,8 @@ orientation file it should read.</p>
                      atmosphere row &lt; 1.70 ppm: a laser dropout reads low for minutes to
                      hours and its shoulder passes QC), recover_hot_rows (flag -64 rows
                      have a fitted CH4d_m but a blanked CH4d_ppm_cal: qaqc value / slope,
-                     atmosphere rows only, through normalize_pollutant's ID check)
+                     atmosphere rows only, through normalize_pollutant's ID check; filled
+                     in before apply_slope_guard, which then judges them too)
       transects.py   transect matrices obs[transect, point]: build_network_transects
                      (one matrix over the 50-m network points for all lines: per-epoch
                      inlet lag -&gt; snap 60 m -&gt; line by windowed vote among the point's

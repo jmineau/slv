@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../../_static/documentation_options.js?v=5b4d2f4a"></script>
+    <script src="../../../../_static/documentation_options.js?v=851c9541"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -59,7 +59,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.10.4.dev12+gaa3fab037" />
+  <meta name="docsearch:version" content="2026.10.4.dev13+g476d161ec" />
   
     
     <script src="../../../../_static/searchtools.js"></script>
@@ -695,7 +695,7 @@
 <span class="sd">    a missing ID is not atmosphere) inside the valid range come back.</span>
 
 <span class="sd">    Returns the recovered rows (``Time_UTC``, ``CH4``), indexed like ``cal``, which the</span>
-<span class="sd">    caller appends to the calibrated ones.</span>
+<span class="sd">    caller writes into ``cal`` before :func:`apply_slope_guard`.</span>
 <span class="sd">    """</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">slv.measurements.pollutants</span><span class="w"> </span><span class="kn">import</span> <span class="n">normalize_pollutant</span>
 
@@ -890,12 +890,14 @@
             <span class="n">num_processes</span><span class="p">,</span>
             <span class="n">keep</span><span class="o">=</span><span class="p">(</span><span class="s2">"CH4d_m"</span><span class="p">,</span> <span class="s2">"QAQC_Flag"</span><span class="p">),</span>
         <span class="p">)</span>
-        <span class="n">cal</span> <span class="o">=</span> <span class="n">apply_slope_guard</span><span class="p">(</span><span class="n">cal</span><span class="p">,</span> <span class="n">slope_tol</span><span class="p">)</span>
         <span class="n">hot</span> <span class="o">=</span> <span class="n">recover_hot_rows</span><span class="p">(</span><span class="n">cal</span><span class="p">,</span> <span class="n">support</span><span class="p">)</span> <span class="k">if</span> <span class="n">recover_hot</span> <span class="k">else</span> <span class="n">empty</span>
-        <span class="n">cal</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
-            <span class="p">[</span><span class="n">cal</span><span class="p">[</span><span class="n">cal</span><span class="o">.</span><span class="n">CH4</span><span class="o">.</span><span class="n">notna</span><span class="p">()][[</span><span class="s2">"Time_UTC"</span><span class="p">,</span> <span class="s2">"CH4"</span><span class="p">]],</span> <span class="n">hot</span><span class="p">[[</span><span class="s2">"Time_UTC"</span><span class="p">,</span> <span class="s2">"CH4"</span><span class="p">]]],</span>
-            <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-        <span class="p">)</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">cal_source</span><span class="o">=</span><span class="s2">"pipeline"</span><span class="p">)</span>
+        <span class="c1"># before the slope guard: a recovered row is the reading over the same fitted slope,</span>
+        <span class="c1"># so a slope the guard rejects miscalibrates it as much as a calibrated row</span>
+        <span class="n">cal</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">hot</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="s2">"CH4"</span><span class="p">]</span> <span class="o">=</span> <span class="n">hot</span><span class="p">[</span><span class="s2">"CH4"</span><span class="p">]</span>
+        <span class="n">cal</span> <span class="o">=</span> <span class="n">apply_slope_guard</span><span class="p">(</span><span class="n">cal</span><span class="p">,</span> <span class="n">slope_tol</span><span class="p">)</span>
+        <span class="n">cal</span> <span class="o">=</span> <span class="n">cal</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">cal</span><span class="o">.</span><span class="n">CH4</span><span class="o">.</span><span class="n">notna</span><span class="p">(),</span> <span class="p">[</span><span class="s2">"Time_UTC"</span><span class="p">,</span> <span class="s2">"CH4"</span><span class="p">]]</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+            <span class="n">cal_source</span><span class="o">=</span><span class="s2">"pipeline"</span>
+        <span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">hot</span><span class="p">):</span>
             <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  recovered </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">hot</span><span class="p">)</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> flag -64 rows (hot cavity)"</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">except</span> <span class="p">(</span><span class="ne">FileNotFoundError</span><span class="p">,</span> <span class="ne">KeyError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">,</span> <span class="n">uataq</span><span class="o">.</span><span class="n">errors</span><span class="o">.</span><span class="n">ReaderError</span><span class="p">):</span>
@@ -1022,7 +1024,8 @@
 <span class="sd">    tagged ``low_pressure=True``, whatever its flag (:func:`apply_low_pressure_rule`);</span>
 <span class="sd">    ``low_pressure=None`` drops the −63 rows and tags none. Pipeline-calibrated rows whose slope deviates more than ``slope_tol`` from the</span>
 <span class="sd">    day's median slope are dropped (:func:`apply_slope_guard`; one bad reference period</span>
-<span class="sd">    otherwise miscalibrates the next hour by 20–100 %). Then merged with *every* GPS fix by :func:`merge_with_gps` (no route buffer,</span>
+<span class="sd">    otherwise miscalibrates the next hour by 20–100 %), the hot-cavity rows that</span>
+<span class="sd">    :func:`recover_hot_rows` brings back included. Then merged with *every* GPS fix by :func:`merge_with_gps` (no route buffer,</span>
 <span class="sd">    no storage-yard removal) and, with ``classify``, labelled per minute by</span>
 <span class="sd">    :func:`label_trax_location` (``state``, ``indoor``, ``yard_name``) so that the location</span>
 <span class="sd">    filter is applied at load time (:func:`load_trax_obs`). Pass ``routes`` /</span>
