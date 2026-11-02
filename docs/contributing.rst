@@ -57,7 +57,9 @@ Module layout
                          outages from the lin GPS), merge_with_gps (horel_fallback:
                          rows the lin GPS never covered are georeferenced from the horel
                          logger where the Pi clock checks out -- lin_clock_offset_by_day /
-                         clock_checked_days / fill_gps_gaps_with_horel; gps_source tags each row);
+                         clock_checked_days / fill_gps_gaps_with_horel; a row whose lin fix
+                         the altitude/route/yard filters dropped is no gap, and the horel
+                         positions pass the same filters; gps_source tags each row);
                          read_lin_gps, read_horel_cr1000 and read_trax_gps take num_processes
                          (the files are read on that many processes; build_trax_obs passes its
                          own to the location step's GPS read)
