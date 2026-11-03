@@ -7,6 +7,30 @@ alone: the entries are written at release (`just changelog` drafts them).
 
 ## [Unreleased]
 
+## [2026.11.0] - 2026-11-03
+
+### Changed
+
+- **Breaking:** the sweep's results table and `summarize()` give the mean bias as model minus obs, as the printed report did; the sweep gave obs minus model, so one inversion read +2 in one and −2 in the other. Both take their fit numbers from `report.fit_metrics`: RMSE and mean bias of the concentration, and two R2 of the enhancement, each for the prior and the posterior. (#65)
+- **Breaking:** the sweep results table loses its `RMSE` column and `summarize()` no longer prints "Bayesian RMSE". Both were the same number as `posterior_conc_rmse` and the "RMSE (Posterior)" line. (#89)
+- **Breaking:** `SaltLake.add_inset` is `SaltLake.add_locator_map`, a thin call of lair's `add_locator_map`, which now takes `scale` and `fill` and places the inset by `bounds` in the main axes. (#59, #91)
+- Pins: lair v2026.12.12, uataq v2026.11.0, `pystilt>=0.1.0a27` and `fips>=0.2.0b2`. Paper 1's inputs and posterior built with the old and new pins are bit-for-bit identical. (#69)
+
+### Fixed
+
+- **TRAX data.** A day whose median slope is broken (the reference periods read near zero) no longer empties the day in the slope guard: it is judged against 1, with the same tolerance. Days with a sane median do not change. Rows come back on the affected days of 2015, 2017 and 2018; a trx01 record reprocessed since the reference periods were fixed does not change. (#86, #87)
+- Rows that share a `Time_UTC` come in one order (time, then latitude, longitude and CH4), so transects, crossings and fixes no longer depend on the order the rows arrived in. (#88, #90)
+- Hot (−64) rows are checked against the slope guard, where they used to be brought back even on a slope the guard rejects. (#82)
+- `recover_hot_rows` brings back only atmosphere rows, not reference-tank or flush rows. (#81)
+- The horel fallback keeps `merge_with_gps`'s altitude, route and storage-yard filters, where yard and off-route rows came back. (#79)
+- A standing TRAX train in a shed no longer reads as moving from multipath speed. (#67)
+- `location_features` takes a logger without roof T/RH, and `lin_clock_offset_by_day` returns a day-indexed Series when there are no lin-GPS fixes; both stopped TRAX loads before. (#74, #78)
+- The sweep's domain totals cover the cells that the coverage filter holds at the prior, as `summarize` does. (#77)
+- An empty `SLV_STILT_DIR` counts as unset, and `slv.get_data_dir` uses lair's. (#62, #64)
+- The residuals are taken as a float array before `np.percentile`.
+- `site_config.csv` names WBB as uataq does, and a test checks that its UATAQ rows agree with uataq. (#60, #68)
+- The README and usage docs name the environment variables the inversion reads, say the inversion example needs the pixi environment and, on Python 3.14, a main guard, and link the right pages. (#71, #72, #73)
+
 ## [2026.10.3] - 2026-10-27
 
 ### Changed
