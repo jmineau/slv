@@ -139,6 +139,12 @@ def test_summarize_prints_the_fit_totals_and_trend(summing, capsys):
     mean_total = estimate.groupby(level="time").sum().mean()
     assert f"Mean Posterior: {mean_total:.2f}" in out
     assert "Trend:" in out
+    # one RMSE line per state, in the concentration block: no second "Bayesian RMSE"
+    assert "Bayesian RMSE" not in out
+    assert (
+        f"RMSE (Posterior):     {report.fit_metrics(post).loc['posterior', 'conc_rmse']:.4f}"
+        in out
+    )
 
 
 def test_summarize_totals_cover_the_cells_left_out(summing, capsys):

@@ -271,7 +271,6 @@ def _print_fit(post: Posterior) -> None:
     print(f"Observation Vector Size (m): {m}")
     print(f"Degrees of Freedom (DOFS):   {dofs:.2f} ({(dofs / n) * 100:.1f}% of state)")
     print(f"Reduced Chi-Square:          {post.reduced_chi2:.3f}")
-    print(f"Bayesian RMSE:               {post.rmse:.3f}")
     print(f"Uncertainty Reduction:       {post.uncertainty_reduction * 100:.1f}%")
     print("--------------------------------------------------")
     print("FLUX ESTIMATES (per grid cell):")
