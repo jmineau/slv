@@ -45,6 +45,7 @@ from .gps import (
     read_horel_cr1000,
     read_lin_gps,
     read_trax_gps,
+    sort_by_time,
 )
 from .location import (
     STATES,
@@ -169,6 +170,7 @@ __all__ = [
     "release_points",
     "select_uncalibrated",
     "SLOPE_TOL",
+    "sort_by_time",
     "state_intervals",
     "STATES",
     "storage_locations",

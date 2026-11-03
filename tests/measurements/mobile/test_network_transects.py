@@ -188,6 +188,28 @@ def test_lag_moves_the_source_back_along_the_track():
     ).all()
 
 
+def test_transects_do_not_depend_on_the_order_of_rows_in_one_second():
+    # readings that share a GPS second at different positions (#88): every 40th Red
+    # sample gets a second reading in its own second, 600 m south on the track
+    pts = _network()
+    obs = _obs(pts)
+    red = obs.index[: 2 * 100 * 5 + 90]
+    tied = obs.loc[red[20:-20:40]].copy()
+    to_utm = Transformer.from_crs("EPSG:4326", UTM12, always_xy=True)
+    x, y = to_utm.transform(tied.Longitude_deg.values, tied.Latitude_deg.values)
+    lon, lat = TO_LONLAT.transform(x, np.maximum(y - 600.0, Y0 - 50.0 * 99))
+    tied = tied.assign(Longitude_deg=lon, Latitude_deg=lat, CH4_ppm=2.2)
+    both = pd.concat([obs, tied], ignore_index=True)
+    first = both.sort_values("Time_UTC", kind="stable")  # each reading before its tie
+    last = both.iloc[::-1].sort_values("Time_UTC", kind="stable")  # each tie first
+    a = build_network_transects(first, pts, lag=None)
+    b = build_network_transects(last, pts, lag=None)
+    xr = pytest.importorskip("xarray")
+    xr.testing.assert_identical(a, b)
+    c = build_network_transects(both.sample(frac=1.0, random_state=0), pts, lag=None)
+    xr.testing.assert_identical(a, c)
+
+
 def test_roundtrip_netcdf(tmp_path):
     pts = _network()
     ds = build_network_transects(_obs(pts), pts)

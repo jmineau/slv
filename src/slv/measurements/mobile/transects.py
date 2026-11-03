@@ -181,7 +181,9 @@ def build_network_transects(
     obs
         Georeferenced samples with ``Time_UTC``, ``Longitude_deg``, ``Latitude_deg`` and
         the ``species`` column (``obs.parquet`` rows; ``cal_source`` and ``low_pressure``
-        are summarised per transit when present). Any order; sorted here.
+        are summarised per transit when present). Any order: sorted here by
+        :func:`~slv.measurements.mobile.gps.sort_by_time`, so rows that share a time
+        give the same transits whatever order they come in.
     points
         :func:`~slv.measurements.mobile.receptors.load_trax_network_points` (any CRS;
         needs ``point``, ``lines``, ``segment`` and the ``s_<line>`` columns).
@@ -218,6 +220,7 @@ def build_network_transects(
     """
     import xarray as xr
 
+    from slv.measurements.mobile.gps import sort_by_time
     from slv.measurements.mobile.network import UTM12
     from slv.measurements.mobile.receptor_obs import inlet_lag_seconds
 
@@ -226,7 +229,7 @@ def build_network_transects(
     letters = [c[2:] for c in pts.columns if c.startswith("s_")]
     n_points = len(pts)
 
-    obs = obs.sort_values("Time_UTC").reset_index(drop=True)
+    obs = sort_by_time(obs).reset_index(drop=True)
     t = pd.DatetimeIndex(obs["Time_UTC"])
     if t.tz is not None:
         t = t.tz_convert("UTC").tz_localize(None)

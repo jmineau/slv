@@ -31,6 +31,8 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
+from slv.measurements.mobile.gps import sort_by_time
+
 #: Location states whose CH4 counts for each receptor type (``obs.parquet`` ``state``).
 #: A crossing is a traverse, so on-track only; a dwell may be parked on a yard track, but
 #: indoor shed air is never ambient and is excluded for both.
@@ -201,7 +203,7 @@ def trax_receptor_observations(
         rec = rec.loc[rec["cal_source"] != "uncalibrated"]
     if not include_low_pressure and "low_pressure" in rec:
         rec = rec.loc[~rec["low_pressure"].fillna(False).astype(bool)]
-    rec = rec.sort_values("Time_UTC")
+    rec = sort_by_time(rec)
     tv = rec["Time_UTC"].to_numpy()
     ch = rec["CH4_ppm"].to_numpy(float)
     state = (

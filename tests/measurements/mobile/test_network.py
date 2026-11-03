@@ -198,3 +198,24 @@ def test_load_trax_fixes_filters_dedups_and_sorts(tmp_path):
     assert fixes.Latitude_deg.tolist() == [40.0, 40.05, 40.1]
     assert len(receptors.load_trax_fixes(path, location="all")) == 4
     assert len(receptors.load_trax_fixes(path, location=("depot",))) == 1
+
+
+def test_load_trax_fixes_keeps_one_fix_per_second_whatever_the_file_order(tmp_path):
+    # two readings in GPS second 12:00:01 at different positions (#88)
+    t = pd.to_datetime(["2024-06-01 12:00:00", "2024-06-01 12:00:01"])
+    df = pd.DataFrame(
+        {
+            "Time_UTC": t[[0, 1, 1]],
+            "Latitude_deg": [40.0, 40.06, 40.05],
+            "Longitude_deg": -111.9,
+            "state": "route",
+        }
+    )
+    kept = []
+    for order in ([0, 1, 2], [0, 2, 1]):
+        path = tmp_path / f"obs_{''.join(map(str, order))}.parquet"
+        df.iloc[order].to_parquet(path)
+        kept.append(receptors.load_trax_fixes(path))
+    pd.testing.assert_frame_equal(kept[0], kept[1])
+    # the first in sort_by_time's order: the lower latitude
+    assert kept[0].Latitude_deg.tolist() == [40.0, 40.05]

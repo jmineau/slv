@@ -265,7 +265,7 @@ def _record_gps(seen):
 
     def merge(obs, gps_df, on):
         seen["gps"] = gps_df
-        return obs
+        return obs.rename_axis("Time_UTC")  # merge_gps indexes by the GPS time
 
     return merge
 
@@ -291,7 +291,7 @@ def test_merge_with_gps_filters_before_merging(monkeypatch):
 
     def fake_merge(obs, gps_df, on):
         merged.update(obs=obs, gps=gps_df, on=on)
-        return obs
+        return obs.rename_axis("Time_UTC")
 
     monkeypatch.setattr(uataq.sites.MobileSite, "merge_gps", staticmethod(fake_merge))
     routes = gpd.GeoDataFrame(
@@ -461,6 +461,36 @@ def test_two_streams_with_one_value_in_one_second_are_both_kept(monkeypatch):
     pi = ["2024-01-01 12:00:00.20", "2024-01-01 12:00:00.70"]
     out = _merge(monkeypatch, fixes, pi, [2.0, 2.0], ["pipeline", "manual_cal"])
     assert out["cal_source"].tolist() == ["pipeline", "manual_cal"]
+
+
+def test_readings_in_one_gps_second_come_out_in_one_order(monkeypatch):
+    # two readings located by the same fix share its GPS second (#88): whichever order
+    # they come in, the merge returns them in the same order
+    fixes = _lin_fixes("2024-01-01 12:00:00.50")
+    pi = ["2024-01-01 12:00:00.20", "2024-01-01 12:00:00.70"]
+    a = _merge(monkeypatch, fixes, pi, [2.1, 2.0]).reset_index(drop=True)
+    b = _merge(monkeypatch, fixes, pi[::-1], [2.0, 2.1]).reset_index(drop=True)
+    pd.testing.assert_frame_equal(a, b)
+    assert a["CH4_ppm"].tolist() == [2.0, 2.1]
+
+
+def test_sort_by_time_orders_tied_rows_by_what_is_in_them():
+    t = pd.to_datetime(["2015-06-03 22:11:45", "2015-06-03 22:11:46"])
+    df = pd.DataFrame(
+        {
+            "Time_UTC": t[[1, 1, 1, 0]],
+            "Latitude_deg": [40.76, 40.75, 40.75, 40.74],
+            "Longitude_deg": [-111.89, -111.88, -111.89, -111.88],
+            "CH4_ppm": 2.0,
+        }
+    )
+    rng = np.random.default_rng(0)
+    for _ in range(5):
+        shuffled = df.iloc[rng.permutation(len(df))]
+        assert gps.sort_by_time(shuffled).index.tolist() == [3, 2, 1, 0]
+    # strictly increasing times: returned as they are
+    ordered = df.iloc[[3, 0]]
+    assert gps.sort_by_time(ordered) is ordered
 
 
 # --------------------------------------------------------------------------- no lin GPS

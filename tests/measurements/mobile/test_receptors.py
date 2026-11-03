@@ -106,6 +106,23 @@ def test_receptors_one_multipoint_per_crossing():
     )
 
 
+def test_crossings_do_not_depend_on_the_order_of_fixes_in_one_second():
+    # the first fix on segment 1 gets the time of the last fix on segment 0 (two readings
+    # in one GPS second, #88): in one order the train crosses once, in the other it
+    # would hop 0 -> 1 -> 0 -> 1
+    pts = _network()
+    f = _fixes()
+    to_utm = Transformer.from_crs("EPSG:4326", UTM12, always_xy=True)
+    east = to_utm.transform(f.Longitude_deg.values, f.Latitude_deg.values)[0] - X0
+    i = int(np.flatnonzero(east >= 1975.0)[0])  # the first fix snapped to point 40
+    f.loc[i, "Time_UTC"] = f.loc[i - 1, "Time_UTC"]
+    swapped = f.iloc[[*range(i - 1), i, i - 1, *range(i + 1, len(f))]]
+    assert swapped.Time_UTC.is_monotonic_increasing
+    a = find_segment_crossings(f, pts)
+    b = find_segment_crossings(swapped, pts)
+    pd.testing.assert_frame_equal(a, b)
+
+
 def test_min_span_filters_and_duplicates_collapse():
     pts = _network()
     cr = find_segment_crossings(_fixes(), pts)
