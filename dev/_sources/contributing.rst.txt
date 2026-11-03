@@ -94,7 +94,9 @@ Module layout
                          hours and its shoulder passes QC), recover_hot_rows (flag -64 rows
                          have a fitted CH4d_m but a blanked CH4d_ppm_cal: qaqc value / slope,
                          atmosphere rows only, through normalize_pollutant's ID check; filled
-                         in before apply_slope_guard, which then judges them too)
+                         in before apply_slope_guard, which then judges them too; the guard compares
+                         each slope with the day's median, or with 1 where that median is itself
+                         more than slope_tol from 1)
           transects.py   transect matrices obs[transect, point]: build_network_transects
                          (one matrix over the 50-m network points for all lines: per-epoch
                          inlet lag -> snap 60 m -> line by windowed vote among the point's

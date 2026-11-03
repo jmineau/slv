@@ -41,7 +41,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../_static/documentation_options.js?v=fd72377c"></script>
+    <script src="../_static/documentation_options.js?v=839e6ce3"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -62,7 +62,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.10.4.dev24+gdb911247b" />
+  <meta name="docsearch:version" content="2026.10.4.dev25+g9bdaf935b" />
   
     
     <script src="../_static/searchtools.js"></script>
@@ -702,7 +702,8 @@ when the pressure is inside <code class="docutils literal notranslate"><span cla
 every manual-cal row whose measured pressure is inside that band and outside 135–145 torr is
 tagged <code class="docutils literal notranslate"><span class="pre">low_pressure=True</span></code>, whatever its flag (<a class="reference internal" href="slv.measurements.mobile.obs.apply_low_pressure_rule.html#slv.measurements.mobile.obs.apply_low_pressure_rule" title="slv.measurements.mobile.obs.apply_low_pressure_rule"><code class="xref py py-func docutils literal notranslate"><span class="pre">apply_low_pressure_rule()</span></code></a>);
 <code class="docutils literal notranslate"><span class="pre">low_pressure=None</span></code> drops the −63 rows and tags none. Pipeline-calibrated rows whose slope deviates more than <code class="docutils literal notranslate"><span class="pre">slope_tol</span></code> from the
-day’s median slope are dropped (<a class="reference internal" href="slv.measurements.mobile.obs.apply_slope_guard.html#slv.measurements.mobile.obs.apply_slope_guard" title="slv.measurements.mobile.obs.apply_slope_guard"><code class="xref py py-func docutils literal notranslate"><span class="pre">apply_slope_guard()</span></code></a>; one bad reference period
+day’s median slope, or from 1 where that median is itself more than <code class="docutils literal notranslate"><span class="pre">slope_tol</span></code> from 1,
+are dropped (<a class="reference internal" href="slv.measurements.mobile.obs.apply_slope_guard.html#slv.measurements.mobile.obs.apply_slope_guard" title="slv.measurements.mobile.obs.apply_slope_guard"><code class="xref py py-func docutils literal notranslate"><span class="pre">apply_slope_guard()</span></code></a>; one bad reference period
 otherwise miscalibrates the next hour by 20–100 %), the hot-cavity rows that
 <a class="reference internal" href="slv.measurements.mobile.obs.recover_hot_rows.html#slv.measurements.mobile.obs.recover_hot_rows" title="slv.measurements.mobile.obs.recover_hot_rows"><code class="xref py py-func docutils literal notranslate"><span class="pre">recover_hot_rows()</span></code></a> brings back included. Then merged with <em>every</em> GPS fix by <code class="xref py py-func docutils literal notranslate"><span class="pre">merge_with_gps()</span></code> (no route buffer,
 no storage-yard removal) and, with <code class="docutils literal notranslate"><span class="pre">classify</span></code>, labelled per minute by
