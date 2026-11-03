@@ -187,6 +187,9 @@ first line. `just build-docs` runs everything, as CI does.
   files builds the path the way the cache does (`_version_tag()`). Measure coverage with
   `--cov=slv`: `--cov=slv.inversion.viz` imports numpy twice and fails collection. Why the
   pixi env pins the no-MPI ESMF build: `docs/contributing.rst`, "Notes on the tests".
+- Two TRAX readings can share a `Time_UTC` (one located by the lin GPS, one by the horel
+  fallback, or two in one GPS second). Anything that walks the record in time order sorts
+  with `gps.sort_by_time`, never a bare `sort_values("Time_UTC")`, or ties reorder its result.
 - `merge_with_gps` is on the `build_trax_obs` path, so changing what it drops (the
   altitude range) or the pinned uataq's choice of fix for a second with two changes
   `obs.parquet` on the next rebuild.

@@ -48,6 +48,7 @@ from pyproj import Transformer
 from scipy.spatial import cKDTree
 
 from slv.domain import UTC_OFFSET
+from slv.measurements.mobile.gps import sort_by_time
 from slv.measurements.mobile.network import (
     UTM12,
     load_trax_lines,
@@ -148,6 +149,10 @@ def load_trax_fixes(
     ``Time_UTC``, ``Latitude_deg``, ``Longitude_deg`` of the ``location`` rows of the cached
     TRAX record (``obs.parquet``), one row per distinct second, time-sorted.
 
+    Of two rows in one second it keeps the first in :func:`~.gps.sort_by_time`'s order
+    (the lower latitude, then the lower longitude), so the fix kept for a second does not
+    depend on the order of the rows in the file.
+
     Reads only those columns (pyarrow, filtered on ``state``) — the full parquet with CH4 is
     ~6 GB in memory, the fixes alone ~1 GB.
     """
@@ -162,7 +167,7 @@ def load_trax_fixes(
         filters=filters,
     )
     df = t.to_pandas().drop(columns="state")
-    return df.drop_duplicates("Time_UTC").sort_values("Time_UTC").reset_index(drop=True)
+    return sort_by_time(df).drop_duplicates("Time_UTC").reset_index(drop=True)
 
 
 def _posix_seconds(times) -> np.ndarray:
@@ -208,8 +213,7 @@ def find_segment_crossings(
             "points must carry along-route coordinates (s_R/s_G/...); rebuild them with "
             "load_trax_network_points(rebuild=True)."
         )
-    if not fixes.Time_UTC.is_monotonic_increasing:
-        fixes = fixes.sort_values("Time_UTC")
+    fixes = sort_by_time(fixes)
     x, y = _TO_UTM.transform(fixes.Longitude_deg.values, fixes.Latitude_deg.values)
     d, ip = cKDTree(np.c_[points.geometry.x, points.geometry.y]).query(np.c_[x, y])
     ok = d <= max_point_dist

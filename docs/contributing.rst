@@ -62,7 +62,11 @@ Module layout
                          positions pass the same filters; gps_source tags each row);
                          read_lin_gps, read_horel_cr1000 and read_trax_gps take num_processes
                          (the files are read on that many processes; build_trax_obs passes its
-                         own to the location step's GPS read)
+                         own to the location step's GPS read); sort_by_time (time, then
+                         latitude, longitude, CH4: two readings can share a GPS second, and
+                         merge_with_gps, load_trax_fixes, find_segment_crossings,
+                         build_network_transects and trax_receptor_observations all sort with it,
+                         so their results do not depend on the order of tied rows)
           location.py    per-minute indoor/outdoor classifier: depot (degraded GPS:
                          scatter > 1 m or <= 6 sats, 15-min vote; or a standing minute
                          thrown 30-300 m out of a yard with scatter > 1 m) / yard / line

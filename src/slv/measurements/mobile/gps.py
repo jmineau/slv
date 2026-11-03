@@ -408,6 +408,61 @@ def _filter_fixes(
     return pd.DataFrame(gps.drop(columns=["geometry"]))
 
 
+#: Columns that order the rows sharing a ``Time_UTC`` (:func:`sort_by_time`), in turn.
+TIE_ORDER = ("Latitude_deg", "Longitude_deg", "CH4_ppm")
+
+
+def sort_by_time(df: pd.DataFrame, time_col: str = "Time_UTC") -> pd.DataFrame:
+    """
+    ``df`` sorted by time, with the rows that share a time in one fixed order.
+
+    The GPS merge gives each reading the UTC second of its fix, so two readings can share
+    a ``Time_UTC`` (mostly in 2014-12 to 2015-11, when the LGR logged two rows in some
+    seconds), often at different positions. Whatever walks the record in time order then
+    depends on which of the two comes first: the transits of
+    :func:`~slv.measurements.mobile.transects.build_network_transects`, the crossings of
+    :func:`~slv.measurements.mobile.receptors.find_segment_crossings`, the one fix per
+    second that :func:`~slv.measurements.mobile.receptors.load_trax_fixes` keeps. Here
+    the rows sharing a time are ordered by :data:`TIE_ORDER` (latitude, then longitude,
+    then CH4, of the columns ``df`` has), so the order depends only on what is in the
+    rows, not on the order they came in. That makes every reader's result the same
+    whatever order the rows arrive in; it does not say which of two tied readings is the
+    better one. A frame whose times already increase strictly is returned as it is.
+
+    Parameters
+    ----------
+    df
+        Rows with a ``time_col`` column.
+    time_col
+        The time column.
+
+    Returns
+    -------
+    pandas.DataFrame
+        The same rows with their index labels, sorted by ``time_col``, then by
+        :data:`TIE_ORDER`.
+
+    Examples
+    --------
+    >>> import pandas as pd
+    >>> t = pd.Timestamp("2015-06-03 22:11:46")
+    >>> df = pd.DataFrame(
+    ...     {
+    ...         "Time_UTC": [t, t, t - pd.Timedelta("1s")],
+    ...         "Latitude_deg": [40.76, 40.75, 40.74],
+    ...         "Longitude_deg": [-111.89, -111.89, -111.88],
+    ...     }
+    ... )
+    >>> sort_by_time(df).index.tolist()
+    [2, 1, 0]
+    """
+    t = df[time_col]
+    if t.is_monotonic_increasing and t.is_unique:
+        return df
+    keys = [time_col, *(c for c in TIE_ORDER if c in df.columns)]
+    return df.sort_values(keys, kind="stable")
+
+
 def merge_with_gps(
     site,
     org,
@@ -460,7 +515,8 @@ def merge_with_gps(
         ``obs`` with the GPS columns (``Latitude_deg``, ``Longitude_deg``,
         ``Altitude_msl``, ...), each observation once: when two fixes fall in one
         second of the Pi clock, ``uataq`` keeps the one nearest the observation in time
-        (the first on a tie).
+        (the first on a tie). Sorted by :func:`sort_by_time`, so readings that share a
+        GPS second come in one fixed order.
     """
     # Get routes and storage polygon defaults if not provided
     # Can be set to False to skip these filters, or provide custom geodataframes/paths
@@ -545,9 +601,10 @@ def merge_with_gps(
             if len(gap):
                 gap = _filter_fixes(gap, **filters)
             if len(gap):
-                data = pd.concat([data, gap], ignore_index=True).sort_values("Time_UTC")
+                data = pd.concat([data, gap], ignore_index=True)
 
     if "Pi_Time" in data.columns:
         data = data.drop(columns=["Pi_Time"])
 
-    return data
+    # two readings can get the same second from the GPS: give them one order (#88)
+    return sort_by_time(data)
