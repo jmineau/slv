@@ -41,7 +41,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../_static/documentation_options.js?v=110327cf"></script>
+    <script src="../_static/documentation_options.js?v=fd72377c"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -62,7 +62,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.10.4.dev23+g0e1c5cf91" />
+  <meta name="docsearch:version" content="2026.10.4.dev24+gdb911247b" />
   
     
     <script src="../_static/searchtools.js"></script>
@@ -502,6 +502,7 @@
 <li class="toctree-l3 current active has-children"><a class="reference internal" href="slv.inversion.report.html">slv.inversion.report</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="slv.inversion.report.calculate_total_flux.html">slv.inversion.report.calculate_total_flux</a></li>
 <li class="toctree-l4"><a class="reference internal" href="slv.inversion.report.desroziers_diagnostic.html">slv.inversion.report.desroziers_diagnostic</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.report.fit_metrics.html">slv.inversion.report.fit_metrics</a></li>
 <li class="toctree-l4"><a class="reference internal" href="slv.inversion.report.fluxes_as_inventory.html">slv.inversion.report.fluxes_as_inventory</a></li>
 <li class="toctree-l4"><a class="reference internal" href="slv.inversion.report.plot_diagnostics.html">slv.inversion.report.plot_diagnostics</a></li>
 <li class="toctree-l4"><a class="reference internal" href="slv.inversion.report.plot_inputs.html">slv.inversion.report.plot_inputs</a></li>
@@ -689,6 +690,9 @@
 <dt class="sig sig-object py" id="slv.inversion.report.summarize">
 <span class="sig-prename descclassname"><span class="pre">slv.inversion.report.</span></span><span class="sig-name descname"><span class="pre">summarize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">post</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">problem</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/slv/inversion/report.html#summarize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#slv.inversion.report.summarize" title="Link to this definition">#</a></dt>
 <dd><p>Print the fit of the solve, then prior and posterior domain totals.</p>
+<p>The fit against the observed concentrations (RMSE, mean bias as model minus
+observed, and the two R² of the enhancement) is <a class="reference internal" href="slv.inversion.report.fit_metrics.html#slv.inversion.report.fit_metrics" title="slv.inversion.report.fit_metrics"><code class="xref py py-func docutils literal notranslate"><span class="pre">fit_metrics()</span></code></a>, the same
+numbers the sweep table holds.</p>
 <p>Totals are per flux interval (<a class="reference internal" href="slv.inversion.report.calculate_total_flux.html#slv.inversion.report.calculate_total_flux" title="slv.inversion.report.calculate_total_flux"><code class="xref py py-func docutils literal notranslate"><span class="pre">calculate_total_flux()</span></code></a>) in
 <code class="docutils literal notranslate"><span class="pre">config.output_units</span></code>, over every cell of <code class="docutils literal notranslate"><span class="pre">problem</span></code> (<code class="docutils literal notranslate"><span class="pre">post.problem</span></code> by
 default): with the coverage filter on, the cells left out of the solve are at their

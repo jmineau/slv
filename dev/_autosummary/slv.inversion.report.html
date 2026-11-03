@@ -41,7 +41,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../_static/documentation_options.js?v=110327cf"></script>
+    <script src="../_static/documentation_options.js?v=fd72377c"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -62,7 +62,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.10.4.dev23+g0e1c5cf91" />
+  <meta name="docsearch:version" content="2026.10.4.dev24+gdb911247b" />
   
     
     <script src="../_static/searchtools.js"></script>
@@ -502,6 +502,7 @@
 <li class="toctree-l3 current active has-children"><a aria-current="page" class="current reference internal" href="#">slv.inversion.report</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l4"><a class="reference internal" href="slv.inversion.report.calculate_total_flux.html">slv.inversion.report.calculate_total_flux</a></li>
 <li class="toctree-l4"><a class="reference internal" href="slv.inversion.report.desroziers_diagnostic.html">slv.inversion.report.desroziers_diagnostic</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.report.fit_metrics.html">slv.inversion.report.fit_metrics</a></li>
 <li class="toctree-l4"><a class="reference internal" href="slv.inversion.report.fluxes_as_inventory.html">slv.inversion.report.fluxes_as_inventory</a></li>
 <li class="toctree-l4"><a class="reference internal" href="slv.inversion.report.plot_diagnostics.html">slv.inversion.report.plot_diagnostics</a></li>
 <li class="toctree-l4"><a class="reference internal" href="slv.inversion.report.plot_inputs.html">slv.inversion.report.plot_inputs</a></li>
@@ -696,25 +697,28 @@ cells.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="slv.inversion.report.desroziers_diagnostic.html#slv.inversion.report.desroziers_diagnostic" title="slv.inversion.report.desroziers_diagnostic"><code class="xref py py-obj docutils literal notranslate"><span class="pre">desroziers_diagnostic</span></code></a></p></td>
 <td><p>Compare Desroziers-diagnosed vs specified observation error variances.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="slv.inversion.report.fluxes_as_inventory.html#slv.inversion.report.fluxes_as_inventory" title="slv.inversion.report.fluxes_as_inventory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fluxes_as_inventory</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="slv.inversion.report.fit_metrics.html#slv.inversion.report.fit_metrics" title="slv.inversion.report.fit_metrics"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit_metrics</span></code></a></p></td>
+<td><p>The fit of the prior and the posterior to the observations, one row each.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="slv.inversion.report.fluxes_as_inventory.html#slv.inversion.report.fluxes_as_inventory" title="slv.inversion.report.fluxes_as_inventory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fluxes_as_inventory</span></code></a></p></td>
 <td><p>Converts a flux vector to an inventory format for easier analysis.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="slv.inversion.report.plot_diagnostics.html#slv.inversion.report.plot_diagnostics" title="slv.inversion.report.plot_diagnostics"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_diagnostics</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="slv.inversion.report.plot_diagnostics.html#slv.inversion.report.plot_diagnostics" title="slv.inversion.report.plot_diagnostics"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_diagnostics</span></code></a></p></td>
 <td><p>Plot fluxes per time step, the Desroziers diagnostics and, with the coverage filter on, the left-out cells' contribution to the obs.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="slv.inversion.report.plot_inputs.html#slv.inversion.report.plot_inputs" title="slv.inversion.report.plot_inputs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_inputs</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="slv.inversion.report.plot_inputs.html#slv.inversion.report.plot_inputs" title="slv.inversion.report.plot_inputs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_inputs</span></code></a></p></td>
 <td><p>Plot the grid and sites, the obs time series and the prior fluxes.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="slv.inversion.report.plot_obs.html#slv.inversion.report.plot_obs" title="slv.inversion.report.plot_obs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_obs</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="slv.inversion.report.plot_obs.html#slv.inversion.report.plot_obs" title="slv.inversion.report.plot_obs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_obs</span></code></a></p></td>
 <td><p>Plot the obs against what the prior and the posterior model, one figure per location.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="slv.inversion.report.plot_results.html#slv.inversion.report.plot_results" title="slv.inversion.report.plot_results"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_results</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="slv.inversion.report.plot_results.html#slv.inversion.report.plot_results" title="slv.inversion.report.plot_results"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_results</span></code></a></p></td>
 <td><p>Plot the posterior fluxes, the full-domain posterior (with the coverage filter on), domain totals over time, modelled vs observed concentrations, residuals, and background and bias.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="slv.inversion.report.summarize.html#slv.inversion.report.summarize" title="slv.inversion.report.summarize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">summarize</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="slv.inversion.report.summarize.html#slv.inversion.report.summarize" title="slv.inversion.report.summarize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">summarize</span></code></a></p></td>
 <td><p>Print the fit of the solve, then prior and posterior domain totals.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="slv.inversion.report.total_units.html#slv.inversion.report.total_units" title="slv.inversion.report.total_units"><code class="xref py py-obj docutils literal notranslate"><span class="pre">total_units</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="slv.inversion.report.total_units.html#slv.inversion.report.total_units" title="slv.inversion.report.total_units"><code class="xref py py-obj docutils literal notranslate"><span class="pre">total_units</span></code></a></p></td>
 <td><p>Unit of <a class="reference internal" href="slv.inversion.report.calculate_total_flux.html#slv.inversion.report.calculate_total_flux" title="slv.inversion.report.calculate_total_flux"><code class="xref py py-func docutils literal notranslate"><span class="pre">calculate_total_flux()</span></code></a>: it integrates each flux interval over its cells and its duration, so the mass part of <code class="docutils literal notranslate"><span class="pre">output_units</span></code> per interval.</p></td>
 </tr>
 </tbody>

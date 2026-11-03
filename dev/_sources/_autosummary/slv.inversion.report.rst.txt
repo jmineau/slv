@@ -15,6 +15,7 @@ slv.inversion.report
 
    calculate_total_flux
    desroziers_diagnostic
+   fit_metrics
    fluxes_as_inventory
    plot_diagnostics
    plot_inputs
