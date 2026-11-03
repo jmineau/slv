@@ -94,8 +94,8 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/xarray-2026.9.0-pyh5ded981_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/xesmf-0.9.2-pyhd8ed1ab_0.conda
       - pypi: ./
-      - pypi: git+https://github.com/jmineau/lair?rev=v2026.12.10#27dcf7b3def808b03322ba71b7fec1309410a719
-      - pypi: git+https://github.com/jmineau/uataq?rev=v2026.10.1#e1e66ef96ab03b162ce6dbbbf87ad220d817fc3a
+      - pypi: git+https://github.com/jmineau/lair?rev=v2026.12.12#9701e2e0e96307753cd4bf781418d2e1280e5896
+      - pypi: git+https://github.com/jmineau/uataq?rev=v2026.11.0#3f33accc379e79d5274c9efeabd4d55afdffc664
       - pypi: https://files.pythonhosted.org/packages/01/f9/575c8d760eae1fc99651b7cc5efd96ad5379ca4d6b53750b0fb4fe983f34/imagesize-2.0.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/02/10/5da547df7a391dcde17f59520a231527b8571e6f46fc8efb02ccb370ab12/docutils-0.22.4-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/02/36/ecc85bc96c273dc8a11273ed4782272975e6338d4a3e9228621175edf0e3/jaraco_functools-4.6.0-py3-none-any.whl
@@ -224,6 +224,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/ca/31/d4e37e9e550c2b92a9cbc2e4d0b7420a27224968580b5a447f420847c975/pytest_xdist-3.8.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/cb/18/6229d6583031ca81d092a0cd887a13a57b402fb555acc323d39b45967eb7/websockets-17.4-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/cb/3c/da1cae963a076132dbc4d3c1f0292dd2f373b9d3e072d42f4620801159c1/python_discovery-1.9.0-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/cb/f9/40754b6e283764e7018bf123e4badfeb601e1fa8624032a730c0d7d7a7e9/pystilt-0.1.0a27-py3-none-manylinux_2_17_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/d1/d6/3965ed04c63042e047cb6a3e6ed1a63a35087b6a609aa3a15ed8ac56c221/colorama-0.4.6-py2.py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/d4/2b/04b8a15f3a1c77bc79ddf5c73875327f34b4fa75982df2b76e45e402d364/asttokens-3.0.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/d7/20/56411b52f917696995f5ad27d2ea7e9492c84a043c5b49a3a3173573cd93/sphinx_autobuild-2025.8.25-py3-none-any.whl
@@ -237,7 +238,6 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/db/f7/7923d915a80aa2e04939260f7a000e1a353b25c7ffcf7771cd777559c27a/docstr_coverage-2.3.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/dd/1a/5d9a402b39ec892d856bbdd9db502ff73ce28cdf4aff72eb1ce1d6843506/universal_pathlib-0.3.10-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/df/64/ff35eb9e54894cf471ff4716abd3c81eb0a0626869217ce3e6ba4ccf17d7/scipy-1.18.1-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl
-      - pypi: https://files.pythonhosted.org/packages/df/f8/2fe45df00df7a8c145e4ccb8b6d9082e7f7cf8ff618079b6911029f12716/pystilt-0.1.0a26-py3-none-manylinux_2_17_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/e0/a9/023730ba63db1e494a271cb018dcd361bd2c917ba7004c3e49d5daf795a2/py_cpuinfo-9.0.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/e0/f9/0595336914c5619e5f28a1fb793285925a8cd4b432c9da0a987836c7f822/shellingham-1.5.4-py2.py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/e2/66/5bd0fd74d2eb2e98ea12650eb21302e65d1b4d4706452f27a1e7321330b1/molmass-2026.11.1-py3-none-any.whl
@@ -1610,30 +1610,30 @@ packages:
   requires_dist:
   - cartopy
   - geopandas
-  - lair[geo,science] @ git+https://github.com/jmineau/lair@v2026.12.10
+  - lair[geo,science] @ git+https://github.com/jmineau/lair@v2026.12.12
   - matplotlib
   - pandas
   - siphon>=0.10.0
-  - uataq @ git+https://github.com/jmineau/uataq@v2026.10.1
+  - uataq @ git+https://github.com/jmineau/uataq@v2026.11.0
   - xarray
   - fips[viz]>=0.2.0b1 ; extra == 'inversion'
-  - pystilt>=0.1.0a26 ; extra == 'inversion'
+  - pystilt>=0.1.0a27 ; extra == 'inversion'
   - joblib>=1.5.3 ; extra == 'inversion'
   - seaborn ; extra == 'inversion'
   requires_python: '>=3.11'
-- pypi: git+https://github.com/jmineau/lair?rev=v2026.12.10#27dcf7b3def808b03322ba71b7fec1309410a719
+- pypi: git+https://github.com/jmineau/lair?rev=v2026.12.12#9701e2e0e96307753cd4bf781418d2e1280e5896
   name: lair
-  version: 2026.12.10
+  version: 2026.12.12
   requires_dist:
-  - cf-xarray
-  - dask
-  - matplotlib
-  - netcdf4
-  - numpy
+  - cf-xarray>=0.10.4
+  - dask>=2024.4.2
+  - matplotlib>=3.8
+  - netcdf4>=1.7.1
+  - numpy>=1.26
   - pandas>=3.0
   - pint>=0.24.4
-  - pint-xarray
-  - xarray
+  - pint-xarray>=0.3
+  - xarray>=2025.3.0
   - boto3 ; extra == 'requests'
   - requests ; extra == 'requests'
   - s3fs>=2023.10.0 ; extra == 'requests'
@@ -1657,15 +1657,15 @@ packages:
   - lair[science] ; extra == 'complete'
   - lair[regridding] ; extra == 'complete'
   requires_python: '>=3.11'
-- pypi: git+https://github.com/jmineau/uataq?rev=v2026.10.1#e1e66ef96ab03b162ce6dbbbf87ad220d817fc3a
+- pypi: git+https://github.com/jmineau/uataq?rev=v2026.11.0#3f33accc379e79d5274c9efeabd4d55afdffc664
   name: uataq
-  version: 2026.10.1
+  version: 2026.11.0
   requires_dist:
-  - geopandas
-  - numpy
-  - pandas
+  - geopandas>=1.1.0
+  - numpy>=1.24
+  - pandas>=2.0
   - tables>3.10
-  - xarray
+  - xarray>=2022.3.0
   requires_python: '>=3.11'
 - pypi: https://files.pythonhosted.org/packages/01/f9/575c8d760eae1fc99651b7cc5efd96ad5379ca4d6b53750b0fb4fe983f34/imagesize-2.0.1-py3-none-any.whl
   name: imagesize
@@ -3369,6 +3369,39 @@ packages:
   requires_dist:
   - filelock>=3.16.1
   requires_python: '>=3.9'
+- pypi: https://files.pythonhosted.org/packages/cb/f9/40754b6e283764e7018bf123e4badfeb601e1fa8624032a730c0d7d7a7e9/pystilt-0.1.0a27-py3-none-manylinux_2_17_x86_64.whl
+  name: pystilt
+  version: 0.1.0a27
+  sha256: 0202782eb91ef52e07088214f5c2bea6ddfce1dbbc41ff2625f4fcf3339c3f0b
+  requires_dist:
+  - arlmet>=0.1.0b3
+  - dask[array]>=2023.6
+  - netcdf4>=1.6.5
+  - numpy>=1.24
+  - pandas>=2.0
+  - pyarrow>=14.0
+  - pyproj>=3.5
+  - pydantic>=2.1.0
+  - pyyaml>=6.0
+  - scipy>=1.10
+  - shapely>=2.0
+  - typer>=0.15.4
+  - universal-pathlib>=0.3.0
+  - xarray>=2023.9.0
+  - exactextract>=0.2 ; extra == 'geometry'
+  - geopandas>=1.0 ; extra == 'geometry'
+  - h3>=4.0 ; extra == 'geometry'
+  - cartopy>=0.23 ; extra == 'visualization'
+  - matplotlib>=3.7 ; extra == 'visualization'
+  - arlmet[archives]>=0.1.0b3 ; extra == 'download'
+  - sparse>=0.15 ; extra == 'sparse'
+  - rdata>=1.0 ; extra == 'stilt-r'
+  - pystilt[geometry] ; extra == 'complete'
+  - pystilt[visualization] ; extra == 'complete'
+  - pystilt[download] ; extra == 'complete'
+  - pystilt[sparse] ; extra == 'complete'
+  - pystilt[stilt-r] ; extra == 'complete'
+  requires_python: '>=3.11'
 - pypi: https://files.pythonhosted.org/packages/d1/d6/3965ed04c63042e047cb6a3e6ed1a63a35087b6a609aa3a15ed8ac56c221/colorama-0.4.6-py2.py3-none-any.whl
   name: colorama
   version: 0.4.6
@@ -3541,39 +3574,6 @@ packages:
   - ruff>=0.12.0 ; extra == 'dev'
   - cython-lint>=0.12.2 ; extra == 'dev'
   requires_python: '>=3.12'
-- pypi: https://files.pythonhosted.org/packages/df/f8/2fe45df00df7a8c145e4ccb8b6d9082e7f7cf8ff618079b6911029f12716/pystilt-0.1.0a26-py3-none-manylinux_2_17_x86_64.whl
-  name: pystilt
-  version: 0.1.0a26
-  sha256: 7ef9cdda8ad08e7b5fbcd0fe245ffa325d53e278d175b6a44f09dfa83b4633bf
-  requires_dist:
-  - arlmet>=0.1.0b3
-  - dask[array]>=2023.6
-  - netcdf4>=1.6.5
-  - numpy>=1.24
-  - pandas>=2.0
-  - pyarrow>=14.0
-  - pyproj>=3.5
-  - pydantic>=2.0
-  - pyyaml>=6.0
-  - scipy>=1.10
-  - shapely>=2.0
-  - typer>=0.9
-  - universal-pathlib>=0.2
-  - xarray>=2023.6
-  - exactextract>=0.2 ; extra == 'geometry'
-  - geopandas>=1.0 ; extra == 'geometry'
-  - h3>=4.0 ; extra == 'geometry'
-  - cartopy>=0.23 ; extra == 'visualization'
-  - matplotlib>=3.7 ; extra == 'visualization'
-  - arlmet[archives]>=0.1.0b3 ; extra == 'download'
-  - sparse>=0.15 ; extra == 'sparse'
-  - rdata>=1.0 ; extra == 'stilt-r'
-  - pystilt[geometry] ; extra == 'complete'
-  - pystilt[visualization] ; extra == 'complete'
-  - pystilt[download] ; extra == 'complete'
-  - pystilt[sparse] ; extra == 'complete'
-  - pystilt[stilt-r] ; extra == 'complete'
-  requires_python: '>=3.11'
 - pypi: https://files.pythonhosted.org/packages/e0/a9/023730ba63db1e494a271cb018dcd361bd2c917ba7004c3e49d5daf795a2/py_cpuinfo-9.0.0-py3-none-any.whl
   name: py-cpuinfo
   version: 9.0.0
