@@ -185,7 +185,6 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/91/ac/eb4c31f741509a9ef48cf6f28385e98e9de0785599282252eee252ff8af7/coverage-7.17.0-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/92/9d/c4e665119135114480843e7ab388fa94d8480650450e6f8e26b70d323a4c/urllib3-2.8.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/93/41/f0aa003909ee77a9e7e55f8659abb635ca23ab0d022a449bbb18da87a1ef/platformdirs-4.14.3-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/95/2c/7f9ff63f45bff875699aaafeb062af7890c5ab1b8335718d5ec649735d43/fips-0.2.0b1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/96/08/ddcdc06225eaad6de0e48e1002b06d919dbde20582d0662c7af51308e5d6/twine-7.0.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/97/01/c71a71258b58659c72504e5fd65b451f6e36e34dc931d0b237ded213c814/pydantic-2.14.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/99/29/c2dc674ea70fa9a4819417289a9c0d3e4780835beeed573eb66964cfb763/tables-3.11.1-cp311-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl
@@ -226,6 +225,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/cb/3c/da1cae963a076132dbc4d3c1f0292dd2f373b9d3e072d42f4620801159c1/python_discovery-1.9.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/cb/f9/40754b6e283764e7018bf123e4badfeb601e1fa8624032a730c0d7d7a7e9/pystilt-0.1.0a27-py3-none-manylinux_2_17_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/d1/d6/3965ed04c63042e047cb6a3e6ed1a63a35087b6a609aa3a15ed8ac56c221/colorama-0.4.6-py2.py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/d3/5d/569ff513b83cccbccca435c543e550cf1295563130c475013ae4b01b5bc6/fips-0.2.0b2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/d4/2b/04b8a15f3a1c77bc79ddf5c73875327f34b4fa75982df2b76e45e402d364/asttokens-3.0.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/d7/20/56411b52f917696995f5ad27d2ea7e9492c84a043c5b49a3a3173573cd93/sphinx_autobuild-2025.8.25-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/d9/33/1f075bf72b0b747cb3288d011319aaf64083cf2efef8354174e3ed4540e2/ipython_pygments_lexers-1.1.1-py3-none-any.whl
@@ -1616,7 +1616,7 @@ packages:
   - siphon>=0.10.0
   - uataq @ git+https://github.com/jmineau/uataq@v2026.11.0
   - xarray
-  - fips[viz]>=0.2.0b1 ; extra == 'inversion'
+  - fips[viz]>=0.2.0b2 ; extra == 'inversion'
   - pystilt>=0.1.0a27 ; extra == 'inversion'
   - joblib>=1.5.3 ; extra == 'inversion'
   - seaborn ; extra == 'inversion'
@@ -2776,17 +2776,6 @@ packages:
   version: 4.14.3
   sha256: cba2d05fe5e18b26b1fa6f376b8e6234c012abe1f8696c486fface7d0054e931
   requires_python: '>=3.11'
-- pypi: https://files.pythonhosted.org/packages/95/2c/7f9ff63f45bff875699aaafeb062af7890c5ab1b8335718d5ec649735d43/fips-0.2.0b1-py3-none-any.whl
-  name: fips
-  version: 0.2.0b1
-  sha256: 6e3d21b5fa1fce6b0d9d033a754c7f58aa2a18c90b42e7b094c6d3f6d51142bb
-  requires_dist:
-  - numpy>=1.22.0
-  - pandas>=2.0.0
-  - scipy>=1.8.0
-  - xarray>=2022.3.0
-  - matplotlib>=3.6.0 ; extra == 'viz'
-  requires_python: '>=3.11'
 - pypi: https://files.pythonhosted.org/packages/96/08/ddcdc06225eaad6de0e48e1002b06d919dbde20582d0662c7af51308e5d6/twine-7.0.0-py3-none-any.whl
   name: twine
   version: 7.0.0
@@ -3407,6 +3396,17 @@ packages:
   version: 0.4.6
   sha256: 4f1d9991f5acc0ca119f9d443620b77f9d6b33703e51011c16baf57afb285fc6
   requires_python: '>=2.7,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,!=3.5.*,!=3.6.*'
+- pypi: https://files.pythonhosted.org/packages/d3/5d/569ff513b83cccbccca435c543e550cf1295563130c475013ae4b01b5bc6/fips-0.2.0b2-py3-none-any.whl
+  name: fips
+  version: 0.2.0b2
+  sha256: 0cbd6d09230dd36ae566e550b808f28ebdc1ab91e8f862d78e12ea9d53165467
+  requires_dist:
+  - numpy>=1.24.2
+  - pandas>=2.0.0
+  - scipy>=1.12.0
+  - xarray>=2022.12.0
+  - matplotlib>=3.6.0 ; extra == 'viz'
+  requires_python: '>=3.11'
 - pypi: https://files.pythonhosted.org/packages/d4/2b/04b8a15f3a1c77bc79ddf5c73875327f34b4fa75982df2b76e45e402d364/asttokens-3.0.2-py3-none-any.whl
   name: asttokens
   version: 3.0.2

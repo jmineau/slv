@@ -1163,7 +1163,7 @@ wheels = [
 
 [[package]]
 name = "fips"
-version = "0.2.0b1"
+version = "0.2.0b2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "numpy", version = "2.4.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
@@ -1173,9 +1173,9 @@ dependencies = [
     { name = "scipy", version = "1.18.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
     { name = "xarray" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/25/15/1627ddb2713fe065849a8f1dad4283fb5b9845dff436d40b49110d1176a2/fips-0.2.0b1.tar.gz", hash = "sha256:93572c579abb97c3f27e21c13338201b09f5a070468cd87e48f632e195c4d8fb", size = 1072418, upload-time = "2026-10-27T18:22:39.605Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/33/7f/3010c3f05259637985a8c09876b56223b3b923282d6272719aa72dd95e0c/fips-0.2.0b2.tar.gz", hash = "sha256:9361f6d5d9d7054bd8588a73ed4bef4f0200e054f9e2c81ef4a5bec4c3aa6097", size = 1203996, upload-time = "2026-11-03T19:03:23.546Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/95/2c/7f9ff63f45bff875699aaafeb062af7890c5ab1b8335718d5ec649735d43/fips-0.2.0b1-py3-none-any.whl", hash = "sha256:6e3d21b5fa1fce6b0d9d033a754c7f58aa2a18c90b42e7b094c6d3f6d51142bb", size = 100692, upload-time = "2026-10-27T18:22:37.539Z" },
+    { url = "https://files.pythonhosted.org/packages/d3/5d/569ff513b83cccbccca435c543e550cf1295563130c475013ae4b01b5bc6/fips-0.2.0b2-py3-none-any.whl", hash = "sha256:0cbd6d09230dd36ae566e550b808f28ebdc1ab91e8f862d78e12ea9d53165467", size = 128913, upload-time = "2026-11-03T19:03:21.57Z" },
 ]
 
 [package.optional-dependencies]
@@ -4375,7 +4375,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "cartopy" },
-    { name = "fips", extras = ["viz"], marker = "extra == 'inversion'", specifier = ">=0.2.0b1" },
+    { name = "fips", extras = ["viz"], marker = "extra == 'inversion'", specifier = ">=0.2.0b2" },
     { name = "geopandas" },
     { name = "joblib", marker = "extra == 'inversion'", specifier = ">=1.5.3" },
     { name = "lair", extras = ["geo", "science"], git = "https://github.com/jmineau/lair?rev=v2026.12.12" },
