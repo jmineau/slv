@@ -7,6 +7,7 @@ matplotlib.use("Agg")
 from pathlib import Path
 
 import cartopy
+import cartopy.feature as cfeature
 import geopandas as gpd
 import matplotlib.pyplot as plt
 import numpy as np
@@ -19,7 +20,7 @@ from matplotlib.lines import Line2D
 from shapely.geometry import LineString, box
 
 from slv import basemap
-from slv.basemap import SaltLake
+from slv.basemap import PC, SaltLake
 
 BBOX = (-112.2, 40.5, -111.7, 40.9)
 
@@ -214,6 +215,31 @@ def test_unknown_site_and_trax_line_raise():
         SaltLake(BBOX).add_trax("S", trax=trax())
 
 
+class _NoFeature:
+    """Stands in for cartopy's ``OCEAN``, ``LAND`` and ``STATES``: draws nothing, notes the scale."""
+
+    def __init__(self, scales):
+        self.scales = scales
+
+    def with_scale(self, scale):
+        self.scales.append(scale)
+        return cfeature.ShapelyFeature([], PC)
+
+
+@pytest.fixture
+def scales(monkeypatch):
+    """
+    The Natural Earth scales the locator map asks for, with nothing downloaded.
+
+    ``full_map`` draws the real features (cartopy downloads and caches them); the
+    tests that look at the box and the place do not need them.
+    """
+    asked: list[str] = []
+    for name in ("OCEAN", "LAND", "STATES"):
+        monkeypatch.setattr(cfeature, name, _NoFeature(asked))
+    return asked
+
+
 def box_style(m):
     """The (facecolor, edgecolor) the locator map draws the main map's box with."""
     artist = m.locator_map.collections[-1]  # the box is the last layer drawn on it
@@ -221,21 +247,23 @@ def box_style(m):
     return artist._feature._kwargs["facecolor"], artist._feature._kwargs["edgecolor"]
 
 
-def test_locator_map_is_a_map_axis_inside_the_main_axes():
+def test_locator_map_is_a_map_axis_inside_the_main_axes(scales):
     m = SaltLake(BBOX)
     assert m.add_locator_map() is m
     assert isinstance(m.locator_map, GeoAxes)
     assert m.locator_map in m.ax.child_axes
+    assert scales == ["50m"] * 3  # lair's default scale, for ocean, land and states
 
 
-def test_locator_map_outlines_the_bbox_and_fill_fills_it():
+def test_locator_map_outlines_the_bbox_and_fill_fills_it(scales):
     outlined = SaltLake(BBOX).add_locator_map()
     assert box_style(outlined) == ("none", "red")
     filled = SaltLake(BBOX).add_locator_map(fill=True, color="blue", scale="110m")
     assert box_style(filled) == ("blue", "blue")
+    assert scales[-3:] == ["110m"] * 3
 
 
-def test_locator_map_is_placed_by_bounds_in_the_main_axes_and_moves_with_them():
+def test_locator_map_is_placed_by_bounds_in_the_main_axes_and_moves_with_them(scales):
     left, bottom, width, height = bounds = (0.1, 0.2, 0.3, 0.4)
     m = SaltLake(BBOX).add_locator_map(bounds=bounds)
     for position in [(0.1, 0.1, 0.8, 0.8), (0.2, 0.3, 0.5, 0.4)]:
