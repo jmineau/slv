@@ -36,7 +36,7 @@ dependencies = [
 
 [project.optional-dependencies]
 inversion = [
-    "fips[viz]>=0.2.0b1",
+    "fips[viz]>=0.2.0b2",
     "pystilt>=0.1.0a27",  # Project.jacobian, one footprint per thread; the shared output layout
     "joblib>=1.5.3",
     "seaborn",
