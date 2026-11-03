@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../../_static/documentation_options.js?v=eab2a841"></script>
+    <script src="../../../../_static/documentation_options.js?v=f9918883"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -59,7 +59,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.10.4.dev20+ga87fe1ecc" />
+  <meta name="docsearch:version" content="2026.10.4.dev21+g317fd9b23" />
   
     
     <script src="../../../../_static/searchtools.js"></script>
@@ -596,7 +596,8 @@
 <span class="sd">    ``yard_name`` (that polygon's name where ``d_yard`` ≤ :data:`NEAR_YARD`),</span>
 <span class="sd">    ``in_yard`` (fraction of fixes inside a polygon), ``in_depot`` (median position</span>
 <span class="sd">    inside a :func:`load_depot_footprint` shed), ``nsat`` (median, if present), and</span>
-<span class="sd">    from ``cr1000``: ``volt`` (median), ``volt_min``, ``amb_T``, ``amb_RH``.</span>
+<span class="sd">    from ``cr1000`` (when it has ``Battery_Voltage_V``): ``volt`` (median),</span>
+<span class="sd">    ``volt_min``, and ``amb_T``, ``amb_RH`` when it has the roof T/RH columns.</span>
 <span class="sd">    ``storage_polygons`` defaults to :func:`load_storage_polygons` (all yards); pass a</span>
 <span class="sd">    frame with a ``name`` column to restrict or replace them. ``num_processes`` threads</span>
 <span class="sd">    measure the distance of every fix to the track and to the yards (the slow part of</span>
@@ -660,8 +661,10 @@
         <span class="n">c</span> <span class="o">=</span> <span class="n">cr1000</span><span class="o">.</span><span class="n">resample</span><span class="p">(</span><span class="n">freq</span><span class="p">)</span>
         <span class="n">f</span><span class="p">[</span><span class="s2">"volt"</span><span class="p">]</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">Battery_Voltage_V</span><span class="o">.</span><span class="n">median</span><span class="p">()</span>
         <span class="n">f</span><span class="p">[</span><span class="s2">"volt_min"</span><span class="p">]</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">Battery_Voltage_V</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
-        <span class="n">f</span><span class="p">[</span><span class="s2">"amb_T"</span><span class="p">]</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">Ambient_T_C</span><span class="o">.</span><span class="n">median</span><span class="p">()</span>
-        <span class="n">f</span><span class="p">[</span><span class="s2">"amb_RH"</span><span class="p">]</span> <span class="o">=</span> <span class="n">c</span><span class="o">.</span><span class="n">Ambient_RH_pct</span><span class="o">.</span><span class="n">median</span><span class="p">()</span>
+        <span class="c1"># roof T/RH only where the logger has the sensor (trx02 had none in Nov-Dec 2018)</span>
+        <span class="k">for</span> <span class="n">col</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">((</span><span class="s2">"Ambient_T_C"</span><span class="p">,</span> <span class="s2">"amb_T"</span><span class="p">),</span> <span class="p">(</span><span class="s2">"Ambient_RH_pct"</span><span class="p">,</span> <span class="s2">"amb_RH"</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">cr1000</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+                <span class="n">f</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">c</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">median</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">f</span></div>
 
 
