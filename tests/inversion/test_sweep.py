@@ -323,7 +323,8 @@ class TestCollectMetrics:
         assert row["reduced_chi2"] == pytest.approx(post.reduced_chi2)
         assert row["chi2_distance"] == pytest.approx(abs(post.reduced_chi2 - 1))
         assert row["posterior_enh_corr2"] == pytest.approx(post.r2)
-        assert row["RMSE"] == pytest.approx(post.rmse)
+        assert row["posterior_conc_rmse"] == pytest.approx(post.rmse)
+        assert "RMSE" not in row
         assert row["DOFS"] == pytest.approx(post.dofs)
         assert row["n_obs"] == 4 and row["n_state"] == 4
 
@@ -736,7 +737,7 @@ def test_sensitivity_best_value_is_closest_to_one(tmp_path):
         {
             "config_id": ["a", "b", "c"],
             "reduced_chi2": [0.3, 1.05, 1.9],
-            "RMSE": [0.05, 0.02, 0.04],
+            "posterior_conc_rmse": [0.05, 0.02, 0.04],
             "cfg_prior_base_std": [0.01, 0.02, 0.03],
         }
     ).to_csv(path, index=False)
@@ -744,9 +745,9 @@ def test_sensitivity_best_value_is_closest_to_one(tmp_path):
     # the lowest chi2 (0.3) used to count as best
     assert sens.loc[0, "best_value"] == pytest.approx(0.02)
     # without a target (any metric but reduced_chi2) the lowest is best
-    assert SweepResults(path).sensitivity("RMSE").loc[0, "best_value"] == (
-        pytest.approx(0.02)
-    )
-    assert SweepResults(path).sensitivity("RMSE", target=0.05).loc[0, "best_value"] == (
-        pytest.approx(0.01)
-    )
+    assert SweepResults(path).sensitivity("posterior_conc_rmse").loc[
+        0, "best_value"
+    ] == (pytest.approx(0.02))
+    assert SweepResults(path).sensitivity("posterior_conc_rmse", target=0.05).loc[
+        0, "best_value"
+    ] == (pytest.approx(0.01))

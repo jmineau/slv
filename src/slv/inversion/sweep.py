@@ -105,7 +105,6 @@ _RESULT_COLUMNS = (
     "runtime_seconds",
     "reduced_chi2",
     "chi2_distance",
-    "RMSE",
     "DOFS",
     "uncertainty_reduction",
     "prior_flux_mean",
@@ -632,8 +631,6 @@ def collect_metrics(
     enhancement (observed concentration minus background): ``*_enh_r2``, the
     enhancement-variance R² ``1 - SS_res/SS_tot`` that paper 1 quotes, and
     ``*_enh_corr2``, the squared correlation, which ignores a bias or a scale.
-    ``RMSE`` is fips's ``Posterior.rmse``, the same number as
-    ``posterior_conc_rmse``.
 
     Parameters
     ----------
@@ -667,7 +664,6 @@ def collect_metrics(
         "reduced_chi2": float(post.reduced_chi2),
         "chi2_distance": abs(float(post.reduced_chi2) - 1.0),
         # Supplementary fit metrics
-        "RMSE": float(post.rmse),
         "DOFS": float(post.dofs),
         "uncertainty_reduction": float(post.uncertainty_reduction),
     }
