@@ -1,0 +1,6 @@
+slv.measurements.mobile.gps.sort\_by\_time
+==========================================
+
+.. currentmodule:: slv.measurements.mobile.gps
+
+.. autofunction:: sort_by_time

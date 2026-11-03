@@ -1,0 +1,6 @@
+slv.measurements.mobile.network.storage\_locations
+==================================================
+
+.. currentmodule:: slv.measurements.mobile.network
+
+.. autodata:: storage_locations

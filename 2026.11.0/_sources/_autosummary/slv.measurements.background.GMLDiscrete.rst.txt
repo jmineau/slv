@@ -1,0 +1,31 @@
+slv.measurements.background.GMLDiscrete
+=======================================
+
+.. currentmodule:: slv.measurements.background
+
+.. autoclass:: GMLDiscrete
+   :no-members:
+   :show-inheritance:
+
+
+
+
+.. rubric:: Attributes
+
+.. autosummary::
+   :toctree:
+
+   ~GMLDiscrete.latitude
+   ~GMLDiscrete.longitude
+
+
+
+.. rubric:: Methods
+
+.. autosummary::
+   :toctree:
+
+   ~GMLDiscrete.thoning_curve
+
+
+

@@ -1,0 +1,6 @@
+slv.measurements.mobile.obs.apply\_slope\_guard
+===============================================
+
+.. currentmodule:: slv.measurements.mobile.obs
+
+.. autofunction:: apply_slope_guard

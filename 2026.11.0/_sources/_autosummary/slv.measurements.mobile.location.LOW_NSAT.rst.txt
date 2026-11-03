@@ -1,0 +1,6 @@
+slv.measurements.mobile.location.LOW\_NSAT
+==========================================
+
+.. currentmodule:: slv.measurements.mobile.location
+
+.. autodata:: LOW_NSAT

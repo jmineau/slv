@@ -1,0 +1,6 @@
+slv.inversion.viz.plot\_mdm\_components
+=======================================
+
+.. currentmodule:: slv.inversion.viz
+
+.. autofunction:: plot_mdm_components

@@ -1,0 +1,6 @@
+slv.inversion.sweep.SweepResults.plot\_chi2
+===========================================
+
+.. currentmodule:: slv.inversion.sweep
+
+.. automethod:: SweepResults.plot_chi2

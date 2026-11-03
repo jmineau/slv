@@ -1,0 +1,6 @@
+slv.basemap.SaltLake.fig
+========================
+
+.. currentmodule:: slv.basemap
+
+.. autoproperty:: SaltLake.fig

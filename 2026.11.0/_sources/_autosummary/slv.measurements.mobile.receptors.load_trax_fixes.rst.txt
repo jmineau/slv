@@ -1,0 +1,6 @@
+slv.measurements.mobile.receptors.load\_trax\_fixes
+===================================================
+
+.. currentmodule:: slv.measurements.mobile.receptors
+
+.. autofunction:: load_trax_fixes

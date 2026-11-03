@@ -1,6 +1,0 @@
-slv.basemap.SaltLake.add\_inset
-===============================
-
-.. currentmodule:: slv.basemap
-
-.. automethod:: SaltLake.add_inset

@@ -1,0 +1,6 @@
+slv.inversion.config.InversionConfig.extent
+===========================================
+
+.. currentmodule:: slv.inversion.config
+
+.. autoproperty:: InversionConfig.extent

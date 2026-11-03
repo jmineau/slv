@@ -1,0 +1,6 @@
+slv.measurements.background.CarbonTrackerCH4.get\_SLV\_molefractions
+====================================================================
+
+.. currentmodule:: slv.measurements.background
+
+.. automethod:: CarbonTrackerCH4.get_SLV_molefractions

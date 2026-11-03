@@ -1,0 +1,6 @@
+slv.inversion.sweep.run\_sweep\_job
+===================================
+
+.. currentmodule:: slv.inversion.sweep
+
+.. autofunction:: run_sweep_job

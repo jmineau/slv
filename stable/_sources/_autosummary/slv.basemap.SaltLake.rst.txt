@@ -24,10 +24,10 @@ slv.basemap.SaltLake
    :toctree:
 
    ~SaltLake.add_borders
-   ~SaltLake.add_inset
    ~SaltLake.add_interstates
    ~SaltLake.add_inventory
    ~SaltLake.add_legend
+   ~SaltLake.add_locator_map
    ~SaltLake.add_mesowest
    ~SaltLake.add_north_arrow
    ~SaltLake.add_points

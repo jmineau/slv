@@ -1,0 +1,47 @@
+slv.basemap
+===========
+
+.. automodule:: slv.basemap
+   :no-members:
+
+
+.. rubric:: Attributes
+
+.. autosummary::
+   :toctree:
+   :nosignatures:
+
+   TRAX_COLORS
+   STADIA_ATTRIBUTION
+
+
+
+.. rubric:: Functions
+
+.. autosummary::
+   :toctree:
+   :nosignatures:
+
+   cached_tiler
+   load_borders
+   load_interstates
+   load_mesowest
+   load_population
+   stadia_tiles
+
+
+
+.. rubric:: Classes
+
+.. autosummary::
+   :toctree:
+   :nosignatures:
+
+   SaltLake
+
+
+
+
+
+
+

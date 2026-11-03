@@ -1,0 +1,6 @@
+slv.measurements.background.GMLDiscrete.latitude
+================================================
+
+.. currentmodule:: slv.measurements.background
+
+.. autoproperty:: GMLDiscrete.latitude

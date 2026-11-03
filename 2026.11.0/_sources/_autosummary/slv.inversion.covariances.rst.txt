@@ -1,0 +1,27 @@
+slv.inversion.covariances
+=========================
+
+.. automodule:: slv.inversion.covariances
+   :no-members:
+
+
+
+
+.. rubric:: Functions
+
+.. autosummary::
+   :toctree:
+   :nosignatures:
+
+   build_mdm_error
+   build_prior_error
+   normalize_duration
+
+
+
+
+
+
+
+
+

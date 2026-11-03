@@ -1,0 +1,6 @@
+slv.inversion.coverage.check\_state\_cells
+==========================================
+
+.. currentmodule:: slv.inversion.coverage
+
+.. autofunction:: check_state_cells

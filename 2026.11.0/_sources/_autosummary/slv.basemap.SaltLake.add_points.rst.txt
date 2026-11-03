@@ -1,0 +1,6 @@
+slv.basemap.SaltLake.add\_points
+================================
+
+.. currentmodule:: slv.basemap
+
+.. automethod:: SaltLake.add_points

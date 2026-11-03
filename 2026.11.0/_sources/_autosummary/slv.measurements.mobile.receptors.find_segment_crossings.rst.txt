@@ -1,0 +1,6 @@
+slv.measurements.mobile.receptors.find\_segment\_crossings
+==========================================================
+
+.. currentmodule:: slv.measurements.mobile.receptors
+
+.. autofunction:: find_segment_crossings

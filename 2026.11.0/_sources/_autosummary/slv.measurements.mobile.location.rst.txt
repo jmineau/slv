@@ -1,0 +1,45 @@
+slv.measurements.mobile.location
+================================
+
+.. automodule:: slv.measurements.mobile.location
+   :no-members:
+
+
+.. rubric:: Attributes
+
+.. autosummary::
+   :toctree:
+   :nosignatures:
+
+   MOVING_SPEED
+   MOVING_SPEED_EST
+   LINE_DISTANCE
+   SCATTER_M
+   LOW_NSAT
+   YARD_BUFFER
+   NEAR_YARD
+   OFF_TRACK
+   POWER_OFF_V
+   SMOOTH_MIN
+
+
+
+.. rubric:: Functions
+
+.. autosummary::
+   :toctree:
+   :nosignatures:
+
+   classify_location
+   label_observations
+   location_features
+   state_intervals
+
+
+
+
+
+
+
+
+

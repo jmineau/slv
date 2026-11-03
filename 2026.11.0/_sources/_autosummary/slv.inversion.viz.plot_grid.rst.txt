@@ -1,0 +1,6 @@
+slv.inversion.viz.plot\_grid
+============================
+
+.. currentmodule:: slv.inversion.viz
+
+.. autofunction:: plot_grid

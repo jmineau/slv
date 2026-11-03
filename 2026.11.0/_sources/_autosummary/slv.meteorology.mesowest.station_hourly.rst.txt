@@ -1,0 +1,6 @@
+slv.meteorology.mesowest.station\_hourly
+========================================
+
+.. currentmodule:: slv.meteorology.mesowest
+
+.. autofunction:: station_hourly

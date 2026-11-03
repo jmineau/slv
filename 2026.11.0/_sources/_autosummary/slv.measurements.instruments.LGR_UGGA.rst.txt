@@ -1,0 +1,16 @@
+slv.measurements.instruments.LGR\_UGGA
+======================================
+
+.. currentmodule:: slv.measurements.instruments
+
+.. autoclass:: LGR_UGGA
+   :no-members:
+   :show-inheritance:
+
+
+
+
+
+
+
+

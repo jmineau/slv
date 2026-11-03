@@ -25,7 +25,7 @@ Module layout
                          BBOX, EXTENT)
       basemap.py         SaltLake — cartopy map of the valley; chainable add_* layers
                          (population, trax, sites, mesowest, points, interstates, borders,
-                         inventory, legend, inset, north_arrow). Data via load_* functions
+                         inventory, legend, locator_map, north_arrow). Data via load_* functions
                          ($SLV_SPATIAL_DIR group data; $SLV_USER_DATA_DIR census ACS 2022 +
                          mesowest/); tiles="terrain" = Stadia stamen_terrain ($STADIA_API_KEY,
                          network when drawn; attribution added). cached_tiler builds any
@@ -57,15 +57,23 @@ Module layout
                          outages from the lin GPS), merge_with_gps (horel_fallback:
                          rows the lin GPS never covered are georeferenced from the horel
                          logger where the Pi clock checks out -- lin_clock_offset_by_day /
-                         clock_checked_days / fill_gps_gaps_with_horel; gps_source tags each row);
+                         clock_checked_days / fill_gps_gaps_with_horel; a row whose lin fix
+                         the altitude/route/yard filters dropped is no gap, and the horel
+                         positions pass the same filters; gps_source tags each row);
                          read_lin_gps, read_horel_cr1000 and read_trax_gps take num_processes
                          (the files are read on that many processes; build_trax_obs passes its
-                         own to the location step's GPS read)
+                         own to the location step's GPS read); sort_by_time (time, then
+                         latitude, longitude, CH4: two readings can share a GPS second, and
+                         merge_with_gps, load_trax_fixes, find_segment_crossings,
+                         build_network_transects and trax_receptor_observations all sort with it,
+                         so their results do not depend on the order of tied rows)
           location.py    per-minute indoor/outdoor classifier: depot (degraded GPS:
-                         scatter > 1 m or <= 6 sats, 15-min vote) / yard / line
+                         scatter > 1 m or <= 6 sats, 15-min vote; or a standing minute
+                         thrown 30-300 m out of a yard with scatter > 1 m) / yard / line
                          (pass-by within 300 m of a yard) / route / stopped / unknown
-                         (no fix, > 100 m off track, shed ejecta); speed_est fallback
-                         for GPGGA-only eras; state_intervals, label_observations;
+                         (no fix, > 100 m off track, clean-fix ejecta); moving needs the
+                         minute medians to move (speed_est >= 1.5 m/s), not just a speed:
+                         shed multipath fakes 2-15 m/s; state_intervals, label_observations;
                          location_features(num_processes=) measures every fix's distance to the
                          track and the yards on that many threads (shapely releases the GIL;
                          build_trax_obs passes its own num_processes)
@@ -88,7 +96,11 @@ Module layout
                          never from flag -63 alone, for the same reason), apply_dropout_rule + dropout_times (+-8 min around any
                          atmosphere row < 1.70 ppm: a laser dropout reads low for minutes to
                          hours and its shoulder passes QC), recover_hot_rows (flag -64 rows
-                         have a fitted CH4d_m but a blanked CH4d_ppm_cal: qaqc value / slope)
+                         have a fitted CH4d_m but a blanked CH4d_ppm_cal: qaqc value / slope,
+                         atmosphere rows only, through normalize_pollutant's ID check; filled
+                         in before apply_slope_guard, which then judges them too; the guard compares
+                         each slope with the day's median, or with 1 where that median is itself
+                         more than slope_tol from 1)
           transects.py   transect matrices obs[transect, point]: build_network_transects
                          (one matrix over the 50-m network points for all lines: per-epoch
                          inlet lag -> snap 60 m -> line by windowed vote among the point's
@@ -187,8 +199,9 @@ and pipeline internals, in one place.
                        multiplicative_scale, per_obs_std (subhour)
       coverage.py      check_state_cells, covered_state (the Jacobian coverage filter's
                        cells; the problem of them is problem.restrict(keep))
-      report.py        domain totals (calculate_total_flux, fluxes_as_inventory), summarize
-                       (prints), desroziers_diagnostic, plot_inputs/results/diagnostics
+      report.py        domain totals (calculate_total_flux, fluxes_as_inventory), fit_metrics
+                       (RMSE, bias, R^2: the one source for summarize and the sweep table),
+                       summarize (prints), desroziers_diagnostic, plot_inputs/results/diagnostics
       priors.py        prior flux construction
       covariances.py   covariance models: build_prior_error (Kronecker factors),
                        build_mdm_error (one MDM component)
@@ -262,7 +275,7 @@ Notes on the pipeline
   silently, leaving the MDM cache hash unchanged.
 - ``get_slv_observations`` loads the TRAX route points only when a mobile site is in
   ``sites``; tower-only runs need no TRAX data.
-- ``InversionConfig.stilt_project`` defaults to ``SLV_STILT_DIR`` if set, else
+- ``InversionConfig.stilt_project`` defaults to ``SLV_STILT_DIR`` if set and not empty, else
   ``DEFAULT_STILT_PROJECT`` (the CHPC paper-1 PYSTILT project), so the config stays
   usable without the environment variable.
 - ``load_epa_prior`` reads EPA's express product either way

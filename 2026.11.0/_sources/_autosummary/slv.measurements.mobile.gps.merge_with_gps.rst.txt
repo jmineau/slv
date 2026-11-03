@@ -1,0 +1,6 @@
+slv.measurements.mobile.gps.merge\_with\_gps
+============================================
+
+.. currentmodule:: slv.measurements.mobile.gps
+
+.. autofunction:: merge_with_gps

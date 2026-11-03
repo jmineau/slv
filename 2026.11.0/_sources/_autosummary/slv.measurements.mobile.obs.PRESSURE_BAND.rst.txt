@@ -1,0 +1,6 @@
+slv.measurements.mobile.obs.PRESSURE\_BAND
+==========================================
+
+.. currentmodule:: slv.measurements.mobile.obs
+
+.. autodata:: PRESSURE_BAND

@@ -15,6 +15,7 @@ slv.measurements.mobile.gps
    ALTITUDE_RANGE_MSL
    HOREL_POST_PILOT
    LIN_GPS_DROP_FLAGS
+   TIE_ORDER
 
 
 
@@ -31,6 +32,7 @@ slv.measurements.mobile.gps
    read_horel_cr1000
    read_lin_gps
    read_trax_gps
+   sort_by_time
 
 
 

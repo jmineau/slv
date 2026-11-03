@@ -1,0 +1,6 @@
+slv.basemap.STADIA\_ATTRIBUTION
+===============================
+
+.. currentmodule:: slv.basemap
+
+.. autodata:: STADIA_ATTRIBUTION
