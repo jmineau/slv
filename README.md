@@ -54,7 +54,7 @@ m = (SaltLake(tiles="terrain")          # Stadia stamen_terrain; needs $STADIA_A
      .add_trax(lines="RG")
      .add_sites(["wbb", "ldf", "hdp"], labels={"wbb": "UOU"})
      .add_mesowest()
-     .add_legend().add_inset().add_north_arrow())
+     .add_legend().add_locator_map().add_north_arrow())
 m.fig.savefig("slv.png", dpi=300)
 ```
 

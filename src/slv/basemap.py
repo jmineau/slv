@@ -13,7 +13,7 @@ Salt Lake Valley basemaps.
         .add_sites(["wbb", "ldf", "hdp"], labels={"wbb": "UOU"})
         .add_mesowest()
         .add_legend()
-        .add_inset()
+        .add_locator_map()
         .add_north_arrow()
     )
     m.fig.savefig("slv.png", dpi=300)
@@ -27,20 +27,19 @@ import os
 from typing import Any, TypeVar
 
 import cartopy.crs as ccrs
-import cartopy.feature as cfeature
 import cartopy.io.img_tiles as cimgt
 import geopandas as gpd
 import matplotlib.patheffects as pe
 import numpy as np
 import pandas as pd
-from lair.geo import add_latlon_ticks, bbox2extent
+from cartopy.mpl.geoaxes import GeoAxes
+from lair.geo import add_latlon_ticks, add_locator_map, bbox2extent
 from matplotlib import pyplot as plt
 from matplotlib.cm import ScalarMappable
 from matplotlib.colors import Normalize
 from matplotlib.legend_handler import HandlerBase
 from matplotlib.lines import Line2D
 from matplotlib.ticker import FuncFormatter
-from shapely.geometry import box
 
 from slv import get_data_dir
 from slv.domain import MAP_BBOX
@@ -251,6 +250,8 @@ class SaltLake:
             fig, ax = plt.subplots(
                 figsize=figsize, subplot_kw={"projection": projection}
             )
+        if not isinstance(ax, GeoAxes):  # set_extent below needs one; say so up front
+            raise TypeError(f"ax must be a cartopy GeoAxes, not {type(ax).__name__}")
         self.ax = ax
         self.bbox = tuple(bbox)
         self.extent = bbox2extent(list(bbox))
@@ -495,29 +496,35 @@ class SaltLake:
         legend.set_zorder(8)
         return self
 
-    def add_inset(
-        self,
-        extent=(-125, -105, 30, 50),
-        bounds=(0.7, 0.7, 0.29, 0.29),
-        color="red",
-        projection=None,
-    ):
+    def add_locator_map(self, **kwargs):
         """
         A locator map of the western US with the map's area marked.
 
-        Uses cartopy's Natural Earth 50 m land, ocean and states (cached after the
-        first download).
+        A thin call of :func:`lair.geo.add_locator_map` with this map's axes and extent;
+        it takes that function's other arguments by keyword and has its defaults. The
+        locator map is an inset of the map's axes (``bounds`` are fractions of them), in the
+        upper right corner by default, and shows Natural Earth land, ocean and states
+        (cached after the first download). The map's area is outlined; ``fill=True`` fills it.
+
+        Parameters
+        ----------
+        **kwargs
+            ``locator_extent``, ``bounds``, ``locator_crs``, ``color``, ``linewidth``,
+            ``zorder``, ``scale`` (Natural Earth ``"10m"``, ``"50m"`` or ``"110m"``) and
+            ``fill``, as described for :func:`lair.geo.add_locator_map`.
+
+        Returns
+        -------
+        SaltLake
+            The map, so calls chain; the locator map's axes are ``self.locator_map``.
+
+        Examples
+        --------
+        The valley as a filled red box on a coarser, smaller map:
+
+        >>> m = SaltLake().add_locator_map(fill=True, scale="110m")
         """
-        projection = projection or ccrs.AlbersEqualArea(central_longitude=-111)
-        inset = self.ax.inset_axes(bounds, projection=projection, zorder=8)
-        inset.set_extent(extent, crs=PC)
-        inset.add_feature(cfeature.OCEAN.with_scale("50m"))
-        inset.add_feature(cfeature.LAND.with_scale("50m"))
-        inset.add_feature(cfeature.STATES.with_scale("50m"), linewidth=0.8)
-        inset.add_geometries(
-            [box(*self.bbox)], crs=PC, facecolor=color, edgecolor=color, linewidth=2
-        )
-        self.inset = inset
+        self.locator_map = add_locator_map(self.ax, self.extent, PC, **kwargs)
         return self
 
     def add_north_arrow(self, xy=(0.95, 0.07), fontsize=16):
