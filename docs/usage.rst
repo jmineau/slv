@@ -18,7 +18,7 @@ method adds a layer and returns the map, so calls chain.
        .add_sites(["wbb", "ldf", "hdp"], labels={"wbb": "UOU"})
        .add_mesowest()
        .add_legend()
-       .add_inset()
+       .add_locator_map()
        .add_north_arrow()
    )
    m.fig.savefig("slv.png", dpi=300)

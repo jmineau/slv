@@ -13,6 +13,7 @@ import numpy as np
 import pandas as pd
 import pytest
 from cartopy.io.img_tiles import StadiaMapsTiles
+from cartopy.mpl.feature_artist import FeatureArtist
 from cartopy.mpl.geoaxes import GeoAxes
 from matplotlib.lines import Line2D
 from shapely.geometry import LineString, box
@@ -170,7 +171,7 @@ def full_map(**kwargs):
         .add_sites(["wbb", "hdp"], labels={"wbb": "UOU"})
         .add_mesowest(stations())
         .add_legend()
-        .add_inset()
+        .add_locator_map()
         .add_north_arrow()
     )
 
@@ -213,10 +214,52 @@ def test_unknown_site_and_trax_line_raise():
         SaltLake(BBOX).add_trax("S", trax=trax())
 
 
-def test_inset_is_a_map_axis_marking_the_bbox():
-    m = SaltLake(BBOX).add_inset()
-    assert isinstance(m.inset, GeoAxes)
-    assert len(m.inset.patches) + len(m.inset.collections) > 0
+def box_style(m):
+    """The (facecolor, edgecolor) the locator map draws the main map's box with."""
+    artist = m.locator_map.collections[-1]  # the box is the last layer drawn on it
+    assert isinstance(artist, FeatureArtist)
+    return artist._feature._kwargs["facecolor"], artist._feature._kwargs["edgecolor"]
+
+
+def test_locator_map_is_a_map_axis_inside_the_main_axes():
+    m = SaltLake(BBOX)
+    assert m.add_locator_map() is m
+    assert isinstance(m.locator_map, GeoAxes)
+    assert m.locator_map in m.ax.child_axes
+
+
+def test_locator_map_outlines_the_bbox_and_fill_fills_it():
+    outlined = SaltLake(BBOX).add_locator_map()
+    assert box_style(outlined) == ("none", "red")
+    filled = SaltLake(BBOX).add_locator_map(fill=True, color="blue", scale="110m")
+    assert box_style(filled) == ("blue", "blue")
+
+
+def test_locator_map_is_placed_by_bounds_in_the_main_axes_and_moves_with_them():
+    left, bottom, width, height = bounds = (0.1, 0.2, 0.3, 0.4)
+    m = SaltLake(BBOX).add_locator_map(bounds=bounds)
+    for position in [(0.1, 0.1, 0.8, 0.8), (0.2, 0.3, 0.5, 0.4)]:
+        m.ax.set_position(position)
+        m.fig.canvas.draw()
+        main = m.ax.get_position()
+        placed = m.locator_map.get_position()
+        # The map keeps its aspect, so it fills the box ``bounds`` asks for only in one
+        # direction and is centered in the other.
+        want = (
+            main.x0 + left * main.width,
+            main.y0 + bottom * main.height,
+            width * main.width,
+            height * main.height,
+        )
+        assert placed.width <= want[2] + 1e-9 and placed.height <= want[3] + 1e-9
+        assert placed.x0 + placed.width / 2 == pytest.approx(want[0] + want[2] / 2)
+        assert placed.y0 + placed.height / 2 == pytest.approx(want[1] + want[3] / 2)
+
+
+def test_a_plain_axis_is_refused():
+    _, ax = plt.subplots()
+    with pytest.raises(TypeError, match="GeoAxes"):
+        SaltLake(BBOX, ax=ax)
 
 
 def test_draws_on_a_given_axis():

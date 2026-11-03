@@ -25,7 +25,7 @@ Module layout
                          BBOX, EXTENT)
       basemap.py         SaltLake — cartopy map of the valley; chainable add_* layers
                          (population, trax, sites, mesowest, points, interstates, borders,
-                         inventory, legend, inset, north_arrow). Data via load_* functions
+                         inventory, legend, locator_map, north_arrow). Data via load_* functions
                          ($SLV_SPATIAL_DIR group data; $SLV_USER_DATA_DIR census ACS 2022 +
                          mesowest/); tiles="terrain" = Stadia stamen_terrain ($STADIA_API_KEY,
                          network when drawn; attribution added). cached_tiler builds any
