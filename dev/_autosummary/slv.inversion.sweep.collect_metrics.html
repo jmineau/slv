@@ -41,7 +41,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../_static/documentation_options.js?v=5891bbed"></script>
+    <script src="../_static/documentation_options.js?v=110327cf"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -62,7 +62,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.10.4.dev22+g8672e8768" />
+  <meta name="docsearch:version" content="2026.10.4.dev23+g0e1c5cf91" />
   
     
     <script src="../_static/searchtools.js"></script>
@@ -687,7 +687,7 @@
 <h1>slv.inversion.sweep.collect_metrics<a class="headerlink" href="#slv-inversion-sweep-collect-metrics" title="Link to this heading">#</a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="slv.inversion.sweep.collect_metrics">
-<span class="sig-prename descclassname"><span class="pre">slv.inversion.sweep.</span></span><span class="sig-name descname"><span class="pre">collect_metrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">post</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">swept_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/slv/inversion/sweep.html#collect_metrics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#slv.inversion.sweep.collect_metrics" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">slv.inversion.sweep.</span></span><span class="sig-name descname"><span class="pre">collect_metrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">post</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">swept_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">problem</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/slv/inversion/sweep.html#collect_metrics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#slv.inversion.sweep.collect_metrics" title="Link to this definition">#</a></dt>
 <dd><p>Extract goodness-of-fit and flux metrics from a solved inversion.</p>
 <p>The primary target metric is <code class="docutils literal notranslate"><span class="pre">reduced_chi2</span></code> — ideally close to 1.0,
 which indicates the error covariances are well-specified.</p>
@@ -704,6 +704,13 @@ enhancement: <code class="docutils literal notranslate"><span class="pre">corr(o
 <li><p><strong>config</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference internal" href="slv.inversion.config.InversionConfig.html#slv.inversion.config.InversionConfig" title="slv.inversion.config.InversionConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">InversionConfig</span></code></a></span>) – <code class="xref py py-class docutils literal notranslate"><span class="pre">InversionConfig</span></code> used for this run.</p></li>
 <li><p><strong>swept_params</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#list" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a>[<a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a>] | <span class="highlight sphinx_autodoc_typehints-value"><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><code class="xref py py-obj docutils literal notranslate"><span class="kc"><span class="pre">None</span></span></code></a></span></span>) – Config field names to capture as <code class="docutils literal notranslate"><span class="pre">cfg_*</span></code> columns in the output row.
 If <em>None</em>, all non-scientific fields are excluded and the rest included.</p></li>
+<li><p><strong>problem</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Problem</span></code> | <span class="highlight sphinx_autodoc_typehints-value"><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><code class="xref py py-obj docutils literal notranslate"><span class="kc"><span class="pre">None</span></span></code></a></span></span>) – The whole problem the pipeline was given (<code class="docutils literal notranslate"><span class="pre">post.problem</span></code> by default). The
+domain totals (<code class="docutils literal notranslate"><span class="pre">prior_flux_mean</span></code>, <code class="docutils literal notranslate"><span class="pre">posterior_flux_mean</span></code>,
+<code class="docutils literal notranslate"><span class="pre">posterior_flux_std</span></code>, <code class="docutils literal notranslate"><span class="pre">flux_change_pct</span></code>) cover every cell of it, as
+<a class="reference internal" href="slv.inversion.report.summarize.html#slv.inversion.report.summarize" title="slv.inversion.report.summarize"><code class="xref py py-func docutils literal notranslate"><span class="pre">summarize()</span></code></a> does: with the coverage filter on
+(<code class="docutils literal notranslate"><span class="pre">config.jacobian_coverage_percentile</span></code>), the cells left out of the solve
+count at their prior. The fit columns and <code class="docutils literal notranslate"><span class="pre">n_state</span></code> are of the problem
+that was solved, <code class="docutils literal notranslate"><span class="pre">post.problem</span></code>.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
