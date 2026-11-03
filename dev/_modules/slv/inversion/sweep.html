@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../_static/documentation_options.js?v=2a0c2194"></script>
+    <script src="../../../_static/documentation_options.js?v=7daddba7"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -59,7 +59,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.10.4.dev27+g8e8ff9224" />
+  <meta name="docsearch:version" content="2026.10.4.dev29+g3941eb57c" />
   
     
     <script src="../../../_static/searchtools.js"></script>
@@ -538,7 +538,6 @@
     <span class="s2">"runtime_seconds"</span><span class="p">,</span>
     <span class="s2">"reduced_chi2"</span><span class="p">,</span>
     <span class="s2">"chi2_distance"</span><span class="p">,</span>
-    <span class="s2">"RMSE"</span><span class="p">,</span>
     <span class="s2">"DOFS"</span><span class="p">,</span>
     <span class="s2">"uncertainty_reduction"</span><span class="p">,</span>
     <span class="s2">"prior_flux_mean"</span><span class="p">,</span>
@@ -1079,8 +1078,6 @@
 <span class="sd">    enhancement (observed concentration minus background): ``*_enh_r2``, the</span>
 <span class="sd">    enhancement-variance R² ``1 - SS_res/SS_tot`` that paper 1 quotes, and</span>
 <span class="sd">    ``*_enh_corr2``, the squared correlation, which ignores a bias or a scale.</span>
-<span class="sd">    ``RMSE`` is fips's ``Posterior.rmse``, the same number as</span>
-<span class="sd">    ``posterior_conc_rmse``.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -1114,7 +1111,6 @@
         <span class="s2">"reduced_chi2"</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">post</span><span class="o">.</span><span class="n">reduced_chi2</span><span class="p">),</span>
         <span class="s2">"chi2_distance"</span><span class="p">:</span> <span class="nb">abs</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">post</span><span class="o">.</span><span class="n">reduced_chi2</span><span class="p">)</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">),</span>
         <span class="c1"># Supplementary fit metrics</span>
-        <span class="s2">"RMSE"</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">post</span><span class="o">.</span><span class="n">rmse</span><span class="p">),</span>
         <span class="s2">"DOFS"</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">post</span><span class="o">.</span><span class="n">dofs</span><span class="p">),</span>
         <span class="s2">"uncertainty_reduction"</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">post</span><span class="o">.</span><span class="n">uncertainty_reduction</span><span class="p">),</span>
     <span class="p">}</span>

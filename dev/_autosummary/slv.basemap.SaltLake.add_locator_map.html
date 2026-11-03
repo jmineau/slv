@@ -7,7 +7,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>slv.basemap.SaltLake.add_inset &#8212; slv dev</title>
+    <title>slv.basemap.SaltLake.add_locator_map &#8212; slv dev</title>
   
   
   
@@ -41,12 +41,12 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../_static/documentation_options.js?v=2a0c2194"></script>
+    <script src="../_static/documentation_options.js?v=7daddba7"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
     <script src="../_static/copybutton.js?v=f281be69"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = '_autosummary/slv.basemap.SaltLake.add_inset';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_autosummary/slv.basemap.SaltLake.add_locator_map';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.23.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://jmineau.github.io/slv/switcher.json';
@@ -57,12 +57,12 @@
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="slv.basemap.SaltLake.add_interstates" href="slv.basemap.SaltLake.add_interstates.html" />
-    <link rel="prev" title="slv.basemap.SaltLake.add_borders" href="slv.basemap.SaltLake.add_borders.html" />
+    <link rel="next" title="slv.basemap.SaltLake.add_mesowest" href="slv.basemap.SaltLake.add_mesowest.html" />
+    <link rel="prev" title="slv.basemap.SaltLake.add_legend" href="slv.basemap.SaltLake.add_legend.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.10.4.dev27+g8e8ff9224" />
+  <meta name="docsearch:version" content="2026.10.4.dev29+g3941eb57c" />
   
     
     <script src="../_static/searchtools.js"></script>
@@ -405,10 +405,10 @@
 <li class="toctree-l3 current active has-children"><a class="reference internal" href="slv.basemap.SaltLake.html">slv.basemap.SaltLake</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l4"><a class="reference internal" href="slv.basemap.SaltLake.fig.html">slv.basemap.SaltLake.fig</a></li>
 <li class="toctree-l4"><a class="reference internal" href="slv.basemap.SaltLake.add_borders.html">slv.basemap.SaltLake.add_borders</a></li>
-<li class="toctree-l4 current active"><a aria-current="page" class="current reference internal" href="#">slv.basemap.SaltLake.add_inset</a></li>
 <li class="toctree-l4"><a class="reference internal" href="slv.basemap.SaltLake.add_interstates.html">slv.basemap.SaltLake.add_interstates</a></li>
 <li class="toctree-l4"><a class="reference internal" href="slv.basemap.SaltLake.add_inventory.html">slv.basemap.SaltLake.add_inventory</a></li>
 <li class="toctree-l4"><a class="reference internal" href="slv.basemap.SaltLake.add_legend.html">slv.basemap.SaltLake.add_legend</a></li>
+<li class="toctree-l4 current active"><a aria-current="page" class="current reference internal" href="#">slv.basemap.SaltLake.add_locator_map</a></li>
 <li class="toctree-l4"><a class="reference internal" href="slv.basemap.SaltLake.add_mesowest.html">slv.basemap.SaltLake.add_mesowest</a></li>
 <li class="toctree-l4"><a class="reference internal" href="slv.basemap.SaltLake.add_north_arrow.html">slv.basemap.SaltLake.add_north_arrow</a></li>
 <li class="toctree-l4"><a class="reference internal" href="slv.basemap.SaltLake.add_points.html">slv.basemap.SaltLake.add_points</a></li>
@@ -667,7 +667,7 @@
     
     <li class="breadcrumb-item"><a href="slv.basemap.SaltLake.html" class="nav-link">slv.basemap.SaltLake</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">slv.basemap.SaltLake.add_inset</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">slv.basemap.SaltLake.add_locator_map</span></li>
   </ul>
 </nav>
 </div>
@@ -684,14 +684,35 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="slv-basemap-saltlake-add-inset">
-<h1>slv.basemap.SaltLake.add_inset<a class="headerlink" href="#slv-basemap-saltlake-add-inset" title="Link to this heading">#</a></h1>
+  <section id="slv-basemap-saltlake-add-locator-map">
+<h1>slv.basemap.SaltLake.add_locator_map<a class="headerlink" href="#slv-basemap-saltlake-add-locator-map" title="Link to this heading">#</a></h1>
 <dl class="py method">
-<dt class="sig sig-object py" id="slv.basemap.SaltLake.add_inset">
-<span class="sig-prename descclassname"><span class="pre">SaltLake.</span></span><span class="sig-name descname"><span class="pre">add_inset</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">extent</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(-125,</span> <span class="pre">-105,</span> <span class="pre">30,</span> <span class="pre">50)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bounds</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0.7,</span> <span class="pre">0.7,</span> <span class="pre">0.29,</span> <span class="pre">0.29)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'red'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">projection</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/slv/basemap.html#SaltLake.add_inset"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#slv.basemap.SaltLake.add_inset" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="slv.basemap.SaltLake.add_locator_map">
+<span class="sig-prename descclassname"><span class="pre">SaltLake.</span></span><span class="sig-name descname"><span class="pre">add_locator_map</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/slv/basemap.html#SaltLake.add_locator_map"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#slv.basemap.SaltLake.add_locator_map" title="Link to this definition">#</a></dt>
 <dd><p>A locator map of the western US with the map’s area marked.</p>
-<p>Uses cartopy’s Natural Earth 50 m land, ocean and states (cached after the
-first download).</p>
+<p>A thin call of <code class="xref py py-func docutils literal notranslate"><span class="pre">lair.geo.add_locator_map()</span></code> with this map’s axes and extent;
+it takes that function’s other arguments by keyword and has its defaults. The
+locator map is an inset of the map’s axes (<code class="docutils literal notranslate"><span class="pre">bounds</span></code> are fractions of them), in the
+upper right corner by default, and shows Natural Earth land, ocean and states
+(cached after the first download). The map’s area is outlined; <code class="docutils literal notranslate"><span class="pre">fill=True</span></code> fills it.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>**kwargs</strong> – <code class="docutils literal notranslate"><span class="pre">locator_extent</span></code>, <code class="docutils literal notranslate"><span class="pre">bounds</span></code>, <code class="docutils literal notranslate"><span class="pre">locator_crs</span></code>, <code class="docutils literal notranslate"><span class="pre">color</span></code>, <code class="docutils literal notranslate"><span class="pre">linewidth</span></code>,
+<code class="docutils literal notranslate"><span class="pre">zorder</span></code>, <code class="docutils literal notranslate"><span class="pre">scale</span></code> (Natural Earth <code class="docutils literal notranslate"><span class="pre">&quot;10m&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;50m&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;110m&quot;</span></code>) and
+<code class="docutils literal notranslate"><span class="pre">fill</span></code>, as described for <code class="xref py py-func docutils literal notranslate"><span class="pre">lair.geo.add_locator_map()</span></code>.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The map, so calls chain; the locator map’s axes are <code class="docutils literal notranslate"><span class="pre">self.locator_map</span></code>.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="slv.basemap.SaltLake.html#slv.basemap.SaltLake" title="slv.basemap.SaltLake">SaltLake</a></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>The valley as a filled red box on a coarser, smaller map:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">m</span> <span class="o">=</span> <span class="n">SaltLake</span><span class="p">()</span><span class="o">.</span><span class="n">add_locator_map</span><span class="p">(</span><span class="n">fill</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">scale</span><span class="o">=</span><span class="s2">"110m"</span><span class="p">)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 </section>
@@ -707,20 +728,20 @@ first download).</p>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="slv.basemap.SaltLake.add_borders.html"
+       href="slv.basemap.SaltLake.add_legend.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">slv.basemap.SaltLake.add_borders</p>
+        <p class="prev-next-title">slv.basemap.SaltLake.add_legend</p>
       </div>
     </a>
     <a class="right-next"
-       href="slv.basemap.SaltLake.add_interstates.html"
+       href="slv.basemap.SaltLake.add_mesowest.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">slv.basemap.SaltLake.add_interstates</p>
+        <p class="prev-next-title">slv.basemap.SaltLake.add_mesowest</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -743,14 +764,14 @@ first download).</p>
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#slv.basemap.SaltLake.add_inset"><code class="docutils literal notranslate"><span class="pre">SaltLake.add_inset()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#slv.basemap.SaltLake.add_locator_map"><code class="docutils literal notranslate"><span class="pre">SaltLake.add_locator_map()</span></code></a></li>
 </ul>
   </nav></div>
 
   <div class="sidebar-secondary-item">
 
   <div class="tocsection sourcelink">
-    <a href="../_sources/_autosummary/slv.basemap.SaltLake.add_inset.rst.txt">
+    <a href="../_sources/_autosummary/slv.basemap.SaltLake.add_locator_map.rst.txt">
       <i class="fa-solid fa-file-lines"></i> Show Source
     </a>
   </div>
