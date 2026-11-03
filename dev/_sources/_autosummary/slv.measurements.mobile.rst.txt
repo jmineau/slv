@@ -66,6 +66,7 @@ slv.measurements.mobile
    ~obs.recover_hot_rows
    ~receptors.release_points
    ~calibration.select_uncalibrated
+   ~gps.sort_by_time
    ~location.state_intervals
    ~receptor_obs.trax_receptor_observations
 

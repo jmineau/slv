@@ -41,7 +41,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../_static/documentation_options.js?v=a26f88c4"></script>
+    <script src="../_static/documentation_options.js?v=2a0c2194"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -62,7 +62,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.10.4.dev26+gc90a99adf" />
+  <meta name="docsearch:version" content="2026.10.4.dev27+g8e8ff9224" />
   
     
     <script src="../_static/searchtools.js"></script>
@@ -714,6 +714,9 @@ observation frame (the pipeline’s <code class="docutils literal notranslate"><
 <tr class="row-even"><td><p><a class="reference internal" href="slv.measurements.mobile.gps.LIN_GPS_DROP_FLAGS.html#slv.measurements.mobile.gps.LIN_GPS_DROP_FLAGS" title="slv.measurements.mobile.gps.LIN_GPS_DROP_FLAGS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LIN_GPS_DROP_FLAGS</span></code></a></p></td>
 <td><p>bad fix quality, &lt; 4 satellites, invalid RMC status, pi-clock overlap.</p></td>
 </tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="slv.measurements.mobile.gps.TIE_ORDER.html#slv.measurements.mobile.gps.TIE_ORDER" title="slv.measurements.mobile.gps.TIE_ORDER"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TIE_ORDER</span></code></a></p></td>
+<td><p>Columns that order the rows sharing a <code class="docutils literal notranslate"><span class="pre">Time_UTC</span></code> (<a class="reference internal" href="slv.measurements.mobile.gps.sort_by_time.html#slv.measurements.mobile.gps.sort_by_time" title="slv.measurements.mobile.gps.sort_by_time"><code class="xref py py-func docutils literal notranslate"><span class="pre">sort_by_time()</span></code></a>), in turn.</p></td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -740,6 +743,9 @@ observation frame (the pipeline’s <code class="docutils literal notranslate"><
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="slv.measurements.mobile.gps.read_trax_gps.html#slv.measurements.mobile.gps.read_trax_gps" title="slv.measurements.mobile.gps.read_trax_gps"><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_trax_gps</span></code></a></p></td>
 <td><p>Best GPS source for classifying, by era: lin-group GPS before <a class="reference internal" href="slv.measurements.mobile.gps.HOREL_POST_PILOT.html#slv.measurements.mobile.gps.HOREL_POST_PILOT" title="slv.measurements.mobile.gps.HOREL_POST_PILOT"><code class="xref py py-data docutils literal notranslate"><span class="pre">HOREL_POST_PILOT</span></code></a>, horel logger (with battery/T/RH) after.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="slv.measurements.mobile.gps.sort_by_time.html#slv.measurements.mobile.gps.sort_by_time" title="slv.measurements.mobile.gps.sort_by_time"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sort_by_time</span></code></a></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">df</span></code> sorted by time, with the rows that share a time in one fixed order.</p></td>
 </tr>
 </tbody>
 </table>

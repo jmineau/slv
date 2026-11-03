@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../../_static/documentation_options.js?v=a26f88c4"></script>
+    <script src="../../../../_static/documentation_options.js?v=2a0c2194"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -59,7 +59,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.10.4.dev26+gc90a99adf" />
+  <meta name="docsearch:version" content="2026.10.4.dev27+g8e8ff9224" />
   
     
     <script src="../../../../_static/searchtools.js"></script>
@@ -464,6 +464,8 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">slv.measurements.mobile.gps</span><span class="w"> </span><span class="kn">import</span> <span class="n">sort_by_time</span>
+
 <span class="c1">#: Location states whose CH4 counts for each receptor type (``obs.parquet`` ``state``).</span>
 <span class="c1">#: A crossing is a traverse, so on-track only; a dwell may be parked on a yard track, but</span>
 <span class="c1">#: indoor shed air is never ambient and is excluded for both.</span>
@@ -639,7 +641,7 @@
         <span class="n">rec</span> <span class="o">=</span> <span class="n">rec</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">rec</span><span class="p">[</span><span class="s2">"cal_source"</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">"uncalibrated"</span><span class="p">]</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">include_low_pressure</span> <span class="ow">and</span> <span class="s2">"low_pressure"</span> <span class="ow">in</span> <span class="n">rec</span><span class="p">:</span>
         <span class="n">rec</span> <span class="o">=</span> <span class="n">rec</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="o">~</span><span class="n">rec</span><span class="p">[</span><span class="s2">"low_pressure"</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">bool</span><span class="p">)]</span>
-    <span class="n">rec</span> <span class="o">=</span> <span class="n">rec</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s2">"Time_UTC"</span><span class="p">)</span>
+    <span class="n">rec</span> <span class="o">=</span> <span class="n">sort_by_time</span><span class="p">(</span><span class="n">rec</span><span class="p">)</span>
     <span class="n">tv</span> <span class="o">=</span> <span class="n">rec</span><span class="p">[</span><span class="s2">"Time_UTC"</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
     <span class="n">ch</span> <span class="o">=</span> <span class="n">rec</span><span class="p">[</span><span class="s2">"CH4_ppm"</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="nb">float</span><span class="p">)</span>
     <span class="n">state</span> <span class="o">=</span> <span class="p">(</span>
