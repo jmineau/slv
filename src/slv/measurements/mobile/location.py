@@ -11,10 +11,12 @@ behavior, at one-minute resolution, so that **outdoor** minutes can be kept even
 the train is not on the line and **indoor** minutes dropped:
 
 * **depot** (indoor) — stationary at a yard and the GPS fix is degraded: the
-  per-minute position scatter is meters (multipath under the roof, the "crazy" GPS)
-  and the satellite count is low. JRRSC site visits (which happen inside the shed)
-  show 2.5–7 m scatter and 6–7 satellites; parked outside the scatter is < 0.3 m with
-  8–12 satellites. The scattered fixes' medians cluster inside the shed footprints
+  per-minute position scatter is meters (multipath under the roof, the "crazy" GPS).
+  JRRSC site visits (which happen inside the shed) show 2.5–7 m scatter; parked outside
+  it is < 0.3 m. The satellite count is not used: a failing receiver reports few
+  satellites anywhere (by mid-2021 about 60 % of trx01's and trx02's route minutes had
+  6 or fewer, until their GPS units were replaced that autumn). The scattered fixes'
+  medians cluster inside the shed footprints
   (:func:`load_depot_footprint`, derived from 2025 data), but the multipath throws
   some of them tens to hundreds of meters out of the yard: a stationary minute within
   :data:`NEAR_YARD` m of a storage polygon with a scattered fix is ``depot`` too.
@@ -95,8 +97,6 @@ MOVING_SPEED_EST = 1.5
 LINE_DISTANCE = 50.0
 #: Per-minute position std (m, max of x/y) above which the fix is degraded.
 SCATTER_M = 1.0
-#: Satellite count at or below which the fix is degraded (only if ``N_Sat`` present).
-LOW_NSAT = 6
 #: Buffer (m) around the storage polygon: scattered depot fixes leak past its edge.
 YARD_BUFFER = 30.0
 #: Radius (m) around the storage polygon inside which a minute outside the yard buffer
@@ -160,7 +160,8 @@ def location_features(
     ``d_yard`` (median distance to the nearest storage polygon, 0 inside),
     ``yard_name`` (that polygon's name where ``d_yard`` ≤ :data:`NEAR_YARD`),
     ``in_yard`` (fraction of fixes inside a polygon), ``in_depot`` (median position
-    inside a :func:`load_depot_footprint` shed), ``nsat`` (median, if present), and
+    inside a :func:`load_depot_footprint` shed), ``nsat`` (median, if present; supporting
+    evidence, not used by :func:`classify_location`), and
     from ``cr1000`` (when it has ``Battery_Voltage_V``): ``volt`` (median),
     ``volt_min``, and ``amb_T``, ``amb_RH`` when it has the roof T/RH columns.
     ``storage_polygons`` defaults to :func:`load_storage_polygons` (all yards); pass a
@@ -244,7 +245,6 @@ def classify_location(
     moving_speed_est: float = MOVING_SPEED_EST,
     line_distance: float = LINE_DISTANCE,
     scatter_m: float = SCATTER_M,
-    low_nsat: int = LOW_NSAT,
     yard_buffer: float = YARD_BUFFER,
     near_yard_m: float = NEAR_YARD,
     off_track_m: float = OFF_TRACK,
@@ -261,8 +261,8 @@ def classify_location(
        ``speed_max >= moving_speed``) on a track (``d_track < line_distance``):
        ``line`` if within ``near_yard_m`` of a storage polygon, else ``route``;
        moving off-track inside the yard buffer → ``yard``.
-    3. stationary near the yard: degraded fix (``scatter > scatter_m`` or
-       ``nsat <= low_nsat``, majority-voted over ``smooth_min`` minutes) → ``depot``;
+    3. stationary near the yard: degraded fix (``scatter > scatter_m``, majority-voted
+       over ``smooth_min`` minutes) → ``depot``;
        with ``use_footprint`` a clean fix whose median sits inside the depot
        footprint is also ``depot``. Off by default: the yard loop runs through the
        padded footprint, so it mislabels clean yard nights (e.g. 2025-02-16).
@@ -273,8 +273,7 @@ def classify_location(
        line nor inside the yard buffer.
     6. ...except that a stationary minute within ``near_yard_m`` of the storage polygon,
        outside the buffer, with ``scatter > scatter_m`` is ``depot``, on the line or
-       off it: the shed's multipath threw its median out of the yard. Only the
-       scatter counts here, not a low satellite count, which also happens outdoors.
+       off it: the shed's multipath threw its median out of the yard.
 
     Returns a frame with ``state`` (categorical), ``indoor`` (nullable boolean:
     depot → True, other located states → False, unknown → NA), ``yard_name``
@@ -292,10 +291,7 @@ def classify_location(
     on_track = feat.d_track < line_distance
     by_yard = feat.d_yard <= near_yard_m
 
-    degraded = feat.scatter > scatter_m
-    if "nsat" in feat.columns:
-        degraded |= feat.nsat <= low_nsat
-    degraded &= has_fix & ~moving
+    degraded = (feat.scatter > scatter_m) & has_fix & ~moving
     out["degraded"] = degraded
     # vote only among stationary near-yard minutes so passes/gaps don't dilute it
     stat_yard = has_fix & ~moving & near_yard
