@@ -41,7 +41,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../_static/documentation_options.js?v=79fa2279"></script>
+    <script src="../_static/documentation_options.js?v=fe1525c4"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -62,7 +62,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.10.4.dev31+ge4801f191" />
+  <meta name="docsearch:version" content="2026.11.1.dev1+gfc96123ea" />
   
     
     <script src="../_static/searchtools.js"></script>
@@ -697,10 +697,12 @@ behavior, at one-minute resolution, so that <strong>outdoor</strong> minutes can
 the train is not on the line and <strong>indoor</strong> minutes dropped:</p>
 <ul class="simple">
 <li><p><strong>depot</strong> (indoor) — stationary at a yard and the GPS fix is degraded: the
-per-minute position scatter is meters (multipath under the roof, the “crazy” GPS)
-and the satellite count is low. JRRSC site visits (which happen inside the shed)
-show 2.5–7 m scatter and 6–7 satellites; parked outside the scatter is &lt; 0.3 m with
-8–12 satellites. The scattered fixes’ medians cluster inside the shed footprints
+per-minute position scatter is meters (multipath under the roof, the “crazy” GPS).
+JRRSC site visits (which happen inside the shed) show 2.5–7 m scatter; parked outside
+it is &lt; 0.3 m. The satellite count is not used: a failing receiver reports few
+satellites anywhere (by mid-2021 about 60 % of trx01’s and trx02’s route minutes had
+6 or fewer, until their GPS units were replaced that autumn). The scattered fixes’
+medians cluster inside the shed footprints
 (<code class="xref py py-func docutils literal notranslate"><span class="pre">load_depot_footprint()</span></code>, derived from 2025 data), but the multipath throws
 some of them tens to hundreds of meters out of the yard: a stationary minute within
 <a class="reference internal" href="slv.measurements.mobile.location.NEAR_YARD.html#slv.measurements.mobile.location.NEAR_YARD" title="slv.measurements.mobile.location.NEAR_YARD"><code class="xref py py-data docutils literal notranslate"><span class="pre">NEAR_YARD</span></code></a> m of a storage polygon with a scattered fix is <code class="docutils literal notranslate"><span class="pre">depot</span></code> too.</p></li>
@@ -761,22 +763,19 @@ recording when train power is off). trx03 has no lin-group GPS; its horel record
 <tr class="row-even"><td><p><a class="reference internal" href="slv.measurements.mobile.location.SCATTER_M.html#slv.measurements.mobile.location.SCATTER_M" title="slv.measurements.mobile.location.SCATTER_M"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SCATTER_M</span></code></a></p></td>
 <td><p>Per-minute position std (m, max of x/y) above which the fix is degraded.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="slv.measurements.mobile.location.LOW_NSAT.html#slv.measurements.mobile.location.LOW_NSAT" title="slv.measurements.mobile.location.LOW_NSAT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LOW_NSAT</span></code></a></p></td>
-<td><p>Satellite count at or below which the fix is degraded (only if <code class="docutils literal notranslate"><span class="pre">N_Sat</span></code> present).</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="slv.measurements.mobile.location.YARD_BUFFER.html#slv.measurements.mobile.location.YARD_BUFFER" title="slv.measurements.mobile.location.YARD_BUFFER"><code class="xref py py-obj docutils literal notranslate"><span class="pre">YARD_BUFFER</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="slv.measurements.mobile.location.YARD_BUFFER.html#slv.measurements.mobile.location.YARD_BUFFER" title="slv.measurements.mobile.location.YARD_BUFFER"><code class="xref py py-obj docutils literal notranslate"><span class="pre">YARD_BUFFER</span></code></a></p></td>
 <td><p>scattered depot fixes leak past its edge.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="slv.measurements.mobile.location.NEAR_YARD.html#slv.measurements.mobile.location.NEAR_YARD" title="slv.measurements.mobile.location.NEAR_YARD"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NEAR_YARD</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="slv.measurements.mobile.location.NEAR_YARD.html#slv.measurements.mobile.location.NEAR_YARD" title="slv.measurements.mobile.location.NEAR_YARD"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NEAR_YARD</span></code></a></p></td>
 <td><p>Radius (m) around the storage polygon inside which a minute outside the yard buffer can be the shed's multipath ejecta rather than a real stop: <code class="docutils literal notranslate"><span class="pre">depot</span></code> when stationary with a scattered fix, else <code class="docutils literal notranslate"><span class="pre">unknown</span></code> off the line.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="slv.measurements.mobile.location.OFF_TRACK.html#slv.measurements.mobile.location.OFF_TRACK" title="slv.measurements.mobile.location.OFF_TRACK"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OFF_TRACK</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="slv.measurements.mobile.location.OFF_TRACK.html#slv.measurements.mobile.location.OFF_TRACK" title="slv.measurements.mobile.location.OFF_TRACK"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OFF_TRACK</span></code></a></p></td>
 <td><p>Distance (m) from any TRAX track beyond which a minute is <code class="docutils literal notranslate"><span class="pre">unknown</span></code> (a train is never that far off the mapped lines; catches GPS junk and unmapped sidings).</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="slv.measurements.mobile.location.POWER_OFF_V.html#slv.measurements.mobile.location.POWER_OFF_V" title="slv.measurements.mobile.location.POWER_OFF_V"><code class="xref py py-obj docutils literal notranslate"><span class="pre">POWER_OFF_V</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="slv.measurements.mobile.location.POWER_OFF_V.html#slv.measurements.mobile.location.POWER_OFF_V" title="slv.measurements.mobile.location.POWER_OFF_V"><code class="xref py py-obj docutils literal notranslate"><span class="pre">POWER_OFF_V</span></code></a></p></td>
 <td><p>Logger battery voltage below which train power is off (charging level is ~13–14 V).</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="slv.measurements.mobile.location.SMOOTH_MIN.html#slv.measurements.mobile.location.SMOOTH_MIN" title="slv.measurements.mobile.location.SMOOTH_MIN"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SMOOTH_MIN</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="slv.measurements.mobile.location.SMOOTH_MIN.html#slv.measurements.mobile.location.SMOOTH_MIN" title="slv.measurements.mobile.location.SMOOTH_MIN"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SMOOTH_MIN</span></code></a></p></td>
 <td><p>Centered window (minutes) for the majority vote that removes single-minute flips.</p></td>
 </tr>
 </tbody>

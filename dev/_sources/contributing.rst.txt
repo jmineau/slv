@@ -68,7 +68,7 @@ Module layout
                          build_network_transects and trax_receptor_observations all sort with it,
                          so their results do not depend on the order of tied rows)
           location.py    per-minute indoor/outdoor classifier: depot (degraded GPS:
-                         scatter > 1 m or <= 6 sats, 15-min vote; or a standing minute
+                         scatter > 1 m, 15-min vote; or a standing minute
                          thrown 30-300 m out of a yard with scatter > 1 m) / yard / line
                          (pass-by within 300 m of a yard) / route / stopped / unknown
                          (no fix, > 100 m off track, clean-fix ejecta); moving needs the

@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../../_static/documentation_options.js?v=79fa2279"></script>
+    <script src="../../../../_static/documentation_options.js?v=fe1525c4"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -59,7 +59,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.10.4.dev31+ge4801f191" />
+  <meta name="docsearch:version" content="2026.11.1.dev1+gfc96123ea" />
   
     
     <script src="../../../../_static/searchtools.js"></script>
@@ -444,10 +444,12 @@
 <span class="sd">the train is not on the line and **indoor** minutes dropped:</span>
 
 <span class="sd">* **depot** (indoor) — stationary at a yard and the GPS fix is degraded: the</span>
-<span class="sd">  per-minute position scatter is meters (multipath under the roof, the "crazy" GPS)</span>
-<span class="sd">  and the satellite count is low. JRRSC site visits (which happen inside the shed)</span>
-<span class="sd">  show 2.5–7 m scatter and 6–7 satellites; parked outside the scatter is &lt; 0.3 m with</span>
-<span class="sd">  8–12 satellites. The scattered fixes' medians cluster inside the shed footprints</span>
+<span class="sd">  per-minute position scatter is meters (multipath under the roof, the "crazy" GPS).</span>
+<span class="sd">  JRRSC site visits (which happen inside the shed) show 2.5–7 m scatter; parked outside</span>
+<span class="sd">  it is &lt; 0.3 m. The satellite count is not used: a failing receiver reports few</span>
+<span class="sd">  satellites anywhere (by mid-2021 about 60 % of trx01's and trx02's route minutes had</span>
+<span class="sd">  6 or fewer, until their GPS units were replaced that autumn). The scattered fixes'</span>
+<span class="sd">  medians cluster inside the shed footprints</span>
 <span class="sd">  (:func:`load_depot_footprint`, derived from 2025 data), but the multipath throws</span>
 <span class="sd">  some of them tens to hundreds of meters out of the yard: a stationary minute within</span>
 <span class="sd">  :data:`NEAR_YARD` m of a storage polygon with a scattered fix is ``depot`` too.</span>
@@ -528,8 +530,6 @@
 <span class="n">LINE_DISTANCE</span> <span class="o">=</span> <span class="mf">50.0</span>
 <span class="c1">#: Per-minute position std (m, max of x/y) above which the fix is degraded.</span>
 <span class="n">SCATTER_M</span> <span class="o">=</span> <span class="mf">1.0</span>
-<span class="c1">#: Satellite count at or below which the fix is degraded (only if ``N_Sat`` present).</span>
-<span class="n">LOW_NSAT</span> <span class="o">=</span> <span class="mi">6</span>
 <span class="c1">#: Buffer (m) around the storage polygon: scattered depot fixes leak past its edge.</span>
 <span class="n">YARD_BUFFER</span> <span class="o">=</span> <span class="mf">30.0</span>
 <span class="c1">#: Radius (m) around the storage polygon inside which a minute outside the yard buffer</span>
@@ -595,7 +595,8 @@
 <span class="sd">    ``d_yard`` (median distance to the nearest storage polygon, 0 inside),</span>
 <span class="sd">    ``yard_name`` (that polygon's name where ``d_yard`` ≤ :data:`NEAR_YARD`),</span>
 <span class="sd">    ``in_yard`` (fraction of fixes inside a polygon), ``in_depot`` (median position</span>
-<span class="sd">    inside a :func:`load_depot_footprint` shed), ``nsat`` (median, if present), and</span>
+<span class="sd">    inside a :func:`load_depot_footprint` shed), ``nsat`` (median, if present; supporting</span>
+<span class="sd">    evidence, not used by :func:`classify_location`), and</span>
 <span class="sd">    from ``cr1000`` (when it has ``Battery_Voltage_V``): ``volt`` (median),</span>
 <span class="sd">    ``volt_min``, and ``amb_T``, ``amb_RH`` when it has the roof T/RH columns.</span>
 <span class="sd">    ``storage_polygons`` defaults to :func:`load_storage_polygons` (all yards); pass a</span>
@@ -682,7 +683,6 @@
     <span class="n">moving_speed_est</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">MOVING_SPEED_EST</span><span class="p">,</span>
     <span class="n">line_distance</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">LINE_DISTANCE</span><span class="p">,</span>
     <span class="n">scatter_m</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">SCATTER_M</span><span class="p">,</span>
-    <span class="n">low_nsat</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">LOW_NSAT</span><span class="p">,</span>
     <span class="n">yard_buffer</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">YARD_BUFFER</span><span class="p">,</span>
     <span class="n">near_yard_m</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">NEAR_YARD</span><span class="p">,</span>
     <span class="n">off_track_m</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">OFF_TRACK</span><span class="p">,</span>
@@ -699,8 +699,8 @@
 <span class="sd">       ``speed_max &gt;= moving_speed``) on a track (``d_track &lt; line_distance``):</span>
 <span class="sd">       ``line`` if within ``near_yard_m`` of a storage polygon, else ``route``;</span>
 <span class="sd">       moving off-track inside the yard buffer → ``yard``.</span>
-<span class="sd">    3. stationary near the yard: degraded fix (``scatter &gt; scatter_m`` or</span>
-<span class="sd">       ``nsat &lt;= low_nsat``, majority-voted over ``smooth_min`` minutes) → ``depot``;</span>
+<span class="sd">    3. stationary near the yard: degraded fix (``scatter &gt; scatter_m``, majority-voted</span>
+<span class="sd">       over ``smooth_min`` minutes) → ``depot``;</span>
 <span class="sd">       with ``use_footprint`` a clean fix whose median sits inside the depot</span>
 <span class="sd">       footprint is also ``depot``. Off by default: the yard loop runs through the</span>
 <span class="sd">       padded footprint, so it mislabels clean yard nights (e.g. 2025-02-16).</span>
@@ -711,8 +711,7 @@
 <span class="sd">       line nor inside the yard buffer.</span>
 <span class="sd">    6. ...except that a stationary minute within ``near_yard_m`` of the storage polygon,</span>
 <span class="sd">       outside the buffer, with ``scatter &gt; scatter_m`` is ``depot``, on the line or</span>
-<span class="sd">       off it: the shed's multipath threw its median out of the yard. Only the</span>
-<span class="sd">       scatter counts here, not a low satellite count, which also happens outdoors.</span>
+<span class="sd">       off it: the shed's multipath threw its median out of the yard.</span>
 
 <span class="sd">    Returns a frame with ``state`` (categorical), ``indoor`` (nullable boolean:</span>
 <span class="sd">    depot → True, other located states → False, unknown → NA), ``yard_name``</span>
@@ -730,10 +729,7 @@
     <span class="n">on_track</span> <span class="o">=</span> <span class="n">feat</span><span class="o">.</span><span class="n">d_track</span> <span class="o">&lt;</span> <span class="n">line_distance</span>
     <span class="n">by_yard</span> <span class="o">=</span> <span class="n">feat</span><span class="o">.</span><span class="n">d_yard</span> <span class="o">&lt;=</span> <span class="n">near_yard_m</span>
 
-    <span class="n">degraded</span> <span class="o">=</span> <span class="n">feat</span><span class="o">.</span><span class="n">scatter</span> <span class="o">&gt;</span> <span class="n">scatter_m</span>
-    <span class="k">if</span> <span class="s2">"nsat"</span> <span class="ow">in</span> <span class="n">feat</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
-        <span class="n">degraded</span> <span class="o">|=</span> <span class="n">feat</span><span class="o">.</span><span class="n">nsat</span> <span class="o">&lt;=</span> <span class="n">low_nsat</span>
-    <span class="n">degraded</span> <span class="o">&amp;=</span> <span class="n">has_fix</span> <span class="o">&amp;</span> <span class="o">~</span><span class="n">moving</span>
+    <span class="n">degraded</span> <span class="o">=</span> <span class="p">(</span><span class="n">feat</span><span class="o">.</span><span class="n">scatter</span> <span class="o">&gt;</span> <span class="n">scatter_m</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">has_fix</span> <span class="o">&amp;</span> <span class="o">~</span><span class="n">moving</span>
     <span class="n">out</span><span class="p">[</span><span class="s2">"degraded"</span><span class="p">]</span> <span class="o">=</span> <span class="n">degraded</span>
     <span class="c1"># vote only among stationary near-yard minutes so passes/gaps don't dilute it</span>
     <span class="n">stat_yard</span> <span class="o">=</span> <span class="n">has_fix</span> <span class="o">&amp;</span> <span class="o">~</span><span class="n">moving</span> <span class="o">&amp;</span> <span class="n">near_yard</span>
