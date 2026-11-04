@@ -52,16 +52,24 @@ def test_packaged_footprints_and_yards():
         assert shed.intersection(yard).area / shed.area > 0.8
 
 
-def test_depot_vs_yard_from_scatter_and_nsat():
+def test_depot_vs_yard_from_scatter():
     n = 120
     scatter = np.r_[np.full(60, 0.1), np.full(60, 6.0)]
-    nsat = np.r_[np.full(60, 10.0), np.full(60, 5.0)]
-    f = _feat(n, scatter=scatter, nsat=nsat)
+    f = _feat(n, scatter=scatter)
     st = classify_location(f)
     assert (st.state.iloc[:50] == "yard").all()
     assert (st.state.iloc[70:] == "depot").all()
     assert not st.indoor.iloc[:50].any() and st.indoor.iloc[70:].all()
     assert st.state.cat.categories.tolist() == list(STATES)
+
+
+def test_low_satellite_count_alone_is_not_depot():
+    # a failing receiver reports few satellites anywhere: a clean fix is still outdoors
+    st = classify_location(_feat(60, nsat=5.0))
+    assert (st.state == "yard").all()
+    assert not st.degraded.any()
+    # and the count does not stop a scattered fix being depot
+    assert (classify_location(_feat(60, scatter=6.0, nsat=12.0)).state == "depot").all()
 
 
 def test_single_minute_flip_is_smoothed_out():
