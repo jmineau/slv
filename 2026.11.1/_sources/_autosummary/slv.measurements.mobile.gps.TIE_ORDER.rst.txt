@@ -1,0 +1,6 @@
+slv.measurements.mobile.gps.TIE\_ORDER
+======================================
+
+.. currentmodule:: slv.measurements.mobile.gps
+
+.. autodata:: TIE_ORDER

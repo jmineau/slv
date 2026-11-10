@@ -1,0 +1,6 @@
+slv.inversion.viz.plot\_flux\_maps
+==================================
+
+.. currentmodule:: slv.inversion.viz
+
+.. autofunction:: plot_flux_maps

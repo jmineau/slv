@@ -1,0 +1,6 @@
+slv.measurements.mobile.wyoming.merge\_aeris\_met
+=================================================
+
+.. currentmodule:: slv.measurements.mobile.wyoming
+
+.. autofunction:: merge_aeris_met

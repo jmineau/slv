@@ -1,0 +1,6 @@
+slv.inversion.pipelines.get\_prior
+==================================
+
+.. currentmodule:: slv.inversion.pipelines
+
+.. autofunction:: get_prior

@@ -1,0 +1,6 @@
+slv.measurements.background.GMLDiscrete.thoning\_curve
+======================================================
+
+.. currentmodule:: slv.measurements.background
+
+.. automethod:: GMLDiscrete.thoning_curve

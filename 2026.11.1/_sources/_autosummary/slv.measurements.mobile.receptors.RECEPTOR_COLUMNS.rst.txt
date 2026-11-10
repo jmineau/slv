@@ -1,0 +1,6 @@
+slv.measurements.mobile.receptors.RECEPTOR\_COLUMNS
+===================================================
+
+.. currentmodule:: slv.measurements.mobile.receptors
+
+.. autodata:: RECEPTOR_COLUMNS

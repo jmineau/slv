@@ -1,0 +1,6 @@
+slv.measurements.mobile.network.UTM12
+=====================================
+
+.. currentmodule:: slv.measurements.mobile.network
+
+.. autodata:: UTM12

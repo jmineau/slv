@@ -15,7 +15,6 @@ slv.measurements.mobile.location
    MOVING_SPEED_EST
    LINE_DISTANCE
    SCATTER_M
-   LOW_NSAT
    YARD_BUFFER
    NEAR_YARD
    OFF_TRACK

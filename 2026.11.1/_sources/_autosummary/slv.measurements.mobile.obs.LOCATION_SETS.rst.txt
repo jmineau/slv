@@ -1,0 +1,6 @@
+slv.measurements.mobile.obs.LOCATION\_SETS
+==========================================
+
+.. currentmodule:: slv.measurements.mobile.obs
+
+.. autodata:: LOCATION_SETS

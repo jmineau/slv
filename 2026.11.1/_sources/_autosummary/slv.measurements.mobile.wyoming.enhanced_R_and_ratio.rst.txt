@@ -1,0 +1,6 @@
+slv.measurements.mobile.wyoming.enhanced\_R\_and\_ratio
+=======================================================
+
+.. currentmodule:: slv.measurements.mobile.wyoming
+
+.. autofunction:: enhanced_R_and_ratio

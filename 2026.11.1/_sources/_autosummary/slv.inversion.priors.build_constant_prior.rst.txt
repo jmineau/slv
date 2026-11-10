@@ -1,0 +1,6 @@
+slv.inversion.priors.build\_constant\_prior
+===========================================
+
+.. currentmodule:: slv.inversion.priors
+
+.. autofunction:: build_constant_prior

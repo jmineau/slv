@@ -1,0 +1,6 @@
+slv.inversion.covariances.normalize\_duration
+=============================================
+
+.. currentmodule:: slv.inversion.covariances
+
+.. autofunction:: normalize_duration

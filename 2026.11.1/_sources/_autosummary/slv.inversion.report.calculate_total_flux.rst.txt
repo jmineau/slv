@@ -1,0 +1,6 @@
+slv.inversion.report.calculate\_total\_flux
+===========================================
+
+.. currentmodule:: slv.inversion.report
+
+.. autofunction:: calculate_total_flux

@@ -1,0 +1,6 @@
+slv.measurements.aggregate.aggregate\_obs
+=========================================
+
+.. currentmodule:: slv.measurements.aggregate
+
+.. autofunction:: aggregate_obs

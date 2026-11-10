@@ -1,0 +1,6 @@
+slv.inversion.pipelines.obs\_sites
+==================================
+
+.. currentmodule:: slv.inversion.pipelines
+
+.. autofunction:: obs_sites

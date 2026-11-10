@@ -1,0 +1,6 @@
+slv.inversion.viz.plot\_prior\_with\_coverage
+=============================================
+
+.. currentmodule:: slv.inversion.viz
+
+.. autofunction:: plot_prior_with_coverage
