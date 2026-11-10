@@ -7,6 +7,12 @@ alone: the entries are written at release (`just changelog` drafts them).
 
 ## [Unreleased]
 
+## [2026.11.1] - 2026-11-10
+
+### Changed
+
+- **Breaking:** a stationary TRAX minute at a yard is degraded, so voted `depot`, on its position scatter alone; a low satellite count no longer makes it `depot`. In 2020-21 a low count meant the failing GPS receivers of trx01 and trx02 (replaced 2021-11-29 and 2021-10-11), not a roof, so about 2 M trx01 rows of those years move from `depot` to `yard`. `on_track`, the default, does not change. `low_nsat` and `LOW_NSAT` are removed; `location_features` still returns `nsat`. (#93)
+
 ## [2026.11.0] - 2026-11-03
 
 ### Changed
