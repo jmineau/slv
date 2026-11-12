@@ -107,6 +107,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/08/93/2a6556bbdb8e918175af9d849a5d0b367b5644e41939d040f3a7215b1339/pydantic_core-2.50.2-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/09/ed/559d2915dce85794bc0c36064043da170da50cd98746dcbddd85d5932017/nest_asyncio2-1.7.4-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/0a/7b/18a8c0bcec9182c05a0b3ec2a776bba4ead82750a55ff798e8d406dae604/sphinxcontrib_htmlhelp-2.1.0-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/0b/33/4abf638693e253ffc721b56af04a00f2d7ec0bebe390a5653be37948d37d/pystilt-0.1.0a28-py3-none-manylinux_2_17_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/0f/88/7c548de1f6c2ade7c931a3282da73f9274fa6a1531091be682f89c85efb9/jupyter_client-8.10.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/18/53/84099323c2ec4be98d935f63c033ac4151ee83836ca1050ede3b3aadf155/joblib-1.6.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/1a/f1/b474e930c4d910328780e3940da76f5aa5cbc48ce1fc14e44d239d9ea9db/cryptography-50.0.2-cp311-abi3-manylinux_2_28_x86_64.whl
@@ -207,7 +208,6 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/b1/29/c028a0731e202035f0e2e0bfbf1a3e46ad6c628cbb17f6f1cc9eea5d9ff1/pathlib_abc-0.5.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/b1/db/dceb9dd5b231e1da801793f8acc9f3c52a7e1afe40bb1aae37e02b0faad5/cffi-2.1.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/b2/a3/e137168c9c44d18eff0376253da9f1e9234d0239e0ee230d2fee6cea8e55/jeepney-0.9.0-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/b2/ff/fe6471311588d79ebe23e3c5668e08f33dfd38c775d4f030aeeacf2ac193/arlmet-0.1.0b5-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/b3/38/89ba8ad64ae25be8de66a6d463314cf1eb366222074cfda9ee839c56a4b4/mdurl-0.1.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/b3/81/4da04ced5a082363ecfa159c010d200ecbd959ae410c10c0264a38cac0f5/markdown_it_py-4.2.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/b5/70/5d8df3b09e25bce090399cf48e452d25c935ab72dad19406c77f4e828045/psutil-7.2.2-cp36-abi3-manylinux2010_x86_64.manylinux_2_12_x86_64.manylinux_2_28_x86_64.whl
@@ -223,7 +223,6 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/ca/31/d4e37e9e550c2b92a9cbc2e4d0b7420a27224968580b5a447f420847c975/pytest_xdist-3.8.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/cb/18/6229d6583031ca81d092a0cd887a13a57b402fb555acc323d39b45967eb7/websockets-17.4-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/cb/3c/da1cae963a076132dbc4d3c1f0292dd2f373b9d3e072d42f4620801159c1/python_discovery-1.9.0-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/cb/f9/40754b6e283764e7018bf123e4badfeb601e1fa8624032a730c0d7d7a7e9/pystilt-0.1.0a27-py3-none-manylinux_2_17_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/d1/d6/3965ed04c63042e047cb6a3e6ed1a63a35087b6a609aa3a15ed8ac56c221/colorama-0.4.6-py2.py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/d3/5d/569ff513b83cccbccca435c543e550cf1295563130c475013ae4b01b5bc6/fips-0.2.0b2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/d4/2b/04b8a15f3a1c77bc79ddf5c73875327f34b4fa75982df2b76e45e402d364/asttokens-3.0.2-py3-none-any.whl
@@ -240,6 +239,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/df/64/ff35eb9e54894cf471ff4716abd3c81eb0a0626869217ce3e6ba4ccf17d7/scipy-1.18.1-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/e0/a9/023730ba63db1e494a271cb018dcd361bd2c917ba7004c3e49d5daf795a2/py_cpuinfo-9.0.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/e0/f9/0595336914c5619e5f28a1fb793285925a8cd4b432c9da0a987836c7f822/shellingham-1.5.4-py2.py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/e2/32/8769098ffd63a4107e04ce9c701ffd7c2ede12b98c98eff609447c2bd8a3/arlmet-0.1.0b9-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/e2/66/5bd0fd74d2eb2e98ea12650eb21302e65d1b4d4706452f27a1e7321330b1/molmass-2026.11.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/e4/a9/187b2aa8ea213d72c13ce3627e605d922d697c470532d67b5b707d944b2c/pydata_sphinx_theme-0.23.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/e6/99/fdf65cc539e266ab93546c261bdf98411fe165c6e4e13f9dbf597097192b/pillow-13.0.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl
@@ -1617,7 +1617,7 @@ packages:
   - uataq @ git+https://github.com/jmineau/uataq@v2026.11.0
   - xarray
   - fips[viz]>=0.2.0b2 ; extra == 'inversion'
-  - pystilt>=0.1.0a27 ; extra == 'inversion'
+  - pystilt>=0.1.0a28 ; extra == 'inversion'
   - joblib>=1.5.3 ; extra == 'inversion'
   - seaborn ; extra == 'inversion'
   requires_python: '>=3.11'
@@ -1777,6 +1777,39 @@ packages:
   - pytest ; extra == 'test'
   - html5lib ; extra == 'test'
   requires_python: '>=3.9'
+- pypi: https://files.pythonhosted.org/packages/0b/33/4abf638693e253ffc721b56af04a00f2d7ec0bebe390a5653be37948d37d/pystilt-0.1.0a28-py3-none-manylinux_2_17_x86_64.whl
+  name: pystilt
+  version: 0.1.0a28
+  sha256: d12b0fe11e2cfcbebad5e3142cd479b3c5d88487b093815d989f33123cdcc31b
+  requires_dist:
+  - arlmet>=0.1.0b7
+  - dask[array]>=2023.6
+  - netcdf4>=1.6.5
+  - numpy>=1.24
+  - pandas>=2.0
+  - pyarrow>=14.0
+  - pyproj>=3.5
+  - pydantic>=2.1.0
+  - pyyaml>=6.0
+  - scipy>=1.10
+  - shapely>=2.0
+  - typer>=0.15.4
+  - universal-pathlib>=0.3.0
+  - xarray>=2023.9.0
+  - exactextract>=0.2 ; extra == 'geometry'
+  - geopandas>=1.0 ; extra == 'geometry'
+  - h3>=4.0 ; extra == 'geometry'
+  - cartopy>=0.23 ; extra == 'visualization'
+  - matplotlib>=3.7 ; extra == 'visualization'
+  - arlmet[archives]>=0.1.0b7 ; extra == 'download'
+  - sparse>=0.15 ; extra == 'sparse'
+  - rdata>=1.0 ; extra == 'stilt-r'
+  - pystilt[geometry] ; extra == 'complete'
+  - pystilt[visualization] ; extra == 'complete'
+  - pystilt[download] ; extra == 'complete'
+  - pystilt[sparse] ; extra == 'complete'
+  - pystilt[stilt-r] ; extra == 'complete'
+  requires_python: '>=3.11'
 - pypi: https://files.pythonhosted.org/packages/0f/88/7c548de1f6c2ade7c931a3282da73f9274fa6a1531091be682f89c85efb9/jupyter_client-8.10.0-py3-none-any.whl
   name: jupyter-client
   version: 8.10.0
@@ -3039,19 +3072,6 @@ packages:
   - async-timeout ; python_full_version < '3.11' and extra == 'test'
   - trio ; extra == 'trio'
   requires_python: '>=3.7'
-- pypi: https://files.pythonhosted.org/packages/b2/ff/fe6471311588d79ebe23e3c5668e08f33dfd38c775d4f030aeeacf2ac193/arlmet-0.1.0b5-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl
-  name: arlmet
-  version: 0.1.0b5
-  sha256: e7a31fb9ea6578ddd6158e29ebf2ba1b32d04acfe7597b2b0be63a15dd87be80
-  requires_dist:
-  - numpy>=1.24
-  - pandas>=2.0
-  - pyproj>=3.5
-  - typing-extensions>=4.0
-  - xarray>=2023.6
-  - fsspec>=2024.2 ; extra == 'archives'
-  - s3fs>=2024.2 ; extra == 'archives'
-  requires_python: '>=3.11'
 - pypi: https://files.pythonhosted.org/packages/b3/38/89ba8ad64ae25be8de66a6d463314cf1eb366222074cfda9ee839c56a4b4/mdurl-0.1.2-py3-none-any.whl
   name: mdurl
   version: 0.1.2
@@ -3358,39 +3378,6 @@ packages:
   requires_dist:
   - filelock>=3.16.1
   requires_python: '>=3.9'
-- pypi: https://files.pythonhosted.org/packages/cb/f9/40754b6e283764e7018bf123e4badfeb601e1fa8624032a730c0d7d7a7e9/pystilt-0.1.0a27-py3-none-manylinux_2_17_x86_64.whl
-  name: pystilt
-  version: 0.1.0a27
-  sha256: 0202782eb91ef52e07088214f5c2bea6ddfce1dbbc41ff2625f4fcf3339c3f0b
-  requires_dist:
-  - arlmet>=0.1.0b3
-  - dask[array]>=2023.6
-  - netcdf4>=1.6.5
-  - numpy>=1.24
-  - pandas>=2.0
-  - pyarrow>=14.0
-  - pyproj>=3.5
-  - pydantic>=2.1.0
-  - pyyaml>=6.0
-  - scipy>=1.10
-  - shapely>=2.0
-  - typer>=0.15.4
-  - universal-pathlib>=0.3.0
-  - xarray>=2023.9.0
-  - exactextract>=0.2 ; extra == 'geometry'
-  - geopandas>=1.0 ; extra == 'geometry'
-  - h3>=4.0 ; extra == 'geometry'
-  - cartopy>=0.23 ; extra == 'visualization'
-  - matplotlib>=3.7 ; extra == 'visualization'
-  - arlmet[archives]>=0.1.0b3 ; extra == 'download'
-  - sparse>=0.15 ; extra == 'sparse'
-  - rdata>=1.0 ; extra == 'stilt-r'
-  - pystilt[geometry] ; extra == 'complete'
-  - pystilt[visualization] ; extra == 'complete'
-  - pystilt[download] ; extra == 'complete'
-  - pystilt[sparse] ; extra == 'complete'
-  - pystilt[stilt-r] ; extra == 'complete'
-  requires_python: '>=3.11'
 - pypi: https://files.pythonhosted.org/packages/d1/d6/3965ed04c63042e047cb6a3e6ed1a63a35087b6a609aa3a15ed8ac56c221/colorama-0.4.6-py2.py3-none-any.whl
   name: colorama
   version: 0.4.6
@@ -3583,6 +3570,19 @@ packages:
   version: 1.5.4
   sha256: 7ecfff8f2fd72616f7481040475a65b2bf8af90a56c89140852d1120324e8686
   requires_python: '>=3.7'
+- pypi: https://files.pythonhosted.org/packages/e2/32/8769098ffd63a4107e04ce9c701ffd7c2ede12b98c98eff609447c2bd8a3/arlmet-0.1.0b9-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl
+  name: arlmet
+  version: 0.1.0b9
+  sha256: 1c2ec91154c9d0de6e84242c40d1c3f5293f0ccb63eb50456f3173fa2b86822c
+  requires_dist:
+  - numpy>=1.24
+  - pandas>=2.0
+  - pyproj>=3.6.0
+  - typing-extensions>=4.4.0
+  - xarray>=2023.10.0
+  - fsspec>=2024.2 ; extra == 'archives'
+  - s3fs>=2024.2 ; extra == 'archives'
+  requires_python: '>=3.11'
 - pypi: https://files.pythonhosted.org/packages/e2/66/5bd0fd74d2eb2e98ea12650eb21302e65d1b4d4706452f27a1e7321330b1/molmass-2026.11.1-py3-none-any.whl
   name: molmass
   version: 2026.11.1

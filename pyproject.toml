@@ -37,7 +37,7 @@ dependencies = [
 [project.optional-dependencies]
 inversion = [
     "fips[viz]>=0.2.0b2",
-    "pystilt>=0.1.0a27",  # Project.jacobian, one footprint per thread; the shared output layout
+    "pystilt>=0.1.0a28",  # a met of local files is its folder (no file_format, file_tres)
     "joblib>=1.5.3",
     "seaborn",
     # "xesmf",
