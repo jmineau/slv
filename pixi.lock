@@ -95,7 +95,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/xesmf-0.9.2-pyhd8ed1ab_0.conda
       - pypi: ./
       - pypi: git+https://github.com/jmineau/lair?rev=v2026.12.12#9701e2e0e96307753cd4bf781418d2e1280e5896
-      - pypi: git+https://github.com/jmineau/uataq?rev=v2026.11.0#3f33accc379e79d5274c9efeabd4d55afdffc664
+      - pypi: git+https://github.com/jmineau/uataq?rev=v2026.11.1#61e820fe1657ff2f2da7d2bd80dfda63c26599af
       - pypi: https://files.pythonhosted.org/packages/01/f9/575c8d760eae1fc99651b7cc5efd96ad5379ca4d6b53750b0fb4fe983f34/imagesize-2.0.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/02/10/5da547df7a391dcde17f59520a231527b8571e6f46fc8efb02ccb370ab12/docutils-0.22.4-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/02/36/ecc85bc96c273dc8a11273ed4782272975e6338d4a3e9228621175edf0e3/jaraco_functools-4.6.0-py3-none-any.whl
@@ -1614,7 +1614,7 @@ packages:
   - matplotlib
   - pandas
   - siphon>=0.10.0
-  - uataq @ git+https://github.com/jmineau/uataq@v2026.11.0
+  - uataq @ git+https://github.com/jmineau/uataq@v2026.11.1
   - xarray
   - fips[viz]>=0.2.0b2 ; extra == 'inversion'
   - pystilt>=0.1.0a28 ; extra == 'inversion'
@@ -1657,9 +1657,9 @@ packages:
   - lair[science] ; extra == 'complete'
   - lair[regridding] ; extra == 'complete'
   requires_python: '>=3.11'
-- pypi: git+https://github.com/jmineau/uataq?rev=v2026.11.0#3f33accc379e79d5274c9efeabd4d55afdffc664
+- pypi: git+https://github.com/jmineau/uataq?rev=v2026.11.1#61e820fe1657ff2f2da7d2bd80dfda63c26599af
   name: uataq
-  version: 2026.11.0
+  version: 2026.11.1
   requires_dist:
   - geopandas>=1.1.0
   - numpy>=1.24

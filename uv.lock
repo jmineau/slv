@@ -4384,7 +4384,7 @@ requires-dist = [
     { name = "pystilt", marker = "extra == 'inversion'", specifier = ">=0.1.0a28" },
     { name = "seaborn", marker = "extra == 'inversion'" },
     { name = "siphon", specifier = ">=0.10.0" },
-    { name = "uataq", git = "https://github.com/jmineau/uataq?rev=v2026.11.0" },
+    { name = "uataq", git = "https://github.com/jmineau/uataq?rev=v2026.11.1" },
     { name = "xarray" },
 ]
 provides-extras = ["inversion"]
@@ -4905,8 +4905,8 @@ wheels = [
 
 [[package]]
 name = "uataq"
-version = "2026.11.0"
-source = { git = "https://github.com/jmineau/uataq?rev=v2026.11.0#3f33accc379e79d5274c9efeabd4d55afdffc664" }
+version = "2026.11.1"
+source = { git = "https://github.com/jmineau/uataq?rev=v2026.11.1#61e820fe1657ff2f2da7d2bd80dfda63c26599af" }
 dependencies = [
     { name = "geopandas" },
     { name = "numpy", version = "2.4.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
