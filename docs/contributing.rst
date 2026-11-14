@@ -264,11 +264,17 @@ Notes on the pipeline
   ``background_kwargs={"background_sites": [...]}``) and each obs takes its hour's
   value; ``get_slv_subhour_std`` skips mobile sites.
 - ``get_flux_jacobian`` is the cached (``forward_operator``) flux Jacobian; the bias
-  block (``get_bias``, one offset per group that has obs) is rebuilt every run and not
-  cached. A receptor with an empty footprint is a row of zeros; the obs of a receptor
+  block (``get_bias``, one offset per group that has obs, on ``config.bias_time_bins``;
+  its prior std from ``get_bias_std``) is rebuilt every run and not cached, so no
+  component key holds the bias fields. A receptor with an empty footprint is a row of zeros; the obs of a receptor
   with no footprint are dropped in ``build_problem``.
-- ``InversionConfig.__post_init__`` validates flux_freq, bias_grouping, background,
-  prior, mdm_config and domain; setting any field drops the cached derived values.
+- ``InversionConfig.__post_init__`` validates flux_freq, bias_grouping, bias_freq,
+  background, prior, mdm_config and domain; setting any field drops the cached derived
+  values. Setting ``bias_std`` (at construction or later) checks it and turns a dict or
+  Series into a float Series by interval start, so a sweep grid's JSON gives it back.
+- ``sweep.config_id`` leaves out a field in ``_LATER_FIELD_DEFAULTS`` while it is at its
+  default (``bias_freq``), so a config that does not use a field added later keeps the
+  id it had; add a new scientific field there with its default.
 - ``InversionConfig.mdm_config`` keys must be names in ``DEFAULT_MDM_CONFIG`` (part,
   instr, aggr, subhour, bg, transport); ``get_mdm_comp_configs`` raises on anything
   else. Retired keys (``transport_pbl``, ``transport_wind``) used to be ignored
