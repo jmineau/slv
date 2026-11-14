@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../_static/documentation_options.js?v=70043703"></script>
+    <script src="../../../_static/documentation_options.js?v=004871f3"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -59,7 +59,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.11.2.dev2+gd7acb3db6" />
+  <meta name="docsearch:version" content="2026.11.2.dev3+g6b21dba0a" />
   
     
     <script src="../../../_static/searchtools.js"></script>
@@ -921,12 +921,14 @@
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    The bias block: one unknown offset per group of obs, by ``config.bias_grouping``.</span>
 
-<span class="sd">    ``None`` or ``"time"``: one per flux interval; ``"site"``: per interval and site;</span>
-<span class="sd">    ``"site_group"``: per interval and site organization. A mobile receptor belongs to</span>
-<span class="sd">    its mobile site (:func:`obs_sites`, after ``config.location_site_map``). Only groups</span>
-<span class="sd">    with obs get an offset; each is labeled by its interval's start (``obs_time``) and</span>
-<span class="sd">    its site (``obs_location``) or organization (``site_group``). Built every run from the</span>
-<span class="sd">    obs, which change with the obs filters the cache key leaves out.</span>
+<span class="sd">    The intervals are ``config.bias_time_bins`` (the flux intervals unless</span>
+<span class="sd">    ``config.bias_freq`` is set). ``None`` or ``"time"``: one per interval, shared by</span>
+<span class="sd">    every site; ``"site"``: per interval and site; ``"site_group"``: per interval and</span>
+<span class="sd">    site organization. A mobile receptor belongs to its mobile site (:func:`obs_sites`,</span>
+<span class="sd">    after ``config.location_site_map``). Only groups with obs get an offset; each is</span>
+<span class="sd">    labeled by its interval's start (``obs_time``) and its site (``obs_location``) or</span>
+<span class="sd">    organization (``site_group``). Built every run from the obs, which change with the</span>
+<span class="sd">    obs filters the cache key leaves out; its prior std is :func:`get_bias_std`.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -936,7 +938,7 @@
 <span class="sd">        The obs-by-bias block of the forward operator (1 where an obs has the offset).</span>
 <span class="sd">    """</span>
     <span class="n">grouping</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">bias_grouping</span>
-    <span class="n">by</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">config</span><span class="o">.</span><span class="n">flux_time_bins</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="s2">"obs_time"</span><span class="p">)]</span>
+    <span class="n">by</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">config</span><span class="o">.</span><span class="n">bias_time_bins</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="s2">"obs_time"</span><span class="p">)]</span>
     <span class="k">if</span> <span class="n">grouping</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"site"</span><span class="p">,</span> <span class="s2">"site_group"</span><span class="p">):</span>
         <span class="n">locations</span> <span class="o">=</span> <span class="n">obs_space</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s2">"concentration"</span><span class="p">)</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s2">"obs_location"</span><span class="p">)</span>
         <span class="n">unique</span> <span class="o">=</span> <span class="n">locations</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
@@ -954,6 +956,66 @@
             <span class="sa">f</span><span class="s2">"Expected None, 'time', 'site', or 'site_group'"</span>
         <span class="p">)</span>
     <span class="k">return</span> <span class="n">fips</span><span class="o">.</span><span class="n">offset_block</span><span class="p">(</span><span class="n">obs_space</span><span class="p">,</span> <span class="n">by</span><span class="o">=</span><span class="n">by</span><span class="p">,</span> <span class="n">block</span><span class="o">=</span><span class="s2">"bias"</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="get_bias_std">
+<a class="viewcode-back" href="../../../_autosummary/slv.inversion.pipelines.get_bias_std.html#slv.inversion.pipelines.get_bias_std">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_bias_std</span><span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="n">InversionConfig</span><span class="p">,</span> <span class="n">bias</span><span class="p">:</span> <span class="n">Vector</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    The prior std of each offset in the bias block ``bias`` (from :func:`get_bias`).</span>
+
+<span class="sd">    ``config.bias_std`` itself when it is one number. When it is a Series of std by</span>
+<span class="sd">    interval start, each offset takes its interval's value (every site's offset in an</span>
+<span class="sd">    interval the same one), as a Series on the block's labels.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If an interval that has an offset (it has obs) has no std in</span>
+<span class="sd">        ``config.bias_std``: fill those intervals (e.g. with a typical value) or drop</span>
+<span class="sd">        their obs; the std is never made up here.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    One offset a day, shared by both sites; the obs are on January 1 and 3:</span>
+
+<span class="sd">    &gt;&gt;&gt; import pandas as pd</span>
+<span class="sd">    &gt;&gt;&gt; from fips import Space</span>
+<span class="sd">    &gt;&gt;&gt; from slv.inversion import InversionConfig</span>
+<span class="sd">    &gt;&gt;&gt; from slv.inversion.pipelines import get_bias, get_bias_std</span>
+<span class="sd">    &gt;&gt;&gt; times = pd.to_datetime(</span>
+<span class="sd">    ...     ["2020-01-01 20:00", "2020-01-01 21:00", "2020-01-03 20:00"]</span>
+<span class="sd">    ... )</span>
+<span class="sd">    &gt;&gt;&gt; obs = pd.MultiIndex.from_arrays(</span>
+<span class="sd">    ...     [["wbb", "trx01", "wbb"], times], names=["obs_location", "obs_time"]</span>
+<span class="sd">    ... )</span>
+<span class="sd">    &gt;&gt;&gt; days = pd.date_range("2020-01-01", periods=3)</span>
+<span class="sd">    &gt;&gt;&gt; std = pd.Series([0.01, 0.02, 0.03], index=days)</span>
+<span class="sd">    &gt;&gt;&gt; config = InversionConfig(</span>
+<span class="sd">    ...     tstart="2020-01-01",</span>
+<span class="sd">    ...     tend="2020-02-01",</span>
+<span class="sd">    ...     sites=["wbb", "trx01"],</span>
+<span class="sd">    ...     bias_freq="D",</span>
+<span class="sd">    ...     bias_std=std,</span>
+<span class="sd">    ... )</span>
+<span class="sd">    &gt;&gt;&gt; prior, forward = get_bias(config, Space({"concentration": obs}))</span>
+<span class="sd">    &gt;&gt;&gt; get_bias_std(config, prior).round(3).tolist()</span>
+<span class="sd">    [0.01, 0.03]</span>
+<span class="sd">    """</span>
+    <span class="n">std</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">bias_std</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">std</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">std</span>
+    <span class="n">labels</span> <span class="o">=</span> <span class="n">bias</span><span class="o">.</span><span class="n">space</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s2">"bias"</span><span class="p">)</span>
+    <span class="n">starts</span> <span class="o">=</span> <span class="n">labels</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s2">"obs_time"</span><span class="p">)</span>
+    <span class="n">missing</span> <span class="o">=</span> <span class="n">starts</span><span class="p">[</span><span class="o">~</span><span class="n">starts</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">std</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span><span class="o">.</span><span class="n">sort_values</span><span class="p">()</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">missing</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"bias_std has no std for </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">missing</span><span class="p">)</span><span class="si">}</span><span class="s2"> bias interval(s) that have obs "</span>
+            <span class="sa">f</span><span class="s2">"(e.g. </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">missing</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">))</span><span class="si">}</span><span class="s2">); give every interval that has obs "</span>
+            <span class="s2">"a std, or drop its obs."</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">std</span><span class="o">.</span><span class="n">reindex</span><span class="p">(</span><span class="n">starts</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(),</span> <span class="n">index</span><span class="o">=</span><span class="n">labels</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"bias_std"</span><span class="p">)</span></div>
 
 
 
@@ -1065,7 +1127,8 @@
         <span class="n">state</span> <span class="o">=</span> <span class="n">Vector</span><span class="o">.</span><span class="n">from_blocks</span><span class="p">({</span><span class="s2">"flux"</span><span class="p">:</span> <span class="n">state</span><span class="p">,</span> <span class="s2">"bias"</span><span class="p">:</span> <span class="n">bias_prior</span><span class="p">},</span> <span class="n">name</span><span class="o">=</span><span class="s2">"prior"</span><span class="p">)</span>
         <span class="n">blocks</span><span class="p">[(</span><span class="s2">"concentration"</span><span class="p">,</span> <span class="s2">"bias"</span><span class="p">)]</span> <span class="o">=</span> <span class="n">bias_forward</span>
         <span class="n">prior_cov</span> <span class="o">=</span> <span class="n">Covariance</span><span class="o">.</span><span class="n">block_diag</span><span class="p">(</span>
-            <span class="n">flux</span><span class="o">=</span><span class="n">prior_error</span><span class="p">,</span> <span class="n">bias</span><span class="o">=</span><span class="n">Independent</span><span class="p">()</span><span class="o">.</span><span class="n">with_std</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">bias_std</span><span class="p">)</span>
+            <span class="n">flux</span><span class="o">=</span><span class="n">prior_error</span><span class="p">,</span>
+            <span class="n">bias</span><span class="o">=</span><span class="n">Independent</span><span class="p">()</span><span class="o">.</span><span class="n">with_std</span><span class="p">(</span><span class="n">get_bias_std</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">bias_prior</span><span class="p">)),</span>
         <span class="p">)</span>
     <span class="n">problem</span> <span class="o">=</span> <span class="n">Problem</span><span class="p">(</span>
         <span class="n">prior</span><span class="o">=</span><span class="n">state</span><span class="p">,</span>

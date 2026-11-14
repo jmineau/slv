@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../_static/documentation_options.js?v=70043703"></script>
+    <script src="../../../_static/documentation_options.js?v=004871f3"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -59,7 +59,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.11.2.dev2+gd7acb3db6" />
+  <meta name="docsearch:version" content="2026.11.2.dev3+g6b21dba0a" />
   
     
     <script src="../../../_static/searchtools.js"></script>
@@ -512,6 +512,65 @@
     <span class="k">return</span> <span class="n">cached_tiler</span><span class="p">(</span><span class="n">GoogleTiles</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">"satellite"</span><span class="p">)</span>
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">_whole_periods</span><span class="p">(</span>
+    <span class="n">t0</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">,</span> <span class="n">t1</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">freq</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">what</span><span class="p">:</span> <span class="nb">str</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">IntervalIndex</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Whole ``freq`` periods from ``t0`` to ``t1``, closed on the left.</span>
+
+<span class="sd">    Raises ``ValueError``, naming the field ``name``, when ``t0`` or ``t1`` is not on a</span>
+<span class="sd">    ``freq`` boundary: the obs outside the whole periods would have no ``what`` to fit.</span>
+<span class="sd">    """</span>
+    <span class="n">bins</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">interval_range</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="n">t0</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="n">t1</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="n">freq</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="s2">"left"</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">bins</span><span class="p">)</span> <span class="ow">and</span> <span class="n">bins</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">left</span> <span class="o">==</span> <span class="n">t0</span> <span class="ow">and</span> <span class="n">bins</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">right</span> <span class="o">==</span> <span class="n">t1</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">bins</span>
+    <span class="n">covered</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="sa">f</span><span class="s2">"would cover </span><span class="si">{</span><span class="n">bins</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">left</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">bins</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">right</span><span class="si">}</span><span class="s2">"</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">bins</span><span class="p">)</span>
+        <span class="k">else</span> <span class="s2">"would be empty"</span>
+    <span class="p">)</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">"tstart=</span><span class="si">{</span><span class="n">t0</span><span class="si">}</span><span class="s2"> and tend=</span><span class="si">{</span><span class="n">t1</span><span class="si">}</span><span class="s2"> must be on </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">freq</span><span class="si">!r}</span><span class="s2"> "</span>
+        <span class="sa">f</span><span class="s2">"boundaries: its whole periods </span><span class="si">{</span><span class="n">covered</span><span class="si">}</span><span class="s2">, and the obs outside them would "</span>
+        <span class="sa">f</span><span class="s2">"have no </span><span class="si">{</span><span class="n">what</span><span class="si">}</span><span class="s2"> to fit."</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_as_bias_std</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    ``bias_std`` as the config keeps it: ``None``, a float, or a Series of std by</span>
+<span class="sd">    interval start.</span>
+
+<span class="sd">    A dict (what a sweep grid or results CSV gives back after a JSON round trip) or a</span>
+<span class="sd">    Series becomes a float Series on a sorted ``DatetimeIndex`` named ``obs_time``.</span>
+<span class="sd">    Raises ``ValueError`` for a negative or non-finite std, or a start given twice.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">dict</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">)):</span>
+        <span class="n">std</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="c1"># from the values alone, so a Series and its JSON round trip give the same one</span>
+        <span class="n">starts</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">std</span><span class="o">.</span><span class="n">index</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+        <span class="n">std</span><span class="o">.</span><span class="n">index</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">(</span><span class="n">starts</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">"obs_time"</span><span class="p">)</span>
+        <span class="n">std</span> <span class="o">=</span> <span class="n">std</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="s2">"bias_std"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">std</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">has_duplicates</span><span class="p">:</span>
+            <span class="n">dup</span> <span class="o">=</span> <span class="n">std</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="n">std</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">duplicated</span><span class="p">()]</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"bias_std gives </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">dup</span><span class="p">)</span><span class="si">}</span><span class="s2"> interval start(s) twice, e.g. </span><span class="si">{</span><span class="n">dup</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">"</span>
+            <span class="p">)</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="n">std</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">std</span> <span class="o">=</span> <span class="n">value</span>  <span class="c1"># kept as given, so a config's sweep id does not change</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)])</span>
+    <span class="n">bad</span> <span class="o">=</span> <span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">values</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">values</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">bad</span><span class="o">.</span><span class="n">any</span><span class="p">():</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"bias_std must be finite and not negative; </span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">bad</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span><span class="si">}</span><span class="s2"> value(s) "</span>
+            <span class="s2">"are not (fill or drop the intervals that have none)."</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">std</span>
+
+
 <span class="c1"># Default MDM component parameters</span>
 <span class="c1"># Notes:</span>
 <span class="c1"># - `std`: absolute standard deviation in ppm (can be float or dict[site][season])</span>
@@ -664,9 +723,10 @@
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Settings for one inversion (:func:`~slv.inversion.pipelines.run`).</span>
 
-<span class="sd">    Invalid choices (``flux_freq``, ``background``, ``prior``, ``bias_grouping``, MDM</span>
-<span class="sd">    component names, an empty domain, ``tstart`` or ``tend`` off the ``flux_freq``</span>
-<span class="sd">    boundaries) raise ``ValueError`` at construction. Cached</span>
+<span class="sd">    Invalid choices (``flux_freq``, ``background``, ``prior``, ``bias_grouping``,</span>
+<span class="sd">    ``bias_freq``, a negative or non-finite ``bias_std``, MDM component names, an empty</span>
+<span class="sd">    domain, ``tstart`` or ``tend`` off the ``flux_freq`` or ``bias_freq`` boundaries)</span>
+<span class="sd">    raise ``ValueError`` at construction. Cached</span>
 <span class="sd">    components are keyed on the fields each one depends on (see</span>
 <span class="sd">    :mod:`slv.inversion.cache`), so changing a field's default spelling forces a rebuild.</span>
 
@@ -734,11 +794,18 @@
 <span class="sd">        e-folding distance of the prior error correlation, km.</span>
 <span class="sd">    mdm_config : dict</span>
 <span class="sd">        Overrides of :data:`DEFAULT_MDM_CONFIG`, by component name.</span>
-<span class="sd">    bias_std : float, optional</span>
-<span class="sd">        Prior std of the bias states (ppm); ``None`` leaves the bias block out.</span>
+<span class="sd">    bias_std : float or pd.Series, optional</span>
+<span class="sd">        Prior std of the bias states (ppm); ``None`` leaves the bias block out. A</span>
+<span class="sd">        Series (or a dict) gives one std per bias interval, indexed by the interval's</span>
+<span class="sd">        start (a day for ``bias_freq="D"``); every interval that has obs needs one, or</span>
+<span class="sd">        :func:`~slv.inversion.pipelines.build_problem` raises. Extra entries are</span>
+<span class="sd">        ignored. The offsets are independent: no correlation between intervals.</span>
 <span class="sd">    bias_grouping : str, optional</span>
-<span class="sd">        ``None`` / ``"time"`` (one bias per interval), ``"site"`` or ``"site_group"``</span>
-<span class="sd">        (per interval and site or organization).</span>
+<span class="sd">        ``None`` / ``"time"`` (one bias per interval, shared by every site), ``"site"``</span>
+<span class="sd">        or ``"site_group"`` (per interval and site or organization).</span>
+<span class="sd">    bias_freq : str, optional</span>
+<span class="sd">        The bias interval, one of the ``flux_freq`` choices (``"D"`` for one offset a</span>
+<span class="sd">        day); ``None`` uses ``flux_freq``. See :attr:`bias_time_bins`.</span>
 <span class="sd">    jacobian_coverage_percentile : float, optional</span>
 <span class="sd">        Hold the least-constrained cells (below this percentile of mean Jacobian</span>
 <span class="sd">        sensitivity) at the prior. ``None`` keeps every cell.</span>
@@ -851,6 +918,11 @@
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">"bias_grouping=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">bias_grouping</span><span class="si">!r}</span><span class="s2">; expected one of </span><span class="si">{</span><span class="n">BIAS_GROUPINGS</span><span class="si">}</span><span class="s2">"</span>
             <span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">bias_freq</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">bias_freq</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">FLUX_FREQ_TIME_STEPS</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"bias_freq=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">bias_freq</span><span class="si">!r}</span><span class="s2">; supported: None (flux_freq) or "</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">FLUX_FREQ_TIME_STEPS</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span>
+            <span class="p">)</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">background</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">BACKGROUNDS</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">"background=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">background</span><span class="si">!r}</span><span class="s2">; expected one of </span><span class="si">{</span><span class="n">BACKGROUNDS</span><span class="si">}</span><span class="s2">"</span>
@@ -863,12 +935,15 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xmin</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">xmax</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">ymin</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">ymax</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"empty domain: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">bbox</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
         <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">flux_time_bins</span>  <span class="c1"># raises when they would not cover tstart..tend</span>
+        <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">bias_time_bins</span>
 
     <span class="c1">#: Derived values cached on first access; setting any field drops them, so a config</span>
     <span class="c1">#: changed after use (a sweep, a notebook) never serves a stale grid or MDM list.</span>
     <span class="n">_DERIVED</span> <span class="o">=</span> <span class="p">(</span><span class="s2">"grid"</span><span class="p">,</span> <span class="s2">"state_grid"</span><span class="p">,</span> <span class="s2">"grid_coords"</span><span class="p">,</span> <span class="s2">"mdm_components"</span><span class="p">,</span> <span class="s2">"site_config"</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">"bias_std"</span><span class="p">:</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="n">_as_bias_std</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__dataclass_fields__</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_DERIVED</span><span class="p">:</span>
@@ -883,13 +958,16 @@
 
 
     <span class="c1"># --- Bias ---</span>
-    <span class="c1"># Set bias_std to enable the bias block.</span>
-    <span class="n">bias_std</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Prior std-dev for each bias state (None = disabled)</span>
+    <span class="c1"># Set bias_std to enable the bias block: one std for every bias state, or a Series</span>
+    <span class="c1"># of std by bias interval start (None = disabled).</span>
+    <span class="n">bias_std</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="c1"># Bias grouping strategy:</span>
-    <span class="c1">#   None or "time": one bias per time interval</span>
+    <span class="c1">#   None or "time": one bias per time interval, shared by every site</span>
     <span class="c1">#   "site": one bias per (time, obs_location)</span>
     <span class="c1">#   "site_group": one bias per (time, organization)</span>
     <span class="n">bias_grouping</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="c1"># Bias interval; None = flux_freq. "D" gives one offset a day.</span>
+    <span class="n">bias_freq</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="c1"># --- Jacobian Coverage Filter ---</span>
     <span class="c1"># Percentile threshold for Jacobian coverage filtering.  Per-cell coverage</span>
@@ -1112,20 +1190,43 @@
 <span class="sd">        &gt;&gt;&gt; [str(b.left.date()) for b in config.flux_time_bins]</span>
 <span class="sd">        ['2016-01-01', '2017-01-01']</span>
 <span class="sd">        """</span>
-        <span class="n">t0</span><span class="p">,</span> <span class="n">t1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">time_range</span>
-        <span class="n">bins</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">interval_range</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="n">t0</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="n">t1</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">flux_freq</span><span class="p">,</span> <span class="n">closed</span><span class="o">=</span><span class="s2">"left"</span><span class="p">)</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">bins</span><span class="p">)</span> <span class="ow">and</span> <span class="n">bins</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">left</span> <span class="o">==</span> <span class="n">t0</span> <span class="ow">and</span> <span class="n">bins</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">right</span> <span class="o">==</span> <span class="n">t1</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">bins</span>
-        <span class="n">covered</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="sa">f</span><span class="s2">"would cover </span><span class="si">{</span><span class="n">bins</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">left</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">bins</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">right</span><span class="si">}</span><span class="s2">"</span>
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">bins</span><span class="p">)</span>
-            <span class="k">else</span> <span class="s2">"would be empty"</span>
-        <span class="p">)</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">"tstart=</span><span class="si">{</span><span class="n">t0</span><span class="si">}</span><span class="s2"> and tend=</span><span class="si">{</span><span class="n">t1</span><span class="si">}</span><span class="s2"> must be on flux_freq=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">flux_freq</span><span class="si">!r}</span><span class="s2"> "</span>
-            <span class="sa">f</span><span class="s2">"boundaries: its whole periods </span><span class="si">{</span><span class="n">covered</span><span class="si">}</span><span class="s2">, and the obs outside them would "</span>
-            <span class="s2">"have no flux to fit."</span>
-        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">_whole_periods</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">time_range</span><span class="p">,</span> <span class="s2">"flux_freq"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">flux_freq</span><span class="p">,</span> <span class="s2">"flux"</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">bias_time_bins</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">IntervalIndex</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        The bias intervals: whole ``bias_freq`` periods from ``tstart`` to ``tend``.</span>
+
+<span class="sd">        :attr:`flux_time_bins` when ``bias_freq`` is ``None``. The bias block has one</span>
+<span class="sd">        offset per interval that has obs (per site or organization with</span>
+<span class="sd">        ``bias_grouping``), labeled by the interval's start, which is what a</span>
+<span class="sd">        per-interval ``bias_std`` Series is indexed by.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If ``tstart`` or ``tend`` is not on a ``bias_freq`` boundary.</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        flux_time_bins : The flux intervals.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+<span class="sd">        One offset a day under monthly fluxes:</span>
+
+<span class="sd">        &gt;&gt;&gt; from slv.inversion import InversionConfig</span>
+<span class="sd">        &gt;&gt;&gt; config = InversionConfig(</span>
+<span class="sd">        ...     tstart="2020-01-01", tend="2020-02-01", flux_freq="MS", bias_freq="D"</span>
+<span class="sd">        ... )</span>
+<span class="sd">        &gt;&gt;&gt; len(config.bias_time_bins), str(config.bias_time_bins[0].left.date())</span>
+<span class="sd">        (31, '2020-01-01')</span>
+<span class="sd">        &gt;&gt;&gt; len(InversionConfig(tstart="2020-01-01", tend="2020-02-01").bias_time_bins)</span>
+<span class="sd">        1</span>
+<span class="sd">        """</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">bias_freq</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">flux_time_bins</span>
+        <span class="k">return</span> <span class="n">_whole_periods</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">time_range</span><span class="p">,</span> <span class="s2">"bias_freq"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">bias_freq</span><span class="p">,</span> <span class="s2">"bias"</span><span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">flux_times</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">:</span>

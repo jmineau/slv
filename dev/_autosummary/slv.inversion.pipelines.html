@@ -41,7 +41,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../_static/documentation_options.js?v=70043703"></script>
+    <script src="../_static/documentation_options.js?v=004871f3"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -62,7 +62,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.11.2.dev2+gd7acb3db6" />
+  <meta name="docsearch:version" content="2026.11.2.dev3+g6b21dba0a" />
   
     
     <script src="../_static/searchtools.js"></script>
@@ -480,6 +480,7 @@
 <li class="toctree-l4"><a class="reference internal" href="slv.inversion.pipelines.build_problem.html">slv.inversion.pipelines.build_problem</a></li>
 <li class="toctree-l4"><a class="reference internal" href="slv.inversion.pipelines.filter_state_space.html">slv.inversion.pipelines.filter_state_space</a></li>
 <li class="toctree-l4"><a class="reference internal" href="slv.inversion.pipelines.get_bias.html">slv.inversion.pipelines.get_bias</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.pipelines.get_bias_std.html">slv.inversion.pipelines.get_bias_std</a></li>
 <li class="toctree-l4"><a class="reference internal" href="slv.inversion.pipelines.get_constant.html">slv.inversion.pipelines.get_constant</a></li>
 <li class="toctree-l4"><a class="reference internal" href="slv.inversion.pipelines.get_flux_jacobian.html">slv.inversion.pipelines.get_flux_jacobian</a></li>
 <li class="toctree-l4"><a class="reference internal" href="slv.inversion.pipelines.get_obs.html">slv.inversion.pipelines.get_obs</a></li>
@@ -711,31 +712,34 @@ and the reports live in <a class="reference internal" href="slv.inversion.mdm.ht
 <tr class="row-odd"><td><p><a class="reference internal" href="slv.inversion.pipelines.get_bias.html#slv.inversion.pipelines.get_bias" title="slv.inversion.pipelines.get_bias"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_bias</span></code></a></p></td>
 <td><p>The bias block: one unknown offset per group of obs, by <code class="docutils literal notranslate"><span class="pre">config.bias_grouping</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="slv.inversion.pipelines.get_constant.html#slv.inversion.pipelines.get_constant" title="slv.inversion.pipelines.get_constant"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_constant</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="slv.inversion.pipelines.get_bias_std.html#slv.inversion.pipelines.get_bias_std" title="slv.inversion.pipelines.get_bias_std"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_bias_std</span></code></a></p></td>
+<td><p>The prior std of each offset in the bias block <code class="docutils literal notranslate"><span class="pre">bias</span></code> (from <a class="reference internal" href="slv.inversion.pipelines.get_bias.html#slv.inversion.pipelines.get_bias" title="slv.inversion.pipelines.get_bias"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_bias()</span></code></a>).</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="slv.inversion.pipelines.get_constant.html#slv.inversion.pipelines.get_constant" title="slv.inversion.pipelines.get_constant"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_constant</span></code></a></p></td>
 <td><p>Background concentration for each obs (<code class="docutils literal notranslate"><span class="pre">config.background</span></code>), named <code class="docutils literal notranslate"><span class="pre">&quot;background&quot;</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="slv.inversion.pipelines.get_flux_jacobian.html#slv.inversion.pipelines.get_flux_jacobian" title="slv.inversion.pipelines.get_flux_jacobian"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_flux_jacobian</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="slv.inversion.pipelines.get_flux_jacobian.html#slv.inversion.pipelines.get_flux_jacobian" title="slv.inversion.pipelines.get_flux_jacobian"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_flux_jacobian</span></code></a></p></td>
 <td><p>The flux Jacobian from the PYSTILT footprints (cached as <code class="docutils literal notranslate"><span class="pre">forward_operator</span></code>).</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="slv.inversion.pipelines.get_obs.html#slv.inversion.pipelines.get_obs" title="slv.inversion.pipelines.get_obs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_obs</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="slv.inversion.pipelines.get_obs.html#slv.inversion.pipelines.get_obs" title="slv.inversion.pipelines.get_obs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_obs</span></code></a></p></td>
 <td><p>The observations (CH4, ppm), indexed by <code class="docutils literal notranslate"><span class="pre">(obs_location,</span> <span class="pre">obs_time)</span></code>, named <code class="docutils literal notranslate"><span class="pre">&quot;obs&quot;</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="slv.inversion.pipelines.get_prior.html#slv.inversion.pipelines.get_prior" title="slv.inversion.pipelines.get_prior"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_prior</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="slv.inversion.pipelines.get_prior.html#slv.inversion.pipelines.get_prior" title="slv.inversion.pipelines.get_prior"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_prior</span></code></a></p></td>
 <td><p>The prior flux (umol/m2/s) on the config's grid and flux times, named <code class="docutils literal notranslate"><span class="pre">&quot;prior&quot;</span></code>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="slv.inversion.pipelines.get_prior_error.html#slv.inversion.pipelines.get_prior_error" title="slv.inversion.pipelines.get_prior_error"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_prior_error</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="slv.inversion.pipelines.get_prior_error.html#slv.inversion.pipelines.get_prior_error" title="slv.inversion.pipelines.get_prior_error"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_prior_error</span></code></a></p></td>
 <td><p>The prior flux error covariance on the labels of <code class="docutils literal notranslate"><span class="pre">prior</span></code>, the block <code class="docutils literal notranslate"><span class="pre">flux</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="slv.inversion.pipelines.obs_sites.html#slv.inversion.pipelines.obs_sites" title="slv.inversion.pipelines.obs_sites"><code class="xref py py-obj docutils literal notranslate"><span class="pre">obs_sites</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="slv.inversion.pipelines.obs_sites.html#slv.inversion.pipelines.obs_sites" title="slv.inversion.pipelines.obs_sites"><code class="xref py py-obj docutils literal notranslate"><span class="pre">obs_sites</span></code></a></p></td>
 <td><p>The site of each obs location, for site- and organization-keyed MDM and bias terms.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="slv.inversion.pipelines.project_jacobian.html#slv.inversion.pipelines.project_jacobian" title="slv.inversion.pipelines.project_jacobian"><code class="xref py py-obj docutils literal notranslate"><span class="pre">project_jacobian</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="slv.inversion.pipelines.project_jacobian.html#slv.inversion.pipelines.project_jacobian" title="slv.inversion.pipelines.project_jacobian"><code class="xref py py-obj docutils literal notranslate"><span class="pre">project_jacobian</span></code></a></p></td>
 <td><p>One STILT project's flux Jacobian, from <code class="docutils literal notranslate"><span class="pre">stilt.Project.jacobian</span></code>.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="slv.inversion.pipelines.run.html#slv.inversion.pipelines.run" title="slv.inversion.pipelines.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="slv.inversion.pipelines.run.html#slv.inversion.pipelines.run" title="slv.inversion.pipelines.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code></a></p></td>
 <td><p>Build the problem, solve it, summarize and plot.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="slv.inversion.pipelines.stack_jacobians.html#slv.inversion.pipelines.stack_jacobians" title="slv.inversion.pipelines.stack_jacobians"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stack_jacobians</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="slv.inversion.pipelines.stack_jacobians.html#slv.inversion.pipelines.stack_jacobians" title="slv.inversion.pipelines.stack_jacobians"><code class="xref py py-obj docutils literal notranslate"><span class="pre">stack_jacobians</span></code></a></p></td>
 <td><p>Row-stack the per-project flux Jacobians into one.</p></td>
 </tr>
 </tbody>

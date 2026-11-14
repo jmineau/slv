@@ -1,0 +1,6 @@
+slv.inversion.config.InversionConfig.bias\_time\_bins
+=====================================================
+
+.. currentmodule:: slv.inversion.config
+
+.. autoproperty:: InversionConfig.bias_time_bins

@@ -24,6 +24,7 @@ slv.inversion.pipelines
    build_problem
    filter_state_space
    get_bias
+   get_bias_std
    get_constant
    get_flux_jacobian
    get_obs

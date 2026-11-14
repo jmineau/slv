@@ -41,7 +41,7 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="_static/documentation_options.js?v=70043703"></script>
+    <script src="_static/documentation_options.js?v=004871f3"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -62,7 +62,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.11.2.dev2+gd7acb3db6" />
+  <meta name="docsearch:version" content="2026.11.2.dev3+g6b21dba0a" />
   
     
     <script src="_static/searchtools.js"></script>
@@ -537,6 +537,37 @@ must be on its boundaries: January 1 for <code class="docutils literal notransla
 the first of a month for <code class="docutils literal notranslate"><span class="pre">&quot;MS&quot;</span></code>, Sundays two weeks apart for <code class="docutils literal notranslate"><span class="pre">&quot;2W&quot;</span></code>. A config that
 is off them raises <code class="docutils literal notranslate"><span class="pre">ValueError</span></code> rather than leave the obs of the days outside whole
 periods with no flux to fit.</p>
+<p>An offset can be solved for with the fluxes: <code class="docutils literal notranslate"><span class="pre">bias_std</span></code> adds a bias block to the
+state, one offset per interval that has obs, which adds to every obs in its interval.
+The interval is the flux interval unless <code class="docutils literal notranslate"><span class="pre">bias_freq</span></code> says otherwise, and with the
+default <code class="docutils literal notranslate"><span class="pre">bias_grouping</span></code> the offset is shared by every site (<code class="docutils literal notranslate"><span class="pre">&quot;site&quot;</span></code> and
+<code class="docutils literal notranslate"><span class="pre">&quot;site_group&quot;</span></code> give each site or organization its own). <code class="docutils literal notranslate"><span class="pre">bias_std</span></code> is one prior std
+for every offset, or a Series of std by interval start; the offsets are independent of
+one another. One offset a day under monthly fluxes, shared by a tower and a mobile site,
+with a prior std that differs by day:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+<span class="n">days</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">date_range</span><span class="p">(</span><span class="s2">"2016-01-01"</span><span class="p">,</span> <span class="s2">"2023-12-31"</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="s2">"D"</span><span class="p">)</span>
+<span class="n">std</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="mf">0.010</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">days</span><span class="p">)</span>  <span class="c1"># ppm; e.g. larger on the days you trust less</span>
+
+<span class="n">config</span> <span class="o">=</span> <span class="n">InversionConfig</span><span class="p">(</span>
+    <span class="n">tstart</span><span class="o">=</span><span class="s2">"2016-01-01"</span><span class="p">,</span>
+    <span class="n">tend</span><span class="o">=</span><span class="s2">"2024-01-01"</span><span class="p">,</span>
+    <span class="n">flux_freq</span><span class="o">=</span><span class="s2">"MS"</span><span class="p">,</span>
+    <span class="n">sites</span><span class="o">=</span><span class="p">[</span><span class="s2">"wbb"</span><span class="p">,</span> <span class="s2">"trx01"</span><span class="p">],</span>
+    <span class="n">aggregate_obs</span><span class="o">=</span><span class="s2">"1D"</span><span class="p">,</span>
+    <span class="n">bias_freq</span><span class="o">=</span><span class="s2">"D"</span><span class="p">,</span>
+    <span class="n">bias_std</span><span class="o">=</span><span class="n">std</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>Every interval that has obs needs a std, or <code class="docutils literal notranslate"><span class="pre">build_problem</span></code> raises and names the
+intervals that have none: fill them (with a typical value, say) or drop their obs.
+Entries for intervals without obs are ignored. The intervals are whole <code class="docutils literal notranslate"><span class="pre">bias_freq</span></code>
+periods from <code class="docutils literal notranslate"><span class="pre">tstart</span></code> to <code class="docutils literal notranslate"><span class="pre">tend</span></code>, which must be on its boundaries as for
+<code class="docutils literal notranslate"><span class="pre">flux_freq</span></code> (any day for <code class="docutils literal notranslate"><span class="pre">&quot;D&quot;</span></code>); <code class="docutils literal notranslate"><span class="pre">config.bias_time_bins</span></code> lists them, and each
+offset is labeled by its interval’s start. The posterior offsets are
+<code class="docutils literal notranslate"><span class="pre">post.estimate.to_series(&quot;bias&quot;)</span></code>.</p>
 <p>Building the Jacobian reads every footprint in the period: run it through SLURM, not
 on a login node.</p>
 <p>Two things to know before running the block above as a script:</p>

@@ -16,6 +16,7 @@ slv.inversion.config.InversionConfig
 
    ~InversionConfig.background_kwargs_key
    ~InversionConfig.bbox
+   ~InversionConfig.bias_time_bins
    ~InversionConfig.extent
    ~InversionConfig.flux_time_bins
    ~InversionConfig.flux_times

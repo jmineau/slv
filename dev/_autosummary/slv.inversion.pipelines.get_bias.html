@@ -41,7 +41,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../_static/documentation_options.js?v=70043703"></script>
+    <script src="../_static/documentation_options.js?v=004871f3"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -57,12 +57,12 @@
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="slv.inversion.pipelines.get_constant" href="slv.inversion.pipelines.get_constant.html" />
+    <link rel="next" title="slv.inversion.pipelines.get_bias_std" href="slv.inversion.pipelines.get_bias_std.html" />
     <link rel="prev" title="slv.inversion.pipelines.filter_state_space" href="slv.inversion.pipelines.filter_state_space.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.11.2.dev2+gd7acb3db6" />
+  <meta name="docsearch:version" content="2026.11.2.dev3+g6b21dba0a" />
   
     
     <script src="../_static/searchtools.js"></script>
@@ -480,6 +480,7 @@
 <li class="toctree-l4"><a class="reference internal" href="slv.inversion.pipelines.build_problem.html">slv.inversion.pipelines.build_problem</a></li>
 <li class="toctree-l4"><a class="reference internal" href="slv.inversion.pipelines.filter_state_space.html">slv.inversion.pipelines.filter_state_space</a></li>
 <li class="toctree-l4 current active"><a aria-current="page" class="current reference internal" href="#">slv.inversion.pipelines.get_bias</a></li>
+<li class="toctree-l4"><a class="reference internal" href="slv.inversion.pipelines.get_bias_std.html">slv.inversion.pipelines.get_bias_std</a></li>
 <li class="toctree-l4"><a class="reference internal" href="slv.inversion.pipelines.get_constant.html">slv.inversion.pipelines.get_constant</a></li>
 <li class="toctree-l4"><a class="reference internal" href="slv.inversion.pipelines.get_flux_jacobian.html">slv.inversion.pipelines.get_flux_jacobian</a></li>
 <li class="toctree-l4"><a class="reference internal" href="slv.inversion.pipelines.get_obs.html">slv.inversion.pipelines.get_obs</a></li>
@@ -690,12 +691,14 @@
 <dt class="sig sig-object py" id="slv.inversion.pipelines.get_bias">
 <span class="sig-prename descclassname"><span class="pre">slv.inversion.pipelines.</span></span><span class="sig-name descname"><span class="pre">get_bias</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obs_space</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/slv/inversion/pipelines.html#get_bias"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#slv.inversion.pipelines.get_bias" title="Link to this definition">#</a></dt>
 <dd><p>The bias block: one unknown offset per group of obs, by <code class="docutils literal notranslate"><span class="pre">config.bias_grouping</span></code>.</p>
-<p><code class="docutils literal notranslate"><span class="pre">None</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;time&quot;</span></code>: one per flux interval; <code class="docutils literal notranslate"><span class="pre">&quot;site&quot;</span></code>: per interval and site;
-<code class="docutils literal notranslate"><span class="pre">&quot;site_group&quot;</span></code>: per interval and site organization. A mobile receptor belongs to
-its mobile site (<a class="reference internal" href="slv.inversion.pipelines.obs_sites.html#slv.inversion.pipelines.obs_sites" title="slv.inversion.pipelines.obs_sites"><code class="xref py py-func docutils literal notranslate"><span class="pre">obs_sites()</span></code></a>, after <code class="docutils literal notranslate"><span class="pre">config.location_site_map</span></code>). Only groups
-with obs get an offset; each is labeled by its interval’s start (<code class="docutils literal notranslate"><span class="pre">obs_time</span></code>) and
-its site (<code class="docutils literal notranslate"><span class="pre">obs_location</span></code>) or organization (<code class="docutils literal notranslate"><span class="pre">site_group</span></code>). Built every run from the
-obs, which change with the obs filters the cache key leaves out.</p>
+<p>The intervals are <code class="docutils literal notranslate"><span class="pre">config.bias_time_bins</span></code> (the flux intervals unless
+<code class="docutils literal notranslate"><span class="pre">config.bias_freq</span></code> is set). <code class="docutils literal notranslate"><span class="pre">None</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;time&quot;</span></code>: one per interval, shared by
+every site; <code class="docutils literal notranslate"><span class="pre">&quot;site&quot;</span></code>: per interval and site; <code class="docutils literal notranslate"><span class="pre">&quot;site_group&quot;</span></code>: per interval and
+site organization. A mobile receptor belongs to its mobile site (<a class="reference internal" href="slv.inversion.pipelines.obs_sites.html#slv.inversion.pipelines.obs_sites" title="slv.inversion.pipelines.obs_sites"><code class="xref py py-func docutils literal notranslate"><span class="pre">obs_sites()</span></code></a>,
+after <code class="docutils literal notranslate"><span class="pre">config.location_site_map</span></code>). Only groups with obs get an offset; each is
+labeled by its interval’s start (<code class="docutils literal notranslate"><span class="pre">obs_time</span></code>) and its site (<code class="docutils literal notranslate"><span class="pre">obs_location</span></code>) or
+organization (<code class="docutils literal notranslate"><span class="pre">site_group</span></code>). Built every run from the obs, which change with the
+obs filters the cache key leaves out; its prior std is <a class="reference internal" href="slv.inversion.pipelines.get_bias_std.html#slv.inversion.pipelines.get_bias_std" title="slv.inversion.pipelines.get_bias_std"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_bias_std()</span></code></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#tuple" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></a>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Vector</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Operator</span></code>]</span></p>
@@ -732,11 +735,11 @@ obs, which change with the obs filters the cache key leaves out.</p>
       </div>
     </a>
     <a class="right-next"
-       href="slv.inversion.pipelines.get_constant.html"
+       href="slv.inversion.pipelines.get_bias_std.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">slv.inversion.pipelines.get_constant</p>
+        <p class="prev-next-title">slv.inversion.pipelines.get_bias_std</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>

@@ -41,7 +41,7 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="_static/documentation_options.js?v=70043703"></script>
+    <script src="_static/documentation_options.js?v=004871f3"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -61,7 +61,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.11.2.dev2+gd7acb3db6" />
+  <meta name="docsearch:version" content="2026.11.2.dev3+g6b21dba0a" />
   
     
     <script src="_static/searchtools.js"></script>
@@ -694,11 +694,17 @@ background uses stationary sites only (<code class="docutils literal notranslate
 <code class="docutils literal notranslate"><span class="pre">background_kwargs={&quot;background_sites&quot;:</span> <span class="pre">[...]}</span></code>) and each obs takes its hour’s
 value; <code class="docutils literal notranslate"><span class="pre">get_slv_subhour_std</span></code> skips mobile sites.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">get_flux_jacobian</span></code> is the cached (<code class="docutils literal notranslate"><span class="pre">forward_operator</span></code>) flux Jacobian; the bias
-block (<code class="docutils literal notranslate"><span class="pre">get_bias</span></code>, one offset per group that has obs) is rebuilt every run and not
-cached. A receptor with an empty footprint is a row of zeros; the obs of a receptor
+block (<code class="docutils literal notranslate"><span class="pre">get_bias</span></code>, one offset per group that has obs, on <code class="docutils literal notranslate"><span class="pre">config.bias_time_bins</span></code>;
+its prior std from <code class="docutils literal notranslate"><span class="pre">get_bias_std</span></code>) is rebuilt every run and not cached, so no
+component key holds the bias fields. A receptor with an empty footprint is a row of zeros; the obs of a receptor
 with no footprint are dropped in <code class="docutils literal notranslate"><span class="pre">build_problem</span></code>.</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">InversionConfig.__post_init__</span></code> validates flux_freq, bias_grouping, background,
-prior, mdm_config and domain; setting any field drops the cached derived values.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">InversionConfig.__post_init__</span></code> validates flux_freq, bias_grouping, bias_freq,
+background, prior, mdm_config and domain; setting any field drops the cached derived
+values. Setting <code class="docutils literal notranslate"><span class="pre">bias_std</span></code> (at construction or later) checks it and turns a dict or
+Series into a float Series by interval start, so a sweep grid’s JSON gives it back.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">sweep.config_id</span></code> leaves out a field in <code class="docutils literal notranslate"><span class="pre">_LATER_FIELD_DEFAULTS</span></code> while it is at its
+default (<code class="docutils literal notranslate"><span class="pre">bias_freq</span></code>), so a config that does not use a field added later keeps the
+id it had; add a new scientific field there with its default.</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">InversionConfig.mdm_config</span></code> keys must be names in <code class="docutils literal notranslate"><span class="pre">DEFAULT_MDM_CONFIG</span></code> (part,
 instr, aggr, subhour, bg, transport); <code class="docutils literal notranslate"><span class="pre">get_mdm_comp_configs</span></code> raises on anything
 else. Retired keys (<code class="docutils literal notranslate"><span class="pre">transport_pbl</span></code>, <code class="docutils literal notranslate"><span class="pre">transport_wind</span></code>) used to be ignored

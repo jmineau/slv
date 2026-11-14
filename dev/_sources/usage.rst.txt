@@ -98,6 +98,40 @@ the first of a month for ``"MS"``, Sundays two weeks apart for ``"2W"``. A confi
 is off them raises ``ValueError`` rather than leave the obs of the days outside whole
 periods with no flux to fit.
 
+An offset can be solved for with the fluxes: ``bias_std`` adds a bias block to the
+state, one offset per interval that has obs, which adds to every obs in its interval.
+The interval is the flux interval unless ``bias_freq`` says otherwise, and with the
+default ``bias_grouping`` the offset is shared by every site (``"site"`` and
+``"site_group"`` give each site or organization its own). ``bias_std`` is one prior std
+for every offset, or a Series of std by interval start; the offsets are independent of
+one another. One offset a day under monthly fluxes, shared by a tower and a mobile site,
+with a prior std that differs by day:
+
+.. code-block:: python
+
+   import pandas as pd
+
+   days = pd.date_range("2016-01-01", "2023-12-31", freq="D")
+   std = pd.Series(0.010, index=days)  # ppm; e.g. larger on the days you trust less
+
+   config = InversionConfig(
+       tstart="2016-01-01",
+       tend="2024-01-01",
+       flux_freq="MS",
+       sites=["wbb", "trx01"],
+       aggregate_obs="1D",
+       bias_freq="D",
+       bias_std=std,
+   )
+
+Every interval that has obs needs a std, or ``build_problem`` raises and names the
+intervals that have none: fill them (with a typical value, say) or drop their obs.
+Entries for intervals without obs are ignored. The intervals are whole ``bias_freq``
+periods from ``tstart`` to ``tend``, which must be on its boundaries as for
+``flux_freq`` (any day for ``"D"``); ``config.bias_time_bins`` lists them, and each
+offset is labeled by its interval's start. The posterior offsets are
+``post.estimate.to_series("bias")``.
+
 Building the Jacobian reads every footprint in the period: run it through SLURM, not
 on a login node.
 
