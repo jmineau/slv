@@ -459,12 +459,14 @@ def get_bias(config: InversionConfig, obs_space: Space) -> tuple[Vector, Operato
     """
     The bias block: one unknown offset per group of obs, by ``config.bias_grouping``.
 
-    ``None`` or ``"time"``: one per flux interval; ``"site"``: per interval and site;
-    ``"site_group"``: per interval and site organization. A mobile receptor belongs to
-    its mobile site (:func:`obs_sites`, after ``config.location_site_map``). Only groups
-    with obs get an offset; each is labeled by its interval's start (``obs_time``) and
-    its site (``obs_location``) or organization (``site_group``). Built every run from the
-    obs, which change with the obs filters the cache key leaves out.
+    The intervals are ``config.bias_time_bins`` (the flux intervals unless
+    ``config.bias_freq`` is set). ``None`` or ``"time"``: one per interval, shared by
+    every site; ``"site"``: per interval and site; ``"site_group"``: per interval and
+    site organization. A mobile receptor belongs to its mobile site (:func:`obs_sites`,
+    after ``config.location_site_map``). Only groups with obs get an offset; each is
+    labeled by its interval's start (``obs_time``) and its site (``obs_location``) or
+    organization (``site_group``). Built every run from the obs, which change with the
+    obs filters the cache key leaves out; its prior std is :func:`get_bias_std`.
 
     Returns
     -------
@@ -474,7 +476,7 @@ def get_bias(config: InversionConfig, obs_space: Space) -> tuple[Vector, Operato
         The obs-by-bias block of the forward operator (1 where an obs has the offset).
     """
     grouping = config.bias_grouping
-    by: list[Any] = [config.flux_time_bins.rename("obs_time")]
+    by: list[Any] = [config.bias_time_bins.rename("obs_time")]
     if grouping in ("site", "site_group"):
         locations = obs_space.select("concentration").get_level_values("obs_location")
         unique = locations.unique()
@@ -492,6 +494,63 @@ def get_bias(config: InversionConfig, obs_space: Space) -> tuple[Vector, Operato
             f"Expected None, 'time', 'site', or 'site_group'"
         )
     return fips.offset_block(obs_space, by=by, block="bias")
+
+
+def get_bias_std(config: InversionConfig, bias: Vector) -> float | pd.Series:
+    """
+    The prior std of each offset in the bias block ``bias`` (from :func:`get_bias`).
+
+    ``config.bias_std`` itself when it is one number. When it is a Series of std by
+    interval start, each offset takes its interval's value (every site's offset in an
+    interval the same one), as a Series on the block's labels.
+
+    Raises
+    ------
+    ValueError
+        If an interval that has an offset (it has obs) has no std in
+        ``config.bias_std``: fill those intervals (e.g. with a typical value) or drop
+        their obs; the std is never made up here.
+
+    Examples
+    --------
+    One offset a day, shared by both sites; the obs are on January 1 and 3:
+
+    >>> import pandas as pd
+    >>> from fips import Space
+    >>> from slv.inversion import InversionConfig
+    >>> from slv.inversion.pipelines import get_bias, get_bias_std
+    >>> times = pd.to_datetime(
+    ...     ["2020-01-01 20:00", "2020-01-01 21:00", "2020-01-03 20:00"]
+    ... )
+    >>> obs = pd.MultiIndex.from_arrays(
+    ...     [["wbb", "trx01", "wbb"], times], names=["obs_location", "obs_time"]
+    ... )
+    >>> days = pd.date_range("2020-01-01", periods=3)
+    >>> std = pd.Series([0.01, 0.02, 0.03], index=days)
+    >>> config = InversionConfig(
+    ...     tstart="2020-01-01",
+    ...     tend="2020-02-01",
+    ...     sites=["wbb", "trx01"],
+    ...     bias_freq="D",
+    ...     bias_std=std,
+    ... )
+    >>> prior, forward = get_bias(config, Space({"concentration": obs}))
+    >>> get_bias_std(config, prior).round(3).tolist()
+    [0.01, 0.03]
+    """
+    std = config.bias_std
+    if not isinstance(std, pd.Series):
+        return std
+    labels = bias.space.select("bias")
+    starts = labels.get_level_values("obs_time")
+    missing = starts[~starts.isin(std.index)].unique().sort_values()
+    if len(missing):
+        raise ValueError(
+            f"bias_std has no std for {len(missing)} bias interval(s) that have obs "
+            f"(e.g. {list(missing[:3].astype(str))}); give every interval that has obs "
+            "a std, or drop its obs."
+        )
+    return pd.Series(std.reindex(starts).to_numpy(), index=labels, name="bias_std")
 
 
 def build_problem(config: InversionConfig) -> Problem:
@@ -600,7 +659,8 @@ def build_problem(config: InversionConfig) -> Problem:
         state = Vector.from_blocks({"flux": state, "bias": bias_prior}, name="prior")
         blocks[("concentration", "bias")] = bias_forward
         prior_cov = Covariance.block_diag(
-            flux=prior_error, bias=Independent().with_std(config.bias_std)
+            flux=prior_error,
+            bias=Independent().with_std(get_bias_std(config, bias_prior)),
         )
     problem = Problem(
         prior=state,

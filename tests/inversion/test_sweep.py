@@ -26,6 +26,7 @@ from slv.inversion.sweep import (
     Sweep,
     SweepResults,
     _append_row,
+    _to_json,
     collect_metrics,
     config_id,
     run_sweep_job,
@@ -264,6 +265,33 @@ class TestConfigId:
         cid = config_id(_cfg())
         assert len(cid) == 16
         int(cid, 16)  # valid hex
+
+    def test_ids_of_existing_configs_are_unchanged(self):
+        # computed before bias_freq existed: a config that leaves it out keeps its id
+        assert config_id(_cfg()) == "d5ab9713569b539c"
+        monthly_bias = _cfg(
+            bias_std=0.5, bias_grouping="site", tstart="2016-01-01", tend="2024-01-01"
+        )
+        assert config_id(monthly_bias) == "4a3e1d0f5ae7c8aa"
+        assert config_id(_cfg(bias_freq="D")) != config_id(_cfg())
+
+    def test_id_sees_every_value_of_a_std_series(self):
+        # str() of a long Series elides the middle; the id must not
+        days = pd.date_range("2020-01-01", periods=200)
+        std = pd.Series(0.01, index=days)
+        changed = std.copy()
+        changed.iloc[100] = 0.02
+        assert config_id(_cfg(bias_std=std)) != config_id(_cfg(bias_std=changed))
+
+    def test_a_std_series_survives_the_json_round_trip(self):
+        # the sweep grid and the results CSV store it as JSON and rebuild the config
+        std = pd.Series([0.01, 0.02], index=pd.date_range("2020-01-01", periods=2))
+        cfg = _cfg(bias_std=std, bias_freq="D")
+        back = _cfg(
+            bias_std=json.loads(json.dumps(_to_json(cfg.bias_std))), bias_freq="D"
+        )
+        pd.testing.assert_series_equal(back.bias_std, cfg.bias_std)
+        assert config_id(back) == config_id(cfg)
 
 
 # ---------------------------------------------------------------------------

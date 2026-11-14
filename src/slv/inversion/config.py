@@ -76,6 +76,65 @@ def _default_tiler() -> GoogleTiles:
     return cached_tiler(GoogleTiles, style="satellite")
 
 
+def _whole_periods(
+    t0: pd.Timestamp, t1: pd.Timestamp, name: str, freq: str, what: str
+) -> pd.IntervalIndex:
+    """
+    Whole ``freq`` periods from ``t0`` to ``t1``, closed on the left.
+
+    Raises ``ValueError``, naming the field ``name``, when ``t0`` or ``t1`` is not on a
+    ``freq`` boundary: the obs outside the whole periods would have no ``what`` to fit.
+    """
+    bins = pd.interval_range(start=t0, end=t1, freq=freq, closed="left")
+    if len(bins) and bins[0].left == t0 and bins[-1].right == t1:
+        return bins
+    covered = (
+        f"would cover {bins[0].left} to {bins[-1].right}"
+        if len(bins)
+        else "would be empty"
+    )
+    raise ValueError(
+        f"tstart={t0} and tend={t1} must be on {name}={freq!r} "
+        f"boundaries: its whole periods {covered}, and the obs outside them would "
+        f"have no {what} to fit."
+    )
+
+
+def _as_bias_std(value):
+    """
+    ``bias_std`` as the config keeps it: ``None``, a float, or a Series of std by
+    interval start.
+
+    A dict (what a sweep grid or results CSV gives back after a JSON round trip) or a
+    Series becomes a float Series on a sorted ``DatetimeIndex`` named ``obs_time``.
+    Raises ``ValueError`` for a negative or non-finite std, or a start given twice.
+    """
+    if value is None:
+        return None
+    if isinstance(value, (dict, pd.Series)):
+        std = pd.Series(value, dtype=float, copy=True)
+        # from the values alone, so a Series and its JSON round trip give the same one
+        starts = pd.to_datetime(std.index).to_numpy()
+        std.index = pd.DatetimeIndex(starts, name="obs_time")
+        std = std.sort_index().rename("bias_std")
+        if std.index.has_duplicates:
+            dup = std.index[std.index.duplicated()].unique()
+            raise ValueError(
+                f"bias_std gives {len(dup)} interval start(s) twice, e.g. {dup[0]}"
+            )
+        values = std.to_numpy()
+    else:
+        std = value  # kept as given, so a config's sweep id does not change
+        values = np.array([float(value)])
+    bad = ~np.isfinite(values) | (values < 0)
+    if bad.any():
+        raise ValueError(
+            f"bias_std must be finite and not negative; {int(bad.sum())} value(s) "
+            "are not (fill or drop the intervals that have none)."
+        )
+    return std
+
+
 # Default MDM component parameters
 # Notes:
 # - `std`: absolute standard deviation in ppm (can be float or dict[site][season])
@@ -220,9 +279,10 @@ class InversionConfig:
     """
     Settings for one inversion (:func:`~slv.inversion.pipelines.run`).
 
-    Invalid choices (``flux_freq``, ``background``, ``prior``, ``bias_grouping``, MDM
-    component names, an empty domain, ``tstart`` or ``tend`` off the ``flux_freq``
-    boundaries) raise ``ValueError`` at construction. Cached
+    Invalid choices (``flux_freq``, ``background``, ``prior``, ``bias_grouping``,
+    ``bias_freq``, a negative or non-finite ``bias_std``, MDM component names, an empty
+    domain, ``tstart`` or ``tend`` off the ``flux_freq`` or ``bias_freq`` boundaries)
+    raise ``ValueError`` at construction. Cached
     components are keyed on the fields each one depends on (see
     :mod:`slv.inversion.cache`), so changing a field's default spelling forces a rebuild.
 
@@ -290,11 +350,18 @@ class InversionConfig:
         e-folding distance of the prior error correlation, km.
     mdm_config : dict
         Overrides of :data:`DEFAULT_MDM_CONFIG`, by component name.
-    bias_std : float, optional
-        Prior std of the bias states (ppm); ``None`` leaves the bias block out.
+    bias_std : float or pd.Series, optional
+        Prior std of the bias states (ppm); ``None`` leaves the bias block out. A
+        Series (or a dict) gives one std per bias interval, indexed by the interval's
+        start (a day for ``bias_freq="D"``); every interval that has obs needs one, or
+        :func:`~slv.inversion.pipelines.build_problem` raises. Extra entries are
+        ignored. The offsets are independent: no correlation between intervals.
     bias_grouping : str, optional
-        ``None`` / ``"time"`` (one bias per interval), ``"site"`` or ``"site_group"``
-        (per interval and site or organization).
+        ``None`` / ``"time"`` (one bias per interval, shared by every site), ``"site"``
+        or ``"site_group"`` (per interval and site or organization).
+    bias_freq : str, optional
+        The bias interval, one of the ``flux_freq`` choices (``"D"`` for one offset a
+        day); ``None`` uses ``flux_freq``. See :attr:`bias_time_bins`.
     jacobian_coverage_percentile : float, optional
         Hold the least-constrained cells (below this percentile of mean Jacobian
         sensitivity) at the prior. ``None`` keeps every cell.
@@ -407,6 +474,11 @@ class InversionConfig:
             raise ValueError(
                 f"bias_grouping={self.bias_grouping!r}; expected one of {BIAS_GROUPINGS}"
             )
+        if self.bias_freq is not None and self.bias_freq not in FLUX_FREQ_TIME_STEPS:
+            raise ValueError(
+                f"bias_freq={self.bias_freq!r}; supported: None (flux_freq) or "
+                f"{list(FLUX_FREQ_TIME_STEPS)}"
+            )
         if self.background not in BACKGROUNDS:
             raise ValueError(
                 f"background={self.background!r}; expected one of {BACKGROUNDS}"
@@ -419,12 +491,15 @@ class InversionConfig:
         if not (self.xmin < self.xmax and self.ymin < self.ymax):
             raise ValueError(f"empty domain: {self.bbox}")
         _ = self.flux_time_bins  # raises when they would not cover tstart..tend
+        _ = self.bias_time_bins
 
     #: Derived values cached on first access; setting any field drops them, so a config
     #: changed after use (a sweep, a notebook) never serves a stale grid or MDM list.
     _DERIVED = ("grid", "state_grid", "grid_coords", "mdm_components", "site_config")
 
     def __setattr__(self, name, value):
+        if name == "bias_std":
+            value = _as_bias_std(value)
         super().__setattr__(name, value)
         if name in self.__dataclass_fields__:
             for attr in self._DERIVED:
@@ -436,13 +511,16 @@ class InversionConfig:
         return get_mdm_comp_configs(self.mdm_config)
 
     # --- Bias ---
-    # Set bias_std to enable the bias block.
-    bias_std: float | None = None  # Prior std-dev for each bias state (None = disabled)
+    # Set bias_std to enable the bias block: one std for every bias state, or a Series
+    # of std by bias interval start (None = disabled).
+    bias_std: float | pd.Series | None = None
     # Bias grouping strategy:
-    #   None or "time": one bias per time interval
+    #   None or "time": one bias per time interval, shared by every site
     #   "site": one bias per (time, obs_location)
     #   "site_group": one bias per (time, organization)
     bias_grouping: str | None = None
+    # Bias interval; None = flux_freq. "D" gives one offset a day.
+    bias_freq: str | None = None
 
     # --- Jacobian Coverage Filter ---
     # Percentile threshold for Jacobian coverage filtering.  Per-cell coverage
@@ -656,20 +734,43 @@ class InversionConfig:
         >>> [str(b.left.date()) for b in config.flux_time_bins]
         ['2016-01-01', '2017-01-01']
         """
-        t0, t1 = self.time_range
-        bins = pd.interval_range(start=t0, end=t1, freq=self.flux_freq, closed="left")
-        if len(bins) and bins[0].left == t0 and bins[-1].right == t1:
-            return bins
-        covered = (
-            f"would cover {bins[0].left} to {bins[-1].right}"
-            if len(bins)
-            else "would be empty"
-        )
-        raise ValueError(
-            f"tstart={t0} and tend={t1} must be on flux_freq={self.flux_freq!r} "
-            f"boundaries: its whole periods {covered}, and the obs outside them would "
-            "have no flux to fit."
-        )
+        return _whole_periods(*self.time_range, "flux_freq", self.flux_freq, "flux")
+
+    @property
+    def bias_time_bins(self) -> pd.IntervalIndex:
+        """
+        The bias intervals: whole ``bias_freq`` periods from ``tstart`` to ``tend``.
+
+        :attr:`flux_time_bins` when ``bias_freq`` is ``None``. The bias block has one
+        offset per interval that has obs (per site or organization with
+        ``bias_grouping``), labeled by the interval's start, which is what a
+        per-interval ``bias_std`` Series is indexed by.
+
+        Raises
+        ------
+        ValueError
+            If ``tstart`` or ``tend`` is not on a ``bias_freq`` boundary.
+
+        See Also
+        --------
+        flux_time_bins : The flux intervals.
+
+        Examples
+        --------
+        One offset a day under monthly fluxes:
+
+        >>> from slv.inversion import InversionConfig
+        >>> config = InversionConfig(
+        ...     tstart="2020-01-01", tend="2020-02-01", flux_freq="MS", bias_freq="D"
+        ... )
+        >>> len(config.bias_time_bins), str(config.bias_time_bins[0].left.date())
+        (31, '2020-01-01')
+        >>> len(InversionConfig(tstart="2020-01-01", tend="2020-02-01").bias_time_bins)
+        1
+        """
+        if self.bias_freq is None:
+            return self.flux_time_bins
+        return _whole_periods(*self.time_range, "bias_freq", self.bias_freq, "bias")
 
     @property
     def flux_times(self) -> pd.DatetimeIndex:

@@ -14,7 +14,7 @@ from slv.inversion import mdm, pipelines
 from slv.inversion.cache import _pkg_rev, _version_tag, fips_cache
 from slv.inversion.config import InversionConfig
 from slv.inversion.coverage import check_state_cells
-from slv.inversion.pipelines import build_problem, get_bias, obs_sites
+from slv.inversion.pipelines import build_problem, get_bias, get_bias_std, obs_sites
 
 from .conftest import (
     LATS,
@@ -249,6 +249,79 @@ def test_site_bias_maps_receptors_to_the_mobile_site():
     assert frame[(june, "wbb")].tolist() == [1.0, 0.0]
 
 
+class TestDailySharedBias:
+    """``bias_freq="D"`` with the default grouping: one offset a day for every site."""
+
+    @staticmethod
+    def cfg(**kwargs):
+        settings = dict(
+            sites=["wbb", "trx01"],
+            tstart="2024-06-01",
+            tend="2024-07-01",
+            bias_freq="D",
+        )
+        return config(**(settings | kwargs))
+
+    SPACE = obs_space(
+        ["wbb", "multi_aaaaaaaaaa", "wbb", "multi_aaaaaaaaaa"],
+        [
+            "2024-06-02 20:00",
+            "2024-06-02 20:13",
+            "2024-06-03 21:00",
+            "2024-06-05 19:00",
+        ],
+    )
+
+    def test_one_column_per_day_with_obs_and_1_for_every_obs_that_day(self):
+        frame = bias_frame(self.cfg(), self.SPACE)
+        days = pd.to_datetime(["2024-06-02", "2024-06-03", "2024-06-05"])
+        assert list(frame.columns) == list(days)
+        assert frame.columns.name == "obs_time"
+        # the tower and the TRAX receptor share the offset of 2024-06-02
+        expected = [[1, 0, 0], [1, 0, 0], [0, 1, 0], [0, 0, 1]]
+        np.testing.assert_array_equal(frame.to_numpy(), expected)
+
+    def test_bias_freq_none_is_the_flux_interval(self):
+        default = bias_frame(self.cfg(bias_freq=None), self.SPACE)
+        monthly = bias_frame(self.cfg(bias_freq="MS"), self.SPACE)
+        pd.testing.assert_frame_equal(default, monthly)
+        assert list(default.columns) == [pd.Timestamp("2024-06-01")]
+
+    def test_a_std_per_day_goes_to_each_day_with_obs(self):
+        days = pd.date_range("2024-06-01", "2024-06-30")
+        std = pd.Series(np.arange(len(days)) * 0.001 + 0.01, index=days)
+        cfg = self.cfg(bias_std=std)
+        prior, _ = get_bias(cfg, self.SPACE)
+        got = get_bias_std(cfg, prior)
+        assert got.index.equals(prior.space.select("bias"))
+        np.testing.assert_allclose(got, [0.011, 0.012, 0.014])
+
+    def test_one_std_is_returned_as_given(self):
+        cfg = self.cfg(bias_std=0.03)
+        prior, _ = get_bias(cfg, self.SPACE)
+        assert get_bias_std(cfg, prior) == 0.03
+
+    def test_a_day_with_obs_and_no_std_raises(self):
+        std = pd.Series(0.01, index=pd.to_datetime(["2024-06-02", "2024-06-03"]))
+        cfg = self.cfg(bias_std=std)
+        prior, _ = get_bias(cfg, self.SPACE)
+        with pytest.raises(ValueError, match=r"no std for 1 bias interval.*2024-06-05"):
+            get_bias_std(cfg, prior)
+
+    def test_per_site_offsets_take_their_day_std(self):
+        std = pd.Series(
+            [0.01, 0.02, 0.03],
+            index=pd.to_datetime(["2024-06-02", "2024-06-03", "2024-06-05"]),
+        )
+        cfg = self.cfg(bias_std=std, bias_grouping="site")
+        prior, _ = get_bias(cfg, self.SPACE)
+        got = get_bias_std(cfg, prior)
+        assert got.xs(pd.Timestamp("2024-06-02"), level="obs_time").tolist() == [
+            0.01,
+            0.01,
+        ]
+
+
 # ---------------------------------------------------------------------------
 # State cells: prior vs Jacobian columns
 # ---------------------------------------------------------------------------
@@ -369,6 +442,86 @@ def test_the_bias_block_joins_the_state(synthetic):
     assert len(problem.prior["bias"]) == 2  # the two months with obs
     np.testing.assert_allclose(problem.prior_cov["bias", "bias"].dense(), 0.0)
     assert (problem.forward["concentration", "bias"].dense().sum(axis=1) == 1).all()
+
+
+def _dense_parts(problem):
+    """Every array of a problem, for comparing two problems exactly."""
+    return {
+        "prior": problem.prior.values,
+        "prior_cov": np.asarray(problem.prior_cov.dense()),
+        "obs": problem.obs.values,
+        "obs_cov": np.asarray(problem.obs_cov.dense()),
+        "forward": np.asarray(problem.forward.dense()),
+        "offset": problem.offset.values,
+        "state": problem.prior.space.index,
+        "obs_labels": problem.obs.space.index,
+    }
+
+
+@pytest.mark.parametrize("grouping", [None, "time", "site", "site_group"])
+def test_an_existing_bias_config_builds_the_same_problem(synthetic, grouping):
+    # bias_freq left out is the flux interval: the problem is the one built with the
+    # flux bins and one std for every offset, as before bias_freq existed
+    import fips
+    from fips import Covariance, Independent
+
+    cfg = synthetic(bias_std=0.5, bias_grouping=grouping)
+    problem = build_problem(cfg)
+    same = build_problem(
+        synthetic(bias_std=0.5, bias_grouping=grouping, bias_freq="MS")
+    )
+    for name, value in _dense_parts(problem).items():
+        other = _dense_parts(same)[name]
+        if isinstance(value, pd.Index):
+            assert value.equals(other), name
+        else:
+            np.testing.assert_array_equal(value, other, err_msg=name)
+    bias = problem.prior.space.select("bias")
+    assert list(bias.get_level_values("obs_time").unique()) == list(
+        pd.to_datetime(["2020-01-01", "2020-02-01"])
+    )
+    np.testing.assert_array_equal(
+        problem.prior_cov["bias", "bias"].variances.values, 0.25
+    )
+    # the forward block is fips's offset block on the flux intervals
+    if grouping in (None, "time"):
+        _, expected = fips.offset_block(
+            problem.obs.space, by=[cfg.flux_time_bins.rename("obs_time")], block="bias"
+        )
+        np.testing.assert_array_equal(
+            problem.forward["concentration", "bias"].dense(), expected.dense()
+        )
+        model = Covariance.block_diag(
+            flux=problem.prior_cov["flux", "flux"], bias=Independent().with_std(0.5)
+        )
+        np.testing.assert_array_equal(
+            problem.prior_cov.dense(), model.build(problem.prior.space).dense()
+        )
+
+
+def test_a_daily_shared_offset_with_a_std_per_day(synthetic):
+    days = pd.to_datetime(["2020-01-05", "2020-01-06", "2020-01-07", "2020-02-05"])
+    std = pd.Series([0.01, 0.02, 0.03, 0.04], index=days)
+    problem = build_problem(synthetic(bias_std=std, bias_freq="D", aggregate_obs="1D"))
+    # the days left with obs (one obs has no background, one no footprint)
+    kept = pd.to_datetime(["2020-01-05", "2020-01-06", "2020-02-05"])
+    assert list(problem.prior.space.select("bias")) == list(kept)
+    np.testing.assert_allclose(
+        problem.prior_cov["bias", "bias"].dense(), np.diag([0.01, 0.02, 0.04]) ** 2
+    )
+    np.testing.assert_array_equal(problem.prior_cov["flux", "bias"].dense(), 0.0)
+    # each daily obs has 1 for its own day's offset
+    obs_days = problem.obs.space.select("concentration").get_level_values("obs_time")
+    H = problem.forward["concentration", "bias"].dense()
+    np.testing.assert_array_equal(
+        H, (obs_days.values[:, None] == kept.values).astype(float)
+    )
+
+
+def test_a_daily_offset_missing_a_std_raises_before_the_solve(synthetic):
+    std = pd.Series(0.01, index=pd.to_datetime(["2020-01-05", "2020-02-05"]))
+    with pytest.raises(ValueError, match="no std for 1 bias interval"):
+        build_problem(synthetic(bias_std=std, bias_freq="D"))
 
 
 def test_the_obs_are_averaged_to_days(synthetic):

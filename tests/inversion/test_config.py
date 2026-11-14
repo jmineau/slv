@@ -96,6 +96,42 @@ class TestInversionConfigDefaults:
         config = InversionConfig()
         assert config.bias_std is None
 
+    def test_bias_freq_is_none_by_default(self):
+        config = InversionConfig()
+        assert config.bias_freq is None
+        assert config.bias_time_bins.equals(config.flux_time_bins)
+
+
+class TestBiasStd:
+    def test_one_std_is_kept_as_given(self):
+        assert InversionConfig(bias_std=1).bias_std == 1
+        assert type(InversionConfig(bias_std=1).bias_std) is int
+
+    def test_a_dict_becomes_a_series_by_interval_start(self):
+        config = InversionConfig(bias_std={"2020-01-02": 0.02, "2020-01-01": 0.01})
+        std = config.bias_std
+        assert isinstance(std, pd.Series)
+        assert list(std.index) == list(pd.to_datetime(["2020-01-01", "2020-01-02"]))
+        assert std.index.name == "obs_time"
+        assert std.tolist() == [0.01, 0.02]
+
+    def test_the_callers_series_is_not_changed(self):
+        given = pd.Series([0.02, 0.01], index=["2020-01-02", "2020-01-01"])
+        InversionConfig(bias_std=given)
+        assert list(given.index) == ["2020-01-02", "2020-01-01"]
+
+    def test_setting_it_later_is_checked_too(self):
+        config = InversionConfig()
+        config.bias_std = {"2020-01-01": 0.01}
+        assert isinstance(config.bias_std, pd.Series)
+        with pytest.raises(ValueError, match="not negative"):
+            config.bias_std = -1.0
+
+    def test_a_start_given_twice_raises(self):
+        index = pd.to_datetime(["2020-01-01", "2020-01-01"])
+        with pytest.raises(ValueError, match="twice"):
+            InversionConfig(bias_std=pd.Series([0.01, 0.02], index=index))
+
 
 def test_default_tiler_survives_a_race_for_the_cache_folder(tmp_path, monkeypatch):
     """
@@ -340,6 +376,18 @@ def test_config_stilt_project_follows_the_variable(monkeypatch):
         {"mdm_config": {"transport_pbl": {"std": 0.1}}},
         {"dx": 0.0},
         {"xmin": -111.0, "xmax": -112.0},
+        {"bias_freq": "W"},
+        {"bias_std": -0.1},
+        {"bias_std": float("nan")},
+        {"bias_std": {"2020-01-01": 0.01, "2020-01-02": float("nan")}},
+        {"bias_std": {"2020-01-01": 0.01, "2020-01-02": -0.01}},
+        # daily fluxes from mid-January, monthly offsets: not whole months
+        {
+            "flux_freq": "D",
+            "tstart": "2020-01-15",
+            "tend": "2020-02-01",
+            "bias_freq": "MS",
+        },
     ],
 )
 def test_invalid_settings_fail_at_construction(bad):

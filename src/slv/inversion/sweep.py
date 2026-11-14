@@ -81,6 +81,10 @@ Pipeline = Callable[[InversionConfig], Posterior]
 
 logger = logging.getLogger(__name__)
 
+#: Fields added after sweeps were run, left out of config_id while at their default, so
+#: a config that does not use them keeps the id it had before they existed.
+_LATER_FIELD_DEFAULTS: dict[str, Any] = {"bias_freq": None}
+
 # Fields excluded from config_id and swept_params capture (non-scientific)
 _NON_SCIENTIFIC_FIELDS = frozenset(
     {
@@ -130,9 +134,16 @@ _RESULT_COLUMNS = (
 
 
 def _to_json(v: Any) -> Any:
-    """Recursively convert a value to a JSON-serializable form."""
+    """
+    Recursively convert a value to a JSON-serializable form.
+
+    A Series (a per-interval ``bias_std``) becomes a dict of its values by label, so
+    the id sees every value and a grid or results CSV gives it back.
+    """
     if isinstance(v, (str, int, float, bool, type(None))):
         return v
+    if isinstance(v, pd.Series):
+        return {str(k): float(x) for k, x in v.items()}
     if isinstance(v, (list, tuple)):
         return [_to_json(i) for i in v]
     if isinstance(v, dict):
@@ -154,7 +165,7 @@ def _cfg_columns(config: InversionConfig, swept_params: list[str] | None) -> dic
     cols = {}
     for p in swept_params:
         val = getattr(config, p, None)
-        if isinstance(val, (dict, list)):
+        if isinstance(val, (dict, list, pd.Series)):
             val = json.dumps(_to_json(val), sort_keys=True)
         cols[f"cfg_{p}"] = val
     return cols
@@ -226,13 +237,18 @@ def config_id(config: InversionConfig) -> str:
     Return a stable 16-char hex identifier for a config.
 
     Excludes non-scientific fields (cache paths, plotting flags, etc.) so that
-    changing only where to write outputs does not produce a new ID.
+    changing only where to write outputs does not produce a new ID, and a field added
+    later while it is at its default (``_LATER_FIELD_DEFAULTS``), so that a config that
+    does not use it keeps the ID it had before.
     """
     fields = {
         f.name: getattr(config, f.name)
         for f in dataclasses.fields(config)
         if f.name not in _NON_SCIENTIFIC_FIELDS
     }
+    for name, default in _LATER_FIELD_DEFAULTS.items():
+        if fields[name] == default:
+            del fields[name]
     serialized = json.dumps(_to_json(fields), sort_keys=True)
     return hashlib.sha256(serialized.encode()).hexdigest()[:16]
 
