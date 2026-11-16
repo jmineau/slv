@@ -19,7 +19,7 @@ import pandas as pd
 import scipy.sparse as sp
 from fips import Covariance, Independent, Operator, Posterior, Problem, Space, Vector
 
-from slv.inversion import report
+from slv.inversion import provenance, report
 from slv.inversion.background import get_slv_background
 from slv.inversion.cache import fips_cache
 from slv.inversion.config import InversionConfig
@@ -718,7 +718,11 @@ def run(config: InversionConfig, problem: Problem | None = None) -> Posterior:
     Returns
     -------
     Posterior
-        The solution; ``post.problem`` is the problem that was solved.
+        The solution; ``post.problem`` is the problem that was solved. Its ``attrs``
+        is :func:`~slv.inversion.provenance.record` of ``config``: the versions of
+        slv, fips, pystilt, lair and uataq, and the config as JSON. fips's Posterior
+        has no ``attrs``; this one is slv's, so it is not kept by pickling the
+        posterior or by ``with_gamma`` and ``with_data``.
     """
     total_start = time.perf_counter()
     print("Getting problem inputs...")
@@ -747,6 +751,9 @@ def run(config: InversionConfig, problem: Problem | None = None) -> Posterior:
     else:
         post = fips.solve(solved, gamma=config.gamma)
     print(f"Solve completed in {time.perf_counter() - step_start:.2f}s")
+    # fips's Posterior has no place for metadata, so ``attrs`` is slv's own attribute
+    # pyrefly: ignore[missing-attribute]
+    post.attrs = provenance.record(config)
 
     print("Calculating summary...")
     step_start = time.perf_counter()

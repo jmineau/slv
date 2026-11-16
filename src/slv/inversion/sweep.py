@@ -74,6 +74,7 @@ from joblib import Parallel, delayed
 
 from slv.inversion import pipelines
 from slv.inversion.config import InversionConfig
+from slv.inversion.provenance import VERSION_COLUMNS, _to_json, version_columns
 from slv.inversion.report import calculate_total_flux, fit_metrics
 
 #: A pipeline: the function that solves one config, as :func:`~slv.inversion.pipelines.run`.
@@ -125,30 +126,13 @@ _RESULT_COLUMNS = (
     "posterior_enh_corr2",
     "n_obs",
     "n_state",
+    *VERSION_COLUMNS,
 )
 
 
 # ---------------------------------------------------------------------------
 # Serialization helpers
 # ---------------------------------------------------------------------------
-
-
-def _to_json(v: Any) -> Any:
-    """
-    Recursively convert a value to a JSON-serializable form.
-
-    A Series (a per-interval ``bias_std``) becomes a dict of its values by label, so
-    the id sees every value and a grid or results CSV gives it back.
-    """
-    if isinstance(v, (str, int, float, bool, type(None))):
-        return v
-    if isinstance(v, pd.Series):
-        return {str(k): float(x) for k, x in v.items()}
-    if isinstance(v, (list, tuple)):
-        return [_to_json(i) for i in v]
-    if isinstance(v, dict):
-        return {k: _to_json(vv) for k, vv in sorted(v.items())}
-    return str(v)
 
 
 def _cfg_columns(config: InversionConfig, swept_params: list[str] | None) -> dict:
@@ -176,7 +160,7 @@ def _error_row(
 ) -> dict[str, Any]:
     """A results row for a failed run: the full column set with empty metrics."""
     row: dict[str, Any] = dict.fromkeys(_RESULT_COLUMNS)
-    row.update(config_id=cid, error=str(exc))
+    row.update(config_id=cid, error=str(exc), **version_columns())
     row.update(_cfg_columns(config, swept_params))
     return row
 
@@ -676,6 +660,7 @@ def collect_metrics(
     metrics: dict[str, Any] = dict.fromkeys(_RESULT_COLUMNS)
     metrics |= {
         "config_id": config_id(config),
+        **version_columns(),
         # Primary chi² metric — target ≈ 1.0
         "reduced_chi2": float(post.reduced_chi2),
         "chi2_distance": abs(float(post.reduced_chi2) - 1.0),

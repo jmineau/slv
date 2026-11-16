@@ -108,6 +108,10 @@ What each CI workflow does, the pixi job and the monthly `pixi update` are in
   `build_problem` composes the `get_*` components into a `fips.Problem`, and `run`
   solves it with `fips.solve`. A new variant composes its own `build_problem` from the
   same functions; the cached components keep their names and keys.
+- **A result records what made it** (`inversion/provenance.py`): `run` sets `post.attrs`
+  (slv's own attribute: fips's `Posterior` has none, and pickling drops it) to the five
+  package versions and the config as JSON; sweep rows get `<package>_version` columns.
+  They stay out of the cache keys and `config_id`.
 - **Labels are matched exactly.** fips 0.2 joins labels exactly and never rounds them;
   `build_problem` rounds the float labels of the prior and the Jacobian's columns to
   `LABEL_DECIMALS` (6) so the regridded prior's cells meet the Jacobian's.
