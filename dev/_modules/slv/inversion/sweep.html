@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../_static/documentation_options.js?v=004871f3"></script>
+    <script src="../../../_static/documentation_options.js?v=56eb70cd"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -59,7 +59,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.11.2.dev3+g6b21dba0a" />
+  <meta name="docsearch:version" content="2026.11.2.dev4+g9710d9765" />
   
     
     <script src="../../../_static/searchtools.js"></script>
@@ -507,6 +507,7 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">slv.inversion</span><span class="w"> </span><span class="kn">import</span> <span class="n">pipelines</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">slv.inversion.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">InversionConfig</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">slv.inversion.provenance</span><span class="w"> </span><span class="kn">import</span> <span class="n">VERSION_COLUMNS</span><span class="p">,</span> <span class="n">_to_json</span><span class="p">,</span> <span class="n">version_columns</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">slv.inversion.report</span><span class="w"> </span><span class="kn">import</span> <span class="n">calculate_total_flux</span><span class="p">,</span> <span class="n">fit_metrics</span>
 
 <span class="c1">#: A pipeline: the function that solves one config, as :func:`~slv.inversion.pipelines.run`.</span>
@@ -558,30 +559,13 @@
     <span class="s2">"posterior_enh_corr2"</span><span class="p">,</span>
     <span class="s2">"n_obs"</span><span class="p">,</span>
     <span class="s2">"n_state"</span><span class="p">,</span>
+    <span class="o">*</span><span class="n">VERSION_COLUMNS</span><span class="p">,</span>
 <span class="p">)</span>
 
 
 <span class="c1"># ---------------------------------------------------------------------------</span>
 <span class="c1"># Serialization helpers</span>
 <span class="c1"># ---------------------------------------------------------------------------</span>
-
-
-<span class="k">def</span><span class="w"> </span><span class="nf">_to_json</span><span class="p">(</span><span class="n">v</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""</span>
-<span class="sd">    Recursively convert a value to a JSON-serializable form.</span>
-
-<span class="sd">    A Series (a per-interval ``bias_std``) becomes a dict of its values by label, so</span>
-<span class="sd">    the id sees every value and a grid or results CSV gives it back.</span>
-<span class="sd">    """</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">bool</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="kc">None</span><span class="p">))):</span>
-        <span class="k">return</span> <span class="n">v</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">{</span><span class="nb">str</span><span class="p">(</span><span class="n">k</span><span class="p">):</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">v</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)):</span>
-        <span class="k">return</span> <span class="p">[</span><span class="n">_to_json</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">v</span><span class="p">]</span>
-    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
-        <span class="k">return</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">_to_json</span><span class="p">(</span><span class="n">vv</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">vv</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">items</span><span class="p">())}</span>
-    <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_cfg_columns</span><span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="n">InversionConfig</span><span class="p">,</span> <span class="n">swept_params</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
@@ -609,7 +593,7 @@
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">"""A results row for a failed run: the full column set with empty metrics."""</span>
     <span class="n">row</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="n">_RESULT_COLUMNS</span><span class="p">)</span>
-    <span class="n">row</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">config_id</span><span class="o">=</span><span class="n">cid</span><span class="p">,</span> <span class="n">error</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">))</span>
+    <span class="n">row</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">config_id</span><span class="o">=</span><span class="n">cid</span><span class="p">,</span> <span class="n">error</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">),</span> <span class="o">**</span><span class="n">version_columns</span><span class="p">())</span>
     <span class="n">row</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">_cfg_columns</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">swept_params</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">row</span>
 
@@ -1123,6 +1107,7 @@
     <span class="n">metrics</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="n">_RESULT_COLUMNS</span><span class="p">)</span>
     <span class="n">metrics</span> <span class="o">|=</span> <span class="p">{</span>
         <span class="s2">"config_id"</span><span class="p">:</span> <span class="n">config_id</span><span class="p">(</span><span class="n">config</span><span class="p">),</span>
+        <span class="o">**</span><span class="n">version_columns</span><span class="p">(),</span>
         <span class="c1"># Primary chi² metric — target ≈ 1.0</span>
         <span class="s2">"reduced_chi2"</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">post</span><span class="o">.</span><span class="n">reduced_chi2</span><span class="p">),</span>
         <span class="s2">"chi2_distance"</span><span class="p">:</span> <span class="nb">abs</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">post</span><span class="o">.</span><span class="n">reduced_chi2</span><span class="p">)</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">),</span>

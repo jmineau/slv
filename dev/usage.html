@@ -41,7 +41,7 @@
   <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="_static/documentation_options.js?v=004871f3"></script>
+    <script src="_static/documentation_options.js?v=56eb70cd"></script>
     <script src="_static/doctools.js?v=fd6eb6e6"></script>
     <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="_static/clipboard.min.js?v=a7894cd8"></script>
@@ -62,7 +62,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.11.2.dev3+g6b21dba0a" />
+  <meta name="docsearch:version" content="2026.11.2.dev4+g9710d9765" />
   
     
     <script src="_static/searchtools.js"></script>
@@ -570,19 +570,35 @@ offset is labeled by its interval’s start. The posterior offsets are
 <code class="docutils literal notranslate"><span class="pre">post.estimate.to_series(&quot;bias&quot;)</span></code>.</p>
 <p>Building the Jacobian reads every footprint in the period: run it through SLURM, not
 on a login node.</p>
-<p>Two things to know before running the block above as a script:</p>
-<ul class="simple">
-<li><p>The default prior, <code class="docutils literal notranslate"><span class="pre">prior=&quot;epa&quot;</span></code> (and <code class="docutils literal notranslate"><span class="pre">&quot;edgar&quot;</span></code>), is regridded with <code class="docutils literal notranslate"><span class="pre">xesmf</span></code>, which
-only the pixi environment has (see <a class="reference internal" href="installation.html"><span class="doc">Installation</span></a>): run it with
-<code class="docutils literal notranslate"><span class="pre">pixi</span> <span class="pre">run</span> <span class="pre">python</span> <span class="pre">script.py</span></code>. In the <code class="docutils literal notranslate"><span class="pre">uv</span> <span class="pre">sync</span></code> environment the run stops at the
-prior with <code class="docutils literal notranslate"><span class="pre">ModuleNotFoundError:</span> <span class="pre">No</span> <span class="pre">module</span> <span class="pre">named</span> <span class="pre">'xesmf'</span></code>; <code class="docutils literal notranslate"><span class="pre">prior=&quot;constant&quot;</span></code>
-(<code class="docutils literal notranslate"><span class="pre">prior_kwargs={&quot;value&quot;:</span> <span class="pre">...}</span></code>) needs none.</p></li>
-<li><p>Python 3.14 and later start worker processes by spawning a fresh interpreter that
-imports the script again. With <code class="docutils literal notranslate"><span class="pre">num_processes</span></code> above 1 (the default is 8), put the
-config and the <code class="docutils literal notranslate"><span class="pre">run</span></code> call under <code class="docutils literal notranslate"><span class="pre">if</span> <span class="pre">__name__</span> <span class="pre">==</span> <span class="pre">&quot;__main__&quot;:</span></code>; without it every
-worker repeats the run and the obs load as “No data loaded”. Python 3.13 and earlier
-fork on Linux and do not need it (checked on 3.12).</p></li>
-</ul>
+<section id="which-code-made-a-result">
+<h3>Which code made a result<a class="headerlink" href="#which-code-made-a-result" title="Link to this heading">#</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">run</span></code> records the versions of slv, fips, pystilt, lair and uataq that solved the
+inversion, and the whole config, in <code class="docutils literal notranslate"><span class="pre">post.attrs</span></code>: a dict of strings, with the keys
+<code class="docutils literal notranslate"><span class="pre">slv_version</span></code>, <code class="docutils literal notranslate"><span class="pre">fips_version</span></code>, <code class="docutils literal notranslate"><span class="pre">pystilt_version</span></code>, <code class="docutils literal notranslate"><span class="pre">lair_version</span></code>,
+<code class="docutils literal notranslate"><span class="pre">uataq_version</span></code> and <code class="docutils literal notranslate"><span class="pre">config</span></code> (the config as JSON, every field except the map
+tiler). The versions are those of the installed packages; for an editable install
+(<code class="docutils literal notranslate"><span class="pre">uv</span> <span class="pre">sync</span></code>, <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-e</span></code>) that is the version at the last install, so reinstall
+after a new tag.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">post</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"slv_version"</span><span class="p">]</span>  <span class="c1"># e.g. "2026.11.1"</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="n">fields</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">post</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"config"</span><span class="p">])</span>
+<span class="n">fields</span><span class="p">[</span><span class="s2">"prior_base_std"</span><span class="p">]</span>
+
+<span class="c1"># the same keys as netCDF attributes of the estimate</span>
+<span class="n">est</span> <span class="o">=</span> <span class="n">post</span><span class="o">.</span><span class="n">estimate</span><span class="o">.</span><span class="n">to_xarray</span><span class="p">()</span>  <span class="c1"># a DataArray, or a Dataset with several blocks</span>
+<span class="n">est</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">post</span><span class="o">.</span><span class="n">attrs</span><span class="p">)</span>
+<span class="n">est</span><span class="o">.</span><span class="n">to_netcdf</span><span class="p">(</span><span class="s2">"estimate.nc"</span><span class="p">)</span>
+
+<span class="n">config</span> <span class="o">=</span> <span class="n">InversionConfig</span><span class="p">(</span><span class="o">**</span><span class="n">fields</span><span class="p">)</span>  <span class="c1"># the config again</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">attrs</span></code> is slv’s own attribute on the fips <code class="docutils literal notranslate"><span class="pre">Posterior</span></code> (fips gives it none), so
+pickling a posterior drops it, and so does <code class="docutils literal notranslate"><span class="pre">post.with_gamma(...)</span></code>: write it out beside
+the result, as above, when you save one. A DataArray’s attributes are those of its
+variable in the file (<code class="docutils literal notranslate"><span class="pre">xarray.open_dataset(&quot;estimate.nc&quot;)[&quot;flux&quot;].attrs</span></code>).</p>
+<p>The versions are not part of the cache keys or of a config’s id, so recording them
+changes neither.</p>
+</section>
 </section>
 <section id="sweeping-hyperparameters">
 <h2>Sweeping hyperparameters<a class="headerlink" href="#sweeping-hyperparameters" title="Link to this heading">#</a></h2>
@@ -603,6 +619,10 @@ values, sharing the cache, and collects the fit metrics.</p>
 <p>For a SLURM job array, write the grid with <code class="docutils literal notranslate"><span class="pre">sweep.run(results_dir,</span> <span class="pre">n_jobs=0)</span></code> and
 call <a class="reference internal" href="_autosummary/slv.inversion.sweep.run_sweep_job.html#slv.inversion.sweep.run_sweep_job" title="slv.inversion.sweep.run_sweep_job"><code class="xref py py-func docutils literal notranslate"><span class="pre">run_sweep_job()</span></code></a> in each array task; it runs the config
 at <code class="docutils literal notranslate"><span class="pre">$SLURM_ARRAY_TASK_ID</span></code>.</p>
+<p>Every row of <code class="docutils literal notranslate"><span class="pre">sweep_results.csv</span></code> also has the versions of slv, fips, pystilt, lair and
+uataq that made it, in the columns <code class="docutils literal notranslate"><span class="pre">slv_version</span></code>, <code class="docutils literal notranslate"><span class="pre">fips_version</span></code> and so on. A config’s
+id holds no version, so <code class="docutils literal notranslate"><span class="pre">resume=True</span></code> skips a finished config whichever release made it;
+the columns say which. Rows from a CSV written before the columns existed have none.</p>
 </section>
 <section id="trax-receptors">
 <h2>TRAX receptors<a class="headerlink" href="#trax-receptors" title="Link to this heading">#</a></h2>
@@ -681,7 +701,10 @@ inversion reads them through <code class="docutils literal notranslate"><span cl
     <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#a-map-of-the-valley">A map of the valley</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#measurements">Measurements</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#a-methane-inversion">A methane inversion</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#a-methane-inversion">A methane inversion</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#which-code-made-a-result">Which code made a result</a></li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sweeping-hyperparameters">Sweeping hyperparameters</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#trax-receptors">TRAX receptors</a></li>
 </ul>

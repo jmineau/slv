@@ -135,18 +135,38 @@ offset is labeled by its interval's start. The posterior offsets are
 Building the Jacobian reads every footprint in the period: run it through SLURM, not
 on a login node.
 
-Two things to know before running the block above as a script:
+Which code made a result
+~~~~~~~~~~~~~~~~~~~~~~~~
 
-- The default prior, ``prior="epa"`` (and ``"edgar"``), is regridded with ``xesmf``, which
-  only the pixi environment has (see :doc:`installation`): run it with
-  ``pixi run python script.py``. In the ``uv sync`` environment the run stops at the
-  prior with ``ModuleNotFoundError: No module named 'xesmf'``; ``prior="constant"``
-  (``prior_kwargs={"value": ...}``) needs none.
-- Python 3.14 and later start worker processes by spawning a fresh interpreter that
-  imports the script again. With ``num_processes`` above 1 (the default is 8), put the
-  config and the ``run`` call under ``if __name__ == "__main__":``; without it every
-  worker repeats the run and the obs load as "No data loaded". Python 3.13 and earlier
-  fork on Linux and do not need it (checked on 3.12).
+``run`` records the versions of slv, fips, pystilt, lair and uataq that solved the
+inversion, and the whole config, in ``post.attrs``: a dict of strings, with the keys
+``slv_version``, ``fips_version``, ``pystilt_version``, ``lair_version``,
+``uataq_version`` and ``config`` (the config as JSON, every field except the map
+tiler). The versions are those of the installed packages; for an editable install
+(``uv sync``, ``pip install -e``) that is the version at the last install, so reinstall
+after a new tag.
+
+.. code-block:: python
+
+   post.attrs["slv_version"]  # e.g. "2026.11.1"
+   import json
+   fields = json.loads(post.attrs["config"])
+   fields["prior_base_std"]
+
+   # the same keys as netCDF attributes of the estimate
+   est = post.estimate.to_xarray()  # a DataArray, or a Dataset with several blocks
+   est.attrs.update(post.attrs)
+   est.to_netcdf("estimate.nc")
+
+   config = InversionConfig(**fields)  # the config again
+
+``attrs`` is slv's own attribute on the fips ``Posterior`` (fips gives it none), so
+pickling a posterior drops it, and so does ``post.with_gamma(...)``: write it out beside
+the result, as above, when you save one. A DataArray's attributes are those of its
+variable in the file (``xarray.open_dataset("estimate.nc")["flux"].attrs``).
+
+The versions are not part of the cache keys or of a config's id, so recording them
+changes neither.
 
 Sweeping hyperparameters
 ------------------------
@@ -170,6 +190,11 @@ values, sharing the cache, and collects the fit metrics.
 For a SLURM job array, write the grid with ``sweep.run(results_dir, n_jobs=0)`` and
 call :func:`~slv.inversion.sweep.run_sweep_job` in each array task; it runs the config
 at ``$SLURM_ARRAY_TASK_ID``.
+
+Every row of ``sweep_results.csv`` also has the versions of slv, fips, pystilt, lair and
+uataq that made it, in the columns ``slv_version``, ``fips_version`` and so on. A config's
+id holds no version, so ``resume=True`` skips a finished config whichever release made it;
+the columns say which. Rows from a CSV written before the columns existed have none.
 
 TRAX receptors
 --------------
