@@ -1,10 +1,15 @@
 """Tests for run and the plot hooks, on the made-up inversion of conftest.py."""
 
+import json
+from importlib.metadata import version
+
 import fips
 import numpy as np
 import pytest
+import xarray as xr
 
-from slv.inversion import pipelines, report
+from slv.inversion import pipelines, provenance, report
+from slv.inversion.config import InversionConfig
 from slv.inversion.coverage import covered_state
 
 
@@ -25,6 +30,27 @@ def test_run_builds_solves_and_summarizes(synthetic, steps):
     assert post.options.gamma == 1.0
     _, (cfg, summarized, problem) = steps[0]
     assert cfg is config and summarized is post and problem is post.problem
+
+
+def test_run_records_the_versions_and_the_config(synthetic, steps):
+    config = synthetic()
+    post = pipelines.run(config)
+    assert post.attrs == provenance.record(config)
+    assert post.attrs["slv_version"] == version("slv")
+
+
+def test_the_record_writes_to_netcdf_and_back(synthetic, steps, tmp_path):
+    config = synthetic(prior_base_std=0.02)
+    post = pipelines.run(config)
+
+    # one block gives a DataArray, whose attrs are its variable's in the file
+    est = post.estimate.to_xarray()
+    est.attrs.update(post.attrs)
+    est.to_netcdf(tmp_path / "estimate.nc")
+    with xr.open_dataset(tmp_path / "estimate.nc") as back:
+        assert dict(back["flux"].attrs) == post.attrs
+        stored = json.loads(back["flux"].attrs["config"])
+    assert InversionConfig(**stored).prior_base_std == 0.02
 
 
 def test_run_solves_the_problem_it_is_given(synthetic, steps):

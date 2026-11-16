@@ -12,7 +12,7 @@ import pandas as pd
 import pytest
 from fips import Independent, Operator, Problem, Vector
 
-from slv.inversion import pipelines, report, sweep
+from slv.inversion import pipelines, provenance, report, sweep
 from slv.inversion.cache import (
     DEFAULT_COMPONENT_DEPS,
     _component_hash,
@@ -26,6 +26,7 @@ from slv.inversion.sweep import (
     Sweep,
     SweepResults,
     _append_row,
+    _error_row,
     _to_json,
     collect_metrics,
     config_id,
@@ -274,6 +275,25 @@ class TestConfigId:
         )
         assert config_id(monthly_bias) == "4a3e1d0f5ae7c8aa"
         assert config_id(_cfg(bias_freq="D")) != config_id(_cfg())
+        # from main before the version columns (dicts, a list, a string and a float)
+        richer = _cfg(
+            sites=["wbb", "trx01"],
+            mdm_config={"transport": {"fraction": 0.6}},
+            background_kwargs={"a": 1},
+            prior_time_scale="16d",
+            gamma=2.0,
+            tstart="2016-01-01",
+            tend="2024-01-01",
+            flux_freq="MS",
+            aggregate_obs="1D",
+        )
+        assert config_id(richer) == "1aaf734f9acedc46"
+
+    def test_id_does_not_see_the_package_versions(self, monkeypatch):
+        # a sweep resumed on a newer release must still find its finished configs
+        before = config_id(_cfg())
+        monkeypatch.setattr(provenance, "version", lambda name: "9999.1.0")
+        assert config_id(_cfg()) == before
 
     def test_id_sees_every_value_of_a_std_series(self):
         # str() of a long Series elides the middle; the id must not
@@ -698,6 +718,35 @@ class TestResultRows:
         assert row["error"] is None
         assert row["n_state"] == 2  # one of the two cells left out in each month
         assert row["prior_flux_mean"] == pytest.approx(3.5)  # both cells
+
+
+class TestVersionColumns:
+    def test_a_result_row_has_the_versions(self, summing):
+        row = collect_metrics(_solved(), _cfg())
+        assert {k: row[k] for k in provenance.VERSION_COLUMNS} == (
+            provenance.version_columns()
+        )
+
+    def test_an_error_row_has_them_too(self):
+        row = _error_row("abc", RuntimeError("boom"), _cfg(), None)
+        assert {k: row[k] for k in provenance.VERSION_COLUMNS} == (
+            provenance.version_columns()
+        )
+
+    def test_resumed_sweep_keeps_old_rows_without_versions(self, tmp_path):
+        # a CSV written before the columns existed: its rows stay, with no version
+        csv_path = tmp_path / "sweep_results.csv"
+        pd.DataFrame([{"config_id": "old", "reduced_chi2": 1.0}]).to_csv(
+            csv_path, index=False
+        )
+        row = {"config_id": "new", "reduced_chi2": 1.1, **provenance.version_columns()}
+        _append_row(csv_path, row)
+        df = pd.read_csv(csv_path)
+        assert df["config_id"].tolist() == ["old", "new"]
+        assert df["slv_version"].isna().tolist() == [True, False]
+        assert (
+            df["uataq_version"].iloc[1] == provenance.version_columns()["uataq_version"]
+        )
 
 
 class TestAppendRow:

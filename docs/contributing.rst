@@ -210,6 +210,8 @@ and pipeline internals, in one place.
       viz.py           inversion-specific plotting; plot_flux_maps (the
                        prior/posterior/difference maps)
       sweep.py         Sweep / run_sweep_job / SweepResults — hyperparam sweeps
+      provenance.py    package_versions / record: the versions and config that run
+                       stores as post.attrs and the sweep writes as <package>_version columns
 
 What ``slv.inversion`` exports:
 
