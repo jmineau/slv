@@ -1,0 +1,6 @@
+slv.measurements.instruments.Picarro\_G2401.display\_name
+=========================================================
+
+.. currentmodule:: slv.measurements.instruments
+
+.. autoattribute:: Picarro_G2401.display_name

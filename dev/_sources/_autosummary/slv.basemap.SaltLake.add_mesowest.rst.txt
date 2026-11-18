@@ -2,5 +2,4 @@ slv.basemap.SaltLake.add\_mesowest
 ==================================
 
 .. currentmodule:: slv.basemap
-
 .. automethod:: SaltLake.add_mesowest

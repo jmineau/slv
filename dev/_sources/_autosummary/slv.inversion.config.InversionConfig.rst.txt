@@ -9,10 +9,13 @@ slv.inversion.config.InversionConfig
 
 
 
+
+
 .. rubric:: Attributes
 
 .. autosummary::
    :toctree:
+   :nosignatures:
 
    ~InversionConfig.background_kwargs_key
    ~InversionConfig.bbox

@@ -11,6 +11,7 @@ API Reference
    (_templates/autosummary/class.rst, _ext/api_pages.py). A table of
    modules works too: a module's page lists what it defines. A subclass's
    page links to the members it inherits, so list the base classes as well.
+   A constant a subclass sets again has a page of its own that shows its value.
    Until there are topics, the table below lists the package's modules.
 
 .. autosummary::

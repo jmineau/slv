@@ -12,5 +12,23 @@ slv.measurements.instruments.LGR\_UGGA\_Manual\_Cal
 
 
 
+.. rubric:: Attributes
+
+.. autosummary::
+   :toctree:
+   :nosignatures:
+
+   ~LGR_UGGA_Manual_Cal.name
+   ~LGR_UGGA_Manual_Cal.pollutants
+
+
+
+
+
+
+.. rubric:: Inherited
+
+
+From :class:`~.LGR_UGGA`: :py:obj:`~.LGR_UGGA.display_name`, :py:obj:`~.LGR_UGGA.sample_rate`
 
 
