@@ -1608,18 +1608,18 @@ packages:
 - pypi: ./
   name: slv
   requires_dist:
-  - cartopy
-  - geopandas
+  - cartopy>=0.24
+  - geopandas>=1.0
   - lair[geo,science] @ git+https://github.com/jmineau/lair@v2026.12.12
-  - matplotlib
-  - pandas
+  - matplotlib>=3.8
+  - pandas>=3.1
   - siphon>=0.10.0
   - uataq @ git+https://github.com/jmineau/uataq@v2026.11.1
-  - xarray
+  - xarray>=2025.12
   - fips[viz]>=0.2.0b2 ; extra == 'inversion'
   - pystilt>=0.1.0a28 ; extra == 'inversion'
   - joblib>=1.5.3 ; extra == 'inversion'
-  - seaborn ; extra == 'inversion'
+  - seaborn>=0.13.2 ; extra == 'inversion'
   requires_python: '>=3.11'
 - pypi: git+https://github.com/jmineau/lair?rev=v2026.12.12#9701e2e0e96307753cd4bf781418d2e1280e5896
   name: lair
