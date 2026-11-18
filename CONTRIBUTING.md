@@ -96,9 +96,6 @@ CI (`.github/workflows/`) runs the same `just` recipes:
   `pyproject.toml`, locked in `pixi.lock`): conda-forge supplies ESMF and xesmf, and
   everything else comes from the dependencies in `pyproject.toml`, so nothing is
   listed twice. The job fails on a `pixi.lock` that is out of date.
-  Its `floors` job runs `just sync-floors` and `just test` with every dependency at
-  the minimum `pyproject.toml` declares, on Python 3.11, so give each direct
-  dependency a minimum that works.
 - `quality.yml` runs lint, type check and docstring coverage on Python 3.11.
 - `docs.yml` builds the docs on every pull request (warnings fail the build). Pushes
   to `main` publish them as `dev/`, and release tags as one folder per release (and
