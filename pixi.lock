@@ -1613,7 +1613,7 @@ packages:
   - lair[geo,science] @ git+https://github.com/jmineau/lair@v2026.12.12
   - matplotlib>=3.8
   - pandas>=3.1
-  - siphon>=0.10.0
+  - siphon>=0.11.0
   - uataq @ git+https://github.com/jmineau/uataq@v2026.11.1
   - xarray>=2025.12
   - fips[viz]>=0.2.0b2 ; extra == 'inversion'

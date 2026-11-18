@@ -4386,7 +4386,7 @@ requires-dist = [
     { name = "pandas", specifier = ">=3.1" },
     { name = "pystilt", marker = "extra == 'inversion'", specifier = ">=0.1.0a28" },
     { name = "seaborn", marker = "extra == 'inversion'", specifier = ">=0.13.2" },
-    { name = "siphon", specifier = ">=0.10.0" },
+    { name = "siphon", specifier = ">=0.11.0" },
     { name = "uataq", git = "https://github.com/jmineau/uataq?rev=v2026.11.1" },
     { name = "xarray", specifier = ">=2025.12" },
 ]
