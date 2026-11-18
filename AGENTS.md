@@ -49,7 +49,6 @@ Driven by `just` + `uv`; CI runs the same recipes (`just` lists them all).
 |---|---|
 | `just sync` | `uv sync`: slv, `slv[inversion]` and the dev tools into `.venv` |
 | `just test` | the tests and the `>>>` examples under `src/`, in parallel (extra args go to pytest; `-n 0` for serial) |
-| `just sync-floors` | every dependency at its declared minimum (then `just test`; CI's floors job) |
 | `just lint` / `just format` | ruff check and format check / fix and format |
 | `just type-check` | pyrefly |
 | `just docstr` | docstring coverage of the public API (95%) |
