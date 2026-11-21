@@ -9,10 +9,13 @@ slv.basemap.SaltLake
 
 
 
+
+
 .. rubric:: Attributes
 
 .. autosummary::
    :toctree:
+   :nosignatures:
 
    ~SaltLake.fig
 

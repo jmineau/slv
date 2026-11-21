@@ -1,0 +1,6 @@
+slv.inversion.config.InversionConfig.mdm\_components
+====================================================
+
+.. currentmodule:: slv.inversion.config
+
+.. autoproperty:: InversionConfig.mdm_components

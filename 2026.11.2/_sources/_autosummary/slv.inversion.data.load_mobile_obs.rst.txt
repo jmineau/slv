@@ -1,0 +1,6 @@
+slv.inversion.data.load\_mobile\_obs
+====================================
+
+.. currentmodule:: slv.inversion.data
+
+.. autofunction:: load_mobile_obs

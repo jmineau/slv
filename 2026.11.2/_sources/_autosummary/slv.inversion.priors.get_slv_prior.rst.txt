@@ -1,0 +1,6 @@
+slv.inversion.priors.get\_slv\_prior
+====================================
+
+.. currentmodule:: slv.inversion.priors
+
+.. autofunction:: get_slv_prior

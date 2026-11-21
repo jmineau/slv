@@ -1,0 +1,6 @@
+slv.meteorology.mesowest.nearest\_station
+=========================================
+
+.. currentmodule:: slv.meteorology.mesowest
+
+.. autofunction:: nearest_station

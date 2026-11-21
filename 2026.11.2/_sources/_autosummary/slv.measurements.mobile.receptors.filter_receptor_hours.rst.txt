@@ -1,0 +1,6 @@
+slv.measurements.mobile.receptors.filter\_receptor\_hours
+=========================================================
+
+.. currentmodule:: slv.measurements.mobile.receptors
+
+.. autofunction:: filter_receptor_hours

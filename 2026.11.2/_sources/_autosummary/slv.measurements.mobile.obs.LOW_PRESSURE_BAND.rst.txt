@@ -1,0 +1,6 @@
+slv.measurements.mobile.obs.LOW\_PRESSURE\_BAND
+===============================================
+
+.. currentmodule:: slv.measurements.mobile.obs
+
+.. autodata:: LOW_PRESSURE_BAND

@@ -1,0 +1,6 @@
+slv.inversion.report.desroziers\_diagnostic
+===========================================
+
+.. currentmodule:: slv.inversion.report
+
+.. autofunction:: desroziers_diagnostic

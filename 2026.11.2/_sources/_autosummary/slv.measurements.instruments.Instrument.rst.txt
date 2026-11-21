@@ -1,0 +1,18 @@
+slv.measurements.instruments.Instrument
+=======================================
+
+.. currentmodule:: slv.measurements.instruments
+
+.. autoclass:: Instrument
+   :no-members:
+   :show-inheritance:
+
+
+
+
+
+
+
+
+
+

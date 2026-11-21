@@ -1,0 +1,6 @@
+slv.measurements.mobile.obs.DROPOUT\_CH4\_PPM
+=============================================
+
+.. currentmodule:: slv.measurements.mobile.obs
+
+.. autodata:: DROPOUT_CH4_PPM

@@ -2,5 +2,4 @@ slv.inversion.sweep.SweepResults.best
 =====================================
 
 .. currentmodule:: slv.inversion.sweep
-
 .. automethod:: SweepResults.best

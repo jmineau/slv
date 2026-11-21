@@ -1,0 +1,5 @@
+slv.inversion.sweep.SweepResults.sensitivity
+============================================
+
+.. currentmodule:: slv.inversion.sweep
+.. automethod:: SweepResults.sensitivity

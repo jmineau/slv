@@ -1,0 +1,6 @@
+slv.inversion.sweep.Pipeline
+============================
+
+.. currentmodule:: slv.inversion.sweep
+
+.. autodata:: Pipeline

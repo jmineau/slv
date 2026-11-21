@@ -12,5 +12,18 @@ slv.measurements.instruments.LGR\_UGGA
 
 
 
+.. rubric:: Attributes
+
+.. autosummary::
+   :toctree:
+   :nosignatures:
+
+   ~LGR_UGGA.display_name
+   ~LGR_UGGA.name
+   ~LGR_UGGA.pollutants
+   ~LGR_UGGA.sample_rate
+
+
+
 
 

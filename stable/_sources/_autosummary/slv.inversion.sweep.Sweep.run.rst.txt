@@ -2,5 +2,4 @@ slv.inversion.sweep.Sweep.run
 =============================
 
 .. currentmodule:: slv.inversion.sweep
-
 .. automethod:: Sweep.run

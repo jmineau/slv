@@ -1,0 +1,6 @@
+slv.meteorology.mesowest.load\_station\_metadata
+================================================
+
+.. currentmodule:: slv.meteorology.mesowest
+
+.. autofunction:: load_station_metadata

@@ -1,0 +1,6 @@
+slv.measurements.instruments.Picarro\_G2307.sample\_rate
+========================================================
+
+.. currentmodule:: slv.measurements.instruments
+
+.. autoattribute:: Picarro_G2307.sample_rate

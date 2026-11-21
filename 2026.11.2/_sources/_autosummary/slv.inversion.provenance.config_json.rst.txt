@@ -1,0 +1,6 @@
+slv.inversion.provenance.config\_json
+=====================================
+
+.. currentmodule:: slv.inversion.provenance
+
+.. autofunction:: config_json

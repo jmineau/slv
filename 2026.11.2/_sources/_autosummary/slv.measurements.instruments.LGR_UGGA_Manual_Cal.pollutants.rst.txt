@@ -1,0 +1,6 @@
+slv.measurements.instruments.LGR\_UGGA\_Manual\_Cal.pollutants
+==============================================================
+
+.. currentmodule:: slv.measurements.instruments
+
+.. autoattribute:: LGR_UGGA_Manual_Cal.pollutants

@@ -1,0 +1,6 @@
+slv.measurements.mobile.transects.NETWORK\_DIR
+==============================================
+
+.. currentmodule:: slv.measurements.mobile.transects
+
+.. autodata:: NETWORK_DIR

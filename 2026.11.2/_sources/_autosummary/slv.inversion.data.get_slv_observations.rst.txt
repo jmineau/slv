@@ -1,0 +1,6 @@
+slv.inversion.data.get\_slv\_observations
+=========================================
+
+.. currentmodule:: slv.inversion.data
+
+.. autofunction:: get_slv_observations

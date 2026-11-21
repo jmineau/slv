@@ -1,0 +1,6 @@
+slv.inversion.config.InversionConfig.grid
+=========================================
+
+.. currentmodule:: slv.inversion.config
+
+.. autoproperty:: InversionConfig.grid

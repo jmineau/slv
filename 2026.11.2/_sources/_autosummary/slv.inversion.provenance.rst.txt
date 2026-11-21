@@ -1,0 +1,37 @@
+slv.inversion.provenance
+========================
+
+.. automodule:: slv.inversion.provenance
+   :no-members:
+
+
+.. rubric:: Attributes
+
+.. autosummary::
+   :toctree:
+   :nosignatures:
+
+   PACKAGES
+   VERSION_COLUMNS
+
+
+
+.. rubric:: Functions
+
+.. autosummary::
+   :toctree:
+   :nosignatures:
+
+   config_json
+   package_versions
+   record
+   version_columns
+
+
+
+
+
+
+
+
+

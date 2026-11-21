@@ -1,0 +1,6 @@
+slv.inversion.provenance.record
+===============================
+
+.. currentmodule:: slv.inversion.provenance
+
+.. autofunction:: record

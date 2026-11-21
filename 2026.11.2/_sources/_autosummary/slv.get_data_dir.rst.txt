@@ -1,0 +1,6 @@
+slv.get\_data\_dir
+==================
+
+.. currentmodule:: slv
+
+.. autofunction:: get_data_dir

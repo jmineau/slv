@@ -1,0 +1,6 @@
+slv.inversion.config.InversionConfig.subset\_hours\_utc
+=======================================================
+
+.. currentmodule:: slv.inversion.config
+
+.. autoproperty:: InversionConfig.subset_hours_utc

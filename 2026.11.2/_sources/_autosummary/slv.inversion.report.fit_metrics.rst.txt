@@ -1,0 +1,6 @@
+slv.inversion.report.fit\_metrics
+=================================
+
+.. currentmodule:: slv.inversion.report
+
+.. autofunction:: fit_metrics

@@ -1,0 +1,6 @@
+slv.inversion.config.stilt\_project\_dir
+========================================
+
+.. currentmodule:: slv.inversion.config
+
+.. autofunction:: stilt_project_dir

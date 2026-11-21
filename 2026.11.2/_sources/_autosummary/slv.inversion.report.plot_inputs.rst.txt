@@ -1,0 +1,6 @@
+slv.inversion.report.plot\_inputs
+=================================
+
+.. currentmodule:: slv.inversion.report
+
+.. autofunction:: plot_inputs

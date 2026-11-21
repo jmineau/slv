@@ -1,0 +1,6 @@
+slv.measurements.mobile.wyoming.read\_aeris
+===========================================
+
+.. currentmodule:: slv.measurements.mobile.wyoming
+
+.. autofunction:: read_aeris

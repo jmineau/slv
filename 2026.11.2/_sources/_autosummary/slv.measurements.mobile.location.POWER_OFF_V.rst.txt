@@ -1,0 +1,6 @@
+slv.measurements.mobile.location.POWER\_OFF\_V
+==============================================
+
+.. currentmodule:: slv.measurements.mobile.location
+
+.. autodata:: POWER_OFF_V

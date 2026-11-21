@@ -1,0 +1,6 @@
+slv.inversion.report.total\_units
+=================================
+
+.. currentmodule:: slv.inversion.report
+
+.. autofunction:: total_units

@@ -1,0 +1,5 @@
+slv.inversion.sweep.SweepResults.plot\_heatmap
+==============================================
+
+.. currentmodule:: slv.inversion.sweep
+.. automethod:: SweepResults.plot_heatmap

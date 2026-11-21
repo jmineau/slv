@@ -1,0 +1,6 @@
+slv.inversion.config.InversionConfig.mobile\_obs\_key
+=====================================================
+
+.. currentmodule:: slv.inversion.config
+
+.. autoproperty:: InversionConfig.mobile_obs_key

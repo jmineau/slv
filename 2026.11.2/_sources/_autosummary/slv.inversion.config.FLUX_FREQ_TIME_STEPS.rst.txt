@@ -1,0 +1,6 @@
+slv.inversion.config.FLUX\_FREQ\_TIME\_STEPS
+============================================
+
+.. currentmodule:: slv.inversion.config
+
+.. autodata:: FLUX_FREQ_TIME_STEPS

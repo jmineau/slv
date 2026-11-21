@@ -12,5 +12,18 @@ slv.measurements.instruments.Picarro\_G2307
 
 
 
+.. rubric:: Attributes
+
+.. autosummary::
+   :toctree:
+   :nosignatures:
+
+   ~Picarro_G2307.display_name
+   ~Picarro_G2307.name
+   ~Picarro_G2307.pollutants
+   ~Picarro_G2307.sample_rate
+
+
+
 
 

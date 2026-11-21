@@ -1,0 +1,6 @@
+slv.meteorology.mesowest.mesowest\_dir
+======================================
+
+.. currentmodule:: slv.meteorology.mesowest
+
+.. autofunction:: mesowest_dir

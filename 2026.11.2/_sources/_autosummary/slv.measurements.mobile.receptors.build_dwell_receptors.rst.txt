@@ -1,0 +1,6 @@
+slv.measurements.mobile.receptors.build\_dwell\_receptors
+=========================================================
+
+.. currentmodule:: slv.measurements.mobile.receptors
+
+.. autofunction:: build_dwell_receptors

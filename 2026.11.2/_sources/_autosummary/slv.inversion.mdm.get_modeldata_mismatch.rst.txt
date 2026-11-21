@@ -1,0 +1,6 @@
+slv.inversion.mdm.get\_modeldata\_mismatch
+==========================================
+
+.. currentmodule:: slv.inversion.mdm
+
+.. autofunction:: get_modeldata_mismatch

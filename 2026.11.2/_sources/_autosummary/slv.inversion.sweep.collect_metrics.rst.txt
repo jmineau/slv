@@ -1,0 +1,6 @@
+slv.inversion.sweep.collect\_metrics
+====================================
+
+.. currentmodule:: slv.inversion.sweep
+
+.. autofunction:: collect_metrics

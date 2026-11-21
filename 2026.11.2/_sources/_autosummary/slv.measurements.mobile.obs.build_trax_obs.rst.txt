@@ -1,0 +1,6 @@
+slv.measurements.mobile.obs.build\_trax\_obs
+============================================
+
+.. currentmodule:: slv.measurements.mobile.obs
+
+.. autofunction:: build_trax_obs

@@ -1,0 +1,6 @@
+slv.measurements.mobile.location.location\_features
+===================================================
+
+.. currentmodule:: slv.measurements.mobile.location
+
+.. autofunction:: location_features

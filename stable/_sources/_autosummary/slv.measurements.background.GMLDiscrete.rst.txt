@@ -10,10 +10,13 @@ slv.measurements.background.GMLDiscrete
 
 
 
+
+
 .. rubric:: Attributes
 
 .. autosummary::
    :toctree:
+   :nosignatures:
 
    ~GMLDiscrete.latitude
    ~GMLDiscrete.longitude

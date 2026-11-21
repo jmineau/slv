@@ -1,0 +1,6 @@
+slv.inversion.covariances.build\_prior\_error
+=============================================
+
+.. currentmodule:: slv.inversion.covariances
+
+.. autofunction:: build_prior_error

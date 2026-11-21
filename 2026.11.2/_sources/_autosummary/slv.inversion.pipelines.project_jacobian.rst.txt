@@ -1,0 +1,6 @@
+slv.inversion.pipelines.project\_jacobian
+=========================================
+
+.. currentmodule:: slv.inversion.pipelines
+
+.. autofunction:: project_jacobian

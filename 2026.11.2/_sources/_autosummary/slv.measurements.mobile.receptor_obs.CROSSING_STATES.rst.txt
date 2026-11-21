@@ -1,0 +1,6 @@
+slv.measurements.mobile.receptor\_obs.CROSSING\_STATES
+======================================================
+
+.. currentmodule:: slv.measurements.mobile.receptor_obs
+
+.. autodata:: CROSSING_STATES

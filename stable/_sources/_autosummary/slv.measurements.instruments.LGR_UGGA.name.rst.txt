@@ -1,0 +1,6 @@
+slv.measurements.instruments.LGR\_UGGA.name
+===========================================
+
+.. currentmodule:: slv.measurements.instruments
+
+.. autoattribute:: LGR_UGGA.name

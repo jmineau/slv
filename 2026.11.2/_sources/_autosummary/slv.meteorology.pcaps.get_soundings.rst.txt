@@ -1,0 +1,6 @@
+slv.meteorology.pcaps.get\_soundings
+====================================
+
+.. currentmodule:: slv.meteorology.pcaps
+
+.. autofunction:: get_soundings

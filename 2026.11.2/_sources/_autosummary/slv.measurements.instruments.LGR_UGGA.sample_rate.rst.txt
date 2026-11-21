@@ -1,0 +1,6 @@
+slv.measurements.instruments.LGR\_UGGA.sample\_rate
+===================================================
+
+.. currentmodule:: slv.measurements.instruments
+
+.. autoattribute:: LGR_UGGA.sample_rate

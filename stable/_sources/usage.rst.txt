@@ -98,21 +98,75 @@ the first of a month for ``"MS"``, Sundays two weeks apart for ``"2W"``. A confi
 is off them raises ``ValueError`` rather than leave the obs of the days outside whole
 periods with no flux to fit.
 
+An offset can be solved for with the fluxes: ``bias_std`` adds a bias block to the
+state, one offset per interval that has obs, which adds to every obs in its interval.
+The interval is the flux interval unless ``bias_freq`` says otherwise, and with the
+default ``bias_grouping`` the offset is shared by every site (``"site"`` and
+``"site_group"`` give each site or organization its own). ``bias_std`` is one prior std
+for every offset, or a Series of std by interval start; the offsets are independent of
+one another. One offset a day under monthly fluxes, shared by a tower and a mobile site,
+with a prior std that differs by day:
+
+.. code-block:: python
+
+   import pandas as pd
+
+   days = pd.date_range("2016-01-01", "2023-12-31", freq="D")
+   std = pd.Series(0.010, index=days)  # ppm; e.g. larger on the days you trust less
+
+   config = InversionConfig(
+       tstart="2016-01-01",
+       tend="2024-01-01",
+       flux_freq="MS",
+       sites=["wbb", "trx01"],
+       aggregate_obs="1D",
+       bias_freq="D",
+       bias_std=std,
+   )
+
+Every interval that has obs needs a std, or ``build_problem`` raises and names the
+intervals that have none: fill them (with a typical value, say) or drop their obs.
+Entries for intervals without obs are ignored. The intervals are whole ``bias_freq``
+periods from ``tstart`` to ``tend``, which must be on its boundaries as for
+``flux_freq`` (any day for ``"D"``); ``config.bias_time_bins`` lists them, and each
+offset is labeled by its interval's start. The posterior offsets are
+``post.estimate.to_series("bias")``.
+
 Building the Jacobian reads every footprint in the period: run it through SLURM, not
 on a login node.
 
-Two things to know before running the block above as a script:
+Which code made a result
+~~~~~~~~~~~~~~~~~~~~~~~~
 
-- The default prior, ``prior="epa"`` (and ``"edgar"``), is regridded with ``xesmf``, which
-  only the pixi environment has (see :doc:`installation`): run it with
-  ``pixi run python script.py``. In the ``uv sync`` environment the run stops at the
-  prior with ``ModuleNotFoundError: No module named 'xesmf'``; ``prior="constant"``
-  (``prior_kwargs={"value": ...}``) needs none.
-- Python 3.14 and later start worker processes by spawning a fresh interpreter that
-  imports the script again. With ``num_processes`` above 1 (the default is 8), put the
-  config and the ``run`` call under ``if __name__ == "__main__":``; without it every
-  worker repeats the run and the obs load as "No data loaded". Python 3.13 and earlier
-  fork on Linux and do not need it (checked on 3.12).
+``run`` records the versions of slv, fips, pystilt, lair and uataq that solved the
+inversion, and the whole config, in ``post.attrs``: a dict of strings, with the keys
+``slv_version``, ``fips_version``, ``pystilt_version``, ``lair_version``,
+``uataq_version`` and ``config`` (the config as JSON, every field except the map
+tiler). The versions are those of the installed packages; for an editable install
+(``uv sync``, ``pip install -e``) that is the version at the last install, so reinstall
+after a new tag.
+
+.. code-block:: python
+
+   post.attrs["slv_version"]  # e.g. "2026.11.1"
+   import json
+   fields = json.loads(post.attrs["config"])
+   fields["prior_base_std"]
+
+   # the same keys as netCDF attributes of the estimate
+   est = post.estimate.to_xarray()  # a DataArray, or a Dataset with several blocks
+   est.attrs.update(post.attrs)
+   est.to_netcdf("estimate.nc")
+
+   config = InversionConfig(**fields)  # the config again
+
+``attrs`` is slv's own attribute on the fips ``Posterior`` (fips gives it none), so
+pickling a posterior drops it, and so does ``post.with_gamma(...)``: write it out beside
+the result, as above, when you save one. A DataArray's attributes are those of its
+variable in the file (``xarray.open_dataset("estimate.nc")["flux"].attrs``).
+
+The versions are not part of the cache keys or of a config's id, so recording them
+changes neither.
 
 Sweeping hyperparameters
 ------------------------
@@ -136,6 +190,11 @@ values, sharing the cache, and collects the fit metrics.
 For a SLURM job array, write the grid with ``sweep.run(results_dir, n_jobs=0)`` and
 call :func:`~slv.inversion.sweep.run_sweep_job` in each array task; it runs the config
 at ``$SLURM_ARRAY_TASK_ID``.
+
+Every row of ``sweep_results.csv`` also has the versions of slv, fips, pystilt, lair and
+uataq that made it, in the columns ``slv_version``, ``fips_version`` and so on. A config's
+id holds no version, so ``resume=True`` skips a finished config whichever release made it;
+the columns say which. Rows from a CSV written before the columns existed have none.
 
 TRAX receptors
 --------------

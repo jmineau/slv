@@ -1,0 +1,34 @@
+slv.measurements.instruments.LGR\_UGGA\_Manual\_Cal
+===================================================
+
+.. currentmodule:: slv.measurements.instruments
+
+.. autoclass:: LGR_UGGA_Manual_Cal
+   :no-members:
+   :show-inheritance:
+
+
+
+
+
+
+.. rubric:: Attributes
+
+.. autosummary::
+   :toctree:
+   :nosignatures:
+
+   ~LGR_UGGA_Manual_Cal.name
+   ~LGR_UGGA_Manual_Cal.pollutants
+
+
+
+
+
+
+.. rubric:: Inherited
+
+
+From :class:`~.LGR_UGGA`: :py:obj:`~.LGR_UGGA.display_name`, :py:obj:`~.LGR_UGGA.sample_rate`
+
+

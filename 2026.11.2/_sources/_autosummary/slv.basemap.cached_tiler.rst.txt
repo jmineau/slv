@@ -1,0 +1,6 @@
+slv.basemap.cached\_tiler
+=========================
+
+.. currentmodule:: slv.basemap
+
+.. autofunction:: cached_tiler

@@ -1,0 +1,6 @@
+slv.inversion.mdm.multiplicative\_scale
+=======================================
+
+.. currentmodule:: slv.inversion.mdm
+
+.. autofunction:: multiplicative_scale

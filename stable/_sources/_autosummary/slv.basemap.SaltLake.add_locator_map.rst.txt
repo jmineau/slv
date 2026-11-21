@@ -2,5 +2,4 @@ slv.basemap.SaltLake.add\_locator\_map
 ======================================
 
 .. currentmodule:: slv.basemap
-
 .. automethod:: SaltLake.add_locator_map

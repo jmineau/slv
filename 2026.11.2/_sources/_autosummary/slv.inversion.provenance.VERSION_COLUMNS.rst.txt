@@ -1,0 +1,6 @@
+slv.inversion.provenance.VERSION\_COLUMNS
+=========================================
+
+.. currentmodule:: slv.inversion.provenance
+
+.. autodata:: VERSION_COLUMNS

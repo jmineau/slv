@@ -43,6 +43,7 @@ slv.inversion
    mdm
    pipelines
    priors
+   provenance
    report
    sweep
    viz

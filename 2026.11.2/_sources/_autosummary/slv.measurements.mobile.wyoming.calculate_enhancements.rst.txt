@@ -1,0 +1,6 @@
+slv.measurements.mobile.wyoming.calculate\_enhancements
+=======================================================
+
+.. currentmodule:: slv.measurements.mobile.wyoming
+
+.. autofunction:: calculate_enhancements

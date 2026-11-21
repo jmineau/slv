@@ -1,0 +1,6 @@
+slv.measurements.mobile.receptors.label\_dwell\_site
+====================================================
+
+.. currentmodule:: slv.measurements.mobile.receptors
+
+.. autofunction:: label_dwell_site

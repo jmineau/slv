@@ -1,0 +1,6 @@
+slv.inversion.config.InversionConfig.flux\_times
+================================================
+
+.. currentmodule:: slv.inversion.config
+
+.. autoproperty:: InversionConfig.flux_times
