@@ -659,11 +659,11 @@ def build_problem(config: InversionConfig) -> Problem:
         bias_prior, bias_forward = get_bias(config, obs_vector.space)
         state = Vector.from_blocks({"flux": state, "bias": bias_prior}, name="prior")
         blocks[("concentration", "bias")] = bias_forward
+        bias_std = get_bias_std(config, bias_prior)
+        assert bias_std is not None  # `config.bias_std` is not None in this branch
         prior_cov = Covariance.block_diag(
             flux=prior_error,
-            # `bias_std` is not None in this branch, so the std is not None.
-            # pyrefly: ignore[no-matching-overload]
-            bias=Independent().with_std(get_bias_std(config, bias_prior)),
+            bias=Independent().with_std(bias_std),
         )
     problem = Problem(
         prior=state,

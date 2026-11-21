@@ -192,9 +192,9 @@ def load_storage_polygons(meters: bool = False) -> gpd.GeoDataFrame:
     """All storage yards in :data:`storage_locations`, one row each with a ``name``."""
     rows = []
     for name, src in storage_locations.items():
-        # `get_geodf` is None only for no geometry; these are packaged files.
-        # pyrefly: ignore[missing-attribute]
-        g = get_geodf(src).to_crs(UTM12)
+        polygons = get_geodf(src)
+        assert polygons is not None  # `src` is a packaged file, not "no geometry"
+        g = polygons.to_crs(UTM12)
         rows.append(
             gpd.GeoDataFrame(
                 {"name": [name]}, geometry=[g.geometry.union_all()], crs=UTM12
