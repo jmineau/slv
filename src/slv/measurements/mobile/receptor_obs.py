@@ -135,6 +135,7 @@ def _windows(
     dwell = keys.kind == "dwell"
     if dwell.any():
         dw = dwells.set_index(dwells["dwell"].astype(int))
+        dw_start, dw_end = dw["t_start"], dw["t_end"]
         for i, r in keys.loc[dwell, "r_idx"].items():
             m = _DWELL_RE.match(r)
             if m is None:  # kind came from this same pattern, so this cannot happen
@@ -143,12 +144,8 @@ def _windows(
             hour = pd.Timestamp(f"{m.group(2)[:8]} {m.group(2)[8:]}:00")
             if did not in dw.index:
                 continue
-            row = dw.loc[did]
-            # `dw.loc[did]` is one row (the index is unique); the stubs also allow a frame.
-            # pyrefly: ignore[unsupported-operation, bad-argument-type]
-            t0.loc[i] = max(hour, pd.Timestamp(row.t_start))
-            # pyrefly: ignore[unsupported-operation, bad-argument-type]
-            t1.loc[i] = min(hour + pd.Timedelta(hours=1), pd.Timestamp(row.t_end))
+            t0.at[i] = max(hour, pd.Timestamp(dw_start.loc[did]))
+            t1.at[i] = min(hour + pd.Timedelta(hours=1), pd.Timestamp(dw_end.loc[did]))
     return pd.DataFrame({"t0": t0, "t1": t1}, index=keys.index)
 
 

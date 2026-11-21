@@ -49,7 +49,6 @@ from pathlib import Path
 import geopandas as gpd
 import numpy as np
 import pandas as pd
-import xarray as xr
 from lair import transects as tr
 from pyproj import Transformer
 
@@ -448,9 +447,9 @@ def build_trax_transects(
         if obs.empty:
             print(f"{year}: no observations")
             continue
-        # `return_samples` makes it return a tuple; it is not passed here, so it is the Dataset.
-        # pyrefly: ignore[bad-assignment]
-        ds: xr.Dataset = build_network_transects(obs, pts, lag=lag, **build_kwargs)
+        built = build_network_transects(obs, pts, lag=lag, **build_kwargs)
+        # With `return_samples` in `build_kwargs` it also returns the samples.
+        ds = built[0] if isinstance(built, tuple) else built
         if ds.sizes["transect"] == 0:
             print(f"{year}: no transits")
             continue

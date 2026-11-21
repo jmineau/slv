@@ -95,14 +95,14 @@ class GMLDiscrete(noaa.GMLData):
 
         # Drop bad data
         flags = "..P" if include_preliminary else None
-        self._raw = noaa.GMLData.apply_qaqc(self.data, flags=flags)
+        raw = noaa.GMLData.apply_qaqc(self.data, flags=flags)
+        assert isinstance(raw, pd.DataFrame)  # a GML text file is read as a frame
+        self._raw = raw
 
         # Extract value column
         # lair types `data` as a frame; here it is the one column, a Series.
-        # pyrefly: ignore[bad-assignment, bad-argument-type]
-        self.data = self._raw.rename(columns={value_col: specie.upper()})[
-            specie.upper()
-        ]
+        # pyrefly: ignore[bad-assignment]
+        self.data = raw.rename(columns={value_col: specie.upper()})[specie.upper()]
 
     @staticmethod
     def _find(specie, site, refresh, **kwargs) -> Path:
@@ -155,9 +155,9 @@ class GMLDiscrete(noaa.GMLData):
         pd.Series
             Smoothed curve.
         """
-        # `self.data` is a Series (see `__init__`); lair types the attribute as a frame.
-        # pyrefly: ignore[bad-argument-type]
-        return thoning(self.data, smooth_time=smooth_time, **kwargs)
+        data = self.data
+        assert isinstance(data, pd.Series)  # the value column (see `__init__`)
+        return thoning(data, smooth_time=smooth_time, **kwargs)
 
 
 class UTAFlask(GMLDiscrete):
