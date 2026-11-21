@@ -6,7 +6,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>slv.measurements.aggregate &#8212; Salt Lake Valley py 2026.11.2</title>
+    <title>slv.measurements.aggregate &#8212; Salt Lake Valley py dev</title>
   
   
   
@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../_static/documentation_options.js?v=23e26dd1"></script>
+    <script src="../../../_static/documentation_options.js?v=b2740af7"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -49,7 +49,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.23.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://jmineau.github.io/slv/switcher.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '2026.11.2';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             true;
         </script>
@@ -60,7 +60,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.11.2" />
+  <meta name="docsearch:version" content="2026.11.3.dev4+g1c8b17372" />
   
     
     <script src="../../../_static/searchtools.js"></script>
@@ -440,11 +440,12 @@
 <span></span><span class="sd">"""Aggregate observations in time (and space, for mobile platforms)."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">geopandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gpd</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.spatial</span><span class="w"> </span><span class="kn">import</span> <span class="n">cKDTree</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.spatial</span><span class="w"> </span><span class="kn">import</span> <span class="n">KDTree</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">slv.measurements</span><span class="w"> </span><span class="kn">import</span> <span class="n">instruments</span>
 
@@ -520,6 +521,7 @@
             <span class="k">if</span> <span class="n">by</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">group_keys</span> <span class="o">=</span> <span class="n">_as_keys</span><span class="p">(</span><span class="n">by</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
+                <span class="k">assert</span> <span class="n">freq</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>  <span class="c1"># `by` is None, so the test above held for it</span>
                 <span class="n">stationary</span> <span class="o">=</span> <span class="n">stationary</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
                 <span class="n">stationary</span><span class="p">[</span><span class="s2">"agg_time"</span><span class="p">]</span> <span class="o">=</span> <span class="n">_bin_start</span><span class="p">(</span><span class="n">stationary</span><span class="p">[</span><span class="s2">"Time_UTC"</span><span class="p">],</span> <span class="n">freq</span><span class="p">)</span>
                 <span class="n">group_keys</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"site"</span><span class="p">,</span> <span class="s2">"agg_time"</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span>
@@ -566,7 +568,9 @@
 
             <span class="k">if</span> <span class="ow">not</span> <span class="n">stationary</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
                 <span class="n">numeric_cols</span> <span class="o">=</span> <span class="n">stationary</span><span class="o">.</span><span class="n">select_dtypes</span><span class="p">(</span><span class="n">include</span><span class="o">=</span><span class="s2">"number"</span><span class="p">)</span><span class="o">.</span><span class="n">columns</span>
-                <span class="n">agg_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">col</span><span class="p">:</span> <span class="n">func</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">numeric_cols</span> <span class="k">if</span> <span class="n">col</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">group_keys</span><span class="p">}</span>
+                <span class="n">agg_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="n">col</span><span class="p">:</span> <span class="n">func</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">numeric_cols</span> <span class="k">if</span> <span class="n">col</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">group_keys</span>
+                <span class="p">}</span>
                 <span class="n">agg_dict</span><span class="p">[</span><span class="s2">"instrument"</span><span class="p">]</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="s2">" "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">unique</span><span class="p">()))</span>
                 <span class="n">grouped</span> <span class="o">=</span> <span class="n">stationary</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">group_keys</span><span class="p">)</span><span class="o">.</span><span class="n">agg</span><span class="p">(</span><span class="n">agg_dict</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
                 <span class="n">agg_frames</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">grouped</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">"agg_time"</span><span class="p">:</span> <span class="s2">"Time_UTC"</span><span class="p">}))</span>
@@ -590,7 +594,7 @@
                     <span class="p">)</span>
                 <span class="p">)</span>
             <span class="p">)</span>
-            <span class="n">_</span><span class="p">,</span> <span class="n">idx</span> <span class="o">=</span> <span class="n">cKDTree</span><span class="p">(</span><span class="n">agg_pts</span><span class="p">)</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">obs_pts</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">_</span><span class="p">,</span> <span class="n">idx</span> <span class="o">=</span> <span class="n">KDTree</span><span class="p">(</span><span class="n">agg_pts</span><span class="p">)</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">obs_pts</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
             <span class="n">mobile</span><span class="p">[</span><span class="s2">"agg_lat"</span><span class="p">]</span> <span class="o">=</span> <span class="n">mobile_points</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">y</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
             <span class="n">mobile</span><span class="p">[</span><span class="s2">"agg_lon"</span><span class="p">]</span> <span class="o">=</span> <span class="n">mobile_points</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
             <span class="n">group_keys</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">"site"</span><span class="p">,</span> <span class="s2">"agg_lat"</span><span class="p">,</span> <span class="s2">"agg_lon"</span><span class="p">])</span>
@@ -610,6 +614,7 @@
             <span class="k">if</span> <span class="n">by</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">group_keys</span> <span class="o">=</span> <span class="n">_as_keys</span><span class="p">(</span><span class="n">by</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
+                <span class="k">assert</span> <span class="n">freq</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>  <span class="c1"># `by` is None, so the test above held for it</span>
                 <span class="n">mobile</span><span class="p">[</span><span class="s2">"agg_time"</span><span class="p">]</span> <span class="o">=</span> <span class="n">_bin_start</span><span class="p">(</span><span class="n">mobile</span><span class="p">[</span><span class="s2">"Time_UTC"</span><span class="p">],</span> <span class="n">freq</span><span class="p">)</span>
                 <span class="n">group_keys</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"agg_time"</span><span class="p">)</span>
 
@@ -622,7 +627,9 @@
         <span class="c1"># When spatial binning is active, lat/lon come from renamed bin columns</span>
         <span class="n">spatial_active</span> <span class="o">=</span> <span class="n">mobile_points</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">mobile_grid_res</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
         <span class="n">exclude</span> <span class="o">=</span> <span class="n">group_keys</span> <span class="o">+</span> <span class="p">([</span><span class="s2">"latitude"</span><span class="p">,</span> <span class="s2">"longitude"</span><span class="p">]</span> <span class="k">if</span> <span class="n">spatial_active</span> <span class="k">else</span> <span class="p">[])</span>
-        <span class="n">agg_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">col</span><span class="p">:</span> <span class="n">func</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">numeric_cols</span> <span class="k">if</span> <span class="n">col</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">exclude</span><span class="p">}</span>
+        <span class="n">agg_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">col</span><span class="p">:</span> <span class="n">func</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">numeric_cols</span> <span class="k">if</span> <span class="n">col</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">exclude</span>
+        <span class="p">}</span>
         <span class="n">agg_dict</span><span class="p">[</span><span class="s2">"instrument"</span><span class="p">]</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="s2">" "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">unique</span><span class="p">()))</span>
 
         <span class="n">grouped</span> <span class="o">=</span> <span class="n">mobile</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">group_keys</span><span class="p">)</span><span class="o">.</span><span class="n">agg</span><span class="p">(</span><span class="n">agg_dict</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>

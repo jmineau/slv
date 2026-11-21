@@ -6,7 +6,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>slv.measurements.mobile.network &#8212; Salt Lake Valley py 2026.11.2</title>
+    <title>slv.measurements.mobile.network &#8212; Salt Lake Valley py dev</title>
   
   
   
@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../../_static/documentation_options.js?v=23e26dd1"></script>
+    <script src="../../../../_static/documentation_options.js?v=b2740af7"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -49,7 +49,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.23.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://jmineau.github.io/slv/switcher.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '2026.11.2';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             true;
         </script>
@@ -60,7 +60,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.11.2" />
+  <meta name="docsearch:version" content="2026.11.3.dev4+g1c8b17372" />
   
     
     <script src="../../../../_static/searchtools.js"></script>
@@ -619,7 +619,11 @@
 <span class="sd">    """</span>
     <span class="n">routes_buff</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span>
         <span class="n">geometry</span><span class="o">=</span><span class="p">[</span><span class="n">routes</span><span class="o">.</span><span class="n">buffer</span><span class="p">(</span><span class="n">buffer</span><span class="p">)</span><span class="o">.</span><span class="n">union_all</span><span class="p">()],</span> <span class="n">crs</span><span class="o">=</span><span class="n">routes</span><span class="o">.</span><span class="n">crs</span>
-    <span class="p">)</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="n">gps</span><span class="o">.</span><span class="n">crs</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="c1"># The stubs do not take a CRS that is None, which a GeoDataFrame without one has;</span>
+    <span class="c1"># `gps` has one.</span>
+    <span class="c1"># pyrefly: ignore[bad-argument-type]</span>
+    <span class="n">routes_buff</span> <span class="o">=</span> <span class="n">routes_buff</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="n">gps</span><span class="o">.</span><span class="n">crs</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">gpd</span><span class="o">.</span><span class="n">sjoin</span><span class="p">(</span><span class="n">gps</span><span class="p">,</span> <span class="n">routes_buff</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">"inner"</span><span class="p">,</span> <span class="n">predicate</span><span class="o">=</span><span class="s2">"within"</span><span class="p">)</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span>
         <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">"index_right"</span><span class="p">]</span>
     <span class="p">)</span></div>
@@ -650,13 +654,17 @@
 <span class="w">    </span><span class="sd">"""All storage yards in :data:`storage_locations`, one row each with a ``name``."""</span>
     <span class="n">rows</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">src</span> <span class="ow">in</span> <span class="n">storage_locations</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-        <span class="n">g</span> <span class="o">=</span> <span class="n">get_geodf</span><span class="p">(</span><span class="n">src</span><span class="p">)</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="n">UTM12</span><span class="p">)</span>
+        <span class="n">polygons</span> <span class="o">=</span> <span class="n">get_geodf</span><span class="p">(</span><span class="n">src</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">polygons</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>  <span class="c1"># `src` is a packaged file, not "no geometry"</span>
+        <span class="n">g</span> <span class="o">=</span> <span class="n">polygons</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="n">UTM12</span><span class="p">)</span>
         <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
             <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span>
                 <span class="p">{</span><span class="s2">"name"</span><span class="p">:</span> <span class="p">[</span><span class="n">name</span><span class="p">]},</span> <span class="n">geometry</span><span class="o">=</span><span class="p">[</span><span class="n">g</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">union_all</span><span class="p">()],</span> <span class="n">crs</span><span class="o">=</span><span class="n">UTM12</span>
             <span class="p">)</span>
         <span class="p">)</span>
-    <span class="n">gdf</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="c1"># pandas' stubs type the concatenation of GeoDataFrames as a DataFrame.</span>
+    <span class="c1"># pyrefly: ignore[bad-assignment]</span>
+    <span class="n">gdf</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">gdf</span> <span class="k">if</span> <span class="n">meters</span> <span class="k">else</span> <span class="n">gdf</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="s2">"EPSG:4326"</span><span class="p">)</span></div>
 
 </pre></div>

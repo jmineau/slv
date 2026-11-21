@@ -6,7 +6,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>slv.inversion.viz &#8212; Salt Lake Valley py 2026.11.2</title>
+    <title>slv.inversion.viz &#8212; Salt Lake Valley py dev</title>
   
   
   
@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../_static/documentation_options.js?v=23e26dd1"></script>
+    <script src="../../../_static/documentation_options.js?v=b2740af7"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -49,7 +49,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.23.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://jmineau.github.io/slv/switcher.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '2026.11.2';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             true;
         </script>
@@ -60,7 +60,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.11.2" />
+  <meta name="docsearch:version" content="2026.11.3.dev4+g1c8b17372" />
   
     
     <script src="../../../_static/searchtools.js"></script>
@@ -442,6 +442,8 @@
 <span class="sd">diagnostics. The plots of a solved inversion take its :class:`~fips.Posterior`.</span>
 <span class="sd">"""</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+
 <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
@@ -524,7 +526,7 @@
     <span class="n">site_config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">site_color</span><span class="o">=</span><span class="s2">"black"</span><span class="p">,</span>
     <span class="n">add_point_sources</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-    <span class="n">subplot_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">subplot_kwargs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Map the state grid's cells over tiles, with the sites and CH4 point sources.</span>
@@ -642,7 +644,7 @@
     <span class="k">for</span> <span class="n">text</span> <span class="ow">in</span> <span class="n">leg</span><span class="o">.</span><span class="n">get_texts</span><span class="p">():</span>
         <span class="k">if</span> <span class="n">text</span><span class="o">.</span><span class="n">get_text</span><span class="p">()</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"Sites"</span><span class="p">,</span> <span class="s2">"Point Sources"</span><span class="p">):</span>
             <span class="n">text</span><span class="o">.</span><span class="n">set_fontweight</span><span class="p">(</span><span class="s2">"bold"</span><span class="p">)</span>
-    <span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">(</span><span class="n">rect</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">0.85</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">(</span><span class="n">rect</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">0.85</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
     <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span></div>
 
 
@@ -671,7 +673,13 @@
 
 <div class="viewcode-block" id="plot_inventory">
 <a class="viewcode-back" href="../../../_autosummary/slv.inversion.viz.plot_inventory.html#slv.inversion.viz.plot_inventory">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">plot_inventory</span><span class="p">(</span><span class="n">inventory</span><span class="p">,</span> <span class="n">extent</span><span class="p">,</span> <span class="n">tiler</span><span class="p">,</span> <span class="n">zoom</span><span class="p">,</span> <span class="n">subplot_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_inventory</span><span class="p">(</span>
+    <span class="n">inventory</span><span class="p">,</span>
+    <span class="n">extent</span><span class="p">,</span>
+    <span class="n">tiler</span><span class="p">,</span>
+    <span class="n">zoom</span><span class="p">,</span>
+    <span class="n">subplot_kwargs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">):</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Map the time-mean of a flux field (umol/m2/s, with a ``time`` dim) over tiles.</span>
 <span class="sd">    Returns ``(fig, ax)``.</span>
@@ -739,7 +747,7 @@
     <span class="n">site_config</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">site_color</span><span class="o">=</span><span class="s2">"black"</span><span class="p">,</span>
     <span class="n">add_point_sources</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-    <span class="n">subplot_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">subplot_kwargs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">"""Plot flux map with removed cells shaded out."""</span>
     <span class="k">if</span> <span class="n">subplot_kwargs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -1279,6 +1287,8 @@
 
     <span class="k">for</span> <span class="n">location</span> <span class="ow">in</span> <span class="n">locations</span><span class="p">:</span>
         <span class="n">loc_resid</span> <span class="o">=</span> <span class="n">residuals</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">location</span><span class="p">]</span>
+        <span class="c1"># The next color of the axes' cycle: matplotlib has no public call for it.</span>
+        <span class="c1"># pyrefly: ignore[missing-attribute]</span>
         <span class="n">color</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">_get_lines</span><span class="o">.</span><span class="n">get_next_color</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="n">show_raw</span><span class="p">:</span>
@@ -1431,6 +1441,8 @@
             <span class="n">group_level</span> <span class="o">=</span> <span class="n">prior_bias</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">names</span><span class="p">[</span>
                 <span class="mi">1</span>
             <span class="p">]</span>  <span class="c1"># Should be 'obs_location' or 'site_group'</span>
+            <span class="c1"># The level's name, which is a string here (the stubs say any Hashable).</span>
+            <span class="c1"># pyrefly: ignore[bad-argument-type]</span>
             <span class="n">groups</span> <span class="o">=</span> <span class="n">prior_bias</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="n">group_level</span><span class="p">)</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
 
             <span class="c1"># Get the default color cycle</span>

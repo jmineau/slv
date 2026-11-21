@@ -6,7 +6,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>slv.basemap &#8212; Salt Lake Valley py 2026.11.2</title>
+    <title>slv.basemap &#8212; Salt Lake Valley py dev</title>
   
   
   
@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../_static/documentation_options.js?v=23e26dd1"></script>
+    <script src="../../_static/documentation_options.js?v=b2740af7"></script>
     <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -49,7 +49,7 @@
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.23.0';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = 'https://jmineau.github.io/slv/switcher.json';
-        DOCUMENTATION_OPTIONS.theme_switcher_version_match = '2026.11.2';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'dev';
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             true;
         </script>
@@ -60,7 +60,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.11.2" />
+  <meta name="docsearch:version" content="2026.11.3.dev4+g1c8b17372" />
   
     
     <script src="../../_static/searchtools.js"></script>
@@ -809,7 +809,12 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">add_borders</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="s2">"county"</span><span class="p">,</span> <span class="n">borders</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""State or county boundaries (:func:`load_borders`)."""</span>
         <span class="n">gdf</span> <span class="o">=</span> <span class="n">load_borders</span><span class="p">(</span><span class="n">level</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">bbox</span><span class="p">)</span> <span class="k">if</span> <span class="n">borders</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">borders</span>
-        <span class="n">style</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"facecolor"</span><span class="p">:</span> <span class="s2">"none"</span><span class="p">,</span> <span class="s2">"edgecolor"</span><span class="p">:</span> <span class="s2">"black"</span><span class="p">,</span> <span class="s2">"linewidth"</span><span class="p">:</span> <span class="mf">0.8</span><span class="p">}</span>
+        <span class="c1"># Keyword arguments of mixed types: see `add_legend`.</span>
+        <span class="n">style</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">"facecolor"</span><span class="p">:</span> <span class="s2">"none"</span><span class="p">,</span>
+            <span class="s2">"edgecolor"</span><span class="p">:</span> <span class="s2">"black"</span><span class="p">,</span>
+            <span class="s2">"linewidth"</span><span class="p">:</span> <span class="mf">0.8</span><span class="p">,</span>
+        <span class="p">}</span>
         <span class="n">gdf</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="n">PC</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="o">**</span><span class="p">(</span><span class="n">style</span> <span class="o">|</span> <span class="n">kwargs</span><span class="p">))</span>
         <span class="k">return</span> <span class="bp">self</span></div>
 
@@ -819,7 +824,7 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">add_interstates</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">interstates</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""Interstate highways (:func:`load_interstates`)."""</span>
         <span class="n">gdf</span> <span class="o">=</span> <span class="n">load_interstates</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bbox</span><span class="p">)</span> <span class="k">if</span> <span class="n">interstates</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">interstates</span>
-        <span class="n">style</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"color"</span><span class="p">:</span> <span class="s2">"dimgray"</span><span class="p">,</span> <span class="s2">"linewidth"</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">}</span>
+        <span class="n">style</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"color"</span><span class="p">:</span> <span class="s2">"dimgray"</span><span class="p">,</span> <span class="s2">"linewidth"</span><span class="p">:</span> <span class="mf">1.5</span><span class="p">}</span>
         <span class="n">gdf</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="n">PC</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="o">**</span><span class="p">(</span><span class="n">style</span> <span class="o">|</span> <span class="n">kwargs</span><span class="p">))</span>
         <span class="k">return</span> <span class="bp">self</span></div>
 
@@ -935,7 +940,7 @@
             <span class="n">offsets</span> <span class="o">=</span> <span class="n">label_offset</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">label_offset</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="k">else</span> <span class="p">{}</span>
             <span class="k">for</span> <span class="n">site</span><span class="p">,</span> <span class="p">(</span><span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">)</span> <span class="ow">in</span> <span class="n">rows</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span>
-                    <span class="n">names</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">site</span><span class="p">,</span> <span class="n">site</span><span class="o">.</span><span class="n">upper</span><span class="p">()),</span>
+                    <span class="n">names</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">site</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">site</span><span class="p">)</span><span class="o">.</span><span class="n">upper</span><span class="p">()),</span>
                     <span class="p">(</span><span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">),</span>
                     <span class="n">xycoords</span><span class="o">=</span><span class="n">PC</span><span class="o">.</span><span class="n">_as_mpl_transform</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="p">),</span>
                     <span class="n">xytext</span><span class="o">=</span><span class="n">offsets</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">site</span><span class="p">,</span> <span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span> <span class="k">if</span> <span class="n">offsets</span> <span class="k">else</span> <span class="n">label_offset</span><span class="p">),</span>
@@ -977,6 +982,9 @@
             <span class="s2">"labelspacing"</span><span class="p">:</span> <span class="mf">0.6</span><span class="p">,</span>
             <span class="s2">"handler_map"</span><span class="p">:</span> <span class="p">{</span><span class="n">_StackedLines</span><span class="p">:</span> <span class="n">_StackedLinesHandler</span><span class="p">()},</span>
         <span class="p">}</span>
+        <span class="c1"># `_StackedLines` is no Artist: `handler_map` draws it, which the stubs' `handles`</span>
+        <span class="c1"># type does not allow for.</span>
+        <span class="c1"># pyrefly: ignore[bad-argument-type]</span>
         <span class="n">legend</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">handles</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="o">**</span><span class="p">(</span><span class="n">style</span> <span class="o">|</span> <span class="n">kwargs</span><span class="p">))</span>
         <span class="n">legend</span><span class="o">.</span><span class="n">set_zorder</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span></div>
@@ -1020,8 +1028,10 @@
 <a class="viewcode-back" href="../../_autosummary/slv.basemap.SaltLake.add_north_arrow.html#slv.basemap.SaltLake.add_north_arrow">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">add_north_arrow</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mf">0.95</span><span class="p">,</span> <span class="mf">0.07</span><span class="p">),</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">16</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">"""A north arrow (▲ N) in axes coordinates."""</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">xy</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span>
-            <span class="o">*</span><span class="n">xy</span><span class="p">,</span>
+            <span class="n">x</span><span class="p">,</span>
+            <span class="n">y</span><span class="p">,</span>
             <span class="s2">"▲</span><span class="se">\n</span><span class="s2">N"</span><span class="p">,</span>
             <span class="n">transform</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">transAxes</span><span class="p">,</span>
             <span class="n">fontsize</span><span class="o">=</span><span class="n">fontsize</span><span class="p">,</span>
