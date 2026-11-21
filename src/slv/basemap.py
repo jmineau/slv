@@ -342,14 +342,19 @@ class SaltLake:
     def add_borders(self, level="county", borders=None, **kwargs):
         """State or county boundaries (:func:`load_borders`)."""
         gdf = load_borders(level, self.bbox) if borders is None else borders
-        style = {"facecolor": "none", "edgecolor": "black", "linewidth": 0.8}
+        # Keyword arguments of mixed types: see `add_legend`.
+        style: dict[str, Any] = {
+            "facecolor": "none",
+            "edgecolor": "black",
+            "linewidth": 0.8,
+        }
         gdf.plot(ax=self.ax, transform=PC, zorder=2, **(style | kwargs))
         return self
 
     def add_interstates(self, interstates=None, **kwargs):
         """Interstate highways (:func:`load_interstates`)."""
         gdf = load_interstates(self.bbox) if interstates is None else interstates
-        style = {"color": "dimgray", "linewidth": 1.5}
+        style: dict[str, Any] = {"color": "dimgray", "linewidth": 1.5}
         gdf.plot(ax=self.ax, transform=PC, zorder=2, **(style | kwargs))
         return self
 
@@ -456,7 +461,7 @@ class SaltLake:
             offsets = label_offset if isinstance(label_offset, dict) else {}
             for site, (lon, lat) in rows.iterrows():
                 self.ax.annotate(
-                    names.get(site, site.upper()),
+                    names.get(site, str(site).upper()),
                     (lon, lat),
                     xycoords=PC._as_mpl_transform(self.ax),
                     xytext=offsets.get(site, (10, 10) if offsets else label_offset),
@@ -492,6 +497,9 @@ class SaltLake:
             "labelspacing": 0.6,
             "handler_map": {_StackedLines: _StackedLinesHandler()},
         }
+        # `_StackedLines` is no Artist: `handler_map` draws it, which the stubs' `handles`
+        # type does not allow for.
+        # pyrefly: ignore[bad-argument-type]
         legend = self.ax.legend(handles, labels, **(style | kwargs))
         legend.set_zorder(8)
         return self
@@ -529,8 +537,10 @@ class SaltLake:
 
     def add_north_arrow(self, xy=(0.95, 0.07), fontsize=16):
         """A north arrow (▲ N) in axes coordinates."""
+        x, y = xy
         self.ax.text(
-            *xy,
+            x,
+            y,
             "▲\nN",
             transform=self.ax.transAxes,
             fontsize=fontsize,

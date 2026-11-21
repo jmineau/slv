@@ -125,7 +125,9 @@ def apply_epoch_offset(df: pd.DataFrame, apply: bool = True) -> pd.DataFrame:
 
 
 def select_uncalibrated(
-    qaqc: pd.DataFrame, windows: pd.DataFrame, exclude_times: pd.Index | None = None
+    qaqc: pd.DataFrame,
+    windows: pd.DataFrame,
+    exclude_times: pd.Index | pd.Series | None = None,
 ) -> pd.DataFrame:
     """
     Rows of a qaqc-level LGR frame that fall inside the uncalibrated windows.

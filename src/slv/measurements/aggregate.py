@@ -1,11 +1,12 @@
 """Aggregate observations in time (and space, for mobile platforms)."""
 
 from collections.abc import Callable
+from typing import Any
 
 import geopandas as gpd
 import numpy as np
 import pandas as pd
-from scipy.spatial import cKDTree
+from scipy.spatial import KDTree
 
 from slv.measurements import instruments
 
@@ -79,6 +80,7 @@ def aggregate_obs(
             if by is not None:
                 group_keys = _as_keys(by)
             else:
+                assert freq is not None  # `by` is None, so the test above held for it
                 stationary = stationary.copy()
                 stationary["agg_time"] = _bin_start(stationary["Time_UTC"], freq)
                 group_keys = ["site", "agg_time"] + [
@@ -125,7 +127,9 @@ def aggregate_obs(
 
             if not stationary.empty:
                 numeric_cols = stationary.select_dtypes(include="number").columns
-                agg_dict = {col: func for col in numeric_cols if col not in group_keys}
+                agg_dict: dict[str, Any] = {
+                    col: func for col in numeric_cols if col not in group_keys
+                }
                 agg_dict["instrument"] = lambda x: " ".join(sorted(x.unique()))
                 grouped = stationary.groupby(group_keys).agg(agg_dict).reset_index()
                 agg_frames.append(grouped.rename(columns={"agg_time": "Time_UTC"}))
@@ -149,7 +153,7 @@ def aggregate_obs(
                     )
                 )
             )
-            _, idx = cKDTree(agg_pts).query(obs_pts, k=1)
+            _, idx = KDTree(agg_pts).query(obs_pts, k=1)
             mobile["agg_lat"] = mobile_points.geometry.y.values[idx]
             mobile["agg_lon"] = mobile_points.geometry.x.values[idx]
             group_keys.extend(["site", "agg_lat", "agg_lon"])
@@ -169,6 +173,7 @@ def aggregate_obs(
             if by is not None:
                 group_keys = _as_keys(by)
             else:
+                assert freq is not None  # `by` is None, so the test above held for it
                 mobile["agg_time"] = _bin_start(mobile["Time_UTC"], freq)
                 group_keys.append("agg_time")
 
@@ -181,7 +186,9 @@ def aggregate_obs(
         # When spatial binning is active, lat/lon come from renamed bin columns
         spatial_active = mobile_points is not None or mobile_grid_res is not None
         exclude = group_keys + (["latitude", "longitude"] if spatial_active else [])
-        agg_dict = {col: func for col in numeric_cols if col not in exclude}
+        agg_dict: dict[str, Any] = {
+            col: func for col in numeric_cols if col not in exclude
+        }
         agg_dict["instrument"] = lambda x: " ".join(sorted(x.unique()))
 
         grouped = mobile.groupby(group_keys).agg(agg_dict).reset_index()

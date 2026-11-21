@@ -520,7 +520,7 @@ def _build_chunk(
     n0 = len(obs)
     obs = apply_pressure_rule(obs, _pressure_series(support), pressure_band)
     n1 = len(obs)
-    if dropout_window is not None:
+    if drops is not None and dropout_window is not None:  # both or neither
         obs = apply_dropout_rule(obs, drops, dropout_window)
     if n0:
         print(

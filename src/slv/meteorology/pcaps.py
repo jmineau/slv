@@ -63,6 +63,8 @@ def _determine_pcap_events(time_range, threshold, min_periods, sounding_kwargs=N
     soundings = get_soundings(
         start=time_range[0], end=time_range[1], driver=driver, **(sounding_kwargs or {})
     )
+    # `driver="xarray"` returns a Dataset; the stubs give the union of the drivers' types.
+    # pyrefly: ignore[bad-argument-type]
     vhd = lair.pcaps.valleyheatdeficit(soundings)
     return lair.pcaps.determine_pcap_events(
         vhd, threshold=threshold, min_periods=min_periods
@@ -127,4 +129,6 @@ def filter_pcap_events(data: pd.Series | pd.DataFrame, level=None):
     times = data.index.get_level_values(level) if level is not None else data.index
     time_range = (times.min(), times.max())
     events = get_pcap_events(time_range)
+    # lair types `data` as a DataFrame; it takes a Series as well.
+    # pyrefly: ignore[bad-argument-type]
     return lair.pcaps.filter_pcap_events(data, events=events, level=level)

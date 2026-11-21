@@ -163,7 +163,11 @@ def filter_near_routes(
     """
     routes_buff = gpd.GeoDataFrame(
         geometry=[routes.buffer(buffer).union_all()], crs=routes.crs
-    ).to_crs(gps.crs)
+    )
+    # The stubs do not take a CRS that is None, which a GeoDataFrame without one has;
+    # `gps` has one.
+    # pyrefly: ignore[bad-argument-type]
+    routes_buff = routes_buff.to_crs(gps.crs)
     return gpd.sjoin(gps, routes_buff, how="inner", predicate="within").drop(
         columns=["index_right"]
     )
@@ -188,11 +192,15 @@ def load_storage_polygons(meters: bool = False) -> gpd.GeoDataFrame:
     """All storage yards in :data:`storage_locations`, one row each with a ``name``."""
     rows = []
     for name, src in storage_locations.items():
+        # `get_geodf` is None only for no geometry; these are packaged files.
+        # pyrefly: ignore[missing-attribute]
         g = get_geodf(src).to_crs(UTM12)
         rows.append(
             gpd.GeoDataFrame(
                 {"name": [name]}, geometry=[g.geometry.union_all()], crs=UTM12
             )
         )
-    gdf = pd.concat(rows, ignore_index=True)
+    # pandas' stubs type the concatenation of GeoDataFrames as a DataFrame.
+    # pyrefly: ignore[bad-assignment]
+    gdf: gpd.GeoDataFrame = pd.concat(rows, ignore_index=True)
     return gdf if meters else gdf.to_crs("EPSG:4326")

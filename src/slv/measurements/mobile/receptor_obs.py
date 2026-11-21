@@ -144,7 +144,10 @@ def _windows(
             if did not in dw.index:
                 continue
             row = dw.loc[did]
+            # `dw.loc[did]` is one row (the index is unique); the stubs also allow a frame.
+            # pyrefly: ignore[unsupported-operation, bad-argument-type]
             t0.loc[i] = max(hour, pd.Timestamp(row.t_start))
+            # pyrefly: ignore[unsupported-operation, bad-argument-type]
             t1.loc[i] = min(hour + pd.Timedelta(hours=1), pd.Timestamp(row.t_end))
     return pd.DataFrame({"t0": t0, "t1": t1}, index=keys.index)
 

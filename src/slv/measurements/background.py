@@ -98,6 +98,8 @@ class GMLDiscrete(noaa.GMLData):
         self._raw = noaa.GMLData.apply_qaqc(self.data, flags=flags)
 
         # Extract value column
+        # lair types `data` as a frame; here it is the one column, a Series.
+        # pyrefly: ignore[bad-assignment, bad-argument-type]
         self.data = self._raw.rename(columns={value_col: specie.upper()})[
             specie.upper()
         ]
@@ -153,6 +155,8 @@ class GMLDiscrete(noaa.GMLData):
         pd.Series
             Smoothed curve.
         """
+        # `self.data` is a Series (see `__init__`); lair types the attribute as a frame.
+        # pyrefly: ignore[bad-argument-type]
         return thoning(self.data, smooth_time=smooth_time, **kwargs)
 
 
