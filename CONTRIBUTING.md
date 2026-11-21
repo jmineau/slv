@@ -107,9 +107,9 @@ CI (`.github/workflows/`) runs the same `just` recipes:
 No CHPC data roots are set in CI, so tests must not read group data. A docstring
 example that needs data CI lacks gets `# doctest: +SKIP` on its `>>>` line. Warnings are
 errors in the tests: a test that expects one asserts it with `pytest.warns`, and a
-third-party one is ignored by message in `[tool.pytest]`. pyrefly fails on any error
-not in `pyrefly-baseline.json`; fix the listed ones over time and run
-`uv run pyrefly check --update-baseline`.
+third-party one is ignored by message in `[tool.pytest]`. pyrefly fails on any
+error; there is no baseline, so fix it or silence a library stub's error in the code
+with `# pyrefly: ignore[<code>]` and the reason.
 
 ## Releasing
 

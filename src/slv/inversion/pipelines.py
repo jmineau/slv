@@ -496,13 +496,14 @@ def get_bias(config: InversionConfig, obs_space: Space) -> tuple[Vector, Operato
     return fips.offset_block(obs_space, by=by, block="bias")
 
 
-def get_bias_std(config: InversionConfig, bias: Vector) -> float | pd.Series:
+def get_bias_std(config: InversionConfig, bias: Vector) -> float | pd.Series | None:
     """
     The prior std of each offset in the bias block ``bias`` (from :func:`get_bias`).
 
     ``config.bias_std`` itself when it is one number. When it is a Series of std by
     interval start, each offset takes its interval's value (every site's offset in an
-    interval the same one), as a Series on the block's labels.
+    interval the same one), as a Series on the block's labels. ``None`` when
+    ``config.bias_std`` is ``None`` (no bias block).
 
     Raises
     ------
@@ -660,6 +661,8 @@ def build_problem(config: InversionConfig) -> Problem:
         blocks[("concentration", "bias")] = bias_forward
         prior_cov = Covariance.block_diag(
             flux=prior_error,
+            # `bias_std` is not None in this branch, so the std is not None.
+            # pyrefly: ignore[no-matching-overload]
             bias=Independent().with_std(get_bias_std(config, bias_prior)),
         )
     problem = Problem(

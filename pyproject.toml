@@ -93,10 +93,8 @@ exclude_also = [
 project-includes = ["src"]
 python-version = "3.11"  # as CI checks, against the oldest supported Python
 ignore-missing-imports = ["xesmf"]  # conda-forge only, imported lazily
-# What is left of the errors that existed when slv moved from pyright to pyrefly
-# (2026-10): one, whose fix would change what `get_bias_std` returns. New errors fail
-# the check; a library stub's error is silenced in the code with `# pyrefly: ignore`.
-baseline = "pyrefly-baseline.json"
+# No baseline: every error fails the check. Silence a library stub's error in the code
+# with `# pyrefly: ignore[<code>]` on the line above, after a comment saying why.
 
 [tool.pytest]
 minversion = "9.0"

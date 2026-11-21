@@ -68,8 +68,8 @@ What each CI workflow does, the pixi job and the monthly `pixi update` are in
 - **No CHPC data roots are set in CI**: tests must not read group data.
 - **Warnings are errors in the tests**; a test that expects one asserts it with
   `pytest.warns`, and a third-party one is ignored by message in `[tool.pytest]`.
-- **pyrefly fails on any error not in `pyrefly-baseline.json`**: fix them over time and
-  `--update-baseline`.
+- **pyrefly fails on any error**: there is no baseline. Fix it, or for a library stub's
+  error put `# pyrefly: ignore[<code>]` on the line above, with the reason.
 - **`uv.lock` is upgraded by the Upgrade lock workflow alone**
   (`lock-upgrade.yml`, monthly `uv lock --upgrade`); Dependabot keeps the Actions and
   pre-commit hooks. `pixi-update.yml` does `pixi.lock`, separately.
@@ -157,8 +157,7 @@ first line. `just build-docs` runs everything, as CI does.
 - **Linting and docstrings**: ruff, with the NumPy convention and the summary on the
   line after the opening quotes (D213); the rules, and why D401 and D205 are off,
   are in `pyproject.toml`.
-- **Types**: pyrefly (default preset) on `src/`, with a baseline of the errors it
-  found on adoption; a new error fails. Suppress one only with
+- **Types**: pyrefly (default preset) on `src/`; an error fails. Suppress one only with
   `# pyrefly: ignore[<code>]` on the line above, after a comment saying why.
   `py.typed` shipped.
 
