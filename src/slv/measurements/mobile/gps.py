@@ -312,6 +312,8 @@ def fill_gps_gaps_with_horel(
     """
     if "gps_source" not in data.columns:
         data = data.copy()
+        # numpy's stubs (the version CI resolves) have no overload that takes None as `y`.
+        # pyrefly: ignore[no-matching-overload]
         data["gps_source"] = np.where(data["Latitude_deg"].notna(), "lin", None)
     missing = data["Latitude_deg"].isna()
     if not bool(missing.any()):
