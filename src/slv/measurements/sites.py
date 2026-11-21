@@ -25,4 +25,4 @@ def get_site_coordinates(site_id: str) -> tuple[float, float]:
         raise ValueError(f"Site {site_id} not found in site_config.csv")
 
     row = df.loc[site_id]
-    return row["latitude"], row["longitude"]
+    return float(row["latitude"]), float(row["longitude"])

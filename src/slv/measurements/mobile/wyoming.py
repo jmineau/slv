@@ -103,6 +103,8 @@ def read_met(file):
     # works but makes pandas warn on every cast.
     times = pd.Series(pd.NaT, index=met.index, dtype="datetime64[ns]")
     if valid.any():
+        # pandas assembles datetimes from a dict of columns; its stubs do not say so.
+        # pyrefly: ignore[no-matching-overload]
         times[valid] = pd.to_datetime(
             {k: v[valid] for k, v in met_time.items()}, errors="coerce"
         )
@@ -242,9 +244,13 @@ def wyomingMap(
     crs = tiler.crs if tiler else PC
     if ax is None:
         fig, ax = plt.subplots(figsize=figsize, subplot_kw={"projection": crs})
+    # `ax` is a cartopy GeoAxes whenever `tiler` or `extent` is given; the stubs know
+    # only matplotlib's Axes.
     if extent:
+        # pyrefly: ignore[missing-attribute]
         ax.set_extent(extent)
     if tiler:
+        # pyrefly: ignore[bad-argument-count]
         ax.add_image(tiler, tiler_zoom)
     if title:
         ax.set_title(title)

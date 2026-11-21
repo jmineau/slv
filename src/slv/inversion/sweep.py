@@ -380,7 +380,11 @@ class Sweep:
             added = 0
             for combo in itertools.product(*param_values):
                 overrides = dict(zip(param_names, combo, strict=True))
-                all_fields = {**base_fields, **overrides, "cache": str(self.cache)}
+                all_fields: dict[str, Any] = {
+                    **base_fields,
+                    **overrides,
+                    "cache": str(self.cache),
+                }
                 cfg = InversionConfig(
                     **{k: v for k, v in all_fields.items() if k in valid_fields}
                 )
@@ -1137,9 +1141,10 @@ class SweepResults:
         ``(InversionConfig, pipeline)``: ``pipeline(config)`` runs it.
         """
         valid = {f.name for f in dataclasses.fields(InversionConfig)}
+        columns = {str(k): v for k, v in row.items()}
         raw = {
             k.removeprefix("cfg_"): v
-            for k, v in row.items()
+            for k, v in columns.items()
             if k.startswith("cfg_") and k.removeprefix("cfg_") in valid
         }
         # Decode JSON-encoded dicts/lists

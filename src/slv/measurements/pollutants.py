@@ -1,9 +1,11 @@
 """Per-pollutant QC: valid ranges and flags, applied by :func:`normalize_pollutant`."""
 
+from typing import Any
+
 import numpy as np
 import pandas as pd
 
-defaults = {
+defaults: dict[str, dict[str, Any]] = {
     "CH4": {
         "valid_range": (1.70, 300),
         "valid_flags": {-64, -140},

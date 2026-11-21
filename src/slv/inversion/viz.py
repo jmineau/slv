@@ -3,6 +3,8 @@ Plots of an SLV inversion: the domain, inputs, fluxes, domain totals and error
 diagnostics. The plots of a solved inversion take its :class:`~fips.Posterior`.
 """
 
+from typing import Any
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -80,7 +82,7 @@ def plot_grid(
     site_config=None,
     site_color="black",
     add_point_sources=None,
-    subplot_kwargs=None,
+    subplot_kwargs: dict[str, Any] | None = None,
 ):
     """
     Map the state grid's cells over tiles, with the sites and CH4 point sources.
@@ -198,7 +200,7 @@ def plot_grid(
     for text in leg.get_texts():
         if text.get_text() in ("Sites", "Point Sources"):
             text.set_fontweight("bold")
-    fig.tight_layout(rect=[0, 0, 0.85, 1])
+    fig.tight_layout(rect=(0, 0, 0.85, 1))
     return fig, ax
 
 
@@ -221,7 +223,13 @@ def plot_concentrations(obs):
     return fig, ax
 
 
-def plot_inventory(inventory, extent, tiler, zoom, subplot_kwargs=None):
+def plot_inventory(
+    inventory,
+    extent,
+    tiler,
+    zoom,
+    subplot_kwargs: dict[str, Any] | None = None,
+):
     """
     Map the time-mean of a flux field (umol/m2/s, with a ``time`` dim) over tiles.
     Returns ``(fig, ax)``.
@@ -285,7 +293,7 @@ def _plot_flux_with_coverage(
     site_config=None,
     site_color="black",
     add_point_sources=None,
-    subplot_kwargs=None,
+    subplot_kwargs: dict[str, Any] | None = None,
 ):
     """Plot flux map with removed cells shaded out."""
     if subplot_kwargs is None:
@@ -796,6 +804,8 @@ def plot_residuals(
 
     for location in locations:
         loc_resid = residuals.loc[location]
+        # The next color of the axes' cycle: matplotlib has no public call for it.
+        # pyrefly: ignore[missing-attribute]
         color = ax._get_lines.get_next_color()
 
         if show_raw:
@@ -945,6 +955,8 @@ def plot_background_and_bias(post: Posterior):
             group_level = prior_bias.index.names[
                 1
             ]  # Should be 'obs_location' or 'site_group'
+            # The level's name, which is a string here (the stubs say any Hashable).
+            # pyrefly: ignore[bad-argument-type]
             groups = prior_bias.index.get_level_values(group_level).unique()
 
             # Get the default color cycle

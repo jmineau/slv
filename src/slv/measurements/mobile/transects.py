@@ -49,6 +49,7 @@ from pathlib import Path
 import geopandas as gpd
 import numpy as np
 import pandas as pd
+import xarray as xr
 from lair import transects as tr
 from pyproj import Transformer
 
@@ -299,10 +300,10 @@ def build_network_transects(
     in_transit = transit >= 0
     by = pd.Series(transit[in_transit])
     per = pd.DataFrame(index=np.arange(n_transits))
-    per["lag_s"] = pd.Series(lag_s[in_transit]).groupby(by.values).median()
+    per["lag_s"] = pd.Series(lag_s[in_transit]).groupby(by.to_numpy()).median()
     per["lag_source"] = (
         pd.Series(lag_src[in_transit])
-        .groupby(by.values)
+        .groupby(by.to_numpy())
         .agg(lambda s: s.mode().iloc[0])
     )
     for col, name in (
@@ -316,7 +317,7 @@ def build_network_transects(
                 else obs[col].to_numpy(dtype=bool)
             )
             per[name] = (
-                pd.Series(flag[in_transit].astype(float)).groupby(by.values).mean()
+                pd.Series(flag[in_transit].astype(float)).groupby(by.to_numpy()).mean()
             )
 
     lonlat = pts.to_crs("EPSG:4326")
@@ -447,7 +448,9 @@ def build_trax_transects(
         if obs.empty:
             print(f"{year}: no observations")
             continue
-        ds = build_network_transects(obs, pts, lag=lag, **build_kwargs)
+        # `return_samples` makes it return a tuple; it is not passed here, so it is the Dataset.
+        # pyrefly: ignore[bad-assignment]
+        ds: xr.Dataset = build_network_transects(obs, pts, lag=lag, **build_kwargs)
         if ds.sizes["transect"] == 0:
             print(f"{year}: no transits")
             continue
