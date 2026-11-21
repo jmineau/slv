@@ -7,6 +7,21 @@ alone: the entries are written at release (`just changelog` drafts them).
 
 ## [Unreleased]
 
+## [2026.11.2] - 2026-11-21
+
+### Added
+
+- `InversionConfig.bias_freq` puts the bias offsets on their own interval (`"D"` is one offset a day, under any `flux_freq`), and `bias_std` can be a Series (or a dict) of one std per interval start; `pipelines.get_bias_std` gives each offset its interval's std, and an interval that has obs and no std raises. Configs that set neither give the same problem and the same sweep `config_id` as before. (#97, #98)
+- `run()` records the versions of slv, fips, pystilt, lair and uataq, and the config as JSON, in `post.attrs`, and every sweep results row has a `<package>_version` column for each. The cache keys and `config_id` do not change. (#99, #100)
+
+### Changed
+
+- Pins: `uataq` v2026.11.1 and `pystilt>=0.1.0a28`. (#95, #96)
+
+### Fixed
+
+- `siphon>=0.11`: 0.10 reads its version from git at import.
+
 ## [2026.11.1] - 2026-11-10
 
 ### Changed
