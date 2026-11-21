@@ -101,6 +101,8 @@ def nearest_station(
     dx = (meta["longitude"] - longitude) * 111.32 * np.cos(np.radians(latitude))
     dy = (meta["latitude"] - latitude) * 111.32
     distance = np.hypot(dx, dy)
+    # `distance` is a Series (the stubs type a numpy ufunc's result as an ndarray).
+    # pyrefly: ignore[missing-attribute]
     code = distance.idxmin()
     return code, float(distance[code])
 

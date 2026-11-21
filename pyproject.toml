@@ -93,9 +93,9 @@ exclude_also = [
 project-includes = ["src"]
 python-version = "3.11"  # as CI checks, against the oldest supported Python
 ignore-missing-imports = ["xesmf"]  # conda-forge only, imported lazily
-# The errors that existed when slv moved from pyright to pyrefly (2026-10), nearly
-# all from pandas-stubs. New errors fail the check; fix the listed ones over time,
-# then run `uv run pyrefly check --update-baseline` to shrink it.
+# What is left of the errors that existed when slv moved from pyright to pyrefly
+# (2026-10): one, whose fix would change what `get_bias_std` returns. New errors fail
+# the check; a library stub's error is silenced in the code with `# pyrefly: ignore`.
 baseline = "pyrefly-baseline.json"
 
 [tool.pytest]

@@ -775,6 +775,8 @@ class InversionConfig:
     @property
     def flux_times(self) -> pd.DatetimeIndex:
         """Returns the left edges of the flux time bins, which represent the time points for flux estimation."""
+        # The stubs type IntervalIndex.left as Index; these bins are always datetimes.
+        # pyrefly: ignore[bad-return]
         return self.flux_time_bins.left
 
     @property

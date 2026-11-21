@@ -45,7 +45,7 @@ import numpy as np
 import pandas as pd
 import shapely
 from pyproj import Transformer
-from scipy.spatial import cKDTree
+from scipy.spatial import KDTree
 
 from slv.domain import UTC_OFFSET
 from slv.measurements.mobile.gps import sort_by_time
@@ -113,7 +113,7 @@ def load_trax_network_points(
         fine = load_trax_points(spacing, meters=True)
         segs = load_trax_points(segment_spacing, meters=True)
         xy = np.c_[fine.geometry.x, fine.geometry.y]
-        d, seg = cKDTree(np.c_[segs.geometry.x, segs.geometry.y]).query(xy)
+        d, seg = KDTree(np.c_[segs.geometry.x, segs.geometry.y]).query(xy)
         pts = gpd.GeoDataFrame(
             {
                 "point": np.arange(len(fine)),
@@ -215,7 +215,7 @@ def find_segment_crossings(
         )
     fixes = sort_by_time(fixes)
     x, y = _TO_UTM.transform(fixes.Longitude_deg.values, fixes.Latitude_deg.values)
-    d, ip = cKDTree(np.c_[points.geometry.x, points.geometry.y]).query(np.c_[x, y])
+    d, ip = KDTree(np.c_[points.geometry.x, points.geometry.y]).query(np.c_[x, y])
     ok = d <= max_point_dist
     ip = ip[ok]
     ts = _posix_seconds(fixes.Time_UTC.values[ok])
@@ -243,7 +243,7 @@ def find_segment_crossings(
     # a crossing whose points share no line (disjoint arms) falls back to its first point
     cross_col = np.array(
         [
-            c if (c := _col(m)) >= 0 else _col(f)
+            c if (c := _col(int(m))) >= 0 else _col(f)
             for m, f in zip(common, first_mask, strict=True)
         ],
         dtype=int,
@@ -319,6 +319,9 @@ def release_points(points: gpd.GeoDataFrame, segment: int, lines: str) -> pd.Ind
     """
     sel = points["segment"].values == segment
     for c in lines:
+        # The stubs type `.values` as any array, so they refuse the in-place `&=`. Keep
+        # `.values`: `to_numpy()` gives a read-only array under copy-on-write.
+        # pyrefly: ignore[unsupported-operation]
         sel &= points["lines"].str.contains(c).values
     return points.index[sel]
 
@@ -425,7 +428,7 @@ def label_dwell_site(
         points = load_trax_network_points(meters=True)
     out = pd.DataFrame(index=dwells.index)
     x, y = _TO_UTM.transform(dwells.longitude.values, dwells.latitude.values)
-    d, ip = cKDTree(np.c_[points.geometry.x, points.geometry.y]).query(np.c_[x, y])
+    d, ip = KDTree(np.c_[points.geometry.x, points.geometry.y]).query(np.c_[x, y])
     seg = points["segment"].to_numpy()[ip].astype(float)
     seg[d > max_dist] = np.nan
     out["segment"] = seg
@@ -491,6 +494,8 @@ def build_dwell_receptors(
 
     frames = []
     for d in dwells.itertuples(index=False):
+        # `itertuples` gives timestamps; the stubs do not know that.
+        # pyrefly: ignore[no-matching-overload]
         lo, hi = np.searchsorted(ts, [np.datetime64(d.t_start), np.datetime64(d.t_end)])
         if hi <= lo:
             continue
