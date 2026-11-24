@@ -16,6 +16,16 @@ def test_a_failed_write_leaves_the_old_file(tmp_path):
     assert list(tmp_path.iterdir()) == [target]
 
 
+def test_a_symlink_stays_a_link_to_the_new_file(tmp_path):
+    target = tmp_path / "events.csv"
+    target.write_text("old")
+    link = tmp_path / "link.csv"
+    link.symlink_to(target)
+    with replacing(link) as tmp:
+        tmp.write_text("new")
+    assert link.is_symlink() and target.read_text() == "new"
+
+
 def test_a_cache_entry_that_fails_to_pickle_is_not_left_behind(tmp_path):
     class Config:
         cache = tmp_path

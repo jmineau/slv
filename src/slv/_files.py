@@ -15,7 +15,8 @@ def replacing(path: str | Path) -> Iterator[Path]:
     Write the file to the path this yields. ``os.replace`` is atomic on one
     filesystem, so another process reading ``path`` sees the old file or the new one,
     never part of one, and a write that fails or is killed leaves the old file as it
-    was. The temporary file is removed if the block raises.
+    was. The temporary file is removed if the block raises. A ``path`` that is a
+    symlink keeps it: the file it points to is the one replaced.
 
     Examples
     --------
@@ -27,7 +28,8 @@ def replacing(path: str | Path) -> Iterator[Path]:
     >>> target.read_text()
     'start,end'
     """
-    path = Path(path)
+    # through a symlink to its target, so the link stays a link
+    path = Path(path).resolve()
     # hidden, and not ending in the target's suffix, so a glob for the real files skips it
     tmp = path.with_name(f".{path.name}.{uuid.uuid4().hex[:8]}.tmp")
     try:
