@@ -309,7 +309,8 @@ class InversionConfig:
     mobile_obs : str or Path, optional
         Receptor-paired obs for the mobile sites (parquet indexed
         ``(obs_location, obs_time)``, from
-        :func:`~slv.measurements.mobile.trax_receptor_observations`).
+        :func:`~slv.measurements.mobile.trax_receptor_observations`)). Required when
+        ``sites`` has a mobile site.
     filter_pcaps : bool
         Drop obs during persistent cold-air pool events.
     filter_spikes : bool
@@ -414,7 +415,7 @@ class InversionConfig:
     # (obs_location, obs_time) with a CH4 column, from
     # slv.measurements.mobile.trax_receptor_observations). When set, mobile sites take
     # their obs from here instead of the hourly point aggregation, so each obs is keyed
-    # exactly like the TRAX receptor it pairs with. None keeps the old mobile path.
+    # exactly like the TRAX receptor it pairs with. A mobile site needs it.
     mobile_obs: str | Path | None = None
     filter_pcaps: bool = True
 

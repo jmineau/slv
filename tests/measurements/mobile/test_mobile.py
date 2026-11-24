@@ -788,3 +788,62 @@ def test_no_lin_gps_means_no_day_with_a_checked_clock():
         offsets = lin_clock_offset_by_day(no_gps)
         assert isinstance(offsets.index, pd.DatetimeIndex) and offsets.empty
         assert clock_checked_days(offsets, days) == set()
+
+
+def test_a_dropout_just_before_a_chunk_masks_the_chunk_s_first_rows(monkeypatch):
+    from slv.measurements.mobile import obs as obs_mod
+
+    support = pd.DataFrame(
+        {
+            "Time_UTC": pd.to_datetime(["2015-12-31 23:58:00"]),
+            "CH4_raw": [1.0],  # a laser dropout in the 2015 chunk
+            "QAQC_Flag": [0.0],
+            "Cavity_P_torr": [np.nan],
+            "ID_CH4": [-10.0],
+        }
+    )
+
+    def read_support(site, instrument, time_range, num_processes):
+        t0, t1 = (pd.Timestamp(x) for x in time_range)
+        keep = (support.Time_UTC >= t0) & (support.Time_UTC <= t1)
+        return support[keep] if instrument == "lgr_ugga" else support.iloc[:0]
+
+    t = pd.to_datetime(["2016-01-01 00:00:10", "2016-01-01 00:20:00"])
+    tables = {("lgr_ugga", "calibrated"): pd.DataFrame({"Time_UTC": t, "CH4": 2.0})}
+    monkeypatch.setattr(obs_mod, "_read_lgr", _fake_read_lgr(tables))
+    monkeypatch.setattr(obs_mod, "merge_with_gps", _fake_merge_with_gps)
+    monkeypatch.setattr(obs_mod, "_read_support", read_support)
+    out = obs_mod.build_trax_obs(
+        time_range=("2015-12-01", "2016-02-01"),
+        windows=pd.DataFrame({"start": pd.to_datetime([]), "end": pd.to_datetime([])}),
+        classify=False,
+    )
+    assert out.Time_UTC.tolist() == [t[1]]
+
+
+def test_an_error_in_the_rules_stops_the_build(monkeypatch):
+    from slv.measurements.mobile import obs as obs_mod
+
+    def broken(cal, tol):
+        raise KeyError("CH4d_m")
+
+    monkeypatch.setattr(obs_mod, "apply_slope_guard", broken)
+    t = pd.date_range("2016-01-10", periods=3, freq="10s")
+    tables = {("lgr_ugga", "calibrated"): pd.DataFrame({"Time_UTC": t, "CH4": 2.0})}
+    # it used to empty the chunk's calibrated rows without a word
+    with pytest.raises(KeyError, match="CH4d_m"):
+        _build(monkeypatch, tables, (t[0], t[-1]))
+
+
+def test_a_missing_level_is_reported(monkeypatch, capsys):
+    t = pd.date_range("2016-01-10", periods=3, freq="10s")
+    tables = {("lgr_ugga", "calibrated"): pd.DataFrame({"Time_UTC": t, "CH4": 2.0})}
+    _build(monkeypatch, tables, (t[0], t[-1]))
+    assert "no manual-cal LGR data" in capsys.readouterr().out
+
+
+def test_load_trax_obs_refuses_a_site_its_default_cache_does_not_hold(monkeypatch):
+    from slv.measurements.mobile import obs as obs_mod
+
+    with pytest.raises(ValueError, match="trx02"):
+        obs_mod.load_trax_obs(site="trx02")

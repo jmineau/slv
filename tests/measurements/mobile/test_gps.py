@@ -195,7 +195,7 @@ def test_trax_gps_fills_horel_gaps_from_lin(monkeypatch):
         gps,
         "read_horel_cr1000",
         lambda time_range, site="trx01", num_processes=1: _frame(
-            horel_t, source=["horel"] * 2
+            horel_t, source=["horel"] * 2, Latitude_deg=[40.7, 40.7]
         ),
     )
     monkeypatch.setattr(
@@ -532,3 +532,25 @@ def test_load_concentrations_with_no_lin_gps_returns_no_rows_and_no_error(
     )
     assert out.empty
     assert {"Time_UTC", "site", "CH4", "latitude", "longitude"} <= set(out.columns)
+
+
+def test_trax_gps_fills_minutes_where_horel_logged_without_a_position(monkeypatch):
+    """The horel GPS down while its CR1000 logs: those minutes come from the lin GPS."""
+    t = pd.date_range("2025-01-01", periods=2, freq="min")
+    monkeypatch.setattr(
+        gps,
+        "read_horel_cr1000",
+        lambda time_range, site="trx01", num_processes=1: _frame(
+            t, Latitude_deg=[40.7, np.nan], Battery_Voltage_V=[12.6, 12.6]
+        ),
+    )
+    monkeypatch.setattr(
+        gps,
+        "read_lin_gps",
+        lambda time_range, site="trx01", num_processes=1: _frame(
+            t + pd.Timedelta("5s"), Latitude_deg=[40.8, 40.8]
+        ),
+    )
+    out = gps.read_trax_gps(("2025-01-01", "2025-01-02"))
+    # the first minute is horel's; the second, which horel logged without a fix, is lin's
+    assert out.Latitude_deg.dropna().tolist() == [40.7, 40.8]

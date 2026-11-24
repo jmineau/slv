@@ -228,11 +228,14 @@ def read_trax_gps(
         if fill_gaps:
             lin = read_lin_gps(post, site, num_processes=num_processes)
             if len(lin):
-                covered = (
-                    pd.DatetimeIndex(horel.index).floor("min").unique()
-                    if len(horel)
+                # a minute counts as covered only if horel has a position in it: its
+                # logger-only rows (the GPS down, the CR1000 still logging) have none
+                located = (
+                    horel.index[horel["Latitude_deg"].notna()]
+                    if "Latitude_deg" in horel.columns
                     else pd.DatetimeIndex([])
                 )
+                covered = pd.DatetimeIndex(located).floor("min").unique()
                 gap = lin[~pd.DatetimeIndex(lin.index).floor("min").isin(covered)]
                 if len(gap):
                     print(f"Filling {len(gap):,} lin-GPS rows into horel gaps")

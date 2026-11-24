@@ -7,7 +7,6 @@ import pandas as pd
 
 from slv.domain import UTC_OFFSET
 from slv.measurements import aggregate_obs, load_concentrations
-from slv.measurements.mobile import load_trax_points
 
 
 def split_sites(
@@ -118,13 +117,22 @@ def get_slv_observations(
     matches the simulation location_id so no separate location mapper is needed.
 
     ``mobile_obs`` (receptor-paired observations, :func:`load_mobile_obs`) supplies the
-    mobile sites' obs when given: each is keyed exactly like the receptor it pairs with
-    (a crossing's multipoint location_id, a dwell's point location_id) at its actual release
-    time. Without it, mobile sites fall back to the old hourly aggregation onto the staged
-    2-km points, whose keys only match point receptors at those points.
+    mobile sites' obs: each is keyed exactly like the receptor it pairs with (a crossing's
+    multipoint location_id, a dwell's point location_id) at its actual release time. A
+    mobile site needs it: ``ValueError`` without it, since the raw TRAX record that
+    :func:`~slv.measurements.load_concentrations` reads has none of the QC
+    ``obs.parquet`` applies (slope guard, dropout and pressure rules, location classifier,
+    epoch offsets).
     """
     stationary, mobile_sites = split_sites(sites, site_config)
-    if mobile_obs is not None and mobile_sites:
+    if mobile_sites:
+        if mobile_obs is None:
+            raise ValueError(
+                f"{mobile_sites} are mobile sites and mobile_obs is not set: give the "
+                "receptor-paired obs (slv.measurements.mobile."
+                "trax_receptor_observations, built from obs.parquet), which carry the "
+                "TRAX QC."
+            )
         parts = []
         if stationary:
             parts.append(
@@ -165,30 +173,9 @@ def get_slv_observations(
     if filter_spikes:
         obs = _drop_spike_days(obs, spike_percentile)
 
-    obs = aggregate_obs(
-        obs,
-        freq="1h",
-        # snap to the fixed TRAX route points; a tower-only run needs no TRAX data
-        mobile_points=load_trax_points() if mobile_sites else None,
-        stationary_min_percent=0.75,
-        mobile_min_count=10,
-    )
-
-    # Build obs_location: site name for stationary, location_id for mobile.
-    # Mobile location_ids use the snapped TRAX route point coordinates, which
-    # already have 5dp precision from load_trax_points() and integer zagl.
-    if "is_mobile" in obs.columns:
-        mobile = obs["is_mobile"].astype(bool)
-        obs["obs_location"] = obs["site"]
-        obs.loc[mobile, "obs_location"] = (
-            obs.loc[mobile, "longitude"].round(5).astype(str)
-            + "_"
-            + obs.loc[mobile, "latitude"].round(5).astype(str)
-            + "_"
-            + obs.loc[mobile, "height"].round(0).astype(int).astype(str)
-        )
-    else:
-        obs["obs_location"] = obs["site"]
+    # stationary sites only from here: a tower obs is keyed by its site
+    obs = aggregate_obs(obs, freq="1h", stationary_min_percent=0.75)
+    obs["obs_location"] = obs["site"]
 
     obs = obs.rename(columns={"Time_UTC": "obs_time"})
     return obs.set_index(["obs_location", "obs_time"])["CH4"].to_frame()

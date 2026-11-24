@@ -299,7 +299,8 @@ def _read_support(site, instrument, time_range, num_processes) -> pd.DataFrame:
             time_range=time_range,
             num_processes=num_processes,
         )[instrument]
-    except (FileNotFoundError, KeyError, ValueError, uataq.errors.ReaderError):
+    except (FileNotFoundError, KeyError, ValueError, uataq.errors.ReaderError) as exc:
+        print(f"  no {instrument} qaqc support: {exc!r}", flush=True)
         return pd.DataFrame(
             {
                 "Time_UTC": pd.to_datetime([]),
@@ -423,10 +424,14 @@ def _build_chunk(
         f"[{t0:%Y-%m-%d} -> {t1:%Y-%m-%d}] qaqc support (dropouts, pressure) ...",
         flush=True,
     )
+    # the support reaches past the chunk by the dropout window, so a dropout just
+    # before t0 (or after t1) still masks this chunk's rows next to it
+    pad = pd.Timedelta(minutes=dropout_window or 0)
+    support_range = (t0 - pad, t1 + pad)
     support = pd.concat(
         [
-            _read_support(site, "lgr_ugga", time_range, num_processes),
-            _read_support(site, "lgr_ugga_manual_cal", time_range, num_processes),
+            _read_support(site, "lgr_ugga", support_range, num_processes),
+            _read_support(site, "lgr_ugga_manual_cal", support_range, num_processes),
         ],
         ignore_index=True,
     )
@@ -443,6 +448,12 @@ def _build_chunk(
             num_processes,
             keep=("CH4d_m", "QAQC_Flag"),
         )
+    except (FileNotFoundError, KeyError, ValueError, uataq.errors.ReaderError) as exc:
+        # only a missing or unreadable file is "no data"; an error in the rules below
+        # must stop the build, not empty the chunk
+        print(f"  no calibrated LGR data: {exc!r}", flush=True)
+        cal = empty.assign(cal_source="pipeline")
+    else:
         hot = recover_hot_rows(cal, support) if recover_hot else empty
         # before the slope guard: a recovered row is the reading over the same fitted slope,
         # so a slope the guard rejects miscalibrates it as much as a calibrated row
@@ -453,8 +464,6 @@ def _build_chunk(
         )
         if len(hot):
             print(f"  recovered {len(hot):,} flag -64 rows (hot cavity)", flush=True)
-    except (FileNotFoundError, KeyError, ValueError, uataq.errors.ReaderError):
-        cal = empty.assign(cal_source="pipeline")
 
     print(f"[{t0:%Y-%m-%d} -> {t1:%Y-%m-%d}] manual-cal LGR ...", flush=True)
     flags = {0, 1, 2, *defaults["CH4"]["valid_flags"]}
@@ -471,6 +480,10 @@ def _build_chunk(
             keep=("QAQC_Flag", "Cavity_P_torr"),
             valid_flags=flags,
         )
+    except (FileNotFoundError, KeyError, ValueError, uataq.errors.ReaderError) as exc:
+        print(f"  no manual-cal LGR data: {exc!r}", flush=True)
+        man = empty.assign(cal_source="manual_cal")
+    else:
         if "QAQC_Flag" in man.columns and "Cavity_P_torr" in man.columns:
             man = apply_low_pressure_rule(man, low_pressure)
         man = man[man.CH4.notna()].assign(cal_source="manual_cal")
@@ -482,8 +495,6 @@ def _build_chunk(
                 *(["low_pressure"] if "low_pressure" in man else []),
             ]
         ]
-    except (FileNotFoundError, KeyError, ValueError, uataq.errors.ReaderError):
-        man = empty.assign(cal_source="manual_cal")
 
     parts = [cal, man]
     for i, (start, end) in enumerate(
@@ -498,7 +509,13 @@ def _build_chunk(
         )
         try:
             q = _read_lgr(site, "lgr_ugga", "qaqc", "CH4d_ppm", (ws, we), num_processes)
-        except (FileNotFoundError, KeyError, ValueError, uataq.errors.ReaderError):
+        except (
+            FileNotFoundError,
+            KeyError,
+            ValueError,
+            uataq.errors.ReaderError,
+        ) as exc:
+            print(f"  no qaqc LGR data for the window: {exc!r}", flush=True)
             continue
         parts.append(
             select_uncalibrated(q, windows.iloc[[i]], exclude_times=cal.Time_UTC)
@@ -669,8 +686,18 @@ def load_trax_obs(
     see :func:`build_trax_obs`). ``time_range=(start, end)`` reads only ``start <= Time_UTC <
     end`` from the cache (a parquet row-group filter: the file is time-ordered, so one year
     of the 92 M rows costs a few seconds and a few GB rather than the whole record).
+    The default cache holds trx01's record: another ``site`` (in ``build_kwargs``) raises
+    ``ValueError`` unless it is given its own ``cache``.
     """
-    cache = user_dir() / "trax" / "obs.parquet" if cache is None else Path(cache)
+    if cache is None:
+        site = build_kwargs.get("site", "trx01")
+        if site != "trx01":
+            raise ValueError(
+                f"site={site!r}: the default cache, trax/obs.parquet, holds trx01's "
+                "record; give another site its own cache="
+            )
+        cache = user_dir() / "trax" / "obs.parquet"
+    cache = Path(cache)
     if cache.exists() and not rebuild:
         filters = None
         if time_range is not None:
