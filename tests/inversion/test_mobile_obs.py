@@ -200,7 +200,6 @@ def test_obs_hour_window_uses_the_configured_utc_offset(monkeypatch):
         )
 
     monkeypatch.setattr(data_module, "load_concentrations", fake_load)
-    monkeypatch.setattr(data_module, "load_trax_points", lambda: None)
     monkeypatch.setattr(data_module, "aggregate_obs", lambda obs, **kwargs: obs)
     site_config = load_site_config()
     tr = ("2024-06-01", "2024-06-02")

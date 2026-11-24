@@ -45,6 +45,7 @@ loop that sits in a plume the whole way reads as background against itself. See
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Any
 
 import geopandas as gpd
 import numpy as np
@@ -438,12 +439,12 @@ def build_trax_transects(
     pts = load_trax_network_points(meters=True) if points is None else points
     out_dir = network_transects_dir(transects_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
+    # site goes to the loader too, which refuses a site its cache does not hold
+    kwargs: dict[str, Any] = {"site": site, **(load_kwargs or {})}
     written = []
     for year in years:
         year = int(year)
-        obs = load_trax_obs(
-            time_range=(f"{year}-01-01", f"{year + 1}-01-01"), **(load_kwargs or {})
-        )
+        obs = load_trax_obs(time_range=(f"{year}-01-01", f"{year + 1}-01-01"), **kwargs)
         obs = pd.DataFrame(obs.drop(columns="geometry"))
         if obs.empty:
             print(f"{year}: no observations")

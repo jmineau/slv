@@ -82,15 +82,17 @@ def test_tower_only_observations_need_no_trax_data(aggregated, monkeypatch):
     monkeypatch.delenv("SLV_USER_DATA_DIR", raising=False)
     monkeypatch.delenv("LINGROUP_DATA_DIR", raising=False)
     obs = get_slv_observations(["wbb"], SITE_CONFIG, ("2024-06-01", "2024-06-11"))
-    assert aggregated[0]["mobile_points"] is None
+    assert "mobile_points" not in aggregated[0]
     assert obs.index.names == ["obs_location", "obs_time"]
     assert obs.index.get_level_values("obs_location").unique().tolist() == ["wbb"]
 
 
-def test_trax_points_are_loaded_for_a_mobile_site(aggregated, monkeypatch):
-    monkeypatch.setattr(data_module, "load_trax_points", lambda: "points")
-    get_slv_observations(["wbb", "trx01"], SITE_CONFIG, ("2024-06-01", "2024-06-11"))
-    assert aggregated[0]["mobile_points"] == "points"
+def test_a_mobile_site_needs_the_receptor_paired_obs(aggregated):
+    # the raw TRAX record has none of obs.parquet's QC
+    with pytest.raises(ValueError, match="mobile_obs"):
+        get_slv_observations(
+            ["wbb", "trx01"], SITE_CONFIG, ("2024-06-01", "2024-06-11")
+        )
 
 
 def test_spike_filter_is_applied_when_asked(aggregated):
