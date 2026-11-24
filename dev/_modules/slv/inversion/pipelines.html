@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../_static/documentation_options.js?v=cc1c0b8f"></script>
+    <script src="../../../_static/documentation_options.js?v=0cdea60a"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -60,7 +60,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.11.3.dev8+g6d038985c" />
+  <meta name="docsearch:version" content="2026.11.3.dev9+g60d567865" />
   
     
     <script src="../../../_static/searchtools.js"></script>
@@ -903,13 +903,9 @@
     <span class="n">prior</span> <span class="o">=</span> <span class="n">prior</span><span class="p">[(</span><span class="n">prior_times</span> <span class="o">&gt;=</span> <span class="n">tstart</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">prior_times</span> <span class="o">&lt;</span> <span class="n">tend</span><span class="p">)]</span>
 
     <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">min_obs_per_interval</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="c1"># The intervals run from each flux time to the next, closed on the right, as</span>
-        <span class="c1"># fips 0.1's FluxInversionPipeline made them</span>
-        <span class="n">times</span> <span class="o">=</span> <span class="n">prior</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s2">"time"</span><span class="p">)</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span><span class="o">.</span><span class="n">sort_values</span><span class="p">()</span>
-        <span class="n">offset</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">tseries</span><span class="o">.</span><span class="n">frequencies</span><span class="o">.</span><span class="n">to_offset</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">flux_freq</span><span class="p">)</span>
-        <span class="n">bins</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">interval_range</span><span class="p">(</span>
-            <span class="n">start</span><span class="o">=</span><span class="n">times</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">end</span><span class="o">=</span><span class="n">times</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="n">offset</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">flux_freq</span>
-        <span class="p">)</span>
+        <span class="c1"># the flux intervals themselves, closed on the left: an obs at 00:00 on the</span>
+        <span class="c1"># first of a month counts for that month</span>
+        <span class="n">bins</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">flux_time_bins</span>
         <span class="n">interval</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Index</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">cut</span><span class="p">(</span><span class="n">obs</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="s2">"obs_time"</span><span class="p">),</span> <span class="n">bins</span><span class="o">=</span><span class="n">bins</span><span class="p">))</span>
         <span class="n">counts</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">obs</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>

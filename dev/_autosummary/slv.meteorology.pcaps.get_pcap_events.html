@@ -41,7 +41,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../_static/documentation_options.js?v=cc1c0b8f"></script>
+    <script src="../_static/documentation_options.js?v=0cdea60a"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -63,7 +63,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.11.3.dev8+g6d038985c" />
+  <meta name="docsearch:version" content="2026.11.3.dev9+g60d567865" />
   
     
     <script src="../_static/searchtools.js"></script>
@@ -721,8 +721,11 @@
 (threshold, min_periods): <code class="docutils literal notranslate"><span class="pre">$SLV_USER_DATA_DIR/pcap_events.csv</span></code> for the defaults,
 <code class="docutils literal notranslate"><span class="pre">pcap_events_t&lt;threshold&gt;_m&lt;min_periods&gt;.csv</span></code> otherwise. A missing cache file is
 built from the full sounding record, and every cached event is returned whatever
-the <code class="docutils literal notranslate"><span class="pre">time_range</span></code>. Without the cache, or with <code class="docutils literal notranslate"><span class="pre">sounding_kwargs</span></code>, events are
-determined from the soundings in <code class="docutils literal notranslate"><span class="pre">time_range</span></code> only.</p>
+the <code class="docutils literal notranslate"><span class="pre">time_range</span></code>. When a sounding is newer than the cache file and <code class="docutils literal notranslate"><span class="pre">time_range</span></code>
+reaches past the file’s date, a <code class="docutils literal notranslate"><span class="pre">UserWarning</span></code> says the cache is out of date (it
+is not rebuilt on its own: delete it to rebuild). Without the cache, or with
+<code class="docutils literal notranslate"><span class="pre">sounding_kwargs</span></code>, events are determined from the soundings in <code class="docutils literal notranslate"><span class="pre">time_range</span></code>
+only.</p>
 </dd></dl>
 
 </section>

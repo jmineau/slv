@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../_static/documentation_options.js?v=cc1c0b8f"></script>
+    <script src="../../../_static/documentation_options.js?v=0cdea60a"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -60,7 +60,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.11.3.dev8+g6d038985c" />
+  <meta name="docsearch:version" content="2026.11.3.dev9+g60d567865" />
   
     
     <script src="../../../_static/searchtools.js"></script>
@@ -587,14 +587,13 @@
 
         <span class="k">if</span> <span class="n">mobile_points</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">obs_pts</span> <span class="o">=</span> <span class="n">mobile</span><span class="p">[[</span><span class="s2">"longitude"</span><span class="p">,</span> <span class="s2">"latitude"</span><span class="p">]]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
-            <span class="n">agg_pts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
-                <span class="nb">list</span><span class="p">(</span>
-                    <span class="nb">zip</span><span class="p">(</span>
-                        <span class="n">mobile_points</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">mobile_points</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">False</span>
-                    <span class="p">)</span>
-                <span class="p">)</span>
+            <span class="n">agg_pts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">column_stack</span><span class="p">(</span>
+                <span class="p">[</span><span class="n">mobile_points</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">mobile_points</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">y</span><span class="p">]</span>
             <span class="p">)</span>
-            <span class="n">_</span><span class="p">,</span> <span class="n">idx</span> <span class="o">=</span> <span class="n">KDTree</span><span class="p">(</span><span class="n">agg_pts</span><span class="p">)</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">obs_pts</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="c1"># a degree of longitude is shorter than one of latitude (84 vs 111 km at</span>
+            <span class="c1"># 40.7 N): scale it so the nearest point is the nearest on the ground</span>
+            <span class="n">scale</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">agg_pts</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">())),</span> <span class="mf">1.0</span><span class="p">])</span>
+            <span class="n">_</span><span class="p">,</span> <span class="n">idx</span> <span class="o">=</span> <span class="n">KDTree</span><span class="p">(</span><span class="n">agg_pts</span> <span class="o">*</span> <span class="n">scale</span><span class="p">)</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">obs_pts</span> <span class="o">*</span> <span class="n">scale</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
             <span class="n">mobile</span><span class="p">[</span><span class="s2">"agg_lat"</span><span class="p">]</span> <span class="o">=</span> <span class="n">mobile_points</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">y</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
             <span class="n">mobile</span><span class="p">[</span><span class="s2">"agg_lon"</span><span class="p">]</span> <span class="o">=</span> <span class="n">mobile_points</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">x</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
             <span class="n">group_keys</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="s2">"site"</span><span class="p">,</span> <span class="s2">"agg_lat"</span><span class="p">,</span> <span class="s2">"agg_lon"</span><span class="p">])</span>
@@ -619,7 +618,7 @@
                 <span class="n">group_keys</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"agg_time"</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">mobile_min_count</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">mobile</span> <span class="o">=</span> <span class="n">mobile</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">group_keys</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
+            <span class="n">mobile</span> <span class="o">=</span> <span class="n">mobile</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">group_keys</span><span class="p">,</span> <span class="n">dropna</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">filter</span><span class="p">(</span>
                 <span class="k">lambda</span> <span class="n">g</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">g</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">mobile_min_count</span>
             <span class="p">)</span>
 
@@ -632,7 +631,8 @@
         <span class="p">}</span>
         <span class="n">agg_dict</span><span class="p">[</span><span class="s2">"instrument"</span><span class="p">]</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="s2">" "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">unique</span><span class="p">()))</span>
 
-        <span class="n">grouped</span> <span class="o">=</span> <span class="n">mobile</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">group_keys</span><span class="p">)</span><span class="o">.</span><span class="n">agg</span><span class="p">(</span><span class="n">agg_dict</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+        <span class="c1"># dropna=False: a fix with no altitude is kept (merge_with_gps keeps them)</span>
+        <span class="n">grouped</span> <span class="o">=</span> <span class="n">mobile</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">group_keys</span><span class="p">,</span> <span class="n">dropna</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">agg</span><span class="p">(</span><span class="n">agg_dict</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
         <span class="n">agg_frames</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
             <span class="n">grouped</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
                 <span class="n">columns</span><span class="o">=</span><span class="p">{</span>
