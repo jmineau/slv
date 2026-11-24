@@ -55,6 +55,7 @@ from __future__ import annotations
 
 import contextlib
 import dataclasses
+import fcntl
 import hashlib
 import importlib
 import itertools
@@ -107,6 +108,7 @@ _NON_SCIENTIFIC_FIELDS = frozenset(
 _RESULT_COLUMNS = (
     "config_id",
     "error",
+    "warning",
     "runtime_seconds",
     "reduced_chi2",
     "chi2_distance",
@@ -165,6 +167,40 @@ def _error_row(
     return row
 
 
+@contextlib.contextmanager
+def _locked(csv_path: Path):
+    """
+    Hold an exclusive lock on ``<csv>.lock`` for the block.
+
+    Sweep jobs on several nodes write one results CSV; without the lock two first
+    writes, or an append during the rewrite below, lose a row.
+    """
+    with open(csv_path.with_name(csv_path.name + ".lock"), "a") as lock:
+        fcntl.lockf(lock, fcntl.LOCK_EX)
+        try:
+            yield
+        finally:
+            fcntl.lockf(lock, fcntl.LOCK_UN)
+
+
+def _done_ids(csv_path: Path) -> set[str]:
+    """
+    The ``config_id`` of every row in the results CSV that did not fail.
+
+    A config whose row has an ``error`` is run again on resume: the error may have been
+    transient (a node out of memory, a file system hiccup).
+    """
+    if not csv_path.exists():
+        return set()
+    with _locked(csv_path):
+        existing = pd.read_csv(csv_path, dtype={"config_id": str})
+    if "config_id" not in existing.columns:
+        return set()
+    if "error" in existing.columns:
+        existing = existing[existing["error"].isna()]
+    return set(existing["config_id"].dropna())
+
+
 def _append_row(csv_path: Path, row: dict | None) -> None:
     """
     Append one row to the results CSV, lined up with the columns already there.
@@ -172,11 +208,17 @@ def _append_row(csv_path: Path, row: dict | None) -> None:
     ``to_csv(mode="a")`` writes by position, so a row whose keys differ from the
     header would land its values under the wrong columns. A row with a column the
     file lacks (e.g. a CSV written before the column existed) rewrites the file with
-    the wider header.
+    the wider header. The file is locked while it is read and written (see
+    :func:`_locked`).
     """
     if row is None:
         return
-    new = pd.DataFrame([row])
+    with _locked(csv_path):
+        _write_row(csv_path, pd.DataFrame([row]))
+
+
+def _write_row(csv_path: Path, new: pd.DataFrame) -> None:
+    """The write :func:`_append_row` does under its lock."""
     if not csv_path.exists():
         new.to_csv(csv_path, index=False)
         return
@@ -193,6 +235,12 @@ def _import_pipeline(name: str) -> Pipeline:
     """The pipeline function a grid names by its dotted path (``module.function``)."""
     module_path, func_name = name.rsplit(".", 1)
     return getattr(importlib.import_module(module_path), func_name)
+
+
+def _config_from_fields(fields: dict[str, Any]) -> InversionConfig:
+    """An :class:`InversionConfig` from a grid entry's ``fields`` (the tiler is not kept)."""
+    valid = {f.name for f in dataclasses.fields(InversionConfig) if f.name != "tiler"}
+    return InversionConfig(**{k: v for k, v in fields.items() if k in valid})
 
 
 def _solve(pipeline: Pipeline, config: InversionConfig) -> tuple[Posterior, Problem]:
@@ -335,16 +383,7 @@ class Sweep:
                     grid = json.load(f)
 
                 for entry in grid:
-                    fields = entry["fields"]
-                    valid = {
-                        f.name
-                        for f in dataclasses.fields(InversionConfig)
-                        if f.name != "tiler"
-                    }
-                    cfg = InversionConfig(
-                        **{k: v for k, v in fields.items() if k in valid}
-                    )
-
+                    cfg = _config_from_fields(entry["fields"])
                     pipeline = _import_pipeline(entry["pipeline"])
 
                     cid = config_id(cfg)
@@ -426,7 +465,8 @@ class Sweep:
         swept_params :
             Config fields to capture as columns. None = all scientific fields.
         resume :
-            Skip configs already in results CSV.
+            Skip the configs that already have a row without an error in the results
+            CSV; a config whose run failed is run again.
         config_ids :
             Optional list of config IDs to run. If None, run all configs.
             Use this to run a random sample of the full sweep.
@@ -450,9 +490,7 @@ class Sweep:
         # Determine which configs still need to run
         done_ids: set[str] = set()
         if resume and csv_path.exists():
-            existing = pd.read_csv(csv_path)
-            if "config_id" in existing.columns:
-                done_ids = set(existing["config_id"].dropna().tolist())
+            done_ids = _done_ids(csv_path)
             skipped = sum(1 for cfg, _ in self.configs if config_id(cfg) in done_ids)
             remaining = len(self.configs) - skipped
             print(f"Resuming: {skipped} already done, {remaining} remaining.")
@@ -489,10 +527,11 @@ class Sweep:
                 f"Running sweep in parallel (n_jobs={n_jobs}). "
                 f"Output suppressed - check errors.log for failures."
             )
-            # Use loky backend for robust nested parallelism
-            rows = Parallel(n_jobs=n_jobs, backend="loky", return_as="generator")(
-                delayed(self._run_single)(args) for args in pending
-            )
+            # Use loky backend for robust nested parallelism; rows are written as each
+            # run finishes, so one slow config does not hold back the others' rows
+            rows = Parallel(
+                n_jobs=n_jobs, backend="loky", return_as="generator_unordered"
+            )(delayed(self._run_single)(args) for args in pending)
             try:
                 from tqdm import tqdm
 
@@ -656,7 +695,9 @@ def collect_metrics(
 
     Returns
     -------
-    Flat :class:`dict` ready to append as a row to the results CSV.
+    Flat :class:`dict` ready to append as a row to the results CSV. A metric that
+    could not be computed is left empty and the reason is in the ``warning`` column;
+    the run still counts as done (``error`` stays empty).
     """
     whole = post.problem if problem is None else problem
     problem = post.problem
@@ -698,8 +739,8 @@ def collect_metrics(
             )
         else:
             metrics["flux_change_pct"] = None
-    except Exception:
-        logger.debug("collect_metrics: flux totals failed", exc_info=True)
+    except Exception as exc:
+        _warn(metrics, f"flux totals failed: {exc!r}")
         metrics["prior_flux_mean"] = metrics["posterior_flux_mean"] = None
         metrics["posterior_flux_std"] = metrics["flux_change_pct"] = None
 
@@ -711,13 +752,19 @@ def collect_metrics(
                 metrics[f"{state}_{name}"] = float(value)
         metrics["n_obs"] = int(len(problem.obs))
         metrics["n_state"] = int(len(prior_fluxes))
-    except Exception:
-        logger.debug("collect_metrics: concentration fit failed", exc_info=True)
+    except Exception as exc:
+        _warn(metrics, f"concentration fit failed: {exc!r}")
 
     # Capture swept config field values as cfg_* columns
     metrics.update(_cfg_columns(config, swept_params))
 
     return metrics
+
+
+def _warn(metrics: dict[str, Any], message: str) -> None:
+    """Log ``message`` and add it to the row's ``warning`` column."""
+    logger.warning("[%s] collect_metrics: %s", metrics["config_id"], message)
+    metrics["warning"] = "; ".join(filter(None, [metrics.get("warning"), message]))
 
 
 # ---------------------------------------------------------------------------
@@ -791,23 +838,17 @@ def run_sweep_job(results_dir: str | Path) -> None:
         raise IndexError(f"Index {idx} out of range (grid has {len(grid)} entries).")
 
     entry = grid[idx]
-    fields = entry["fields"]
-
-    # Rehydrate InversionConfig (skip tiler — not JSON-serialisable)
-    valid = {f.name for f in dataclasses.fields(InversionConfig) if f.name != "tiler"}
-    cfg = InversionConfig(**{k: v for k, v in fields.items() if k in valid})
-
+    cfg = _config_from_fields(entry["fields"])
     pipeline = _import_pipeline(entry["pipeline"])
 
     cid = config_id(cfg)
     csv_path = results_dir / "sweep_results.csv"
 
-    # Skip if already done (e.g. job resubmitted after partial failure)
-    if csv_path.exists():
-        existing = pd.read_csv(csv_path)
-        if "config_id" in existing.columns and cid in existing["config_id"].values:
-            print(f"[{idx}] {cid} already done — skipping.")
-            return
+    # Skip if already done (e.g. job resubmitted after partial failure); a failed
+    # config runs again
+    if cid in _done_ids(csv_path):
+        print(f"[{idx}] {cid} already done — skipping.")
+        return
 
     # Run inversion and collect metrics
     cfg.plot_inputs = False
@@ -819,8 +860,6 @@ def run_sweep_job(results_dir: str | Path) -> None:
         post, problem = _solve(pipeline, cfg)
         row = collect_metrics(post, cfg, swept_params=None, problem=problem)
     except Exception as exc:
-        import traceback
-
         tb = traceback.format_exc()
         error_log = results_dir / "errors.log"
         with open(error_log, "a") as f:
@@ -851,7 +890,8 @@ class SweepResults:
     path : pathlib.Path
         Path to the results CSV.
     df : pandas.DataFrame
-        All completed rows, sorted by ``chi2_distance`` (closest to 1 first).
+        One row per config, the latest when a config was run more than once, sorted
+        by ``chi2_distance`` (closest to 1 first).
 
     Examples
     --------
@@ -890,7 +930,10 @@ class SweepResults:
         if not self.path.exists():  # nothing run yet (e.g. a grid-only n_jobs=0 sweep)
             self.df = pd.DataFrame()
             return
-        self.df = pd.read_csv(self.path)
+        self.df = pd.read_csv(self.path, dtype={"config_id": str})
+        if "config_id" in self.df.columns:
+            # a config run again (after a failure, or with resume=False) counts once
+            self.df = self.df.drop_duplicates("config_id", keep="last")
         if "chi2_distance" not in self.df.columns and "reduced_chi2" in self.df.columns:
             self.df["chi2_distance"] = (self.df["reduced_chi2"] - 1.0).abs()
         if "chi2_distance" in self.df.columns:
@@ -994,6 +1037,8 @@ class SweepResults:
                 )
             except Exception:
                 pass
+        if not rows:  # nothing run yet, or no run with this metric
+            return pd.DataFrame(columns=["param", "range", "best_value"])
         return (
             pd.DataFrame(rows)
             .sort_values("range", ascending=False)
@@ -1121,41 +1166,56 @@ class SweepResults:
     def to_config(
         self,
         row: pd.Series,
-        pipeline: Pipeline = pipelines.run,
+        pipeline: Pipeline | None = None,
         cache: str | Path | None = None,
     ) -> tuple[InversionConfig, Pipeline]:
         """
-        Rehydrate an :class:`InversionConfig` from a results row.
+        Rebuild the :class:`InversionConfig` of a results row.
+
+        The config is read from ``sweep_grid.json`` next to the results CSV, which
+        holds every field of every config as written, by the row's ``config_id``. The
+        ``cfg_*`` columns are not used: a CSV gives back numbers as numpy types, empty
+        cells as NaN and ``False`` next to a string as ``"False"``, and with
+        ``swept_params`` it holds only some fields.
 
         Parameters
         ----------
         row :
             A row from :attr:`df` (e.g. ``results.best().iloc[0]``).
         pipeline :
-            The pipeline function to associate.
+            The pipeline function; the one the grid names by default.
         cache :
             Override cache path.  If *None*, keeps the original run's cache.
 
         Returns
         -------
         ``(InversionConfig, pipeline)``: ``pipeline(config)`` runs it.
+
+        Raises
+        ------
+        FileNotFoundError
+            If there is no ``sweep_grid.json`` next to the results CSV.
+        ValueError
+            If the grid has no config with the row's ``config_id``.
         """
-        valid = {f.name for f in dataclasses.fields(InversionConfig)}
-        columns = {str(k): v for k, v in row.items()}
-        raw = {
-            k.removeprefix("cfg_"): v
-            for k, v in columns.items()
-            if k.startswith("cfg_") and k.removeprefix("cfg_") in valid
-        }
-        # Decode JSON-encoded dicts/lists
-        parsed: dict[str, Any] = {}
-        for k, v in raw.items():
-            if isinstance(v, str) and v[:1] in ("{", "["):
-                with contextlib.suppress(json.JSONDecodeError):
-                    v = json.loads(v)
-            parsed[k] = v
-
+        grid_path = self.path.with_name("sweep_grid.json")
+        if not grid_path.exists():
+            raise FileNotFoundError(
+                f"{grid_path} not found: the configs are rebuilt from the sweep's grid."
+            )
+        cid = row["config_id"]
+        entry = next(
+            (e for e in json.loads(grid_path.read_text()) if e["config_id"] == cid),
+            None,
+        )
+        if entry is None:
+            raise ValueError(f"Config {cid} is not in {grid_path}.")
+        cfg = _config_from_fields(entry["fields"])
+        if config_id(cfg) != cid:
+            raise ValueError(
+                f"The grid's config {cid} rebuilds as {config_id(cfg)}: the grid was "
+                "written by a version of slv whose config ids differ."
+            )
         if cache is not None:
-            parsed["cache"] = str(cache)
-
-        return InversionConfig(**parsed), pipeline
+            cfg.cache = str(cache)
+        return cfg, pipeline or _import_pipeline(entry["pipeline"])

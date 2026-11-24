@@ -544,6 +544,22 @@ class TestSweepRun:
         grid = json.loads(grid_path.read_text())
         assert len(grid) == 2
 
+    def test_resume_runs_a_failed_config_again(self, tmp_path):
+        sweep = self._make_trivial_sweep(tmp_path / "cache")
+        cids = [config_id(cfg) for cfg, _ in sweep.configs]
+        pd.DataFrame({"config_id": cids, "error": ["MemoryError()", None]}).to_csv(
+            tmp_path / "sweep_results.csv", index=False
+        )
+        ran = []
+
+        def fake_run(args):
+            ran.append(config_id(args[0]))
+            return {"config_id": ran[-1], "reduced_chi2": 1.0}
+
+        with patch.object(Sweep, "_run_single", side_effect=fake_run):
+            sweep.run(results_dir=tmp_path, n_jobs=1)
+        assert ran == [cids[0]]
+
     def test_resume_skips_done_configs(self, tmp_path):
         sweep = self._make_trivial_sweep(tmp_path / "cache")
         cid_first = config_id(sweep.configs[0][0])
@@ -641,13 +657,20 @@ class TestSweepResults:
         sens = r.sensitivity()
         assert isinstance(sens, pd.DataFrame)
 
-    def test_to_config_round_trip(self, tmp_path):
-        r = SweepResults(self._make_csv(tmp_path))
-        row = r.best().iloc[0]
-        cfg, pipeline = r.to_config(row)
-        assert isinstance(cfg, InversionConfig)
-        assert pipeline is pipelines.run
-        assert abs(cfg.prior_base_std - 0.01) < 1e-9
+    def test_sensitivity_of_a_sweep_with_no_metric_is_empty(self, tmp_path):
+        path = tmp_path / "sweep_results.csv"
+        pd.DataFrame(
+            {"config_id": ["a"], "error": ["boom"], "cfg_gamma": [1.0]}
+        ).to_csv(path, index=False)
+        sens = SweepResults(path).sensitivity()
+        assert sens.empty and list(sens.columns) == ["param", "range", "best_value"]
+
+    def test_a_config_run_twice_counts_once_with_its_latest_row(self, tmp_path):
+        path = self._make_csv(tmp_path)
+        _append_row(path, {"config_id": "b", "reduced_chi2": 1.0, "chi2_distance": 0.0})
+        df = SweepResults(path).df
+        assert len(df) == 3
+        assert df.set_index("config_id").loc["b", "reduced_chi2"] == 1.0
 
 
 # ---------------------------------------------------------------------------
@@ -828,3 +851,74 @@ def test_sensitivity_best_value_is_closest_to_one(tmp_path):
     assert SweepResults(path).sensitivity("posterior_conc_rmse", target=0.05).loc[
         0, "best_value"
     ] == (pytest.approx(0.01))
+
+
+def _write_rows(path, n):
+    for i in range(n):
+        _append_row(path, {"config_id": f"{path.name}-{i}", "reduced_chi2": 1.0})
+
+
+def test_jobs_writing_the_csv_at_once_keep_every_row(tmp_path):
+    import multiprocessing
+
+    path = tmp_path / "sweep_results.csv"
+    ctx = multiprocessing.get_context("fork")
+    procs = [ctx.Process(target=_write_rows, args=(path, 25)) for _ in range(4)]
+    for p in procs:
+        p.start()
+    for p in procs:
+        p.join()
+    assert len(pd.read_csv(path)) == 100
+
+
+def test_numpy_values_come_back_from_the_grid_as_numbers(tmp_path):
+    assert _to_json(np.int64(30)) == 30 and isinstance(_to_json(np.int64(30)), int)
+    assert _to_json(np.False_) is False
+    assert _to_json(np.arange(12, 14)) == [12, 13]
+    swp = Sweep(
+        cache=str(tmp_path / "cache"),
+        min_obs_per_interval=np.arange(30, 61, 30),
+        filter_spikes=[np.False_],
+    )
+    swp.run(results_dir=tmp_path, n_jobs=0)
+    loaded = Sweep(
+        cache=str(tmp_path / "cache"), grid_path=tmp_path / "sweep_grid.json"
+    )
+    assert [cfg.min_obs_per_interval for cfg, _ in loaded.configs] == [30, 60]
+    assert all(cfg.filter_spikes is False for cfg, _ in loaded.configs)
+
+
+def test_to_config_rebuilds_each_row_s_config_from_the_grid(tmp_path):
+    base = InversionConfig(sites=["wbb", "hdp"], tstart="2020-01-01", tend="2021-01-01")
+    swp = Sweep(
+        cache=str(tmp_path / "cache"),
+        base_config=base,
+        aggregate_obs=[False, "1D"],
+        min_obs_per_interval=[30],
+    )
+    swp.run(results_dir=tmp_path, n_jobs=0)
+    path = tmp_path / "sweep_results.csv"
+    for cfg, _ in swp.configs:
+        row = {"config_id": config_id(cfg), "reduced_chi2": 1.0}
+        _append_row(path, row | sweep._cfg_columns(cfg, ["aggregate_obs"]))
+
+    results = SweepResults(path)
+    for _, row in results.df.iterrows():
+        cfg, pipeline = results.to_config(row, cache=tmp_path / "other")
+        assert config_id(cfg) == row["config_id"]
+        assert pipeline is pipelines.run
+        assert cfg.sites == ["wbb", "hdp"] and cfg.min_obs_per_interval == 30
+        assert cfg.aggregate_obs in (False, "1D")
+        assert cfg.cache == str(tmp_path / "other")
+
+
+def test_a_metric_that_fails_is_a_warning_not_an_error(monkeypatch, caplog):
+    def broken(config, fluxes, units=None):
+        raise ImportError("xesmf")
+
+    monkeypatch.setattr(sweep, "calculate_total_flux", broken)
+    row = collect_metrics(_solved(), _cfg())
+    assert row["error"] is None
+    assert row["posterior_flux_mean"] is None
+    assert "flux totals failed" in row["warning"]
+    assert "flux totals failed" in caplog.text

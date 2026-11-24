@@ -17,6 +17,7 @@ import json
 from importlib.metadata import PackageNotFoundError, version
 from typing import TYPE_CHECKING, Any
 
+import numpy as np
 import pandas as pd
 
 if TYPE_CHECKING:
@@ -37,8 +38,13 @@ def _to_json(v: Any) -> Any:
     Recursively convert a value to a JSON-serializable form.
 
     A Series (a per-interval ``bias_std``) becomes a dict of its values by label, so
-    the id sees every value and a grid or results CSV gives it back.
+    the id sees every value and a grid or results CSV gives it back. Numpy scalars and
+    arrays become Python numbers and lists, so a grid gives them back as numbers.
     """
+    if isinstance(v, np.generic):  # np.int64(30) must not become "30" in a grid
+        return v.item()
+    if isinstance(v, np.ndarray):
+        return [_to_json(i) for i in v.tolist()]
     if isinstance(v, (str, int, float, bool, type(None))):
         return v
     if isinstance(v, pd.Series):
