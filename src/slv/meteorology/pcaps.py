@@ -1,5 +1,6 @@
 """Persistent cold-air pool (PCAP) events from SLC soundings, and filtering obs by them."""
 
+import warnings
 from pathlib import Path
 
 import lair.pcaps
@@ -58,6 +59,29 @@ def _pcap_events_cache(threshold, min_periods) -> Path | None:
     return data_dir / f"pcap_events_t{threshold:g}_m{min_periods}.csv"
 
 
+def _sounding_newer_than(cache: Path, end) -> pd.Timestamp | None:
+    """
+    The latest sounding, if it is after ``cache`` was written and ``end`` reaches past
+    that: the cached events cannot cover it. None otherwise, or with no sounding folder.
+
+    Read from the file names (``SLC_YYYYMMDDHH.csv``), not the files, so the check costs
+    one directory listing.
+    """
+    try:
+        folder = get_data_dir("SLV_SOUNDINGS_DIR") / "SLC"
+        names = [p.name for p in folder.glob("SLC_??????????.csv")]
+    except (ValueError, OSError):
+        return None
+    if not names:
+        return None
+    latest = pd.to_datetime(max(names)[4:14], format="%Y%m%d%H")
+    written = pd.Timestamp(cache.stat().st_mtime, unit="s")
+    end = latest if end is None else pd.Timestamp(end)
+    if end.tz is not None:
+        end = end.tz_convert("UTC").tz_localize(None)
+    return latest if latest > written and end > written else None
+
+
 def _determine_pcap_events(time_range, threshold, min_periods, sounding_kwargs=None):
     """PCAP events from the soundings in ``time_range`` ((None, None) for all)."""
     driver = "xarray"  # Use xarray for aligned (interpolated values) soundings
@@ -98,8 +122,11 @@ def get_pcap_events(
     (threshold, min_periods): ``$SLV_USER_DATA_DIR/pcap_events.csv`` for the defaults,
     ``pcap_events_t<threshold>_m<min_periods>.csv`` otherwise. A missing cache file is
     built from the full sounding record, and every cached event is returned whatever
-    the ``time_range``. Without the cache, or with ``sounding_kwargs``, events are
-    determined from the soundings in ``time_range`` only.
+    the ``time_range``. When a sounding is newer than the cache file and ``time_range``
+    reaches past the file's date, a ``UserWarning`` says the cache is out of date (it
+    is not rebuilt on its own: delete it to rebuild). Without the cache, or with
+    ``sounding_kwargs``, events are determined from the soundings in ``time_range``
+    only.
     """
     cache = None
     if not sounding_kwargs:
@@ -116,7 +143,15 @@ def get_pcap_events(
         print(f"Saving PCAP events to {cache}")
         with replacing(cache) as tmp:
             events.to_csv(tmp, index=False)
-
+    else:
+        latest = _sounding_newer_than(cache, time_range[1])
+        if latest is not None:
+            warnings.warn(
+                f"{cache} was built before the sounding of {latest:%Y-%m-%d %H}Z, so it "
+                "has no PCAP events after it was written and filter_pcaps keeps those "
+                "days. Delete the file to rebuild it from every sounding.",
+                stacklevel=2,
+            )
     print(f"Loading cached PCAP events from {cache}")
     return pd.read_csv(cache, parse_dates=["start", "end"])
 

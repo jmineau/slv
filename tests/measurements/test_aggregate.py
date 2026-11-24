@@ -393,3 +393,21 @@ class TestInputs:
         result = aggregate_obs(obs, mobile_points=points)
         assert len(result) == 3
         assert result["latitude"].notna().all()
+
+
+def test_mobile_points_match_by_distance_on_the_ground():
+    # A is 0.010 deg north (1.11 km), B 0.0125 deg east (1.05 km at 40.7 N): B is
+    # nearer on the ground, though A is nearer in raw degrees
+    obs = make_mobile(n_per_bin=1, n_bins=1).assign(longitude=-111.9, latitude=40.7)
+    a, b = Point(-111.9, 40.71), Point(-111.8875, 40.7)
+    points = gpd.GeoDataFrame(geometry=[a, b], crs="EPSG:4326")
+    result = aggregate_obs(obs, mobile_points=points)
+    assert result[["longitude", "latitude"]].to_numpy().tolist() == [[b.x, b.y]]
+
+
+def test_mobile_rows_without_an_altitude_are_kept():
+    obs = make_mobile(n_per_bin=2, n_bins=2)
+    obs.loc[:1, "altitude"] = np.nan  # merge_with_gps keeps fixes with no altitude
+    # every row has its own position, so each is its own group: none may go
+    assert len(aggregate_obs(obs)) == len(obs)
+    assert len(aggregate_obs(obs, freq="1h")) == len(obs)

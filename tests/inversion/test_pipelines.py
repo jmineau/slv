@@ -575,6 +575,21 @@ def test_filter_state_space_drops_obs_of_sparse_intervals():
     assert len(prior) == len(prior_series())
 
 
+def test_filter_state_space_counts_an_obs_at_midnight_in_its_own_month():
+    # the flux intervals are closed on the left; the filter's own bins were closed on
+    # the right, so the 01-01 obs fell in no bin and the 02-01 one counted for January
+    cfg = config(tstart="2020-01-01", tend="2020-03-01", min_obs_per_interval=2)
+    times = pd.to_datetime(
+        ["2020-01-01 00:00", "2020-01-05 20:00", "2020-02-01 00:00", "2020-02-05 20:00"]
+    )
+    obs = pd.Series(
+        [1.0, 2.0, 3.0, 4.0],
+        index=obs_space(["wbb"] * 4, times).select("concentration"),
+    )
+    obs, _ = pipelines.filter_state_space(cfg, obs, prior_series())
+    assert obs.tolist() == [1.0, 2.0, 3.0, 4.0]
+
+
 def test_get_obs_passes_the_config_to_the_loader(monkeypatch):
     seen = {}
 

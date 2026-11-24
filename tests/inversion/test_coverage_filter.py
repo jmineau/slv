@@ -103,3 +103,24 @@ def test_combine_first_puts_the_prior_back_in_removed_cells():
     )
     np.testing.assert_array_equal(full[is_weak], prior[is_weak])
     assert not np.allclose(full[~is_weak], prior[~is_weak])
+
+
+def test_cells_no_obs_sees_are_dropped_when_they_tie_at_the_threshold():
+    # 2 of 4 cells unseen: the 30th percentile is 0, and `< 0` used to drop neither
+    index = pd.MultiIndex.from_product(
+        [TIMES, LATS, LONS], names=["time", "lat", "lon"]
+    )
+    seen = index.get_level_values("lat") == LATS[1]
+    H = np.where(seen, 1.0, 0.0)[None, :].repeat(len(OBS_INDEX), axis=0)
+    flux = Vector.from_series(pd.Series(1.0, index=index), block="flux")
+    unseen = Problem(
+        prior=flux,
+        prior_cov=Independent().with_std(0.1),
+        obs=Vector.from_series(pd.Series(2.5, index=OBS_INDEX), block="concentration"),
+        obs_cov=Independent().with_std(0.01),
+        forward=Operator.from_blocks(
+            {("concentration", "flux"): pd.DataFrame(H, OBS_INDEX, index)}
+        ),
+        offset=2.0,
+    )
+    assert cells(covered_state(unseen, 30)) == {(LATS[1], lon) for lon in LONS}
