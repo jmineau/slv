@@ -7,6 +7,7 @@ import lair.soundings
 import pandas as pd
 
 from slv import get_data_dir
+from slv._files import replacing
 
 
 def get_soundings(
@@ -113,7 +114,8 @@ def get_pcap_events(
         events = _determine_pcap_events((None, None), threshold, min_periods)
         cache.parent.mkdir(parents=True, exist_ok=True)
         print(f"Saving PCAP events to {cache}")
-        events.to_csv(cache, index=False)
+        with replacing(cache) as tmp:
+            events.to_csv(tmp, index=False)
 
     print(f"Loading cached PCAP events from {cache}")
     return pd.read_csv(cache, parse_dates=["start", "end"])

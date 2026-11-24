@@ -52,6 +52,7 @@ import pandas as pd
 from lair import transects as tr
 from pyproj import Transformer
 
+from slv._files import replacing
 from slv.measurements.mobile.network import user_dir
 
 TRANSECT_LINES = {"r": "Red", "g": "Green", "b": "Blue"}
@@ -460,7 +461,8 @@ def build_trax_transects(
         )
         path = out_dir / f"{site}_CH4_{year}.nc"
         enc = {v: {"zlib": True, "complevel": 4} for v in ("obs", "time", "n")}
-        ds.to_netcdf(path, encoding=enc)
+        with replacing(path) as tmp:
+            ds.to_netcdf(tmp, encoding=enc)
         print(
             f"{year}: {ds.sizes['transect']} transits from {ds.attrs['n_samples']:,} samples "
             f"({ds.attrs['n_off_network']:,} off-network, "

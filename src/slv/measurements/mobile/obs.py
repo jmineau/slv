@@ -14,6 +14,7 @@ import numpy as np
 import pandas as pd
 import uataq
 
+from slv._files import replacing
 from slv.measurements.mobile.calibration import (
     apply_epoch_offset,
     epoch_offset_column,
@@ -685,7 +686,8 @@ def load_trax_obs(
         data = pd.DataFrame(build_trax_obs(**build_kwargs).drop(columns="geometry"))
         cache.parent.mkdir(parents=True, exist_ok=True)
         print(f"Caching TRAX obs to {cache}")
-        data.to_parquet(cache)
+        with replacing(cache) as tmp:
+            data.to_parquet(tmp)
         if time_range is not None:
             t0, t1 = (pd.Timestamp(t) for t in time_range)
             data = data[(data.Time_UTC >= t0) & (data.Time_UTC < t1)]

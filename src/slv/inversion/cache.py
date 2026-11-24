@@ -17,6 +17,8 @@ from importlib.metadata import PackageNotFoundError
 from importlib.metadata import version as _dist_version
 from pathlib import Path
 
+from slv._files import replacing
+
 # ---------------------------------------------------------------------------
 # Component dependency sets: maps each cache component to the InversionConfig fields
 # that actually affect that component's output.  Used to compute content-addressed
@@ -399,7 +401,7 @@ def fips_cache(filename, key=None):
 
             component_dir.mkdir(parents=True, exist_ok=True)
             print(f"Saving {filename} [{h}] to {path}")
-            with open(path, "wb") as f:
+            with replacing(path) as tmp, open(tmp, "wb") as f:
                 pickle.dump(result, f, protocol=pickle.HIGHEST_PROTOCOL)
 
             return result
