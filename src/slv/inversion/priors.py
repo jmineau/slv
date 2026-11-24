@@ -132,6 +132,44 @@ def build_constant_prior(out_grid, flux_times, value=0.0, units=None):
     return grid_da.to_series()
 
 
+def _on_flux_grid(
+    inv, out_grid, flux_times, flux_freq, bbox, extent, units, return_regridder
+):
+    """
+    A lair inventory as the prior: clipped, in ``units``, summed over sectors,
+    conservatively regridded to ``out_grid``, resampled to ``flux_freq`` when that is
+    coarser than the inventory's step, and aligned to ``flux_times`` (a finer request
+    repeats its period). Returns the Series, and the regridder with
+    ``return_regridder``.
+    """
+    if any([bbox, extent]):
+        inv = inv.clip(bbox=bbox, extent=extent)
+    if units:
+        inv = inv.convert_units(units)
+    total = inventories.sum_sectors(inv.data)
+
+    import xesmf as xe  # conda-forge only; lazy
+
+    regridder = xe.Regridder(total, out_grid, method="conservative")
+    inventory = regridder(total)
+    inventory.name = "flux"
+    inventory.attrs["units"] = total.attrs["units"]
+
+    if flux_freq is not None:
+        inv_freq = _infer_freq(inventory.time.values)
+        if inv_freq is not None:
+            ref = pd.Timestamp("2020-01-01")
+            target_step = ref + pd.tseries.frequencies.to_offset(flux_freq)
+            inv_step = ref + inv_freq
+            if target_step > inv_step:
+                inventory = inventory.resample(time=flux_freq).mean()
+
+    prior = align_to_flux_times(inventory, flux_times).to_series()
+    if return_regridder:
+        return prior, regridder
+    return prior
+
+
 def load_epa_prior(
     out_grid,
     flux_times,
@@ -183,42 +221,9 @@ def load_epa_prior(
     # scales only the sectors EPA says can be extrapolated.
     epa = inventories.EPAv2(express=True, scale_by_month=not express)
 
-    # Clip to the bounding box or extent
-    if any([bbox, extent]):
-        epa = epa.clip(bbox=bbox, extent=extent)
-
-    # Convert units
-    if units:
-        epa = epa.convert_units(units)
-
-    # Sum sectors
-    total = inventories.sum_sectors(epa.data)
-
-    # Regrid
-    import xesmf as xe  # conda-forge only; lazy
-
-    regridder = xe.Regridder(total, out_grid, method="conservative")
-    inventory = regridder(total)
-
-    inventory.name = "flux"  # Rename emissions
-    inventory.attrs["units"] = total.attrs["units"]
-
-    # Resample inventory to target flux frequency if needed
-    if flux_freq is not None:
-        inv_freq = _infer_freq(inventory.time.values)
-        if inv_freq is not None:
-            ref = pd.Timestamp("2020-01-01")
-            target_step = ref + pd.tseries.frequencies.to_offset(flux_freq)
-            inv_step = ref + inv_freq
-            if target_step > inv_step:
-                inventory = inventory.resample(time=flux_freq).mean()
-
-    # Align to exact flux_times (finer-than-inventory requests repeat their period)
-    prior = align_to_flux_times(inventory, flux_times).to_series()
-
-    if return_regridder:
-        return prior, regridder
-    return prior
+    return _on_flux_grid(
+        epa, out_grid, flux_times, flux_freq, bbox, extent, units, return_regridder
+    )
 
 
 def load_edgar_prior(
@@ -239,33 +244,6 @@ def load_edgar_prior(
     """
     edgar = inventories.EDGARv8("CH4", time_step="annual")
 
-    if any([bbox, extent]):
-        edgar = edgar.clip(bbox=bbox, extent=extent)
-    if units:
-        edgar = edgar.convert_units(units)
-
-    total = inventories.sum_sectors(edgar.data)
-
-    # Regrid
-    import xesmf as xe  # conda-forge only; lazy
-
-    regridder = xe.Regridder(total, out_grid, method="conservative")
-    inventory = regridder(total)
-
-    inventory.name = "flux"
-    inventory.attrs["units"] = total.attrs["units"]
-
-    if flux_freq is not None:
-        inv_freq = _infer_freq(inventory.time.values)
-        if inv_freq is not None:
-            ref = pd.Timestamp("2020-01-01")
-            target_step = ref + pd.tseries.frequencies.to_offset(flux_freq)
-            inv_step = ref + inv_freq
-            if target_step > inv_step:
-                inventory = inventory.resample(time=flux_freq).mean()
-
-    prior = align_to_flux_times(inventory, flux_times).to_series()
-
-    if return_regridder:
-        return prior, regridder
-    return prior
+    return _on_flux_grid(
+        edgar, out_grid, flux_times, flux_freq, bbox, extent, units, return_regridder
+    )

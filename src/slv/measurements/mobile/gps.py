@@ -418,6 +418,12 @@ def _filter_fixes(
 TIE_ORDER = ("Latitude_deg", "Longitude_deg", "CH4_ppm")
 
 
+def naive_utc(times) -> pd.DatetimeIndex:
+    """``times`` as a DatetimeIndex in UTC with no time zone (aware times are converted)."""
+    t = pd.DatetimeIndex(pd.to_datetime(times))
+    return t.tz_convert("UTC").tz_localize(None) if t.tz is not None else t
+
+
 def sort_by_time(df: pd.DataFrame, time_col: str = "Time_UTC") -> pd.DataFrame:
     """
     ``df`` sorted by time, with the rows that share a time in one fixed order.

@@ -23,6 +23,28 @@ CAL_SOURCES = ("pipeline", "manual_cal", "uncalibrated")
 """
 
 
+def _read_windows(
+    packaged: str, path: str | Path | None, enabled_only: bool
+) -> pd.DataFrame:
+    """
+    A table of time windows: ``path``, or the packaged CSV ``packaged``.
+
+    ``start`` and ``end`` are parsed (ISO dates or date-times), ``enabled`` is read as a
+    bool, and with ``enabled_only`` the disabled rows are dropped.
+    """
+    if path is None:
+        with files("slv.measurements.mobile").joinpath(packaged).open("r") as f:
+            df = pd.read_csv(f)
+    else:
+        df = pd.read_csv(path)
+    df["start"] = pd.to_datetime(df["start"], format="ISO8601")  # dates or date-times
+    df["end"] = pd.to_datetime(df["end"], format="ISO8601")
+    df["enabled"] = df["enabled"].astype(str).str.lower().isin(("true", "1", "yes"))
+    if enabled_only:
+        df = df.loc[df["enabled"].to_numpy()]
+    return pd.DataFrame(df).reset_index(drop=True)
+
+
 def load_trax_uncalibrated_windows(
     path: str | Path | None = None, enabled_only: bool = True
 ) -> pd.DataFrame:
@@ -33,21 +55,7 @@ def load_trax_uncalibrated_windows(
     are ISO dates or date-times, e.g. ``2015-10-11T16:00``).
     Set ``enabled`` to false to drop a window without deleting the row.
     """
-    if path is None:
-        with (
-            files("slv.measurements.mobile")
-            .joinpath("trax_uncalibrated_windows.csv")
-            .open("r") as f
-        ):
-            df = pd.read_csv(f)
-    else:
-        df = pd.read_csv(path)
-    df["start"] = pd.to_datetime(df["start"], format="ISO8601")  # dates or date-times
-    df["end"] = pd.to_datetime(df["end"], format="ISO8601")
-    df["enabled"] = df["enabled"].astype(str).str.lower().isin(("true", "1", "yes"))
-    if enabled_only:
-        df = df.loc[df["enabled"].to_numpy()]
-    return pd.DataFrame(df).reset_index(drop=True)
+    return _read_windows("trax_uncalibrated_windows.csv", path, enabled_only)
 
 
 def load_trax_epoch_offsets(
@@ -67,21 +75,7 @@ def load_trax_epoch_offsets(
     Derived in ``measurements/trax/audit/`` (``checks/answers.py``); rebuild it there after
     an analyzer swap or a rebuild of ``obs.parquet``.
     """
-    if path is None:
-        with (
-            files("slv.measurements.mobile")
-            .joinpath("trax_epoch_offsets.csv")
-            .open("r") as f
-        ):
-            df = pd.read_csv(f)
-    else:
-        df = pd.read_csv(path)
-    df["start"] = pd.to_datetime(df["start"], format="ISO8601")
-    df["end"] = pd.to_datetime(df["end"], format="ISO8601")
-    df["enabled"] = df["enabled"].astype(str).str.lower().isin(("true", "1", "yes"))
-    if enabled_only:
-        df = df.loc[df["enabled"].to_numpy()]
-    return pd.DataFrame(df).reset_index(drop=True)
+    return _read_windows("trax_epoch_offsets.csv", path, enabled_only)
 
 
 def epoch_offset_column(times, offsets: pd.DataFrame | None = None) -> pd.Series:

@@ -54,6 +54,7 @@ from lair import transects as tr
 from pyproj import Transformer
 
 from slv._files import replacing
+from slv.measurements.mobile.gps import naive_utc
 from slv.measurements.mobile.network import user_dir
 
 TRANSECT_LINES = {"r": "Red", "g": "Green", "b": "Blue"}
@@ -232,9 +233,7 @@ def build_network_transects(
     n_points = len(pts)
 
     obs = sort_by_time(obs).reset_index(drop=True)
-    t = pd.DatetimeIndex(obs["Time_UTC"])
-    if t.tz is not None:
-        t = t.tz_convert("UTC").tz_localize(None)
+    t = naive_utc(obs["Time_UTC"])
     t_s = t.values.astype("datetime64[ns]").astype("int64") / 1e9
     gap_s = pd.Timedelta(max_gap).total_seconds()
 
