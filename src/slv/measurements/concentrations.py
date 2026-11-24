@@ -325,39 +325,3 @@ def load_concentrations(
                 print(f"Error converting column {col} to numeric: {e}")
 
     return obs
-
-
-def generate_stilt_receptors(
-    obs: pd.DataFrame,
-    out_csv: str | Path | None = None,
-):
-    """
-    STILT receptor table (``site``, ``time``, ``lati``, ``long``, ``zagl``,
-    ``sim_id``) from :func:`load_concentrations` output with locations; written to
-    ``out_csv`` when given.
-    """
-    # Rename columns to match expected output
-    obs = obs.rename(
-        columns={
-            "Time_UTC": "time",
-            "latitude": "lati",
-            "longitude": "long",
-            "height": "zagl",
-        }
-    )
-    receptors = obs[["site", "time", "lati", "long", "zagl"]].copy()
-
-    # Build simulation id for later matching
-    receptors["sim_id"] = (
-        receptors.time.dt.strftime("%Y%m%d%H%M")
-        + "_"
-        + receptors.long.astype(str)
-        + "_"
-        + receptors.lati.astype(str)
-        + "_"
-        + receptors.zagl.astype(str)
-    )
-
-    if out_csv is not None:
-        receptors.to_csv(out_csv, index=False)  # write csv
-    return receptors

@@ -49,7 +49,7 @@ from scipy.spatial import KDTree
 
 from slv._files import replacing
 from slv.domain import UTC_OFFSET
-from slv.measurements.mobile.gps import sort_by_time
+from slv.measurements.mobile.gps import naive_utc, sort_by_time
 from slv.measurements.mobile.network import (
     UTM12,
     load_trax_lines,
@@ -173,9 +173,7 @@ def load_trax_fixes(
 
 
 def _posix_seconds(times) -> np.ndarray:
-    t = pd.DatetimeIndex(times)
-    if t.tz is not None:
-        t = t.tz_convert("UTC").tz_localize(None)
+    t = naive_utc(times)
     return t.values.astype("datetime64[s]").astype("int64")
 
 
@@ -336,9 +334,7 @@ def _minute_positions(fixes: pd.DataFrame) -> pd.DataFrame:
     for a run-detection loop and a dwell lasts tens of minutes, so nothing is lost.
     """
     x, y = _TO_UTM.transform(fixes.Longitude_deg.values, fixes.Latitude_deg.values)
-    t = pd.DatetimeIndex(fixes.Time_UTC)
-    if t.tz is not None:
-        t = t.tz_convert("UTC").tz_localize(None)
+    t = naive_utc(fixes.Time_UTC)
     m = pd.DataFrame({"minute": t.floor("min"), "x": x, "y": y})
     out = m.groupby("minute").agg(x=("x", "median"), y=("y", "median"), n=("x", "size"))
     return out.sort_index()
@@ -488,9 +484,7 @@ def build_dwell_receptors(
         )
     if dwells.empty:
         return pd.DataFrame(columns=RECEPTOR_COLUMNS)
-    t = pd.DatetimeIndex(fixes.Time_UTC)
-    if t.tz is not None:
-        t = t.tz_convert("UTC").tz_localize(None)
+    t = naive_utc(fixes.Time_UTC)
     order = np.argsort(t.values)
     ts = t.values[order]
 

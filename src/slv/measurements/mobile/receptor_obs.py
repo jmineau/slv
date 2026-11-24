@@ -31,7 +31,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from slv.measurements.mobile.gps import sort_by_time
+from slv.measurements.mobile.gps import naive_utc, sort_by_time
 
 #: Location states whose CH4 counts for each receptor type (``obs.parquet`` ``state``).
 #: A crossing is a traverse, so on-track only; a dwell may be parked on a yard track, but
@@ -54,9 +54,7 @@ def inlet_lag_seconds(
     between epochs gets the nearest epoch's lag (source ``"nearest"``), so data are kept but
     the assumption stays visible and can be filtered on.
     """
-    t = pd.DatetimeIndex(pd.to_datetime(times))
-    if t.tz is not None:
-        t = t.tz_convert("UTC").tz_localize(None)
+    t = naive_utc(times)
     n = len(t)
     if lag is None:
         return np.zeros(n), np.full(n, "none", dtype=object)
@@ -194,9 +192,7 @@ def trax_receptor_observations(
     lo, hi = (win.t0 + shift).to_numpy(), (win.t1 + shift).to_numpy()
 
     rec = ch4.copy()
-    t = pd.DatetimeIndex(rec["Time_UTC"])
-    if t.tz is not None:
-        t = t.tz_convert("UTC").tz_localize(None)
+    t = naive_utc(rec["Time_UTC"])
     rec["Time_UTC"] = t
     rec = rec.loc[rec["CH4_ppm"].notna()]
     if not include_uncalibrated and "cal_source" in rec:

@@ -18,6 +18,7 @@ from importlib.metadata import version as _dist_version
 from pathlib import Path
 
 from slv._files import replacing
+from slv.inversion.provenance import _to_json
 
 # ---------------------------------------------------------------------------
 # Component dependency sets: maps each cache component to the InversionConfig fields
@@ -129,17 +130,6 @@ DEFAULT_COMPONENT_PACKAGES: dict[str, tuple[str, ...]] = {
 DEFAULT_COMPONENT_REVISIONS: dict[str, int] = {"forward_operator": 2}
 
 
-def _json_default(v):
-    """Fallback JSON serializer: converts non-primitive types to strings."""
-    if isinstance(v, (list, tuple)):
-        return [_json_default(i) for i in v]
-    if isinstance(v, dict):
-        return {k: _json_default(vv) for k, vv in sorted(v.items())}
-    if isinstance(v, (str, int, float, bool, type(None))):
-        return v
-    return str(v)
-
-
 def _component_hash(
     config,
     fields: frozenset[str],
@@ -153,13 +143,13 @@ def _component_hash(
     ``revision`` (see ``DEFAULT_COMPONENT_REVISIONS``) and ``extra``, what the
     component depends on beyond the config (the ``key`` of :func:`fips_cache`).
     """
-    data = {f: _json_default(getattr(config, f)) for f in sorted(fields)}
+    data = {f: _to_json(getattr(config, f)) for f in sorted(fields)}
     if packages:
         data["__packages__"] = {p: _release(p) for p in sorted(packages)}
     if revision is not None:
         data["__revision__"] = revision
     if extra is not None:
-        data["__key__"] = _json_default(extra)
+        data["__key__"] = _to_json(extra)
     serialized = json.dumps(data, sort_keys=True)
     return hashlib.sha256(serialized.encode()).hexdigest()[:12]
 
