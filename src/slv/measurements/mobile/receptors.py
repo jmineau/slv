@@ -47,6 +47,7 @@ import shapely
 from pyproj import Transformer
 from scipy.spatial import KDTree
 
+from slv._files import replacing
 from slv.domain import UTC_OFFSET
 from slv.measurements.mobile.gps import sort_by_time
 from slv.measurements.mobile.network import (
@@ -131,7 +132,8 @@ def load_trax_network_points(
                 along[on] = shapely.line_locate_point(geom, pts.geometry.values[on])
             pts[f"s_{letter}"] = np.round(along, 1)
         cache.parent.mkdir(parents=True, exist_ok=True)
-        pts.to_file(cache, index=False)
+        with replacing(cache) as tmp:
+            pts.to_file(tmp, driver="GeoJSON", index=False)
     pts = pts.to_crs(UTM12) if pts.crs != UTM12 else pts
     return pts if meters else pts.to_crs("EPSG:4326")
 

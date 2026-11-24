@@ -23,6 +23,7 @@ from lair.geo import points_along_line
 from shapely import Point
 
 from slv import get_data_dir
+from slv._files import replacing
 
 
 def group_dir() -> Path:
@@ -137,7 +138,8 @@ def load_trax_points(
             lambda x: "".join(sorted(x))
         )
         points_geojson.parent.mkdir(parents=True, exist_ok=True)
-        points_df.to_file(points_geojson, index=False)
+        with replacing(points_geojson) as tmp:
+            points_df.to_file(tmp, driver="GeoJSON", index=False)
 
     if meters:
         return points_df
