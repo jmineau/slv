@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../_static/documentation_options.js?v=0cdea60a"></script>
+    <script src="../../../_static/documentation_options.js?v=8d9e2cd6"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -60,7 +60,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.11.3.dev9+g60d567865" />
+  <meta name="docsearch:version" content="2026.11.3.dev10+g66c246171" />
   
     
     <script src="../../../_static/searchtools.js"></script>
@@ -580,6 +580,44 @@
 
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">_on_flux_grid</span><span class="p">(</span>
+    <span class="n">inv</span><span class="p">,</span> <span class="n">out_grid</span><span class="p">,</span> <span class="n">flux_times</span><span class="p">,</span> <span class="n">flux_freq</span><span class="p">,</span> <span class="n">bbox</span><span class="p">,</span> <span class="n">extent</span><span class="p">,</span> <span class="n">units</span><span class="p">,</span> <span class="n">return_regridder</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    A lair inventory as the prior: clipped, in ``units``, summed over sectors,</span>
+<span class="sd">    conservatively regridded to ``out_grid``, resampled to ``flux_freq`` when that is</span>
+<span class="sd">    coarser than the inventory's step, and aligned to ``flux_times`` (a finer request</span>
+<span class="sd">    repeats its period). Returns the Series, and the regridder with</span>
+<span class="sd">    ``return_regridder``.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="nb">any</span><span class="p">([</span><span class="n">bbox</span><span class="p">,</span> <span class="n">extent</span><span class="p">]):</span>
+        <span class="n">inv</span> <span class="o">=</span> <span class="n">inv</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">bbox</span><span class="o">=</span><span class="n">bbox</span><span class="p">,</span> <span class="n">extent</span><span class="o">=</span><span class="n">extent</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">units</span><span class="p">:</span>
+        <span class="n">inv</span> <span class="o">=</span> <span class="n">inv</span><span class="o">.</span><span class="n">convert_units</span><span class="p">(</span><span class="n">units</span><span class="p">)</span>
+    <span class="n">total</span> <span class="o">=</span> <span class="n">inventories</span><span class="o">.</span><span class="n">sum_sectors</span><span class="p">(</span><span class="n">inv</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+
+    <span class="kn">import</span><span class="w"> </span><span class="nn">xesmf</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xe</span>  <span class="c1"># conda-forge only; lazy</span>
+
+    <span class="n">regridder</span> <span class="o">=</span> <span class="n">xe</span><span class="o">.</span><span class="n">Regridder</span><span class="p">(</span><span class="n">total</span><span class="p">,</span> <span class="n">out_grid</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">"conservative"</span><span class="p">)</span>
+    <span class="n">inventory</span> <span class="o">=</span> <span class="n">regridder</span><span class="p">(</span><span class="n">total</span><span class="p">)</span>
+    <span class="n">inventory</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">"flux"</span>
+    <span class="n">inventory</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"units"</span><span class="p">]</span> <span class="o">=</span> <span class="n">total</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"units"</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">flux_freq</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">inv_freq</span> <span class="o">=</span> <span class="n">_infer_freq</span><span class="p">(</span><span class="n">inventory</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">inv_freq</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ref</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="s2">"2020-01-01"</span><span class="p">)</span>
+            <span class="n">target_step</span> <span class="o">=</span> <span class="n">ref</span> <span class="o">+</span> <span class="n">pd</span><span class="o">.</span><span class="n">tseries</span><span class="o">.</span><span class="n">frequencies</span><span class="o">.</span><span class="n">to_offset</span><span class="p">(</span><span class="n">flux_freq</span><span class="p">)</span>
+            <span class="n">inv_step</span> <span class="o">=</span> <span class="n">ref</span> <span class="o">+</span> <span class="n">inv_freq</span>
+            <span class="k">if</span> <span class="n">target_step</span> <span class="o">&gt;</span> <span class="n">inv_step</span><span class="p">:</span>
+                <span class="n">inventory</span> <span class="o">=</span> <span class="n">inventory</span><span class="o">.</span><span class="n">resample</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="n">flux_freq</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+
+    <span class="n">prior</span> <span class="o">=</span> <span class="n">align_to_flux_times</span><span class="p">(</span><span class="n">inventory</span><span class="p">,</span> <span class="n">flux_times</span><span class="p">)</span><span class="o">.</span><span class="n">to_series</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">return_regridder</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">prior</span><span class="p">,</span> <span class="n">regridder</span>
+    <span class="k">return</span> <span class="n">prior</span>
+
+
 <div class="viewcode-block" id="load_epa_prior">
 <a class="viewcode-back" href="../../../_autosummary/slv.inversion.priors.load_epa_prior.html#slv.inversion.priors.load_epa_prior">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">load_epa_prior</span><span class="p">(</span>
@@ -633,42 +671,9 @@
     <span class="c1"># scales only the sectors EPA says can be extrapolated.</span>
     <span class="n">epa</span> <span class="o">=</span> <span class="n">inventories</span><span class="o">.</span><span class="n">EPAv2</span><span class="p">(</span><span class="n">express</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">scale_by_month</span><span class="o">=</span><span class="ow">not</span> <span class="n">express</span><span class="p">)</span>
 
-    <span class="c1"># Clip to the bounding box or extent</span>
-    <span class="k">if</span> <span class="nb">any</span><span class="p">([</span><span class="n">bbox</span><span class="p">,</span> <span class="n">extent</span><span class="p">]):</span>
-        <span class="n">epa</span> <span class="o">=</span> <span class="n">epa</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">bbox</span><span class="o">=</span><span class="n">bbox</span><span class="p">,</span> <span class="n">extent</span><span class="o">=</span><span class="n">extent</span><span class="p">)</span>
-
-    <span class="c1"># Convert units</span>
-    <span class="k">if</span> <span class="n">units</span><span class="p">:</span>
-        <span class="n">epa</span> <span class="o">=</span> <span class="n">epa</span><span class="o">.</span><span class="n">convert_units</span><span class="p">(</span><span class="n">units</span><span class="p">)</span>
-
-    <span class="c1"># Sum sectors</span>
-    <span class="n">total</span> <span class="o">=</span> <span class="n">inventories</span><span class="o">.</span><span class="n">sum_sectors</span><span class="p">(</span><span class="n">epa</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
-
-    <span class="c1"># Regrid</span>
-    <span class="kn">import</span><span class="w"> </span><span class="nn">xesmf</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xe</span>  <span class="c1"># conda-forge only; lazy</span>
-
-    <span class="n">regridder</span> <span class="o">=</span> <span class="n">xe</span><span class="o">.</span><span class="n">Regridder</span><span class="p">(</span><span class="n">total</span><span class="p">,</span> <span class="n">out_grid</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">"conservative"</span><span class="p">)</span>
-    <span class="n">inventory</span> <span class="o">=</span> <span class="n">regridder</span><span class="p">(</span><span class="n">total</span><span class="p">)</span>
-
-    <span class="n">inventory</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">"flux"</span>  <span class="c1"># Rename emissions</span>
-    <span class="n">inventory</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"units"</span><span class="p">]</span> <span class="o">=</span> <span class="n">total</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"units"</span><span class="p">]</span>
-
-    <span class="c1"># Resample inventory to target flux frequency if needed</span>
-    <span class="k">if</span> <span class="n">flux_freq</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">inv_freq</span> <span class="o">=</span> <span class="n">_infer_freq</span><span class="p">(</span><span class="n">inventory</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">inv_freq</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">ref</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="s2">"2020-01-01"</span><span class="p">)</span>
-            <span class="n">target_step</span> <span class="o">=</span> <span class="n">ref</span> <span class="o">+</span> <span class="n">pd</span><span class="o">.</span><span class="n">tseries</span><span class="o">.</span><span class="n">frequencies</span><span class="o">.</span><span class="n">to_offset</span><span class="p">(</span><span class="n">flux_freq</span><span class="p">)</span>
-            <span class="n">inv_step</span> <span class="o">=</span> <span class="n">ref</span> <span class="o">+</span> <span class="n">inv_freq</span>
-            <span class="k">if</span> <span class="n">target_step</span> <span class="o">&gt;</span> <span class="n">inv_step</span><span class="p">:</span>
-                <span class="n">inventory</span> <span class="o">=</span> <span class="n">inventory</span><span class="o">.</span><span class="n">resample</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="n">flux_freq</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
-
-    <span class="c1"># Align to exact flux_times (finer-than-inventory requests repeat their period)</span>
-    <span class="n">prior</span> <span class="o">=</span> <span class="n">align_to_flux_times</span><span class="p">(</span><span class="n">inventory</span><span class="p">,</span> <span class="n">flux_times</span><span class="p">)</span><span class="o">.</span><span class="n">to_series</span><span class="p">()</span>
-
-    <span class="k">if</span> <span class="n">return_regridder</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">prior</span><span class="p">,</span> <span class="n">regridder</span>
-    <span class="k">return</span> <span class="n">prior</span></div>
+    <span class="k">return</span> <span class="n">_on_flux_grid</span><span class="p">(</span>
+        <span class="n">epa</span><span class="p">,</span> <span class="n">out_grid</span><span class="p">,</span> <span class="n">flux_times</span><span class="p">,</span> <span class="n">flux_freq</span><span class="p">,</span> <span class="n">bbox</span><span class="p">,</span> <span class="n">extent</span><span class="p">,</span> <span class="n">units</span><span class="p">,</span> <span class="n">return_regridder</span>
+    <span class="p">)</span></div>
 
 
 
@@ -692,36 +697,9 @@
 <span class="sd">    """</span>
     <span class="n">edgar</span> <span class="o">=</span> <span class="n">inventories</span><span class="o">.</span><span class="n">EDGARv8</span><span class="p">(</span><span class="s2">"CH4"</span><span class="p">,</span> <span class="n">time_step</span><span class="o">=</span><span class="s2">"annual"</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="nb">any</span><span class="p">([</span><span class="n">bbox</span><span class="p">,</span> <span class="n">extent</span><span class="p">]):</span>
-        <span class="n">edgar</span> <span class="o">=</span> <span class="n">edgar</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">bbox</span><span class="o">=</span><span class="n">bbox</span><span class="p">,</span> <span class="n">extent</span><span class="o">=</span><span class="n">extent</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">units</span><span class="p">:</span>
-        <span class="n">edgar</span> <span class="o">=</span> <span class="n">edgar</span><span class="o">.</span><span class="n">convert_units</span><span class="p">(</span><span class="n">units</span><span class="p">)</span>
-
-    <span class="n">total</span> <span class="o">=</span> <span class="n">inventories</span><span class="o">.</span><span class="n">sum_sectors</span><span class="p">(</span><span class="n">edgar</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
-
-    <span class="c1"># Regrid</span>
-    <span class="kn">import</span><span class="w"> </span><span class="nn">xesmf</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xe</span>  <span class="c1"># conda-forge only; lazy</span>
-
-    <span class="n">regridder</span> <span class="o">=</span> <span class="n">xe</span><span class="o">.</span><span class="n">Regridder</span><span class="p">(</span><span class="n">total</span><span class="p">,</span> <span class="n">out_grid</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">"conservative"</span><span class="p">)</span>
-    <span class="n">inventory</span> <span class="o">=</span> <span class="n">regridder</span><span class="p">(</span><span class="n">total</span><span class="p">)</span>
-
-    <span class="n">inventory</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">"flux"</span>
-    <span class="n">inventory</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"units"</span><span class="p">]</span> <span class="o">=</span> <span class="n">total</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">"units"</span><span class="p">]</span>
-
-    <span class="k">if</span> <span class="n">flux_freq</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">inv_freq</span> <span class="o">=</span> <span class="n">_infer_freq</span><span class="p">(</span><span class="n">inventory</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">inv_freq</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">ref</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="s2">"2020-01-01"</span><span class="p">)</span>
-            <span class="n">target_step</span> <span class="o">=</span> <span class="n">ref</span> <span class="o">+</span> <span class="n">pd</span><span class="o">.</span><span class="n">tseries</span><span class="o">.</span><span class="n">frequencies</span><span class="o">.</span><span class="n">to_offset</span><span class="p">(</span><span class="n">flux_freq</span><span class="p">)</span>
-            <span class="n">inv_step</span> <span class="o">=</span> <span class="n">ref</span> <span class="o">+</span> <span class="n">inv_freq</span>
-            <span class="k">if</span> <span class="n">target_step</span> <span class="o">&gt;</span> <span class="n">inv_step</span><span class="p">:</span>
-                <span class="n">inventory</span> <span class="o">=</span> <span class="n">inventory</span><span class="o">.</span><span class="n">resample</span><span class="p">(</span><span class="n">time</span><span class="o">=</span><span class="n">flux_freq</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
-
-    <span class="n">prior</span> <span class="o">=</span> <span class="n">align_to_flux_times</span><span class="p">(</span><span class="n">inventory</span><span class="p">,</span> <span class="n">flux_times</span><span class="p">)</span><span class="o">.</span><span class="n">to_series</span><span class="p">()</span>
-
-    <span class="k">if</span> <span class="n">return_regridder</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">prior</span><span class="p">,</span> <span class="n">regridder</span>
-    <span class="k">return</span> <span class="n">prior</span></div>
+    <span class="k">return</span> <span class="n">_on_flux_grid</span><span class="p">(</span>
+        <span class="n">edgar</span><span class="p">,</span> <span class="n">out_grid</span><span class="p">,</span> <span class="n">flux_times</span><span class="p">,</span> <span class="n">flux_freq</span><span class="p">,</span> <span class="n">bbox</span><span class="p">,</span> <span class="n">extent</span><span class="p">,</span> <span class="n">units</span><span class="p">,</span> <span class="n">return_regridder</span>
+    <span class="p">)</span></div>
 
 </pre></div>
 

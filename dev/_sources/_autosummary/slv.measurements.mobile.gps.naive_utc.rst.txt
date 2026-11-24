@@ -1,0 +1,6 @@
+slv.measurements.mobile.gps.naive\_utc
+======================================
+
+.. currentmodule:: slv.measurements.mobile.gps
+
+.. autofunction:: naive_utc

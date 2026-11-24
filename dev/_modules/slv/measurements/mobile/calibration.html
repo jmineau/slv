@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../../_static/documentation_options.js?v=0cdea60a"></script>
+    <script src="../../../../_static/documentation_options.js?v=8d9e2cd6"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -60,7 +60,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.11.3.dev9+g60d567865" />
+  <meta name="docsearch:version" content="2026.11.3.dev10+g66c246171" />
   
     
     <script src="../../../../_static/searchtools.js"></script>
@@ -462,6 +462,28 @@
 <span class="sd">"""</span>
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">_read_windows</span><span class="p">(</span>
+    <span class="n">packaged</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">enabled_only</span><span class="p">:</span> <span class="nb">bool</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    A table of time windows: ``path``, or the packaged CSV ``packaged``.</span>
+
+<span class="sd">    ``start`` and ``end`` are parsed (ISO dates or date-times), ``enabled`` is read as a</span>
+<span class="sd">    bool, and with ``enabled_only`` the disabled rows are dropped.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">files</span><span class="p">(</span><span class="s2">"slv.measurements.mobile"</span><span class="p">)</span><span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="n">packaged</span><span class="p">)</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">"r"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">"start"</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">"start"</span><span class="p">],</span> <span class="nb">format</span><span class="o">=</span><span class="s2">"ISO8601"</span><span class="p">)</span>  <span class="c1"># dates or date-times</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">"end"</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">"end"</span><span class="p">],</span> <span class="nb">format</span><span class="o">=</span><span class="s2">"ISO8601"</span><span class="p">)</span>
+    <span class="n">df</span><span class="p">[</span><span class="s2">"enabled"</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">"enabled"</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">isin</span><span class="p">((</span><span class="s2">"true"</span><span class="p">,</span> <span class="s2">"1"</span><span class="p">,</span> <span class="s2">"yes"</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">enabled_only</span><span class="p">:</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s2">"enabled"</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()]</span>
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">df</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+
 <div class="viewcode-block" id="load_trax_uncalibrated_windows">
 <a class="viewcode-back" href="../../../../_autosummary/slv.measurements.mobile.calibration.load_trax_uncalibrated_windows.html#slv.measurements.mobile.calibration.load_trax_uncalibrated_windows">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">load_trax_uncalibrated_windows</span><span class="p">(</span>
@@ -474,21 +496,7 @@
 <span class="sd">    are ISO dates or date-times, e.g. ``2015-10-11T16:00``).</span>
 <span class="sd">    Set ``enabled`` to false to drop a window without deleting the row.</span>
 <span class="sd">    """</span>
-    <span class="k">if</span> <span class="n">path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">with</span> <span class="p">(</span>
-            <span class="n">files</span><span class="p">(</span><span class="s2">"slv.measurements.mobile"</span><span class="p">)</span>
-            <span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s2">"trax_uncalibrated_windows.csv"</span><span class="p">)</span>
-            <span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">"r"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span>
-        <span class="p">):</span>
-            <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
-    <span class="n">df</span><span class="p">[</span><span class="s2">"start"</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">"start"</span><span class="p">],</span> <span class="nb">format</span><span class="o">=</span><span class="s2">"ISO8601"</span><span class="p">)</span>  <span class="c1"># dates or date-times</span>
-    <span class="n">df</span><span class="p">[</span><span class="s2">"end"</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">"end"</span><span class="p">],</span> <span class="nb">format</span><span class="o">=</span><span class="s2">"ISO8601"</span><span class="p">)</span>
-    <span class="n">df</span><span class="p">[</span><span class="s2">"enabled"</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">"enabled"</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">isin</span><span class="p">((</span><span class="s2">"true"</span><span class="p">,</span> <span class="s2">"1"</span><span class="p">,</span> <span class="s2">"yes"</span><span class="p">))</span>
-    <span class="k">if</span> <span class="n">enabled_only</span><span class="p">:</span>
-        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s2">"enabled"</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()]</span>
-    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">df</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">_read_windows</span><span class="p">(</span><span class="s2">"trax_uncalibrated_windows.csv"</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">enabled_only</span><span class="p">)</span></div>
 
 
 
@@ -511,21 +519,7 @@
 <span class="sd">    Derived in ``measurements/trax/audit/`` (``checks/answers.py``); rebuild it there after</span>
 <span class="sd">    an analyzer swap or a rebuild of ``obs.parquet``.</span>
 <span class="sd">    """</span>
-    <span class="k">if</span> <span class="n">path</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">with</span> <span class="p">(</span>
-            <span class="n">files</span><span class="p">(</span><span class="s2">"slv.measurements.mobile"</span><span class="p">)</span>
-            <span class="o">.</span><span class="n">joinpath</span><span class="p">(</span><span class="s2">"trax_epoch_offsets.csv"</span><span class="p">)</span>
-            <span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">"r"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span>
-        <span class="p">):</span>
-            <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
-    <span class="n">df</span><span class="p">[</span><span class="s2">"start"</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">"start"</span><span class="p">],</span> <span class="nb">format</span><span class="o">=</span><span class="s2">"ISO8601"</span><span class="p">)</span>
-    <span class="n">df</span><span class="p">[</span><span class="s2">"end"</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">"end"</span><span class="p">],</span> <span class="nb">format</span><span class="o">=</span><span class="s2">"ISO8601"</span><span class="p">)</span>
-    <span class="n">df</span><span class="p">[</span><span class="s2">"enabled"</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">"enabled"</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">isin</span><span class="p">((</span><span class="s2">"true"</span><span class="p">,</span> <span class="s2">"1"</span><span class="p">,</span> <span class="s2">"yes"</span><span class="p">))</span>
-    <span class="k">if</span> <span class="n">enabled_only</span><span class="p">:</span>
-        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s2">"enabled"</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()]</span>
-    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">df</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">_read_windows</span><span class="p">(</span><span class="s2">"trax_epoch_offsets.csv"</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">enabled_only</span><span class="p">)</span></div>
 
 
 

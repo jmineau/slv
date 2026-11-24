@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../_static/documentation_options.js?v=0cdea60a"></script>
+    <script src="../../../_static/documentation_options.js?v=8d9e2cd6"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -60,7 +60,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.11.3.dev9+g60d567865" />
+  <meta name="docsearch:version" content="2026.11.3.dev10+g66c246171" />
   
     
     <script src="../../../_static/searchtools.js"></script>
@@ -766,45 +766,6 @@
                 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Error converting column </span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2"> to numeric: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">obs</span></div>
-
-
-
-<div class="viewcode-block" id="generate_stilt_receptors">
-<a class="viewcode-back" href="../../../_autosummary/slv.measurements.concentrations.generate_stilt_receptors.html#slv.measurements.concentrations.generate_stilt_receptors">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">generate_stilt_receptors</span><span class="p">(</span>
-    <span class="n">obs</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
-    <span class="n">out_csv</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<span class="p">):</span>
-<span class="w">    </span><span class="sd">"""</span>
-<span class="sd">    STILT receptor table (``site``, ``time``, ``lati``, ``long``, ``zagl``,</span>
-<span class="sd">    ``sim_id``) from :func:`load_concentrations` output with locations; written to</span>
-<span class="sd">    ``out_csv`` when given.</span>
-<span class="sd">    """</span>
-    <span class="c1"># Rename columns to match expected output</span>
-    <span class="n">obs</span> <span class="o">=</span> <span class="n">obs</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
-        <span class="n">columns</span><span class="o">=</span><span class="p">{</span>
-            <span class="s2">"Time_UTC"</span><span class="p">:</span> <span class="s2">"time"</span><span class="p">,</span>
-            <span class="s2">"latitude"</span><span class="p">:</span> <span class="s2">"lati"</span><span class="p">,</span>
-            <span class="s2">"longitude"</span><span class="p">:</span> <span class="s2">"long"</span><span class="p">,</span>
-            <span class="s2">"height"</span><span class="p">:</span> <span class="s2">"zagl"</span><span class="p">,</span>
-        <span class="p">}</span>
-    <span class="p">)</span>
-    <span class="n">receptors</span> <span class="o">=</span> <span class="n">obs</span><span class="p">[[</span><span class="s2">"site"</span><span class="p">,</span> <span class="s2">"time"</span><span class="p">,</span> <span class="s2">"lati"</span><span class="p">,</span> <span class="s2">"long"</span><span class="p">,</span> <span class="s2">"zagl"</span><span class="p">]]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-
-    <span class="c1"># Build simulation id for later matching</span>
-    <span class="n">receptors</span><span class="p">[</span><span class="s2">"sim_id"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">receptors</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">"%Y%m</span><span class="si">%d</span><span class="s2">%H%M"</span><span class="p">)</span>
-        <span class="o">+</span> <span class="s2">"_"</span>
-        <span class="o">+</span> <span class="n">receptors</span><span class="o">.</span><span class="n">long</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
-        <span class="o">+</span> <span class="s2">"_"</span>
-        <span class="o">+</span> <span class="n">receptors</span><span class="o">.</span><span class="n">lati</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
-        <span class="o">+</span> <span class="s2">"_"</span>
-        <span class="o">+</span> <span class="n">receptors</span><span class="o">.</span><span class="n">zagl</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
-    <span class="p">)</span>
-
-    <span class="k">if</span> <span class="n">out_csv</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">receptors</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">out_csv</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>  <span class="c1"># write csv</span>
-    <span class="k">return</span> <span class="n">receptors</span></div>
 
 </pre></div>
 
