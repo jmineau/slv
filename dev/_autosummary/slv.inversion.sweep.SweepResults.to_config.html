@@ -41,7 +41,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../_static/documentation_options.js?v=91b7eced"></script>
+    <script src="../_static/documentation_options.js?v=46101f9e"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -63,7 +63,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.11.3.dev6+g19454b819" />
+  <meta name="docsearch:version" content="2026.11.3.dev7+gabc257c15" />
   
     
     <script src="../_static/searchtools.js"></script>
@@ -707,13 +707,18 @@
 <h1>slv.inversion.sweep.SweepResults.to_config<a class="headerlink" href="#slv-inversion-sweep-sweepresults-to-config" title="Link to this heading">#</a></h1>
 <dl class="py method">
 <dt class="sig sig-object py" id="slv.inversion.sweep.SweepResults.to_config">
-<span class="sig-prename descclassname"><span class="pre">SweepResults.</span></span><span class="sig-name descname"><span class="pre">to_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">row</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pipeline</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;function</span> <span class="pre">run&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/slv/inversion/sweep.html#SweepResults.to_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#slv.inversion.sweep.SweepResults.to_config" title="Link to this definition">#</a></dt>
-<dd><p>Rehydrate an <code class="xref py py-class docutils literal notranslate"><span class="pre">InversionConfig</span></code> from a results row.</p>
+<span class="sig-prename descclassname"><span class="pre">SweepResults.</span></span><span class="sig-name descname"><span class="pre">to_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">row</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pipeline</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cache</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/slv/inversion/sweep.html#SweepResults.to_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#slv.inversion.sweep.SweepResults.to_config" title="Link to this definition">#</a></dt>
+<dd><p>Rebuild the <code class="xref py py-class docutils literal notranslate"><span class="pre">InversionConfig</span></code> of a results row.</p>
+<p>The config is read from <code class="docutils literal notranslate"><span class="pre">sweep_grid.json</span></code> next to the results CSV, which
+holds every field of every config as written, by the row’s <code class="docutils literal notranslate"><span class="pre">config_id</span></code>. The
+<code class="docutils literal notranslate"><span class="pre">cfg_*</span></code> columns are not used: a CSV gives back numbers as numpy types, empty
+cells as NaN and <code class="docutils literal notranslate"><span class="pre">False</span></code> next to a string as <code class="docutils literal notranslate"><span class="pre">&quot;False&quot;</span></code>, and with
+<code class="docutils literal notranslate"><span class="pre">swept_params</span></code> it holds only some fields.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>row</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.Series.html#pandas.Series" title="(in pandas v3.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Series</span></code></a></span>) – A row from <code class="xref py py-attr docutils literal notranslate"><span class="pre">df</span></code> (e.g. <code class="docutils literal notranslate"><span class="pre">results.best().iloc[0]</span></code>).</p></li>
-<li><p><strong>pipeline</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Callable</span></code></a>[[<a class="reference internal" href="slv.inversion.config.InversionConfig.html#slv.inversion.config.InversionConfig" title="slv.inversion.config.InversionConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">InversionConfig</span></code></a>], <code class="xref py py-class docutils literal notranslate"><span class="pre">Posterior</span></code>]</span>) – The pipeline function to associate.</p></li>
+<li><p><strong>pipeline</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Callable" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Callable</span></code></a>[[<a class="reference internal" href="slv.inversion.config.InversionConfig.html#slv.inversion.config.InversionConfig" title="slv.inversion.config.InversionConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">InversionConfig</span></code></a>], <code class="xref py py-class docutils literal notranslate"><span class="pre">Posterior</span></code>] | <span class="highlight sphinx_autodoc_typehints-value"><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><code class="xref py py-obj docutils literal notranslate"><span class="kc"><span class="pre">None</span></span></code></a></span></span>) – The pipeline function; the one the grid names by default.</p></li>
 <li><p><strong>cache</strong> (<span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://docs.python.org/3/builtins/stdtypes.html#str" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></a> | <a class="reference external" href="https://docs.python.org/3/library/pathlib.html#pathlib.Path" title="(in Python v3.15)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></a> | <span class="highlight sphinx_autodoc_typehints-value"><a class="reference external" href="https://docs.python.org/3/builtins/constants.html#None" title="(in Python v3.15)"><code class="xref py py-obj docutils literal notranslate"><span class="kc"><span class="pre">None</span></span></code></a></span></span>) – Override cache path.  If <em>None</em>, keeps the original run’s cache.</p></li>
 </ul>
 </dd>
@@ -722,6 +727,12 @@
 </dd>
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p><code class="docutils literal notranslate"><span class="pre">(InversionConfig,</span> <span class="pre">pipeline)</span></code>: <code class="docutils literal notranslate"><span class="pre">pipeline(config)</span></code> runs it.</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#FileNotFoundError" title="(in Python v3.15)"><strong>FileNotFoundError</strong></a> – If there is no <code class="docutils literal notranslate"><span class="pre">sweep_grid.json</span></code> next to the results CSV.</p></li>
+<li><p><a class="reference external" href="https://docs.python.org/3/builtins/exceptions.html#ValueError" title="(in Python v3.15)"><strong>ValueError</strong></a> – If the grid has no config with the row’s <code class="docutils literal notranslate"><span class="pre">config_id</span></code>.</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
