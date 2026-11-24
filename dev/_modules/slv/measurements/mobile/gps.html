@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../../_static/documentation_options.js?v=46101f9e"></script>
+    <script src="../../../../_static/documentation_options.js?v=cc1c0b8f"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -60,7 +60,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.11.3.dev7+gabc257c15" />
+  <meta name="docsearch:version" content="2026.11.3.dev8+g6d038985c" />
   
     
     <script src="../../../../_static/searchtools.js"></script>
@@ -675,11 +675,14 @@
         <span class="k">if</span> <span class="n">fill_gaps</span><span class="p">:</span>
             <span class="n">lin</span> <span class="o">=</span> <span class="n">read_lin_gps</span><span class="p">(</span><span class="n">post</span><span class="p">,</span> <span class="n">site</span><span class="p">,</span> <span class="n">num_processes</span><span class="o">=</span><span class="n">num_processes</span><span class="p">)</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">lin</span><span class="p">):</span>
-                <span class="n">covered</span> <span class="o">=</span> <span class="p">(</span>
-                    <span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">(</span><span class="n">horel</span><span class="o">.</span><span class="n">index</span><span class="p">)</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="s2">"min"</span><span class="p">)</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
-                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">horel</span><span class="p">)</span>
+                <span class="c1"># a minute counts as covered only if horel has a position in it: its</span>
+                <span class="c1"># logger-only rows (the GPS down, the CR1000 still logging) have none</span>
+                <span class="n">located</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">horel</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="n">horel</span><span class="p">[</span><span class="s2">"Latitude_deg"</span><span class="p">]</span><span class="o">.</span><span class="n">notna</span><span class="p">()]</span>
+                    <span class="k">if</span> <span class="s2">"Latitude_deg"</span> <span class="ow">in</span> <span class="n">horel</span><span class="o">.</span><span class="n">columns</span>
                     <span class="k">else</span> <span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">([])</span>
                 <span class="p">)</span>
+                <span class="n">covered</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">(</span><span class="n">located</span><span class="p">)</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="s2">"min"</span><span class="p">)</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
                 <span class="n">gap</span> <span class="o">=</span> <span class="n">lin</span><span class="p">[</span><span class="o">~</span><span class="n">pd</span><span class="o">.</span><span class="n">DatetimeIndex</span><span class="p">(</span><span class="n">lin</span><span class="o">.</span><span class="n">index</span><span class="p">)</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="s2">"min"</span><span class="p">)</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">covered</span><span class="p">)]</span>
                 <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">gap</span><span class="p">):</span>
                     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Filling </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">gap</span><span class="p">)</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> lin-GPS rows into horel gaps"</span><span class="p">)</span>

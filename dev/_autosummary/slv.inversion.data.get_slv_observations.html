@@ -41,7 +41,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../_static/documentation_options.js?v=46101f9e"></script>
+    <script src="../_static/documentation_options.js?v=cc1c0b8f"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -63,7 +63,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.11.3.dev7+gabc257c15" />
+  <meta name="docsearch:version" content="2026.11.3.dev8+g6d038985c" />
   
     
     <script src="../_static/searchtools.js"></script>
@@ -711,10 +711,12 @@ For stationary sites, obs_location is the site name (e.g. “wbb”).
 For mobile sites, obs_location is the STILT location_id string, which directly
 matches the simulation location_id so no separate location mapper is needed.</p>
 <p><code class="docutils literal notranslate"><span class="pre">mobile_obs</span></code> (receptor-paired observations, <a class="reference internal" href="slv.inversion.data.load_mobile_obs.html#slv.inversion.data.load_mobile_obs" title="slv.inversion.data.load_mobile_obs"><code class="xref py py-func docutils literal notranslate"><span class="pre">load_mobile_obs()</span></code></a>) supplies the
-mobile sites’ obs when given: each is keyed exactly like the receptor it pairs with
-(a crossing’s multipoint location_id, a dwell’s point location_id) at its actual release
-time. Without it, mobile sites fall back to the old hourly aggregation onto the staged
-2-km points, whose keys only match point receptors at those points.</p>
+mobile sites’ obs: each is keyed exactly like the receptor it pairs with (a crossing’s
+multipoint location_id, a dwell’s point location_id) at its actual release time. A
+mobile site needs it: <code class="docutils literal notranslate"><span class="pre">ValueError</span></code> without it, since the raw TRAX record that
+<code class="xref py py-func docutils literal notranslate"><span class="pre">load_concentrations()</span></code> reads has none of the QC
+<code class="docutils literal notranslate"><span class="pre">obs.parquet</span></code> applies (slope guard, dropout and pressure rules, location classifier,
+epoch offsets).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrame</span></code></a></span></p>

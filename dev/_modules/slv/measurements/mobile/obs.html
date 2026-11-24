@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../../_static/documentation_options.js?v=46101f9e"></script>
+    <script src="../../../../_static/documentation_options.js?v=cc1c0b8f"></script>
     <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -60,7 +60,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.11.3.dev7+gabc257c15" />
+  <meta name="docsearch:version" content="2026.11.3.dev8+g6d038985c" />
   
     
     <script src="../../../../_static/searchtools.js"></script>
@@ -760,7 +760,8 @@
             <span class="n">time_range</span><span class="o">=</span><span class="n">time_range</span><span class="p">,</span>
             <span class="n">num_processes</span><span class="o">=</span><span class="n">num_processes</span><span class="p">,</span>
         <span class="p">)[</span><span class="n">instrument</span><span class="p">]</span>
-    <span class="k">except</span> <span class="p">(</span><span class="ne">FileNotFoundError</span><span class="p">,</span> <span class="ne">KeyError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">,</span> <span class="n">uataq</span><span class="o">.</span><span class="n">errors</span><span class="o">.</span><span class="n">ReaderError</span><span class="p">):</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">FileNotFoundError</span><span class="p">,</span> <span class="ne">KeyError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">,</span> <span class="n">uataq</span><span class="o">.</span><span class="n">errors</span><span class="o">.</span><span class="n">ReaderError</span><span class="p">)</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  no </span><span class="si">{</span><span class="n">instrument</span><span class="si">}</span><span class="s2"> qaqc support: </span><span class="si">{</span><span class="n">exc</span><span class="si">!r}</span><span class="s2">"</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
             <span class="p">{</span>
                 <span class="s2">"Time_UTC"</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">([]),</span>
@@ -887,10 +888,14 @@
         <span class="sa">f</span><span class="s2">"[</span><span class="si">{</span><span class="n">t0</span><span class="si">:</span><span class="s2">%Y-%m-%d</span><span class="si">}</span><span class="s2"> -&gt; </span><span class="si">{</span><span class="n">t1</span><span class="si">:</span><span class="s2">%Y-%m-%d</span><span class="si">}</span><span class="s2">] qaqc support (dropouts, pressure) ..."</span><span class="p">,</span>
         <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>
+    <span class="c1"># the support reaches past the chunk by the dropout window, so a dropout just</span>
+    <span class="c1"># before t0 (or after t1) still masks this chunk's rows next to it</span>
+    <span class="n">pad</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">minutes</span><span class="o">=</span><span class="n">dropout_window</span> <span class="ow">or</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">support_range</span> <span class="o">=</span> <span class="p">(</span><span class="n">t0</span> <span class="o">-</span> <span class="n">pad</span><span class="p">,</span> <span class="n">t1</span> <span class="o">+</span> <span class="n">pad</span><span class="p">)</span>
     <span class="n">support</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
         <span class="p">[</span>
-            <span class="n">_read_support</span><span class="p">(</span><span class="n">site</span><span class="p">,</span> <span class="s2">"lgr_ugga"</span><span class="p">,</span> <span class="n">time_range</span><span class="p">,</span> <span class="n">num_processes</span><span class="p">),</span>
-            <span class="n">_read_support</span><span class="p">(</span><span class="n">site</span><span class="p">,</span> <span class="s2">"lgr_ugga_manual_cal"</span><span class="p">,</span> <span class="n">time_range</span><span class="p">,</span> <span class="n">num_processes</span><span class="p">),</span>
+            <span class="n">_read_support</span><span class="p">(</span><span class="n">site</span><span class="p">,</span> <span class="s2">"lgr_ugga"</span><span class="p">,</span> <span class="n">support_range</span><span class="p">,</span> <span class="n">num_processes</span><span class="p">),</span>
+            <span class="n">_read_support</span><span class="p">(</span><span class="n">site</span><span class="p">,</span> <span class="s2">"lgr_ugga_manual_cal"</span><span class="p">,</span> <span class="n">support_range</span><span class="p">,</span> <span class="n">num_processes</span><span class="p">),</span>
         <span class="p">],</span>
         <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>
@@ -907,6 +912,12 @@
             <span class="n">num_processes</span><span class="p">,</span>
             <span class="n">keep</span><span class="o">=</span><span class="p">(</span><span class="s2">"CH4d_m"</span><span class="p">,</span> <span class="s2">"QAQC_Flag"</span><span class="p">),</span>
         <span class="p">)</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">FileNotFoundError</span><span class="p">,</span> <span class="ne">KeyError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">,</span> <span class="n">uataq</span><span class="o">.</span><span class="n">errors</span><span class="o">.</span><span class="n">ReaderError</span><span class="p">)</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+        <span class="c1"># only a missing or unreadable file is "no data"; an error in the rules below</span>
+        <span class="c1"># must stop the build, not empty the chunk</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  no calibrated LGR data: </span><span class="si">{</span><span class="n">exc</span><span class="si">!r}</span><span class="s2">"</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">cal</span> <span class="o">=</span> <span class="n">empty</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">cal_source</span><span class="o">=</span><span class="s2">"pipeline"</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
         <span class="n">hot</span> <span class="o">=</span> <span class="n">recover_hot_rows</span><span class="p">(</span><span class="n">cal</span><span class="p">,</span> <span class="n">support</span><span class="p">)</span> <span class="k">if</span> <span class="n">recover_hot</span> <span class="k">else</span> <span class="n">empty</span>
         <span class="c1"># before the slope guard: a recovered row is the reading over the same fitted slope,</span>
         <span class="c1"># so a slope the guard rejects miscalibrates it as much as a calibrated row</span>
@@ -917,8 +928,6 @@
         <span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">hot</span><span class="p">):</span>
             <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  recovered </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">hot</span><span class="p">)</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> flag -64 rows (hot cavity)"</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="k">except</span> <span class="p">(</span><span class="ne">FileNotFoundError</span><span class="p">,</span> <span class="ne">KeyError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">,</span> <span class="n">uataq</span><span class="o">.</span><span class="n">errors</span><span class="o">.</span><span class="n">ReaderError</span><span class="p">):</span>
-        <span class="n">cal</span> <span class="o">=</span> <span class="n">empty</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">cal_source</span><span class="o">=</span><span class="s2">"pipeline"</span><span class="p">)</span>
 
     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"[</span><span class="si">{</span><span class="n">t0</span><span class="si">:</span><span class="s2">%Y-%m-%d</span><span class="si">}</span><span class="s2"> -&gt; </span><span class="si">{</span><span class="n">t1</span><span class="si">:</span><span class="s2">%Y-%m-%d</span><span class="si">}</span><span class="s2">] manual-cal LGR ..."</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">flags</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="o">*</span><span class="n">defaults</span><span class="p">[</span><span class="s2">"CH4"</span><span class="p">][</span><span class="s2">"valid_flags"</span><span class="p">]}</span>
@@ -935,6 +944,10 @@
             <span class="n">keep</span><span class="o">=</span><span class="p">(</span><span class="s2">"QAQC_Flag"</span><span class="p">,</span> <span class="s2">"Cavity_P_torr"</span><span class="p">),</span>
             <span class="n">valid_flags</span><span class="o">=</span><span class="n">flags</span><span class="p">,</span>
         <span class="p">)</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">FileNotFoundError</span><span class="p">,</span> <span class="ne">KeyError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">,</span> <span class="n">uataq</span><span class="o">.</span><span class="n">errors</span><span class="o">.</span><span class="n">ReaderError</span><span class="p">)</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  no manual-cal LGR data: </span><span class="si">{</span><span class="n">exc</span><span class="si">!r}</span><span class="s2">"</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">man</span> <span class="o">=</span> <span class="n">empty</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">cal_source</span><span class="o">=</span><span class="s2">"manual_cal"</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
         <span class="k">if</span> <span class="s2">"QAQC_Flag"</span> <span class="ow">in</span> <span class="n">man</span><span class="o">.</span><span class="n">columns</span> <span class="ow">and</span> <span class="s2">"Cavity_P_torr"</span> <span class="ow">in</span> <span class="n">man</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
             <span class="n">man</span> <span class="o">=</span> <span class="n">apply_low_pressure_rule</span><span class="p">(</span><span class="n">man</span><span class="p">,</span> <span class="n">low_pressure</span><span class="p">)</span>
         <span class="n">man</span> <span class="o">=</span> <span class="n">man</span><span class="p">[</span><span class="n">man</span><span class="o">.</span><span class="n">CH4</span><span class="o">.</span><span class="n">notna</span><span class="p">()]</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">cal_source</span><span class="o">=</span><span class="s2">"manual_cal"</span><span class="p">)</span>
@@ -946,8 +959,6 @@
                 <span class="o">*</span><span class="p">([</span><span class="s2">"low_pressure"</span><span class="p">]</span> <span class="k">if</span> <span class="s2">"low_pressure"</span> <span class="ow">in</span> <span class="n">man</span> <span class="k">else</span> <span class="p">[]),</span>
             <span class="p">]</span>
         <span class="p">]</span>
-    <span class="k">except</span> <span class="p">(</span><span class="ne">FileNotFoundError</span><span class="p">,</span> <span class="ne">KeyError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">,</span> <span class="n">uataq</span><span class="o">.</span><span class="n">errors</span><span class="o">.</span><span class="n">ReaderError</span><span class="p">):</span>
-        <span class="n">man</span> <span class="o">=</span> <span class="n">empty</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">cal_source</span><span class="o">=</span><span class="s2">"manual_cal"</span><span class="p">)</span>
 
     <span class="n">parts</span> <span class="o">=</span> <span class="p">[</span><span class="n">cal</span><span class="p">,</span> <span class="n">man</span><span class="p">]</span>
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span>
@@ -962,7 +973,13 @@
         <span class="p">)</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">q</span> <span class="o">=</span> <span class="n">_read_lgr</span><span class="p">(</span><span class="n">site</span><span class="p">,</span> <span class="s2">"lgr_ugga"</span><span class="p">,</span> <span class="s2">"qaqc"</span><span class="p">,</span> <span class="s2">"CH4d_ppm"</span><span class="p">,</span> <span class="p">(</span><span class="n">ws</span><span class="p">,</span> <span class="n">we</span><span class="p">),</span> <span class="n">num_processes</span><span class="p">)</span>
-        <span class="k">except</span> <span class="p">(</span><span class="ne">FileNotFoundError</span><span class="p">,</span> <span class="ne">KeyError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">,</span> <span class="n">uataq</span><span class="o">.</span><span class="n">errors</span><span class="o">.</span><span class="n">ReaderError</span><span class="p">):</span>
+        <span class="k">except</span> <span class="p">(</span>
+            <span class="ne">FileNotFoundError</span><span class="p">,</span>
+            <span class="ne">KeyError</span><span class="p">,</span>
+            <span class="ne">ValueError</span><span class="p">,</span>
+            <span class="n">uataq</span><span class="o">.</span><span class="n">errors</span><span class="o">.</span><span class="n">ReaderError</span><span class="p">,</span>
+        <span class="p">)</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"  no qaqc LGR data for the window: </span><span class="si">{</span><span class="n">exc</span><span class="si">!r}</span><span class="s2">"</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="k">continue</span>
         <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
             <span class="n">select_uncalibrated</span><span class="p">(</span><span class="n">q</span><span class="p">,</span> <span class="n">windows</span><span class="o">.</span><span class="n">iloc</span><span class="p">[[</span><span class="n">i</span><span class="p">]],</span> <span class="n">exclude_times</span><span class="o">=</span><span class="n">cal</span><span class="o">.</span><span class="n">Time_UTC</span><span class="p">)</span>
@@ -1138,8 +1155,18 @@
 <span class="sd">    see :func:`build_trax_obs`). ``time_range=(start, end)`` reads only ``start &lt;= Time_UTC &lt;</span>
 <span class="sd">    end`` from the cache (a parquet row-group filter: the file is time-ordered, so one year</span>
 <span class="sd">    of the 92 M rows costs a few seconds and a few GB rather than the whole record).</span>
+<span class="sd">    The default cache holds trx01's record: another ``site`` (in ``build_kwargs``) raises</span>
+<span class="sd">    ``ValueError`` unless it is given its own ``cache``.</span>
 <span class="sd">    """</span>
-    <span class="n">cache</span> <span class="o">=</span> <span class="n">user_dir</span><span class="p">()</span> <span class="o">/</span> <span class="s2">"trax"</span> <span class="o">/</span> <span class="s2">"obs.parquet"</span> <span class="k">if</span> <span class="n">cache</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">Path</span><span class="p">(</span><span class="n">cache</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">cache</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">site</span> <span class="o">=</span> <span class="n">build_kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"site"</span><span class="p">,</span> <span class="s2">"trx01"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">site</span> <span class="o">!=</span> <span class="s2">"trx01"</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"site=</span><span class="si">{</span><span class="n">site</span><span class="si">!r}</span><span class="s2">: the default cache, trax/obs.parquet, holds trx01's "</span>
+                <span class="s2">"record; give another site its own cache="</span>
+            <span class="p">)</span>
+        <span class="n">cache</span> <span class="o">=</span> <span class="n">user_dir</span><span class="p">()</span> <span class="o">/</span> <span class="s2">"trax"</span> <span class="o">/</span> <span class="s2">"obs.parquet"</span>
+    <span class="n">cache</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">cache</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">cache</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">rebuild</span><span class="p">:</span>
         <span class="n">filters</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">if</span> <span class="n">time_range</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>

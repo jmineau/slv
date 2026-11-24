@@ -41,7 +41,7 @@
   <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../_static/documentation_options.js?v=46101f9e"></script>
+    <script src="../_static/documentation_options.js?v=cc1c0b8f"></script>
     <script src="../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -63,7 +63,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.11.3.dev7+gabc257c15" />
+  <meta name="docsearch:version" content="2026.11.3.dev8+g6d038985c" />
   
     
     <script src="../_static/searchtools.js"></script>
@@ -718,7 +718,9 @@ everything (indoor shed air and untrusted positions included); the <code class="
 drops the manual-cal rows measured at low cavity pressure (<code class="docutils literal notranslate"><span class="pre">low_pressure</span></code> column,
 see <a class="reference internal" href="slv.measurements.mobile.obs.build_trax_obs.html#slv.measurements.mobile.obs.build_trax_obs" title="slv.measurements.mobile.obs.build_trax_obs"><code class="xref py py-func docutils literal notranslate"><span class="pre">build_trax_obs()</span></code></a>). <code class="docutils literal notranslate"><span class="pre">time_range=(start,</span> <span class="pre">end)</span></code> reads only <code class="docutils literal notranslate"><span class="pre">start</span> <span class="pre">&lt;=</span> <span class="pre">Time_UTC</span> <span class="pre">&lt;</span>
 <span class="pre">end</span></code> from the cache (a parquet row-group filter: the file is time-ordered, so one year
-of the 92 M rows costs a few seconds and a few GB rather than the whole record).</p>
+of the 92 M rows costs a few seconds and a few GB rather than the whole record).
+The default cache holds trx01’s record: another <code class="docutils literal notranslate"><span class="pre">site</span></code> (in <code class="docutils literal notranslate"><span class="pre">build_kwargs</span></code>) raises
+<code class="docutils literal notranslate"><span class="pre">ValueError</span></code> unless it is given its own <code class="docutils literal notranslate"><span class="pre">cache</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p><span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">GeoDataFrame</span></code></span></p>
