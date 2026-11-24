@@ -438,13 +438,9 @@ def filter_state_space(
     prior = prior[(prior_times >= tstart) & (prior_times < tend)]
 
     if config.min_obs_per_interval > 1:
-        # The intervals run from each flux time to the next, closed on the right, as
-        # fips 0.1's FluxInversionPipeline made them
-        times = prior.index.get_level_values("time").unique().sort_values()
-        offset = pd.tseries.frequencies.to_offset(config.flux_freq)
-        bins = pd.interval_range(
-            start=times.min(), end=times.max() + offset, freq=config.flux_freq
-        )
+        # the flux intervals themselves, closed on the left: an obs at 00:00 on the
+        # first of a month counts for that month
+        bins = config.flux_time_bins
         interval = pd.Index(pd.cut(obs.index.get_level_values("obs_time"), bins=bins))
         counts = (
             pd.Series(1, index=obs.index)

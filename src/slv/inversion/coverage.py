@@ -84,8 +84,11 @@ def covered_state(problem: Problem, percentile: float) -> Space:
     coverage = coverage / n_obs_locations
 
     threshold = np.percentile(coverage.to_numpy(), percentile)
-    retained = coverage.index[coverage >= threshold]
-    n_total, n_removed = len(coverage), int((coverage < threshold).sum())
+    # at a threshold of 0 (more unseen cells than the percentile) `< 0` drops nothing:
+    # the cells no obs sees are the ones to drop
+    dropped = coverage < threshold if threshold > 0 else coverage <= 0
+    retained = coverage.index[~dropped]
+    n_total, n_removed = len(coverage), int(dropped.sum())
     print(
         f"  Keeping {n_total - n_removed}/{n_total} cells "
         f"(removed {n_removed} below {percentile}th percentile, "

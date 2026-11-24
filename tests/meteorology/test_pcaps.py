@@ -148,3 +148,30 @@ def test_filter_pcap_events_multiindex_level(monkeypatch):
     kept = result.index.get_level_values("Time_UTC")
     assert not kept.isin(times[1:3]).any()
     assert len(result) == 6
+
+
+@pytest.fixture
+def old_cache_and_new_sounding(curated_csv, monkeypatch, tmp_path):
+    """The cache written 2025-03-15, a sounding of 2025-09-23 in SLV_SOUNDINGS_DIR."""
+    import os
+
+    folder = tmp_path / "soundings" / "SLC"
+    folder.mkdir(parents=True)
+    (folder / "SLC_2025092312.csv").write_text("")
+    monkeypatch.setenv("SLV_SOUNDINGS_DIR", str(tmp_path / "soundings"))
+    written = pd.Timestamp("2025-03-15").timestamp()
+    os.utime(curated_csv, (written, written))
+    return curated_csv
+
+
+def test_a_cache_older_than_the_soundings_warns(old_cache_and_new_sounding):
+    with pytest.warns(UserWarning, match="2025-09-23 12Z"):
+        pcaps.get_pcap_events(("2025-06-01", "2025-07-01"))
+
+
+def test_a_period_the_old_cache_covers_does_not_warn(old_cache_and_new_sounding):
+    import warnings
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("error")
+        pcaps.get_pcap_events(("2024-06-01", "2024-07-01"))

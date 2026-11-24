@@ -146,14 +146,13 @@ def aggregate_obs(
 
         if mobile_points is not None:
             obs_pts = mobile[["longitude", "latitude"]].to_numpy(dtype=float)
-            agg_pts = np.array(
-                list(
-                    zip(
-                        mobile_points.geometry.x, mobile_points.geometry.y, strict=False
-                    )
-                )
+            agg_pts = np.column_stack(
+                [mobile_points.geometry.x, mobile_points.geometry.y]
             )
-            _, idx = KDTree(agg_pts).query(obs_pts, k=1)
+            # a degree of longitude is shorter than one of latitude (84 vs 111 km at
+            # 40.7 N): scale it so the nearest point is the nearest on the ground
+            scale = np.array([np.cos(np.radians(agg_pts[:, 1].mean())), 1.0])
+            _, idx = KDTree(agg_pts * scale).query(obs_pts * scale, k=1)
             mobile["agg_lat"] = mobile_points.geometry.y.values[idx]
             mobile["agg_lon"] = mobile_points.geometry.x.values[idx]
             group_keys.extend(["site", "agg_lat", "agg_lon"])
@@ -178,7 +177,7 @@ def aggregate_obs(
                 group_keys.append("agg_time")
 
         if mobile_min_count is not None:
-            mobile = mobile.groupby(group_keys).filter(
+            mobile = mobile.groupby(group_keys, dropna=False).filter(
                 lambda g: len(g) >= mobile_min_count
             )
 
@@ -191,7 +190,8 @@ def aggregate_obs(
         }
         agg_dict["instrument"] = lambda x: " ".join(sorted(x.unique()))
 
-        grouped = mobile.groupby(group_keys).agg(agg_dict).reset_index()
+        # dropna=False: a fix with no altitude is kept (merge_with_gps keeps them)
+        grouped = mobile.groupby(group_keys, dropna=False).agg(agg_dict).reset_index()
         agg_frames.append(
             grouped.rename(
                 columns={

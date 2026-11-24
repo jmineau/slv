@@ -257,6 +257,7 @@ def _print_fit(post: Posterior) -> None:
 
     # --- Flux and Bayesian metrics ---
     n = len(prior_flux)
+    n_state = len(problem.prior)  # the flux cells and any bias states: what DOFS counts
     m = len(obs)
     dofs = post.dofs
     n_negative = int((post_flux < 0).sum())
@@ -267,9 +268,11 @@ def _print_fit(post: Posterior) -> None:
     print("==================================================")
     print("          FLUX INVERSION SUMMARY REPORT           ")
     print("==================================================")
-    print(f"State Vector Size (n):       {n}")
+    print(f"State Vector Size (n):       {n_state}")
     print(f"Observation Vector Size (m): {m}")
-    print(f"Degrees of Freedom (DOFS):   {dofs:.2f} ({(dofs / n) * 100:.1f}% of state)")
+    print(
+        f"Degrees of Freedom (DOFS):   {dofs:.2f} ({(dofs / n_state) * 100:.1f}% of state)"
+    )
     print(f"Reduced Chi-Square:          {post.reduced_chi2:.3f}")
     print(f"Uncertainty Reduction:       {post.uncertainty_reduction * 100:.1f}%")
     print("--------------------------------------------------")
