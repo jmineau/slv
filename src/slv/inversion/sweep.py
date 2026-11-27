@@ -544,14 +544,16 @@ class Sweep:
         print(f"Sweep complete. Results at {csv_path}")
         return SweepResults(csv_path)
 
+    @staticmethod
     def _run_single(
-        self,
         args: tuple[InversionConfig, Pipeline, str, list[str] | None, bool],
     ) -> dict[str, Any]:
         """
         Run one inversion and return a metrics dict.
 
-        Catches all exceptions so a single failed run does not abort the whole sweep.
+        Catches all exceptions so a single failed run does not abort the whole sweep;
+        its traceback goes to ``errors.log`` in the results folder. Used by
+        :meth:`Sweep.run` and :func:`run_sweep_job`.
         """
         config, pipeline, results_dir, swept_params, suppress_output = args
         cid = config_id(config)
@@ -839,27 +841,7 @@ def run_sweep_job(results_dir: str | Path) -> None:
         print(f"[{idx}] {cid} already done — skipping.")
         return
 
-    # Run inversion and collect metrics
-    cfg.plot_inputs = False
-    cfg.plot_results = False
-    cfg.plot_diagnostics = False
-
-    start = time.perf_counter()
-    try:
-        post, problem = _solve(pipeline, cfg)
-        row = collect_metrics(post, cfg, swept_params=None, problem=problem)
-    except Exception as exc:
-        tb = traceback.format_exc()
-        error_log = results_dir / "errors.log"
-        with open(error_log, "a") as f:
-            f.write(f"\n{'=' * 60}\n")
-            f.write(f"Config: {cid}\n")
-            f.write(f"Error: {exc}\n")
-            f.write(tb)
-        print(f"[{idx}] {cid} → error: {exc}")
-        row = _error_row(cid, exc, cfg, swept_params=None)
-    row["runtime_seconds"] = round(time.perf_counter() - start, 1)
-
+    row = Sweep._run_single((cfg, pipeline, str(results_dir), None, False))
     _append_row(csv_path, row)
     status = "error" if row.get("error") else "ok"
     print(f"[{idx}] {cid} → {status}")
