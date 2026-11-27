@@ -351,7 +351,7 @@ def _solved():
 def summing(monkeypatch):
     """Totals as the sum over the cells (no xesmf needed)."""
     monkeypatch.setattr(
-        sweep,
+        report,
         "calculate_total_flux",
         lambda config, fluxes, units=None: fluxes.groupby(level="time").sum(),
     )
@@ -728,11 +728,6 @@ class TestResultRows:
         # #76: the sweep hands run the whole problem and totals over it, as summarize
         full = _solved().problem
         monkeypatch.setattr(pipelines, "build_problem", lambda config: full)
-        monkeypatch.setattr(
-            report,
-            "calculate_total_flux",
-            lambda config, fluxes, units=None: fluxes.groupby(level="time").sum(),
-        )
         config = _cfg(jacobian_coverage_percentile=30)
         sweep = Sweep(cache=str(tmp_path / "cache"), prior_base_std=[0.01])
 
@@ -916,7 +911,7 @@ def test_a_metric_that_fails_is_a_warning_not_an_error(monkeypatch, caplog):
     def broken(config, fluxes, units=None):
         raise ImportError("xesmf")
 
-    monkeypatch.setattr(sweep, "calculate_total_flux", broken)
+    monkeypatch.setattr(report, "calculate_total_flux", broken)
     row = collect_metrics(_solved(), _cfg())
     assert row["error"] is None
     assert row["posterior_flux_mean"] is None
