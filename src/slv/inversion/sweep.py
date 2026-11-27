@@ -76,7 +76,7 @@ from joblib import Parallel, delayed
 from slv.inversion import pipelines
 from slv.inversion.config import InversionConfig
 from slv.inversion.provenance import VERSION_COLUMNS, _to_json, version_columns
-from slv.inversion.report import calculate_total_flux, fit_metrics
+from slv.inversion.report import _totals, fit_metrics
 
 #: A pipeline: the function that solves one config, as :func:`~slv.inversion.pipelines.run`.
 Pipeline = Callable[[InversionConfig], Posterior]
@@ -717,18 +717,7 @@ def collect_metrics(
 
     # Domain-integrated flux totals over every cell, the left-out ones at their prior
     try:
-        total_prior = calculate_total_flux(
-            config,
-            whole.prior.to_series("flux").rename("prior"),
-            units=config.output_units,
-        )
-        total_posterior = calculate_total_flux(
-            config,
-            post.estimate.combine_first(whole.prior)
-            .to_series("flux")
-            .rename("posterior"),
-            units=config.output_units,
-        )
+        total_prior, total_posterior = _totals(config, post, whole)
         metrics["prior_flux_mean"] = float(total_prior.mean())
         metrics["posterior_flux_mean"] = float(total_posterior.mean())
         metrics["posterior_flux_std"] = float(total_posterior.std())

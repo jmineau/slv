@@ -301,12 +301,9 @@ def test_summarize_prints_the_bias_as_model_minus_obs_and_both_r2(summing, capsy
     assert "R^2 (Prior):" not in out and "Bayesian R^2" not in out
 
 
-def test_the_sweep_and_the_printed_report_give_the_same_bias(
-    summing, monkeypatch, capsys
-):
+def test_the_sweep_and_the_printed_report_give_the_same_bias(summing, capsys):
     from slv.inversion import sweep
 
-    monkeypatch.setattr(sweep, "calculate_total_flux", report.calculate_total_flux)
     post, _ = fit_problem_solved(truth_scale=0.5)  # the model is above the obs
 
     row = sweep.collect_metrics(post, summing)
