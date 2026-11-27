@@ -40,7 +40,7 @@
   <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=18bd87630a240e9c25be" />
 <link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=18bd87630a240e9c25be" />
 
-    <script src="../../../_static/documentation_options.js?v=74f35f35"></script>
+    <script src="../../../_static/documentation_options.js?v=6bf4b481"></script>
     <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
     <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
     <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
@@ -60,7 +60,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="color-scheme" content="light dark"/>
   <meta name="docsearch:language" content="en"/>
-  <meta name="docsearch:version" content="2026.11.3.dev11+g47433f2a7" />
+  <meta name="docsearch:version" content="2026.11.3.dev13+g9221e8d2b" />
   
     
     <script src="../../../_static/searchtools.js"></script>
@@ -515,7 +515,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">slv.inversion</span><span class="w"> </span><span class="kn">import</span> <span class="n">pipelines</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">slv.inversion.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">InversionConfig</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">slv.inversion.provenance</span><span class="w"> </span><span class="kn">import</span> <span class="n">VERSION_COLUMNS</span><span class="p">,</span> <span class="n">_to_json</span><span class="p">,</span> <span class="n">version_columns</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">slv.inversion.report</span><span class="w"> </span><span class="kn">import</span> <span class="n">calculate_total_flux</span><span class="p">,</span> <span class="n">fit_metrics</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">slv.inversion.report</span><span class="w"> </span><span class="kn">import</span> <span class="n">_totals</span><span class="p">,</span> <span class="n">fit_metrics</span>
 
 <span class="c1">#: A pipeline: the function that solves one config, as :func:`~slv.inversion.pipelines.run`.</span>
 <span class="n">Pipeline</span> <span class="o">=</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">InversionConfig</span><span class="p">],</span> <span class="n">Posterior</span><span class="p">]</span>
@@ -991,14 +991,16 @@
         <span class="k">return</span> <span class="n">SweepResults</span><span class="p">(</span><span class="n">csv_path</span><span class="p">)</span></div>
 
 
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_run_single</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
         <span class="n">args</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">InversionConfig</span><span class="p">,</span> <span class="n">Pipeline</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">bool</span><span class="p">],</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Run one inversion and return a metrics dict.</span>
 
-<span class="sd">        Catches all exceptions so a single failed run does not abort the whole sweep.</span>
+<span class="sd">        Catches all exceptions so a single failed run does not abort the whole sweep;</span>
+<span class="sd">        its traceback goes to ``errors.log`` in the results folder. Used by</span>
+<span class="sd">        :meth:`Sweep.run` and :func:`run_sweep_job`.</span>
 <span class="sd">        """</span>
         <span class="n">config</span><span class="p">,</span> <span class="n">pipeline</span><span class="p">,</span> <span class="n">results_dir</span><span class="p">,</span> <span class="n">swept_params</span><span class="p">,</span> <span class="n">suppress_output</span> <span class="o">=</span> <span class="n">args</span>
         <span class="n">cid</span> <span class="o">=</span> <span class="n">config_id</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
@@ -1170,18 +1172,7 @@
 
     <span class="c1"># Domain-integrated flux totals over every cell, the left-out ones at their prior</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="n">total_prior</span> <span class="o">=</span> <span class="n">calculate_total_flux</span><span class="p">(</span>
-            <span class="n">config</span><span class="p">,</span>
-            <span class="n">whole</span><span class="o">.</span><span class="n">prior</span><span class="o">.</span><span class="n">to_series</span><span class="p">(</span><span class="s2">"flux"</span><span class="p">)</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="s2">"prior"</span><span class="p">),</span>
-            <span class="n">units</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">output_units</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="n">total_posterior</span> <span class="o">=</span> <span class="n">calculate_total_flux</span><span class="p">(</span>
-            <span class="n">config</span><span class="p">,</span>
-            <span class="n">post</span><span class="o">.</span><span class="n">estimate</span><span class="o">.</span><span class="n">combine_first</span><span class="p">(</span><span class="n">whole</span><span class="o">.</span><span class="n">prior</span><span class="p">)</span>
-            <span class="o">.</span><span class="n">to_series</span><span class="p">(</span><span class="s2">"flux"</span><span class="p">)</span>
-            <span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="s2">"posterior"</span><span class="p">),</span>
-            <span class="n">units</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">output_units</span><span class="p">,</span>
-        <span class="p">)</span>
+        <span class="n">total_prior</span><span class="p">,</span> <span class="n">total_posterior</span> <span class="o">=</span> <span class="n">_totals</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">post</span><span class="p">,</span> <span class="n">whole</span><span class="p">)</span>
         <span class="n">metrics</span><span class="p">[</span><span class="s2">"prior_flux_mean"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">total_prior</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span>
         <span class="n">metrics</span><span class="p">[</span><span class="s2">"posterior_flux_mean"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">total_posterior</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span>
         <span class="n">metrics</span><span class="p">[</span><span class="s2">"posterior_flux_std"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">total_posterior</span><span class="o">.</span><span class="n">std</span><span class="p">())</span>
@@ -1306,27 +1297,7 @@
         <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"[</span><span class="si">{</span><span class="n">idx</span><span class="si">}</span><span class="s2">] </span><span class="si">{</span><span class="n">cid</span><span class="si">}</span><span class="s2"> already done — skipping."</span><span class="p">)</span>
         <span class="k">return</span>
 
-    <span class="c1"># Run inversion and collect metrics</span>
-    <span class="n">cfg</span><span class="o">.</span><span class="n">plot_inputs</span> <span class="o">=</span> <span class="kc">False</span>
-    <span class="n">cfg</span><span class="o">.</span><span class="n">plot_results</span> <span class="o">=</span> <span class="kc">False</span>
-    <span class="n">cfg</span><span class="o">.</span><span class="n">plot_diagnostics</span> <span class="o">=</span> <span class="kc">False</span>
-
-    <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">post</span><span class="p">,</span> <span class="n">problem</span> <span class="o">=</span> <span class="n">_solve</span><span class="p">(</span><span class="n">pipeline</span><span class="p">,</span> <span class="n">cfg</span><span class="p">)</span>
-        <span class="n">row</span> <span class="o">=</span> <span class="n">collect_metrics</span><span class="p">(</span><span class="n">post</span><span class="p">,</span> <span class="n">cfg</span><span class="p">,</span> <span class="n">swept_params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">problem</span><span class="o">=</span><span class="n">problem</span><span class="p">)</span>
-    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
-        <span class="n">tb</span> <span class="o">=</span> <span class="n">traceback</span><span class="o">.</span><span class="n">format_exc</span><span class="p">()</span>
-        <span class="n">error_log</span> <span class="o">=</span> <span class="n">results_dir</span> <span class="o">/</span> <span class="s2">"errors.log"</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">error_log</span><span class="p">,</span> <span class="s2">"a"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="se">\n</span><span class="si">{</span><span class="s1">'='</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">60</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
-            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Config: </span><span class="si">{</span><span class="n">cid</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
-            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Error: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
-            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">tb</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"[</span><span class="si">{</span><span class="n">idx</span><span class="si">}</span><span class="s2">] </span><span class="si">{</span><span class="n">cid</span><span class="si">}</span><span class="s2"> → error: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
-        <span class="n">row</span> <span class="o">=</span> <span class="n">_error_row</span><span class="p">(</span><span class="n">cid</span><span class="p">,</span> <span class="n">exc</span><span class="p">,</span> <span class="n">cfg</span><span class="p">,</span> <span class="n">swept_params</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
-    <span class="n">row</span><span class="p">[</span><span class="s2">"runtime_seconds"</span><span class="p">]</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span> <span class="o">-</span> <span class="n">start</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-
+    <span class="n">row</span> <span class="o">=</span> <span class="n">Sweep</span><span class="o">.</span><span class="n">_run_single</span><span class="p">((</span><span class="n">cfg</span><span class="p">,</span> <span class="n">pipeline</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">results_dir</span><span class="p">),</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">False</span><span class="p">))</span>
     <span class="n">_append_row</span><span class="p">(</span><span class="n">csv_path</span><span class="p">,</span> <span class="n">row</span><span class="p">)</span>
     <span class="n">status</span> <span class="o">=</span> <span class="s2">"error"</span> <span class="k">if</span> <span class="n">row</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"error"</span><span class="p">)</span> <span class="k">else</span> <span class="s2">"ok"</span>
     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"[</span><span class="si">{</span><span class="n">idx</span><span class="si">}</span><span class="s2">] </span><span class="si">{</span><span class="n">cid</span><span class="si">}</span><span class="s2"> → </span><span class="si">{</span><span class="n">status</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span></div>
